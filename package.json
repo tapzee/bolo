@@ -2,26 +2,59 @@
   "name": "bolo",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=20.9.0"
+  },
   "scripts": {
+    "predev": "node scripts/copy-ffmpeg-core.mjs",
     "dev": "next dev",
+    "prebuild": "node scripts/copy-ffmpeg-core.mjs",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:transcribe": "tsx scripts/test-transcribe.ts",
+    "visual-qa": "node scripts/visual-qa.mjs ./visual-qa",
+    "check:admin": "tsx scripts/check-admin.mts"
   },
   "dependencies": {
+    "@ffmpeg/ffmpeg": "^0.12.15",
+    "@ffmpeg/util": "^0.12.2",
+    "@remotion/captions": "^4.0.503",
+    "@remotion/player": "^4.0.503",
+    "@remotion/webcodecs": "^4.0.503",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "firebase": "^12.17.0",
+    "firebase-admin": "^13.10.0",
+    "lucide-react": "^1.28.0",
+    "motion": "^12.43.0",
+    "next": "15.5.22",
+    "radix-ui": "^1.6.7",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "next": "15.5.22"
+    "remotion": "^4.0.503",
+    "server-only": "^0.0.1",
+    "shadcn": "^4.16.1",
+    "tailwind-merge": "^3.6.0",
+    "tw-animate-css": "^1.4.0"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@eslint/eslintrc": "^3",
+    "@ffmpeg/core": "^0.12.10",
+    "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
+    "dotenv": "^17.4.2",
     "eslint": "^9",
     "eslint-config-next": "15.5.22",
-    "@eslint/eslintrc": "^3"
+    "playwright": "^1.62.1",
+    "tailwindcss": "^4",
+    "tsx": "^4.23.1",
+    "typescript": "^5",
+    "vitest": "^4.1.10"
   }
 }

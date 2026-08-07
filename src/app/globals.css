@@ -1,26 +1,236 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ===========================================================================
+   1. Caption font stacks (theme-independent)
+
+   Each stack ends in Noto Sans Devanagari so a Devanagari codepoint the display
+   face does not carry still resolves to a real glyph instead of tofu. Browsers
+   fall back per glyph, so a Hinglish line renders its Latin half in the display
+   font and its Hindi half in Noto — which is exactly what we want.
+   =========================================================================== */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bolo-font-montserrat: var(--font-montserrat), var(--font-devanagari), sans-serif;
+  --bolo-font-anton: var(--font-anton), var(--font-devanagari), sans-serif;
+  --bolo-font-bebas: var(--font-bebas), var(--font-devanagari), sans-serif;
+  --bolo-font-poppins: var(--font-poppins), var(--font-devanagari), sans-serif;
+  --bolo-font-playfair: var(--font-playfair), var(--font-devanagari), serif;
+  --bolo-font-caveat: var(--font-caveat), var(--font-devanagari), cursive, sans-serif;
+  --bolo-font-devanagari: var(--font-devanagari), sans-serif;
+}
+
+/* ===========================================================================
+   2. Theme tokens
+
+   These use shadcn's variable names on purpose, so every component pulled from
+   the registry inherits Bolo's palette with no per-component overrides.
+
+   Note `--accent` here is shadcn's *subtle hover surface*, not the brand
+   colour. Bolo's brand orange is `--brand`; conflating the two would turn every
+   hover state orange.
+   =========================================================================== */
+:root {
+  --radius: 0.75rem;
+
+  --background: #fbfbfc;
+  --foreground: #0a0a0b;
+
+  --card: #ffffff;
+  --card-foreground: #0a0a0b;
+  --popover: #ffffff;
+  --popover-foreground: #0a0a0b;
+
+  --primary: #e8410f;
+  --primary-foreground: #ffffff;
+
+  --secondary: #f2f2f4;
+  --secondary-foreground: #0a0a0b;
+
+  --muted: #f2f2f4;
+  --muted-foreground: #56565e;
+
+  --accent: #eeeef0;
+  --accent-foreground: #0a0a0b;
+
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+
+  --border: #e5e5e8;
+  --input: #e5e5e8;
+  --ring: #e8410f;
+
+  /* Bolo extensions */
+  --brand: #e8410f;
+  --brand-foreground: #ffffff;
+  --brand-soft: rgba(232, 65, 15, 0.1);
+  --surface-inset: #f2f2f4;
+  --success: #059669;
+  --warning: #d97706;
+
+  --shadow-soft: 0 1px 2px rgba(9, 9, 11, 0.06), 0 8px 24px rgba(9, 9, 11, 0.06);
+  --shadow-lift: 0 2px 4px rgba(9, 9, 11, 0.06), 0 16px 48px rgba(9, 9, 11, 0.12);
+}
+
+.dark {
+  /* Deep charcoal, never pure black — pure black crushes the soft shadows and
+     1px borders that carry the depth in this UI. */
+  --background: #0a0a0b;
+  --foreground: #f4f4f5;
+
+  --card: #101012;
+  --card-foreground: #f4f4f5;
+  --popover: #16161a;
+  --popover-foreground: #f4f4f5;
+
+  --primary: #ff5a2c;
+  /* Near-black on orange clears AA; white on this orange does not. */
+  --primary-foreground: #180a04;
+
+  --secondary: #1a1a1f;
+  --secondary-foreground: #f4f4f5;
+
+  --muted: #16161a;
+  --muted-foreground: #a1a1aa;
+
+  --accent: #1c1c22;
+  --accent-foreground: #f4f4f5;
+
+  --destructive: #f87171;
+  --destructive-foreground: #180a04;
+
+  --border: #232327;
+  --input: #2a2a30;
+  --ring: #ff5a2c;
+
+  --brand: #ff5a2c;
+  --brand-foreground: #180a04;
+  --brand-soft: rgba(255, 90, 44, 0.12);
+  --surface-inset: #08080a;
+  --success: #34d399;
+  --warning: #fbbf24;
+
+  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.35);
+  --shadow-lift: 0 2px 4px rgba(0, 0, 0, 0.45), 0 16px 48px rgba(0, 0, 0, 0.55);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-brand-soft: var(--brand-soft);
+  --color-surface-inset: var(--surface-inset);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+
+  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-mono), ui-monospace, monospace;
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    color-scheme: light;
+    background-color: var(--background);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 }
 
-body {
-  background: var(--background);
+@layer utilities {
+  /* 1px hairline that reads as depth rather than as a drawn box. */
+  .ring-hairline {
+    box-shadow: inset 0 0 0 1px var(--border);
+  }
+
+  .shadow-soft {
+    box-shadow: var(--shadow-soft);
+  }
+
+  .shadow-lift {
+    box-shadow: var(--shadow-lift);
+  }
+
+  /* Fixed-ratio box for the video preview. Reserving the space up front is what
+     keeps CLS at zero while the Player mounts. */
+  .aspect-reel {
+    aspect-ratio: 9 / 16;
+  }
+}
+
+::selection {
+  background: var(--brand-soft);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--input);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+  background-clip: content-box;
+}
+
+/* Respect the OS setting. A live video preview plus decorative motion is the
+   fastest way to make this app feel broken for motion-sensitive users. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

@@ -1,103 +1,195 @@
-import Image from "next/image";
+import type { Metadata } from "next";
+import Link from "next/link";
+import {
+  Check,
+  Languages,
+  MousePointerClick,
+  ShieldCheck,
+  Sparkles,
+  Wand2,
+} from "lucide-react";
+import { CAPTION_TEMPLATES } from "@/core";
+import { MarketingPage } from "@/components/marketing/SiteChrome";
+import { FAQS } from "./legal-content";
 
-export default function Home() {
+export const metadata: Metadata = {
+  title: "Bolo — AI captions for Hindi & Hinglish reels",
+  description:
+    "Animated word-level captions for Reels and Shorts, built for Hindi and Hinglish. Your video never leaves your browser.",
+};
+
+const FEATURES = [
+  {
+    icon: Languages,
+    title: "Hindi & Hinglish, properly",
+    body: "Code-mixed speech transcribed accurately, and every font falls back to Noto Sans Devanagari so Hindi never renders as empty boxes.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Your video never uploads",
+    body: "Audio is extracted on your own device and only that is sent — a few hundred KB. Rendering and export run locally too.",
+  },
+  {
+    icon: MousePointerClick,
+    title: "Edit every single word",
+    body: "Fix text, drag timing against a waveform, recolour a word, split lines, and place captions anywhere on the frame.",
+  },
+  {
+    icon: Sparkles,
+    title: `${CAPTION_TEMPLATES.length} templates`,
+    body: "Trending, bold, neon, highlight, clean and festive presets — or save your own and reuse it across every video.",
+  },
+];
+
+const STEPS = [
+  { n: "1", t: "Drop your video", d: "MP4, MOV, WebM and more. Up to 2GB." },
+  { n: "2", t: "Captions appear", d: "Word-level timing in seconds." },
+  { n: "3", t: "Edit and style", d: "Fix any word, pick a template." },
+  { n: "4", t: "Export MP4", d: "Rendered on your device, ready to post." },
+];
+
+export default function LandingPage() {
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
+    <MarketingPage>
+      {/* Hero */}
+      <section className="relative overflow-hidden border-b">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-[0.35]"
+          style={{
+            background:
+              "radial-gradient(60% 50% at 50% 0%, var(--brand-soft) 0%, transparent 70%)",
+          }}
         />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+        <div className="relative mx-auto max-w-3xl px-5 py-20 text-center sm:py-28">
+          <span className="inline-flex items-center gap-1.5 rounded-full border bg-card/60 px-3 py-1 text-xs text-muted-foreground">
+            <Sparkles className="size-3 text-brand" />
+            Built for Indian creators
+          </span>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+          <h1 className="mt-5 text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
+            Captions that actually get Hinglish right
+          </h1>
+
+          <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-muted-foreground sm:text-base">
+            Animated word-level captions for Reels and Shorts. Upload a video,
+            get accurate Hindi and Hinglish captions, edit every word, and export
+            — all without your video ever leaving your browser.
+          </p>
+
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <Link
+              href="/create"
+              className="inline-flex items-center gap-2 rounded-xl bg-brand px-5 py-2.5 text-sm font-medium text-brand-foreground transition-opacity hover:opacity-90"
+            >
+              <Wand2 className="size-4" />
+              Try free
+            </Link>
+            <Link
+              href="/pricing"
+              className="rounded-xl border px-5 py-2.5 text-sm font-medium transition-colors hover:bg-accent"
+            >
+              See pricing
+            </Link>
+          </div>
+
+          <p className="mt-4 text-xs text-muted-foreground">
+            No card needed · Free exports carry a small watermark
+          </p>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+      </section>
+
+      {/* Features */}
+      <section className="mx-auto max-w-6xl px-5 py-16">
+        <div className="grid gap-4 sm:grid-cols-2">
+          {FEATURES.map(({ icon: Icon, title, body }) => (
+            <div key={title} className="rounded-2xl border bg-card/50 p-6">
+              <div className="mb-3 flex size-9 items-center justify-center rounded-xl bg-brand-soft">
+                <Icon className="size-4 text-brand" />
+              </div>
+              <h2 className="text-sm font-semibold">{title}</h2>
+              <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                {body}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* How it works */}
+      <section className="border-y bg-card/30">
+        <div className="mx-auto max-w-6xl px-5 py-16">
+          <h2 className="text-center text-2xl font-semibold tracking-tight">
+            Four steps, about a minute
+          </h2>
+          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {STEPS.map((step) => (
+              <div key={step.n} className="space-y-2">
+                <span className="flex size-8 items-center justify-center rounded-full bg-brand text-sm font-semibold text-brand-foreground">
+                  {step.n}
+                </span>
+                <h3 className="text-sm font-medium">{step.t}</h3>
+                <p className="text-sm leading-relaxed text-muted-foreground">
+                  {step.d}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Languages */}
+      <section className="mx-auto max-w-3xl px-5 py-16 text-center">
+        <h2 className="text-2xl font-semibold tracking-tight">
+          15 Indian languages, 36 more worldwide
+        </h2>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+          हिन्दी · বাংলা · தமிழ் · తెలుగు · मराठी · ગુજરાતી · ಕನ್ನಡ · മലയാളം ·
+          ਪੰਜਾਬੀ · ଓଡ଼ିଆ · অসমীয়া · اردو · नेपाली · සිංහල · سنڌي
+        </p>
+      </section>
+
+      {/* FAQ preview */}
+      <section className="border-t bg-card/30">
+        <div className="mx-auto max-w-3xl px-5 py-16">
+          <h2 className="text-2xl font-semibold tracking-tight">
+            Questions people ask
+          </h2>
+          <div className="mt-6 space-y-3">
+            {FAQS.slice(0, 4).map((item) => (
+              <div key={item.q} className="rounded-xl border bg-card/60 p-4">
+                <p className="flex items-start gap-2 text-sm font-medium">
+                  <Check className="mt-0.5 size-3.5 shrink-0 text-success" />
+                  {item.q}
+                </p>
+                <p className="mt-2 pl-5.5 text-sm leading-relaxed text-muted-foreground">
+                  {item.a}
+                </p>
+              </div>
+            ))}
+          </div>
+          <Link
+            href="/faq"
+            className="mt-5 inline-block text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground"
+          >
+            Read all questions
+          </Link>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="mx-auto max-w-3xl px-5 py-20 text-center">
+        <h2 className="text-3xl font-semibold tracking-tight text-balance">
+          Caption your next reel in a minute
+        </h2>
+        <Link
+          href="/create"
+          className="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand px-6 py-3 text-sm font-medium text-brand-foreground transition-opacity hover:opacity-90"
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+          <Wand2 className="size-4" />
+          Start free
+        </Link>
+      </section>
+    </MarketingPage>
   );
 }

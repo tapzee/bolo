@@ -1,0 +1,805 @@
+"use client";
+
+import {
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import dynamic from "next/dynamic";
+import { motion } from "motion/react";
+import type { PlayerRef } from "@remotion/player";
+import {
+  AlertTriangle,
+  Download,
+  Edit3,
+  Film,
+  Languages,
+  Layers,
+  Palette,
+  RotateCcw,
+  ShieldCheck,
+  Sparkles,
+  Zap,
+} from "lucide-react";
+import {
+  DEFAULT_STYLE_ID,
+  INDIAN_LANGUAGES,
+  WORLD_LANGUAGES,
+  VIDEO_FPS,
+  canvasForSource,
+  formatDuration,
+  getStyleDefaults,
+  lowConfidenceIndices,
+  msToFrames,
+  type CaptionStyleConfig,
+  type StyleId,
+  type ExportResolution,
+} from "@/core";
+import { buildCaptionPages } from "@/remotion/captions/build-pages";
+import { ErrorBoundary } from "@/components/error-boundary";
+import { Button } from "@/components/ui/button";
+import { Segmented, type SegmentedOption } from "@/components/ui/segmented";
+import { Section } from "@/components/studio/StyleControls";
+import { cn } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { CaptionLines } from "@/components/editor/CaptionLines";
+import {
+  CropToolbar,
+  cropCanvas,
+  type CropMode,
+} from "@/components/editor/CropToolbar";
+import { TemplatesPanel } from "@/components/editor/TemplatesPanel";
+import { TextPanel } from "@/components/editor/TextPanel";
+import { CaptionDragLayer } from "@/components/editor/CaptionDragLayer";
+import { EditorTopBar } from "@/components/editor/EditorTopBar";
+import { TransportBar } from "@/components/editor/TransportBar";
+import { WordInspector } from "@/components/editor/WordInspector";
+import {
+  WordTimeline,
+  type TimelineMode,
+} from "@/components/editor/WordTimeline";
+import { ExportPanel } from "@/components/export/ExportPanel";
+import {
+  exportDimensions,
+  resolutionAvailability,
+  supportsWebCodecs,
+} from "@/lib/export/capabilities";
+import { useVideoExport } from "@/lib/export/use-video-export";
+import { useCredits } from "@/lib/credits/use-credits";
+import { downloadSrt } from "@/lib/export/srt";
+import { useCaptionEditor } from "@/lib/editor/use-caption-editor";
+import { useCaptionPipeline } from "@/lib/media/use-caption-pipeline";
+import { useAutosave } from "@/lib/storage/use-autosave";
+import type { ProjectSnapshot } from "@/lib/storage/project-store";
+import { projectIdForFile } from "@/lib/storage/video-cache";
+import { storeForUser } from "@/lib/firebase/project-store";
+import { useAuth } from "@/lib/firebase/auth-context";
+import type { LanguageCode } from "@/lib/elevenlabs/types";
+import { Dropzone } from "./Dropzone";
+import { PipelineProgress } from "./PipelineProgress";
+
+const PlayerStage = dynamic(() => import("@/components/studio/PlayerStage"), {
+  ssr: false,
+  loading: () => (
+    <div className="absolute inset-0 animate-pulse rounded-2xl bg-surface-inset ring-hairline" />
+  ),
+});
+
+/** Quick picks. The full catalogue lives in the dropdown beneath them. */
+const QUICK_LANGUAGES: readonly SegmentedOption<LanguageCode>[] = [
+  { value: "hi", label: "Hindi", hint: "Best for Hindi and Hinglish" },
+  { value: "en", label: "English", hint: "English-only speech" },
+  { value: "auto", label: "Auto", hint: "Let the model detect it" },
+];
+
+export function CreateFlow() {
+  const { state, start, cancel, reset, restore, retryTranscription } =
+    useCaptionPipeline();
+  const [restoreFailed, setRestoreFailed] = useState(false);
+  const { user } = useAuth();
+  const [language, setLanguage] = useState<LanguageCode>("hi");
+  const [styleId, setStyleId] = useState<StyleId>(DEFAULT_STYLE_ID);
+  const [overrides, setOverrides] = useState<Partial<CaptionStyleConfig>>({});
+  const [timelineMode, setTimelineMode] = useState<TimelineMode>("word");
+  const [resolution, setResolution] = useState<ExportResolution>("1080p");
+  const [crop, setCrop] = useState<CropMode>("original");
+  const [templateId, setTemplateId] = useState<string | null>(null);
+  const [rightTab, setRightTab] = useState<"styles" | "word" | "export">("styles");
+
+  // The Player lives behind a dynamic import, so it does not exist on first
+  // render. Held in state rather than a ref so effects depending on it re-run
+  // the moment it mounts.
+  const [player, setPlayer] = useState<PlayerRef | null>(null);
+
+  const editor = useCaptionEditor(state.words);
+
+  const config = useMemo<CaptionStyleConfig>(
+    () => ({ ...getStyleDefaults(styleId), ...overrides }),
+    [styleId, overrides],
+  );
+
+  const applyTemplate = useCallback(
+    (next: CaptionStyleConfig, appliedId: string | null) => {
+      setStyleId(next.styleId);
+      setOverrides(next);
+      setTemplateId(appliedId);
+    },
+    [],
+  );
+
+  const patch = useCallback((next: Partial<CaptionStyleConfig>) => {
+    setOverrides((prev) => ({ ...prev, ...next }));
+  }, []);
+
+  const previewWords = useDeferredValue(editor.words);
+  const previewConfig = useDeferredValue(config);
+
+  const pages = useMemo(
+    () =>
+      buildCaptionPages(previewWords, {
+        combineWithinMs: previewConfig.combineWithinMs,
+        maxWordsPerPage: previewConfig.maxWordsPerPage,
+      }),
+    [previewWords, previewConfig.combineWithinMs, previewConfig.maxWordsPerPage],
+  );
+
+  const canvas = useMemo(() => {
+    if (state.video === null) return { width: 1080, height: 1920 };
+    const natural = canvasForSource(
+      { width: state.video.width, height: state.video.height },
+      "1080p",
+    );
+    return cropCanvas(natural, crop);
+  }, [state.video, crop]);
+
+  const snapshot = useMemo<ProjectSnapshot | null>(
+    () =>
+      state.stage === "ready" && state.video
+        ? {
+            // MUST be `projectIdForFile` — it is the same key the video cache
+            // is written under, and reopening a project looks the video up by
+            // the project id. Any other scheme silently breaks restore.
+            id: state.file
+              ? projectIdForFile(state.file)
+              : "untitled-project",
+            title: state.file ? state.file.name : "Untitled video",
+            words: editor.words,
+            styleConfig: config,
+            durationSeconds: state.video.durationSeconds,
+            sourceWidth: state.video.width,
+            sourceHeight: state.video.height,
+            updatedAt: Date.now(),
+          }
+        : null,
+    [
+      state.stage,
+      state.video,
+      state.file,
+      editor.words,
+      config,
+    ],
+  );
+
+  const autosave = useAutosave(snapshot, state.stage === "ready");
+
+  /**
+   * Reopens a project when arriving at `/create?project=<id>`.
+   *
+   * Runs once: `startedRestore` guards it because `restore` sets pipeline state,
+   * which re-renders this component, which would otherwise restart the restore
+   * in a loop.
+   */
+  const startedRestore = useRef(false);
+
+  useEffect(() => {
+    if (startedRestore.current) return;
+    if (typeof window === "undefined") return;
+
+    const projectId = new URLSearchParams(window.location.search).get("project");
+    if (projectId === null) return;
+
+    startedRestore.current = true;
+
+    void (async () => {
+      const store = storeForUser(user?.uid ?? null);
+      const saved = await store.load(projectId);
+      if (saved === null) {
+        setRestoreFailed(true);
+        return;
+      }
+
+      const ok = await restore(projectId, saved.words, saved.title);
+      if (!ok) {
+        // Captions survived but the cached video did not — browsers evict
+        // IndexedDB under storage pressure. Ask for the file rather than
+        // showing an editor with no footage.
+        setRestoreFailed(true);
+        return;
+      }
+
+      setOverrides(saved.styleConfig);
+      setStyleId(saved.styleConfig.styleId);
+    })();
+  }, [restore, user?.uid]);
+
+  const durationInFrames = useMemo(
+    () =>
+      state.video === null ? 1 : Math.round(state.video.durationSeconds * VIDEO_FPS),
+    [state.video],
+  );
+  const durationMs = useMemo(
+    () => (state.video === null ? 1000 : Math.round(state.video.durationSeconds * 1000)),
+    [state.video],
+  );
+
+  const seekMs = useCallback(
+    (targetMs: number) => {
+      const p = player;
+      if (p !== null && typeof p.seekTo === "function") {
+        p.seekTo(msToFrames(targetMs, VIDEO_FPS));
+      }
+    },
+    [player],
+  );
+
+  const weakWords = useMemo(
+    () => lowConfidenceIndices(editor.words),
+    [editor.words],
+  );
+
+  const [capabilities, setCapabilities] = useState<{
+    webcodecs: boolean;
+    tiers: Record<ExportResolution, { allowed: boolean; reason: string | null }>;
+  } | null>(null);
+
+  useEffect(() => {
+    setCapabilities({
+      webcodecs: supportsWebCodecs(),
+      tiers: {
+        "720p": { allowed: resolutionAvailability("720p").allowed, reason: resolutionAvailability("720p").reason },
+        "1080p": { allowed: resolutionAvailability("1080p").allowed, reason: resolutionAvailability("1080p").reason },
+        "4k": { allowed: resolutionAvailability("4k").allowed, reason: resolutionAvailability("4k").reason },
+      },
+    });
+  }, []);
+
+  const sourceSize = useMemo(
+    () =>
+      state.video === null
+        ? null
+        : { width: state.video.width, height: state.video.height },
+    [state.video],
+  );
+
+  // Watermark and resolution now follow the account rather than being pinned
+  // on. `isFreeTier: true` was hardcoded here, so a paying user still got a
+  // watermark burned in — see AGENTS.md, "Cross-boundary edit, 7 Aug".
+  const { entitlements } = useCredits();
+
+  const exportState = useVideoExport({
+    file: state.file,
+    pages,
+    config,
+    source: sourceSize,
+    resolution,
+    watermark: !entitlements.watermarkFree,
+  });
+
+  // Smart behavior: When selecting a word, jump to it in playback and auto-open Word Edit tab
+  const selectWord = useCallback(
+    (index: number) => {
+      editor.setSelected(index);
+      const word = editor.words[index];
+      if (word !== undefined) seekMs(word.startMs);
+      setRightTab("word");
+    },
+    [editor, seekMs],
+  );
+
+  const handleFile = useCallback(
+    (file: File) => {
+      void start(file, language);
+    },
+    [start, language],
+  );
+
+  /* ===========================================================================
+   * IDLE / UPLOAD ONBOARDING SCREEN (Redesigned 2-Column SaaS Grid)
+   * =========================================================================== */
+  if (state.stage === "idle") {
+    return (
+      <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:py-20">
+        <div className="grid items-center gap-10 lg:grid-cols-12 lg:gap-12">
+          {/* Left Column: Hero Value Proposition & Privacy Guarantees */}
+          <div className="space-y-6 text-center lg:col-span-6 lg:text-left">
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-brand/30 bg-brand/10 px-3.5 py-1.5 text-xs font-bold text-brand shadow-sm">
+              <Sparkles className="size-3.5 fill-brand/20" />
+              <span>Next-Gen Video Styling & AI Captions</span>
+            </div>
+
+            <h1 className="text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-6xl leading-[1.12]">
+              Supercharge Your Reels in <span className="text-brand">Seconds</span>
+            </h1>
+
+            <p className="text-base font-normal leading-relaxed text-muted-foreground sm:text-lg">
+              Generate accurate word-level Hindi, Hinglish, and English subtitles. Customize with 50+ viral kinetic styles without ever sending heavy video files to a server.
+            </p>
+
+            <div className="grid grid-cols-1 gap-4 pt-2 text-left sm:grid-cols-2 lg:grid-cols-1">
+              <div className="flex items-start gap-3 rounded-2xl border bg-card/60 p-3.5 shadow-sm transition-all hover:bg-card">
+                <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-brand font-bold">
+                  <Zap className="size-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-foreground">Zero Video File Uploads</h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Your video never leaves your browser. Local rendering ensures instant speed and 100% data privacy.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3 rounded-2xl border bg-card/60 p-3.5 shadow-sm transition-all hover:bg-card">
+                <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-brand font-bold">
+                  <Palette className="size-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-foreground">50+ Viral Reels Templates</h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Choose from Captik neon glows, Hormozi animations, kinetic Hinglish typography, and custom brand swatches.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column: Structured Step-by-Step Upload Card */}
+          <div className="lg:col-span-6">
+            <div className="relative rounded-3xl border bg-card/95 p-6 shadow-xl sm:p-8 space-y-7">
+              <div className="space-y-1 text-center sm:text-left border-b pb-4 border-border/50">
+                <h2 className="text-xl font-bold text-foreground">Create Video Captions</h2>
+                <p className="text-xs text-muted-foreground">Follow these 2 quick steps to initialize your studio workspace.</p>
+              </div>
+
+              {/* Step 1: Language Picker */}
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold uppercase tracking-wider text-foreground flex items-center gap-1.5">
+                    <span className="flex size-5 items-center justify-center rounded-full bg-brand text-[11px] font-extrabold text-brand-foreground">1</span>
+                    <span>Spoken Audio Language</span>
+                  </label>
+                  <Languages className="size-4 text-muted-foreground" />
+                </div>
+
+                <Segmented
+                  options={QUICK_LANGUAGES}
+                  value={
+                    QUICK_LANGUAGES.some((option) => option.value === language)
+                      ? language
+                      : "hi"
+                  }
+                  onChange={setLanguage}
+                  layoutId="language-pill"
+                  label="Spoken language"
+                />
+
+                <Select value={language} onValueChange={setLanguage}>
+                  <SelectTrigger className="w-full h-9 text-xs bg-background">
+                    <SelectValue placeholder="More dialects & languages…" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-72">
+                    <SelectItem value="auto">Auto-detect speech</SelectItem>
+                    <SelectGroup>
+                      <SelectLabel>Indian languages</SelectLabel>
+                      {INDIAN_LANGUAGES.map((option) => (
+                        <SelectItem key={option.code} value={option.code}>
+                          <span className="font-medium">{option.label}</span>
+                          {option.native ? (
+                            <span className="ml-2 text-muted-foreground text-[11px]">
+                              {option.native}
+                            </span>
+                          ) : null}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                    <SelectGroup>
+                      <SelectLabel>Other languages</SelectLabel>
+                      {WORLD_LANGUAGES.map((option) => (
+                        <SelectItem key={option.code} value={option.code}>
+                          <span className="font-medium">{option.label}</span>
+                          {option.native ? (
+                            <span className="ml-2 text-muted-foreground text-[11px]">
+                              {option.native}
+                            </span>
+                          ) : null}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Step 2: Video Dropzone */}
+              <div className="space-y-2.5 pt-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold uppercase tracking-wider text-foreground flex items-center gap-1.5">
+                    <span className="flex size-5 items-center justify-center rounded-full bg-brand text-[11px] font-extrabold text-brand-foreground">2</span>
+                    <span>Drop Video Clip</span>
+                  </label>
+                  <Film className="size-4 text-muted-foreground" />
+                </div>
+                {/* Reopening a project whose cached video the browser has
+                    evicted. The captions are safe — only the footage is gone —
+                    so say exactly that instead of silently showing an empty
+                    dropzone the user will read as lost work. */}
+                {restoreFailed ? (
+                  <div className="mb-3 flex items-start gap-2 rounded-xl border border-warning/40 bg-warning/10 p-3 text-xs leading-relaxed">
+                    <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-warning" />
+                    <span>
+                      Your captions and styling for this project are saved, but
+                      the video itself is no longer cached in this browser. Drop
+                      the same clip back in to carry on — nothing will be
+                      re-transcribed and no credits are used.
+                    </span>
+                  </div>
+                ) : null}
+
+                <Dropzone onFile={handleFile} />
+              </div>
+
+              <div className="flex items-center justify-center gap-2 rounded-xl bg-success/10 border border-success/30 px-3 py-2.5 text-center text-xs text-foreground font-medium">
+                <ShieldCheck className="size-4 text-success shrink-0" />
+                <span>100% Client-side AI: Your raw video is never sent over the internet.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  /* ===========================================================================
+   * PIPELINE PROCESSING SCREEN
+   * =========================================================================== */
+  if (state.stage !== "ready") {
+    return (
+      <div className="mx-auto max-w-4xl px-5 py-16 lg:py-24">
+        <PipelineProgress
+          state={state}
+          onCancel={cancel}
+          onRetry={reset}
+          onResume={() => void retryTranscription()}
+        />
+      </div>
+    );
+  }
+
+  /* ===========================================================================
+   * READY / STUDIO EDITOR WORKSPACE
+   * =========================================================================== */
+  const selectedWord =
+    editor.selected === null ? undefined : editor.words[editor.selected];
+
+  const allowedResolutions = (["720p", "1080p", "4k"] as const).filter(
+    (tier) => capabilities?.tiers[tier]?.allowed ?? true,
+  );
+
+  return (
+    <>
+      <EditorTopBar
+        title={state.file?.name ?? "Untitled Project"}
+        durationSeconds={state.video?.durationSeconds ?? 0}
+        resolution={resolution}
+        onResolutionChange={setResolution}
+        allowedResolutions={allowedResolutions}
+        saveStatus={autosave.status}
+        saveError={autosave.error}
+        canUndo={editor.canUndo}
+        canRedo={editor.canRedo}
+        onUndo={editor.undo}
+        onRedo={editor.redo}
+        onDownloadSrt={() => downloadSrt(pages, state.file?.name ?? "captions")}
+        onExport={() => void exportState.start()}
+        exporting={exportState.phase === "exporting"}
+        watermark={!entitlements.watermarkFree}
+      />
+
+      <div className="mx-auto grid w-full max-w-[1850px] gap-6 px-4 py-6 xl:grid-cols-[330px_minmax(0,1fr)_400px] xl:px-6">
+        
+        {/* =====================================================================
+         * LEFT RAIL: SCRIPT & TIMELINE CONSOLE
+         * ===================================================================== */}
+        <motion.aside
+          initial={{ opacity: 0, x: -12 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+          className="order-2 min-w-0 xl:order-1"
+        >
+          <div className="rounded-2xl border bg-card/70 shadow-sm p-4 xl:sticky xl:top-20 space-y-3">
+            <div className="flex items-center justify-between border-b pb-2.5 border-border/50">
+              <h2 className="text-xs font-bold tracking-wide text-foreground uppercase flex items-center gap-1.5">
+                <Edit3 className="size-3.5 text-brand" />
+                <span>Script & Captions</span>
+              </h2>
+              <span className="rounded-full bg-muted px-2 py-0.5 font-mono text-[11px] font-semibold text-muted-foreground">
+                {pages.length} pages
+              </span>
+            </div>
+
+            <p className="text-[11px] text-muted-foreground/80 leading-normal">
+              Click any word below to jump to its timestamp or edit its exact spelling, line break, and highlight color.
+            </p>
+
+            <div className="max-h-[calc(100vh-14rem)] space-y-2 overflow-y-auto pr-1">
+              <CaptionLines
+                pages={pages}
+                words={editor.words}
+                selectedIndex={editor.selected}
+                onSelectWord={selectWord}
+                onSetText={editor.actions.setText}
+                onSplitAt={editor.actions.splitAt}
+              />
+            </div>
+          </div>
+        </motion.aside>
+
+        {/* =====================================================================
+         * CENTER STAGE: VIDEO CANVAS & TIMELINE DECK
+         * ===================================================================== */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+          className="order-1 flex min-w-0 flex-col items-center gap-5 xl:order-2"
+          style={{ ["--stage-h" as string]: "min(52vh, 520px)" }}
+        >
+          <div className="w-full flex items-center justify-between">
+            <CropToolbar mode={crop} onChange={setCrop} canvas={canvas} />
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={reset}
+              className="h-8 text-xs font-medium text-muted-foreground hover:text-foreground"
+              title="Replace current video clip"
+            >
+              <RotateCcw className="size-3.5 mr-1 text-brand" />
+              Switch Video
+            </Button>
+          </div>
+
+          {/* Video Preview Frame */}
+          <div
+            className="relative w-full rounded-2xl overflow-hidden shadow-lift border bg-black"
+            style={{
+              aspectRatio: `${canvas.width} / ${canvas.height}`,
+              maxWidth: `calc(var(--stage-h) * ${canvas.width / canvas.height})`,
+            }}
+          >
+            <ErrorBoundary label="Preview">
+              <PlayerStage
+                playerRef={setPlayer}
+                pages={pages}
+                config={previewConfig}
+                canvasWidth={canvas.width}
+                canvasHeight={canvas.height}
+                durationInFrames={durationInFrames}
+                videoSrc={state.video?.objectUrl ?? null}
+                controls={false}
+              />
+            </ErrorBoundary>
+
+            <CaptionDragLayer
+              config={config}
+              enabled
+              onMove={(horizontalOffsetPct, verticalOffsetPct) =>
+                patch({ horizontalOffsetPct, verticalOffsetPct })
+              }
+            />
+          </div>
+
+          {/* Transport playback buttons & seek bar */}
+          <TransportBar player={player} durationInFrames={durationInFrames} />
+
+          {/* Timeline Deck Card */}
+          <div className="w-full rounded-2xl border bg-card/80 p-4 shadow-sm space-y-3">
+            <div className="flex w-full items-center justify-between gap-3 border-b pb-2 border-border/50 text-xs text-muted-foreground">
+              <span className="font-medium text-foreground flex items-center gap-2">
+                <span>{editor.words.length} words</span>
+                <span>·</span>
+                <span>{pages.length} pages</span>
+                <span>·</span>
+                <span className="font-mono">{state.video ? formatDuration(state.video.durationSeconds) : ""}</span>
+              </span>
+              {weakWords.length > 0 ? (
+                <span className="rounded bg-warning/15 px-2 py-0.5 text-[11px] font-bold text-warning flex items-center gap-1">
+                  ⚠️ {weakWords.length} low-confidence words to verify
+                </span>
+              ) : null}
+            </div>
+
+            <WordTimeline
+              words={editor.words}
+              pages={pages}
+              selectedIndex={editor.selected}
+              onSelect={selectWord}
+              onRetime={editor.actions.setTiming}
+              onSeekMs={seekMs}
+              durationMs={durationMs}
+              player={player}
+              peaks={state.peaks}
+              mode={timelineMode}
+              onModeChange={setTimelineMode}
+            />
+          </div>
+        </motion.div>
+
+        {/* =====================================================================
+         * RIGHT RAIL: UNIFIED 3-TAB STUDIO INSPECTOR
+         * ===================================================================== */}
+        <motion.aside
+          initial={{ opacity: 0, x: 12 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.35, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
+          className="order-3 min-w-0 space-y-4 xl:sticky xl:top-20 xl:self-start"
+        >
+          <div className="rounded-2xl border bg-card/80 p-4 shadow-sm space-y-5">
+            
+            {/* 3-Tab Main Navigation Inspector */}
+            <div className="flex gap-1 rounded-xl bg-muted p-1 text-xs font-semibold">
+              {[
+                { id: "styles", label: "Styles & Design", icon: <Palette className="size-3.5" /> },
+                { id: "word", label: "Word Edit", icon: <Edit3 className="size-3.5" />, activeBadge: selectedWord !== undefined },
+                { id: "export", label: "Export & Render", icon: <Download className="size-3.5" /> },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  aria-pressed={rightTab === tab.id}
+                  onClick={() =>
+                    setRightTab(tab.id as "styles" | "word" | "export")
+                  }
+                  className={cn(
+                    "relative flex flex-1 items-center justify-center gap-1.5 rounded-lg px-2.5 py-2 transition-all",
+                    rightTab === tab.id
+                      ? "bg-background text-foreground shadow-sm font-bold ring-1 ring-border/50"
+                      : "text-muted-foreground hover:bg-background/50 hover:text-foreground",
+                  )}
+                >
+                  {tab.icon}
+                  <span className="truncate">{tab.label}</span>
+                  {tab.activeBadge && rightTab !== tab.id ? (
+                    <span className="absolute -top-1 -right-1 size-2 rounded-full bg-brand animate-pulse" />
+                  ) : null}
+                </button>
+              ))}
+            </div>
+
+            {/* TAB 1: STYLES & DESIGN */}
+            {rightTab === "styles" ? (
+              <div className="space-y-6">
+                <TemplatesPanel
+                  config={config}
+                  activeTemplateId={templateId}
+                  onApply={applyTemplate}
+                  patch={patch}
+                />
+                
+                {/* The raw motion-engine picker used to sit here. Removed: every
+                    template already carries its engine, so exposing the five
+                    engines separately gave two competing ways to change the
+                    same thing and made the rail twice as long. */}
+                <div className="border-t border-border/50 pt-4">
+                  <div className="rounded-xl border bg-muted/30 p-3">
+                    <TextPanel config={config} patch={patch} />
+                  </div>
+                </div>
+              </div>
+            ) : null}
+
+            {/* TAB 2: WORD EDIT INSPECTOR */}
+            {rightTab === "word" ? (
+              <div className="space-y-4">
+                {selectedWord !== undefined && editor.selected !== null ? (
+                  <Section title="Word Properties" hint={`Editing word #${editor.selected + 1} in your timeline`}>
+                    <WordInspector
+                      word={selectedWord}
+                      index={editor.selected}
+                      totalWords={editor.words.length}
+                      onSetText={editor.actions.setText}
+                      onSetColor={editor.actions.setColor}
+                      onSplit={editor.actions.splitAt}
+                      onMerge={editor.actions.mergeAt}
+                      onClearBreak={editor.actions.clearBreak}
+                      onDelete={editor.actions.remove}
+                      onInsertAfter={editor.actions.insertAfter}
+                    />
+                  </Section>
+                ) : (
+                  <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed bg-card/40 py-12 px-6 text-center text-muted-foreground">
+                    <Edit3 className="size-8 text-muted-foreground/30" />
+                    <p className="font-bold text-foreground text-sm">No Word Selected</p>
+                    <p className="text-xs leading-relaxed max-w-[240px]">
+                      Click any word on the left script panel or on the bottom audio timeline to alter its spelling, color, timing, and line breaks.
+                    </p>
+                  </div>
+                )}
+              </div>
+            ) : null}
+
+            {/* TAB 3: EXPORT & RENDER SETTINGS */}
+            {rightTab === "export" ? (
+              <div className="space-y-6">
+                {state.file !== null && sourceSize !== null ? (
+                  <>
+                    <div className="space-y-3">
+                      <h3 className="font-bold text-xs tracking-wide text-foreground uppercase flex items-center gap-1.5">
+                        <Download className="size-3.5 text-brand" />
+                        <span>Video Export & Quality</span>
+                      </h3>
+                      <p className="text-xs text-muted-foreground/80 leading-relaxed">
+                        Select your preferred render resolution and export directly using local hardware encoding.
+                      </p>
+                      <div className="rounded-xl border bg-background/50 p-3">
+                        <ExportPanel
+                          resolution={resolution}
+                          onResolutionChange={setResolution}
+                          availability={capabilities?.tiers ?? null}
+                          webcodecsSupported={capabilities?.webcodecs ?? true}
+                          dimensions={exportDimensions(sourceSize, resolution)}
+                          sourceHeight={sourceSize.height}
+                          watermark={!entitlements.watermarkFree}
+                          maxResolution={entitlements.maxResolution}
+                          exportState={exportState}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="border-t pt-5 border-border/50 space-y-3">
+                      <h3 className="font-bold text-xs tracking-wide text-foreground uppercase flex items-center gap-1.5">
+                        <Layers className="size-3.5 text-brand" />
+                        <span>SubRip (.srt) File</span>
+                      </h3>
+                      <p className="text-xs text-muted-foreground/80 leading-relaxed">
+                        Download standard `.srt` subtitles with exact word-level timing for Premiere Pro, CapCut, or direct social uploading.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => downloadSrt(pages, state.file?.name ?? "captions")}
+                        className="w-full rounded-xl border border-border bg-background py-2 text-xs font-bold text-foreground shadow-sm transition-all hover:bg-accent hover:border-border-strong"
+                      >
+                        Download .srt Subtitle File
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <p className="text-center text-xs text-muted-foreground py-8">
+                    Video file metadata loading...
+                  </p>
+                )}
+              </div>
+            ) : null}
+          </div>
+
+          {/* Bottom Security Reassurance Card */}
+          <div className="flex items-start gap-2.5 rounded-xl border border-success/30 bg-success/10 p-3.5 text-[11px] leading-relaxed text-foreground shadow-sm">
+            <ShieldCheck className="mt-0.5 size-4 shrink-0 text-success font-bold" />
+            <div>
+              <strong className="font-bold">100% Private & Secure:</strong> Your video remained in this browser. Only{" "}
+              <span className="font-mono font-semibold">{(state.audioBytes / 1024).toFixed(0)}KB</span> of extracted audio was sent for transcription.
+            </div>
+          </div>
+        </motion.aside>
+      </div>
+    </>
+  );
+}

@@ -1,0 +1,98 @@
+rules_version = '2';
+
+/**
+ * Firestore security rules for Bolo.
+ *
+ * These are the real access control. The Firebase web config in the browser is
+ * public by design and identifies the project — it protects nothing. Everything
+ * that keeps one user out of another's data is written here.
+ *
+ * Deploy with:  firebase deploy --only firestore:rules
+ */
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    match /users/{uid} {
+      allow read: if isOwner(uid);
+
+      /**
+       * Credits and plan are deliberately NOT client-writable.
+       *
+       * The client may create its own profile document and edit display
+       * preferences, but any write that touches `creditsRemaining`, `plan` or
+       * `creditsResetAt` is rejected. Those fields are owned by the server,
+       * which uses the Admin SDK and bypasses these rules.
+       *
+       * Without this, a user could open the console and grant themselves
+       * unlimited transcription.
+       */
+      allow create: if isOwner(uid)
+                    && !request.resource.data.keys().hasAny(
+                         ['creditsRemaining', 'plan', 'creditsResetAt']);
+
+      allow update: if isOwner(uid)
+                    && request.resource.data.diff(resource.data)
+                         .affectedKeys()
+                         .hasAny(['creditsRemaining', 'plan', 'creditsResetAt']) == false;
+
+      allow delete: if false;
+
+      /**
+       * Credit history — every spend, purchase and adjustment on this account.
+       *
+       * Readable by its owner and writable by nobody, including the owner. The
+       * server writes it through the Admin SDK, which bypasses these rules.
+       *
+       * The read is the whole point: a balance with no history is not something
+       * a user can check our arithmetic against. The write ban is equally the
+       * point — a history a client could append to would look authoritative
+       * while being forgeable, which is worse than showing nothing.
+       */
+      match /ledger/{entryId} {
+        allow read: if isOwner(uid);
+        allow write: if false;
+      }
+
+      /**
+       * Projects hold caption JSON and style settings only — never media.
+       * Size-capped so a runaway client cannot use Firestore as blob storage.
+       */
+      match /projects/{projectId} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+                              && request.resource.data.size() < 40
+                              && request.resource.data.title is string
+                              && request.resource.data.title.size() <= 200;
+      }
+    }
+
+    /**
+     * Admin usage ledger and audit log.
+     *
+     * Denied to every client, including admins. These are written and read
+     * exclusively by the server through the Admin SDK, which bypasses rules.
+     * The admin panel reaches them via /api/admin/*, which re-verifies the
+     * caller against the server-only ADMIN_EMAILS allowlist.
+     *
+     * Allowing admins to read this directly from the browser would mean the
+     * only thing standing between a normal user and the audit log is a
+     * client-side check — which is not a control at all.
+     */
+    match /admin/{document=**} {
+      allow read, write: if false;
+    }
+
+    // Anything not matched above is denied. Never add a catch-all allow.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
