@@ -6,6 +6,7 @@ export const STYLE_IDS = [
   "clean",
   "splash",
   "dual",
+  "hero",
 ] as const;
 
 export type StyleId = (typeof STYLE_IDS)[number];

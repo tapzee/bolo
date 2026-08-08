@@ -17,7 +17,7 @@ import {
 import { FONT_FAMILY } from "../fonts";
 import { TOKEN_RENDERERS } from "../styles";
 import { pageEntrance } from "./animation";
-import { baseTextStyle } from "./primitives";
+import { baseTextStyle, heroWordIndex } from "./primitives";
 
 export interface CaptionOverlayProps {
   pages: readonly CaptionPage[];
@@ -134,6 +134,12 @@ export const CaptionOverlay = memo(function CaptionOverlay({
 
   if (page === undefined) return null;
 
+  // Computed once per page rather than inside each token: the answer depends on
+  // every word on the page, and this component is the only place that holds
+  // them all. Cheap enough to leave unmemoised — it is a scan of 3–6 short
+  // strings, against a `useMemo` whose own dependency check would cost more.
+  const heroIndex = heroWordIndex(page.tokens.map((t) => t.text));
+
   const TokenView = TOKEN_RENDERERS[config.styleId];
   const entrance = pageEntrance(frame, fps, msToFrames(page.startMs, fps));
 
@@ -160,6 +166,7 @@ export const CaptionOverlay = memo(function CaptionOverlay({
               textStyle={textStyle}
               index={i}
               totalTokens={page.tokens.length}
+              heroIndex={heroIndex}
             />
           ))}
         </div>

@@ -20,6 +20,16 @@ export interface TokenViewProps {
   index?: number;
   /** Total number of tokens on the current page. */
   totalTokens?: number;
+  /**
+   * Which token on this page is the hero, for the stacked engine.
+   *
+   * Passed down as a number rather than having each token work it out from its
+   * siblings, for two reasons: a token renderer only ever sees its own token,
+   * and handing every token the sibling array would defeat `memo` — a fresh
+   * array identity per frame re-renders every word on the page whether or not
+   * anything about it changed.
+   */
+  heroIndex?: number;
 }
 
 /**
@@ -98,6 +108,56 @@ export const tokenGlyphStyle: CSSProperties = {
 
 /** Words carry a leading space by Remotion convention; the flex gap spaces them. */
 export const displayText = (token: CaptionToken): string => token.text.trim();
+
+/**
+ * Small text as a fraction of the hero word, when a template does not say.
+ *
+ * The stacked look only works on a decisive size gap. Anything above roughly
+ * 0.5 stops reading as "caption around a headline" and starts reading as
+ * "two sizes of the same text", which is the failure mode that makes a
+ * home-made template look home-made.
+ */
+export const HERO_SMALL_RATIO = 0.34;
+
+/**
+ * Which word on a page carries the headline, for the `hero` engine.
+ *
+ * The whole look rests on this choice: the hero is printed several times larger
+ * than everything around it, so picking the wrong word makes a page read as
+ * "the" in 110px with the actual point whispered above it.
+ *
+ * Numbers and money win outright — "₹50,000" or "10X" is always the line's
+ * payload. Otherwise the longest word wins, which in Hindi and Hinglish speech
+ * is a good proxy for the content word: particles and postpositions (को, है,
+ * और, the, is) are short, and the noun or verb carrying the meaning is not.
+ *
+ * Ties resolve to the *later* word. A page is usually a phrase building to its
+ * point, so when two words are equally plausible the second is the punchline.
+ *
+ * Pure and index-only so the DOM preview and the Canvas2D export cannot
+ * disagree about which word got enlarged — a disagreement there would not be
+ * subtle, it would be a different sentence emphasised in the file the user
+ * downloads.
+ */
+export const heroWordIndex = (texts: readonly string[]): number => {
+  if (texts.length === 0) return -1;
+
+  let best = 0;
+  let bestScore = -1;
+
+  texts.forEach((raw, index) => {
+    const text = raw.trim();
+    // The offset has to exceed any realistic word length so a number always
+    // outranks a longer plain word, rather than merely competing with it.
+    const score = (/\d|[$€£¥%]/.test(text) ? 1000 : 0) + text.length;
+    if (score >= bestScore) {
+      bestScore = score;
+      best = index;
+    }
+  });
+
+  return best;
+};
 
 export type SplashWordRole = "accent" | "script" | "base";
 

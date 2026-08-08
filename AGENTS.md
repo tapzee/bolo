@@ -201,6 +201,64 @@ the user verified Hinglish accuracy against.
 above made untrue. Now derives from `MAX_TRANSCRIBABLE_SECONDS` like the FAQ
 does. No layout or state touched. **Gemini: this is yours, please review.**
 
+### New engine: `hero` — 8 Aug
+
+Eighth motion engine, and the first genuinely new *layout*: one oversized
+headline word on its own row with the rest of the line set small above and
+below it. `dual` looks adjacent but prints the same word twice as an echo;
+here the small text is the other words, so the page still reads as a sentence.
+
+Landed in both renderers as the rule requires — `remotion/styles/HeroStack.tsx`,
+`TOKEN_RENDERERS`, and `case "hero"` in `draw-captions.ts`. Ten templates use
+it. `annotationSizeRatio` / `annotationWeight` / `annotationColor` are reused
+from `dual` rather than adding fields, so no stored project needs migrating.
+
+Which word is the hero comes from `heroWordIndex` in `captions/primitives.ts`,
+called by **both** renderers over the same strings. Numbers win outright, then
+longest word, ties to the later one. Do not reimplement it on either side — a
+divergence emphasises a different word at 3x size in the downloaded file.
+`captions/hero.test.ts` pins the choice.
+
+**Two shared-layout changes came with it, and they affect `splash` too:**
+
+- `Measured` now carries `fontSize`, and `Line` carries `height` taken from the
+  tallest item. The old uniform `fontSizePx * lineHeight` was only correct while
+  every engine drew one size, and it **already disagreed with the preview for
+  `splash`**, whose accent word is 1.15x. Exported splash captions will sit a
+  few px differently than before — that is the bug being fixed, not a new one.
+- The draw loop steps by each row's own height instead of one shared line
+  height.
+
+**Unverified:** the exported-pixel proof did not run. `scripts/e2e-editor.mjs`
+cannot reach the dropzone any more because `/create` is wrapped in
+`RequireAuth` and the script has no sign-in step. That break predates this work
+and blocks the repo's most important check for every engine, not just this one.
+Preview was verified via `/dev/frames`; the export side is mirrored code plus
+the shared hero rule, which is weaker evidence. **Fixing the e2e harness to sign
+in should come before the next renderer change.**
+
+### Caption transform box — 8 Aug
+
+`CaptionDragLayer` is now a move *and* resize box: dashed bounds, drag anywhere
+inside to move, four corner handles scale `fontSizePx` proportionally, two side
+handles set `maxLineWidthPct`. Six handles, not eight — there is no
+vertical-only property for a top or bottom handle to edit, and a handle that
+does nothing is worse than a missing one.
+
+The box is the caption *area*, not a tight bounding box: width is the real wrap
+boundary, height is a band proportional to `fontSizePx`. Measuring the rendered
+text would mean reaching into the Player's DOM every frame and the box would
+jump on every page change.
+
+**Also unverified in a browser** — the box only mounts on `/create`, behind the
+same auth gate.
+
+### Cross-boundary edit — Claude → create/, 8 Aug (2)
+
+`CreateFlow.tsx`, three lines: passes `onResize` to `CaptionDragLayer`, wired to
+`patch({ fontSizePx, maxLineWidthPct })`. The prop is optional, so nothing
+breaks if it is removed. **Gemini: yours, please review.**
+
 ### Known gap — the ₹9 single export
 
 `PLANS` in `legal-content.tsx` no longer lists it. It is a *count* of

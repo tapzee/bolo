@@ -30,7 +30,11 @@ import {
   tokenPulse,
   pageEntrance,
 } from "@/remotion/captions/animation";
-import { getSplashWordRole } from "@/remotion/captions/primitives";
+import {
+  HERO_SMALL_RATIO,
+  getSplashWordRole,
+  heroWordIndex,
+} from "@/remotion/captions/primitives";
 import { canvasFont, resolveFontFamily } from "./fonts";
 
 /**
@@ -56,11 +60,30 @@ interface Measured {
   token: CaptionToken;
   index: number;
   width: number;
+  /**
+   * Resting size this token is drawn at.
+   *
+   * Carried per token rather than assumed to be `config.fontSizePx`, because
+   * two engines now draw words at different sizes on the same line — `splash`
+   * oversizes its accent word, and `hero` sets everything except the headline
+   * at a third scale. Without this the row height is computed from a size
+   * nothing on the row is actually drawn at.
+   */
+  fontSize: number;
 }
 
 interface Line {
   items: Measured[];
   width: number;
+  /**
+   * Row height, from the tallest item on the row.
+   *
+   * Mirrors CSS: a flex row is as tall as its tallest child. The previous
+   * uniform `fontSizePx * lineHeight` was correct only while every engine drew
+   * every word at one size, and it already disagreed with the preview for
+   * `splash`, whose accent word is 1.15x.
+   */
+  height: number;
 }
 
 /**
@@ -75,6 +98,7 @@ const getRenderText = (
   config: CaptionStyleConfig,
   index: number,
   totalTokens: number,
+  heroIndex: number,
 ): string => {
   const text = token.text.trim();
   if (config.styleId === "splash") {
@@ -83,6 +107,14 @@ const getRenderText = (
       return text.toUpperCase();
     }
     return text;
+  }
+  if (config.styleId === "hero") {
+    // Only the headline is forced upper. The supporting text keeps whatever the
+    // template asked for, which is what makes the contrast read as deliberate
+    // typography rather than as one shouted line.
+    return index === heroIndex
+      ? text.toUpperCase()
+      : applyTextCase(text, resolveTextCase(config));
   }
   // Canvas has no `text-transform`, so casing is applied to the string itself.
   // Must go through `resolveTextCase` for parity with the DOM renderer.
@@ -95,47 +127,89 @@ const layoutLines = (
   config: CaptionStyleConfig,
   maxWidth: number,
   family: string,
+  heroIndex: number,
 ): Line[] => {
   const lines: Line[] = [];
   let current: Measured[] = [];
   let currentWidth = 0;
 
+  const rowHeight = (items: readonly Measured[]): number =>
+    items.reduce((tallest, item) => Math.max(tallest, item.fontSize), 0) *
+    config.lineHeight;
+
+  const flush = (): void => {
+    if (current.length === 0) return;
+    lines.push({
+      items: current,
+      width: currentWidth,
+      height: rowHeight(current),
+    });
+    current = [];
+    currentWidth = 0;
+  };
+
+  const heroSmallRatio =
+    config.annotationSizeRatio > 0 ? config.annotationSizeRatio : HERO_SMALL_RATIO;
+
   page.tokens.forEach((token, index) => {
-    const text = getRenderText(token, config, index, page.tokens.length);
+    const text = getRenderText(token, config, index, page.tokens.length, heroIndex);
+    let fontSize = config.fontSizePx;
     let fontToRestore: string | null = null;
+
     if (config.styleId === "splash") {
       const role = getSplashWordRole(text, index, page.tokens.length);
       if (role === "accent") {
-        ctx.font = canvasFont(Math.max(800, config.fontWeight), config.fontSizePx * 1.15, family);
+        fontSize = config.fontSizePx * 1.15;
+        ctx.font = canvasFont(Math.max(800, config.fontWeight), fontSize, family);
         fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
       } else if (role === "script") {
         let scriptFamily = family;
         if (!family.toLowerCase().includes("playfair") && !family.toLowerCase().includes("caveat")) {
           scriptFamily = resolveFontFamily("playfair");
         }
-        ctx.font = canvasFont(config.fontWeight, config.fontSizePx * 1.05, scriptFamily, "italic");
+        fontSize = config.fontSizePx * 1.05;
+        ctx.font = canvasFont(config.fontWeight, fontSize, scriptFamily, "italic");
         fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
       }
+    } else if (config.styleId === "hero" && index !== heroIndex) {
+      fontSize = config.fontSizePx * heroSmallRatio;
+      ctx.font = canvasFont(
+        config.annotationWeight > 0 ? config.annotationWeight : 500,
+        fontSize,
+        family,
+      );
+      fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
     }
 
     const width = ctx.measureText(text).width;
-    if (fontToRestore) {
-      ctx.font = fontToRestore;
+    if (fontToRestore) ctx.font = fontToRestore;
+
+    const measured: Measured = { token, index, width, fontSize };
+
+    // The hero owns its row, exactly as `flexBasis: 100%` does in the DOM:
+    // close whatever was accumulating, emit the hero alone, and let the
+    // remaining words start a fresh row beneath it.
+    if (config.styleId === "hero" && index === heroIndex) {
+      flush();
+      lines.push({ items: [measured], width, height: rowHeight([measured]) });
+      return;
     }
-    const withGap = current.length === 0 ? width : currentWidth + config.wordGapPx + width;
+
+    const withGap =
+      current.length === 0 ? width : currentWidth + config.wordGapPx + width;
 
     if (current.length > 0 && withGap > maxWidth) {
-      lines.push({ items: current, width: currentWidth });
-      current = [{ token, index, width }];
+      flush();
+      current = [measured];
       currentWidth = width;
       return;
     }
 
-    current.push({ token, index, width });
+    current.push(measured);
     currentWidth = withGap;
   });
 
-  if (current.length > 0) lines.push({ items: current, width: currentWidth });
+  flush();
   return lines;
 };
 
@@ -210,12 +284,15 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
   ctx.letterSpacing = `${config.letterSpacingPx}px`;
 
   const maxWidth = captionMaxWidthPx({ width, height }, config.maxLineWidthPct);
-  const lines = layoutLines(ctx, page, config, maxWidth, family);
+  // Same rule the preview uses, over the same strings, so the word that gets
+  // enlarged is the same word in both. See `heroWordIndex`.
+  const heroIndex = heroWordIndex(page.tokens.map((t) => t.text));
+  const lines = layoutLines(ctx, page, config, maxWidth, family, heroIndex);
 
   const gapY = lineGapPx(config.lineHeight, config.fontSizePx);
-  const lineHeightPx = config.fontSizePx * config.lineHeight;
   const blockHeight =
-    lines.length * lineHeightPx + Math.max(0, lines.length - 1) * gapY;
+    lines.reduce((total, line) => total + line.height, 0) +
+    Math.max(0, lines.length - 1) * gapY;
 
   // Must match CaptionOverlay exactly — same clamp, same fractions. A drift
   // here is invisible in the preview and permanent in the exported file.
@@ -262,9 +339,13 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
     ctx.shadowOffsetY = config.fontSizePx * 0.06;
   }
 
-  let y = anchorY - blockHeight / 2 + lineHeightPx / 2 + entranceOffset;
+  // Top of the block. Each row's centre is derived from its own height below,
+  // rather than stepping by one shared line height — rows are no longer all the
+  // same height once an engine mixes sizes.
+  let y = anchorY - blockHeight / 2 + entranceOffset;
 
   for (const line of lines) {
+    const lineCenterY = y + line.height / 2;
     // Mirrors the DOM's `justify-content`, measured against the widest line so
     // left/right alignment lines up edges rather than centring each row.
     let x =
@@ -275,7 +356,13 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           : anchorX - line.width / 2;
 
     for (const { token, index, width: tokenWidth } of line.items) {
-      const text = getRenderText(token, config, index, page.tokens.length);
+      const text = getRenderText(
+        token,
+        config,
+        index,
+        page.tokens.length,
+        heroIndex,
+      );
       const timing = {
         frame,
         fps,
@@ -285,7 +372,7 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
 
       // Centre of this word — every style transforms around it.
       const cx = x + tokenWidth / 2;
-      const cy = y;
+      const cy = lineCenterY;
 
       ctx.save();
 
@@ -522,6 +609,93 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           break;
         }
 
+        case "hero": {
+          // Mirror of HeroStack.tsx. The row break itself is already handled in
+          // `layoutLines`; this only has to draw a word at the right size.
+          const enter = tokenEnter(timing, ENTER_BOUNCY);
+          const highlight = tokenHighlight(timing, ENTER_SMOOTH);
+          const pulse = tokenPulse(timing, ENTER_BOUNCY);
+          const isSpoken = timing.fromFrame <= frame;
+          const scaleFactor = canvasScale({ width, height });
+
+          const smallRatio =
+            config.annotationSizeRatio > 0
+              ? config.annotationSizeRatio
+              : HERO_SMALL_RATIO;
+
+          if (index !== heroIndex) {
+            const smallAlpha = isSpoken
+              ? highlight > 0.01
+                ? 1
+                : Math.max(0.7, config.upcomingOpacity)
+              : config.upcomingOpacity;
+
+            ctx.globalAlpha = entrance * smallAlpha;
+            const smallSize = config.fontSizePx * smallRatio;
+            ctx.font = canvasFont(
+              config.annotationWeight > 0 ? config.annotationWeight : 500,
+              smallSize,
+              family,
+            );
+            ctx.letterSpacing = `${smallSize * 0.02}px`;
+            ctx.shadowColor = "rgba(0,0,0,0.55)";
+            ctx.shadowBlur = 10 * scaleFactor;
+            ctx.shadowOffsetY = 2 * scaleFactor;
+
+            ctx.translate(cx, cy + (1 - enter) * 6 * scaleFactor);
+            strokeThenFill(
+              ctx,
+              text,
+              -tokenWidth / 2,
+              0,
+              config.annotationColor || config.baseColor,
+              // Same floor as HeroStack.tsx — see the note there on why this is
+              // the readability ratio and not a fraction of the hero's stroke.
+              Math.max(
+                config.fontSizePx * smallRatio * 0.085,
+                config.strokeWidthPx * smallRatio * 1.4,
+              ),
+              config.strokeColor,
+            );
+            clearShadow(ctx);
+            // Restored for the next token, which may be the hero and must not
+            // inherit the small face or its tracking.
+            ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
+            ctx.letterSpacing = `${config.letterSpacingPx}px`;
+            break;
+          }
+
+          ctx.globalAlpha =
+            entrance * (isSpoken ? 1 : Math.max(0.5, config.upcomingOpacity));
+
+          const heroColor = interpolateColors(highlight, [0, 1], [
+            token.color ?? config.baseColor,
+            token.color ?? config.accentColor,
+          ]);
+
+          const heroScale =
+            1 + pulse * 0.16 * config.emphasisScale + highlight * 0.04;
+          const heroLift = (1 - enter) * 14 * scaleFactor;
+
+          ctx.shadowColor = "rgba(0,0,0,0.72)";
+          ctx.shadowBlur = (highlight > 0.01 ? 32 : 16) * scaleFactor;
+          ctx.shadowOffsetY = (highlight > 0.01 ? 8 : 4) * scaleFactor;
+
+          ctx.translate(cx, cy - heroLift);
+          ctx.scale(heroScale, heroScale);
+          strokeThenFill(
+            ctx,
+            text,
+            -tokenWidth / 2,
+            0,
+            heroColor,
+            config.strokeWidthPx,
+            config.strokeColor,
+          );
+          clearShadow(ctx);
+          break;
+        }
+
         case "dual": {
           // Mirror of DualToken.tsx — annotation above, big word below.
           const enter = tokenEnter(timing, ENTER_BOUNCY);
@@ -601,7 +775,7 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
       x += tokenWidth + config.wordGapPx;
     }
 
-    y += lineHeightPx + gapY;
+    y += line.height + gapY;
   }
 
   ctx.restore();

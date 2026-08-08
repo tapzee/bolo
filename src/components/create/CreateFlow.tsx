@@ -604,6 +604,9 @@ export function CreateFlow() {
               onMove={(horizontalOffsetPct, verticalOffsetPct) =>
                 patch({ horizontalOffsetPct, verticalOffsetPct })
               }
+              onResize={({ fontSizePx, maxLineWidthPct }) =>
+                patch({ fontSizePx, maxLineWidthPct })
+              }
             />
           </div>
 

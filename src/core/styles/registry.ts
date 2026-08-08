@@ -223,6 +223,39 @@ export const CAPTION_STYLES: Readonly<
       annotationColor: "#ffffff",
     },
   ),
+
+  hero: define(
+    "hero",
+    "Hero Stack",
+    "One oversized headline word with the rest of the line set small above and below it. The editorial look every caption app leans on.",
+    {
+      fontId: "anton",
+      fontWeight: 400,
+      // Large on purpose: the hero is the only word at this size, and the
+      // supporting text sits at a third of it, so the block is no taller than a
+      // conventional two-line caption despite the headline being enormous.
+      fontSizePx: 124,
+      uppercase: true,
+      letterSpacingPx: -1,
+      baseColor: "#ffffff",
+      activeColor: "#ffffff",
+      accentColor: "#ff2d2d",
+      strokeWidthPx: 5,
+      wordGapPx: 18,
+      // Five gives the hero enough context to sit inside — three leaves it
+      // stranded with a single word above it, which reads as a mistake.
+      maxWordsPerPage: 5,
+      combineWithinMs: 1100,
+      upcomingOpacity: 0.55,
+      dropShadow: true,
+      // Row gap is `lineHeight * 0.28 * fontSizePx`, so this is what keeps the
+      // supporting text off the headline's descenders and Devanagari matras.
+      lineHeight: 1.12,
+      annotationSizeRatio: 0.34,
+      annotationWeight: 600,
+      annotationColor: "#ffffff",
+    },
+  ),
 };
 
 export const CAPTION_STYLE_LIST: readonly CaptionStyleDefinition[] =

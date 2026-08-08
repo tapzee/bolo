@@ -4,16 +4,16 @@ import { getStyleDefaults } from "./registry";
 /**
  * Caption template catalogue.
  *
- * BE CLEAR ABOUT WHAT THIS IS: a template is a preset over one of the five
- * render engines (`bold-yellow`, `pop`, `box`, `glow`, `clean`), not a sixth
- * kind of animation. Fifty templates therefore give fifty distinct *looks* —
- * font, colour, casing, size, placement, grouping — driven by five motion
- * behaviours. That is how CapCut and Captik are built too, and it is the only
- * way to keep the export renderer in parity: every template goes through code
- * paths that are already tested.
+ * BE CLEAR ABOUT WHAT THIS IS: a template is a preset over one of the eight
+ * render engines (`bold-yellow`, `pop`, `box`, `glow`, `clean`, `splash`,
+ * `dual`, `hero`), not a ninth kind of animation. Sixty-odd templates therefore
+ * give sixty distinct *looks* — font, colour, casing, size, placement,
+ * grouping — driven by eight motion behaviours. That is how CapCut and Captik
+ * are built too, and it is the only way to keep the export renderer in parity:
+ * every template goes through code paths that are already tested.
  *
  * Adding a template is pure data and needs no renderer change. Adding a genuine
- * sixth *motion* means a new engine in `remotion/styles` AND a matching branch
+ * ninth *motion* means a new engine in `remotion/styles` AND a matching branch
  * in `lib/export/draw-captions.ts`, or preview and export will disagree.
  */
 
@@ -541,6 +541,101 @@ export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
     strokeWidthPx: 2, maxWordsPerPage: 3,
     annotationSizeRatio: 0.32, annotationWeight: 200, annotationColor: "#fce4ec",
     upcomingOpacity: 0.4, dropShadow: true,
+  }, "New"),
+
+  // ---- Hero Stack --------------------------------------------------------
+  //
+  // The editorial layout: one oversized headline word with the rest of the
+  // line set small above and below it. Every one of these runs on the `hero`
+  // engine, so what separates them is entirely typographic — face, palette,
+  // and the size gap between headline and supporting text.
+  //
+  // `annotationSizeRatio` is the control that matters. Below ~0.28 the
+  // supporting text stops being readable on a phone; above ~0.45 the contrast
+  // collapses and the page reads as two sizes of the same thing rather than a
+  // headline with context. Everything here sits between those.
+
+  t("blockbuster", "Blockbuster", "trending", "hero", {
+    fontId: "anton", fontSizePx: 132, letterSpacingPx: -2,
+    baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#ff1e1e",
+    strokeWidthPx: 6, maxWordsPerPage: 5, upcomingOpacity: 0.5,
+    annotationSizeRatio: 0.30, annotationWeight: 700, annotationColor: "#ffffff",
+    dropShadow: true,
+  }, "New"),
+
+  t("editor-masala", "Editor Masala", "trending", "hero", {
+    fontId: "montserrat", fontWeight: 900, fontSizePx: 120, letterSpacingPx: -1,
+    baseColor: "#ffffff", activeColor: "#ffd60a", accentColor: "#ffd60a",
+    strokeWidthPx: 6, maxWordsPerPage: 5, upcomingOpacity: 0.6,
+    annotationSizeRatio: 0.32, annotationWeight: 600, annotationColor: "#ffffff",
+    dropShadow: true,
+  }, "Hot"),
+
+  t("the-biggest", "The Biggest", "bold", "hero", {
+    fontId: "bebas", fontSizePx: 142, letterSpacingPx: 1,
+    baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#ffffff",
+    strokeWidthPx: 5, maxWordsPerPage: 6, upcomingOpacity: 0.7,
+    annotationSizeRatio: 0.26, annotationWeight: 500, annotationColor: "#ffffff",
+    dropShadow: true,
+  }, "Popular"),
+
+  t("archives", "Archives", "clean", "hero", {
+    // Playfair carries no Devanagari, so a Hinglish line falls back to Noto for
+    // the Hindi half. That is the intended behaviour, not a defect — the serif
+    // is doing the work on the Latin words where the contrast is visible.
+    fontId: "playfair", fontWeight: 700, fontSizePx: 118, textCase: "none",
+    baseColor: "#fdfaf3", activeColor: "#d4af37", accentColor: "#d4af37",
+    strokeWidthPx: 3, maxWordsPerPage: 5, upcomingOpacity: 0.55,
+    annotationSizeRatio: 0.30, annotationWeight: 400, annotationColor: "#fdfaf3",
+    dropShadow: true,
+  }, "New"),
+
+  t("scribble", "Scribble", "clean", "hero", {
+    fontId: "caveat", fontWeight: 700, fontSizePx: 148, textCase: "none",
+    baseColor: "#ffffff", activeColor: "#ff5c8a", accentColor: "#ff5c8a",
+    strokeWidthPx: 4, maxWordsPerPage: 5, upcomingOpacity: 0.6,
+    annotationSizeRatio: 0.34, annotationWeight: 700, annotationColor: "#ffffff",
+    dropShadow: true,
+  }, "New"),
+
+  t("hero-hindi", "बड़ा बोल", "trending", "hero", {
+    fontId: "devanagari", fontWeight: 900, fontSizePx: 116, textCase: "none",
+    baseColor: "#ffffff", activeColor: "#ff9933", accentColor: "#ff9933",
+    strokeWidthPx: 6, maxWordsPerPage: 5, upcomingOpacity: 0.55,
+    annotationSizeRatio: 0.34, annotationWeight: 700, annotationColor: "#ffffff",
+    dropShadow: true,
+  }, "Viral"),
+
+  t("mint-drop", "Mint Drop", "highlight", "hero", {
+    fontId: "poppins", fontWeight: 800, fontSizePx: 118,
+    baseColor: "#ffffff", activeColor: "#00e5a0", accentColor: "#00e5a0",
+    strokeWidthPx: 5, maxWordsPerPage: 5, upcomingOpacity: 0.55,
+    annotationSizeRatio: 0.32, annotationWeight: 600, annotationColor: "#e8fff7",
+    dropShadow: true,
+  }, "Trending"),
+
+  t("cyber-hero", "Cyber Hero", "neon", "hero", {
+    fontId: "bebas", fontSizePx: 138, letterSpacingPx: 2,
+    baseColor: "#dff9ff", activeColor: "#00e5ff", accentColor: "#00e5ff",
+    strokeWidthPx: 5, maxWordsPerPage: 5, upcomingOpacity: 0.45,
+    annotationSizeRatio: 0.28, annotationWeight: 500, annotationColor: "#dff9ff",
+    dropShadow: true,
+  }, "Hot"),
+
+  t("festival-hero", "त्योहार", "festive", "hero", {
+    fontId: "devanagari", fontWeight: 900, fontSizePx: 114, textCase: "none",
+    baseColor: "#fff8e1", activeColor: "#ffc107", accentColor: "#e91e63",
+    strokeWidthPx: 6, maxWordsPerPage: 5, upcomingOpacity: 0.6,
+    annotationSizeRatio: 0.34, annotationWeight: 700, annotationColor: "#fff8e1",
+    dropShadow: true,
+  }, "Popular"),
+
+  t("noir-hero", "Noir", "bold", "hero", {
+    fontId: "anton", fontSizePx: 130, letterSpacingPx: -1,
+    baseColor: "#e0e0e0", activeColor: "#ffffff", accentColor: "#ffffff",
+    strokeWidthPx: 6, maxWordsPerPage: 5, upcomingOpacity: 0.4,
+    annotationSizeRatio: 0.28, annotationWeight: 500, annotationColor: "#bdbdbd",
+    backgroundEnabled: true, backgroundColor: "#000000", backgroundOpacity: 0.35,
   }, "New"),
 ];
 

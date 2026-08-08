@@ -6,6 +6,7 @@ import { BoxToken } from "./Box";
 import { CleanToken } from "./Clean";
 import { DualToken } from "./DualToken";
 import { GlowToken } from "./Glow";
+import { HeroStackToken } from "./HeroStack";
 import { PopToken } from "./Pop";
 import { SplashToken } from "./Splash";
 
@@ -26,5 +27,6 @@ export const TOKEN_RENDERERS: Readonly<
   clean: CleanToken,
   splash: SplashToken,
   dual: DualToken,
+  hero: HeroStackToken,
 };
 
