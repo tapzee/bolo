@@ -245,13 +245,39 @@ handles set `maxLineWidthPct`. Six handles, not eight — there is no
 vertical-only property for a top or bottom handle to edit, and a handle that
 does nothing is worse than a missing one.
 
-The box is the caption *area*, not a tight bounding box: width is the real wrap
-boundary, height is a band proportional to `fontSizePx`. Measuring the rendered
-text would mean reaching into the Player's DOM every frame and the box would
-jump on every page change.
+**The box is measured, not predicted.** A rAF loop reads
+`[data-bolo-caption-block]` (set in `CaptionOverlay`) out of the Player and
+copies its geometry, so the text is inside the box by construction. Two
+versions of this were wrong before it worked, and both are worth not repeating:
 
-**Also unverified in a browser** — the box only mounts on `/create`, behind the
-same auth gate.
+1. Deriving the height from `fontSizePx` arithmetic. Fails the moment a page
+   wraps to three lines or `hero` stacks a headline — exactly when someone
+   reaches for the box.
+2. Measuring the block's own `getBoundingClientRect`. That is a *layout* box.
+   A single word longer than `maxLineWidthPct` has nowhere to wrap and
+   overflows it, and every engine scales its spoken word — transforms never
+   grow the parent. The box drew with the headline hanging out of both sides
+   while an automated containment check passed, because the check measured the
+   same wrong rectangle. It now unions the descendant rects, and so does the QA.
+
+Styles are written straight to the DOM; a rectangle through React state 60
+times a second would re-render the caption tree for something nothing else
+reads. During a gesture the loop stands down and the box previews the pointer,
+because config only commits on release.
+
+### `/dev/caption-box` — 8 Aug
+
+QA harness for the above, gated by `ENABLE_DEV_ROUTES` like the other dev
+routes. It exists because the box only ever mounts inside `/create`, which is
+wrapped in `RequireAuth`, so the control shipped twice unverified. Runs the real
+Player and the real overlay — a mock would verify nothing about the measuring,
+which is the only part that breaks.
+
+`PlayerStage` **fills its parent and does not size itself**. The harness first
+wrapped it in a plain `w-[320px]` div, which collapsed to zero height;
+`overflow-hidden` then clipped the whole overlay and every handle silently
+stopped being hit-testable while still looking right. The parent must set an
+explicit `aspectRatio`.
 
 ### Cross-boundary edit — Claude → create/, 8 Aug (2)
 
