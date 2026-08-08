@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Move } from "lucide-react";
 import type { CaptionStyleConfig } from "@/core";
 import { anchorFraction, clampAnchor, horizontalFraction } from "@/core";
@@ -18,6 +18,9 @@ const MAX_FONT_PX = 220;
 const MIN_WIDTH_PCT = 30;
 const MAX_WIDTH_PCT = 100;
 
+/** Breathing room between the glyphs and the dashed edge, in preview px. */
+const BOX_PAD = 6;
+
 const clamp = (value: number, min: number, max: number): number =>
   Math.min(max, Math.max(min, value));
 
@@ -34,7 +37,7 @@ export interface CaptionDragLayerProps {
 
 type Handle = "nw" | "ne" | "sw" | "se" | "w" | "e";
 
-const CORNER_CURSOR: Record<Handle, string> = {
+const HANDLE_CURSOR: Record<Handle, string> = {
   nw: "nwse-resize",
   se: "nwse-resize",
   ne: "nesw-resize",
@@ -43,34 +46,41 @@ const CORNER_CURSOR: Record<Handle, string> = {
   e: "ew-resize",
 };
 
+const HANDLES: readonly Handle[] = ["nw", "ne", "sw", "se", "w", "e"];
+
 /**
- * Move-and-resize box for the caption block.
+ * Move-and-resize box around the caption block.
  *
  * Sits over the Player as an absolutely positioned overlay. It deliberately
  * does NOT capture pointer events except on the box and its handles — the
  * Player's own click-to-play and the video underneath must keep working.
  *
- * WHAT THE BOX REPRESENTS: the caption *area*, not a pixel-tight bounding box
- * around the glyphs. Its width is `maxLineWidthPct` — the real wrap boundary,
- * so that edge is exact. Its height is a band proportional to `fontSizePx`,
- * which tracks the text size faithfully but does not try to predict how many
- * lines a given page will wrap to. Measuring the rendered text instead would
- * mean reaching into the Player's DOM every frame, and the box would then jump
- * on every page change, which is worse than a stable guide.
+ * WHAT THE BOX IS: the measured bounds of the caption block itself. The
+ * overlay finds `[data-bolo-caption-block]` inside the Player and copies its
+ * rectangle every frame, so the text is inside the box by construction rather
+ * than by a prediction that drifts. An earlier version derived the height from
+ * `fontSizePx` arithmetic and was wrong the moment a page wrapped to three
+ * lines or the `hero` engine stacked a headline — which is exactly the case
+ * where a user reaches for the box.
  *
- * Every handle maps to something real, which is why there are six and not
- * eight: corners scale the text, the side handles set the wrap width, and there
- * is no vertical-only property for a top or bottom handle to edit. A handle
- * that did nothing would be worse than a missing one.
+ * Reading layout in a rAF loop is the cost of that correctness. It is one
+ * `getBoundingClientRect` on one small element, it runs only while the editor
+ * is open, and it never touches the export path. Styles are written straight to
+ * the DOM — routing a rectangle through React state 60 times a second would
+ * re-render the caption tree for something no other component reads.
+ *
+ * DURING A DRAG the loop pauses and the box follows the pointer as a preview of
+ * the size being chosen, because the config is only committed on release.
+ * Committing live would rebuild every caption page on every pointer frame.
+ *
+ * Six handles, not eight: corners scale the type, the side handles set the wrap
+ * width, and there is no vertical-only property for a top or bottom handle to
+ * edit. A handle that did nothing would be worse than a missing one.
  *
  * Offsets and sizes are committed in percentages and reference px, never in
  * preview px: the preview is a few hundred px wide while the export is
  * 1080–2160px, so anything measured in screen pixels would land somewhere else
  * entirely in the exported file.
- *
- * Live drags write `style` straight to the DOM and only commit to React state
- * on release. Routing every pointermove through state would rebuild the caption
- * pages on every frame of the drag.
  */
 export function CaptionDragLayer({
   config,
@@ -82,6 +92,10 @@ export function CaptionDragLayer({
   const boxRef = useRef<HTMLDivElement>(null);
   const [dragging, setDragging] = useState(false);
   const [resizing, setResizing] = useState(false);
+  const [liveFont, setLiveFont] = useState<number | null>(null);
+
+  /** True while a pointer gesture owns the box, so measuring must stand down. */
+  const gestureRef = useRef(false);
 
   const moveRef = useRef<{
     startX: number;
@@ -98,21 +112,88 @@ export function CaptionDragLayer({
     handle: Handle;
     startX: number;
     rectW: number;
+    box: { left: number; top: number; width: number; height: number };
     originFont: number;
     originWidth: number;
     nextFont: number;
     nextWidth: number;
   } | null>(null);
 
-  const x = horizontalFraction(config.horizontalOffsetPct);
-  const y = clampAnchor(
-    anchorFraction(config.placement, config.verticalOffsetPct),
-  );
+  // ---- measurement --------------------------------------------------------
 
-  // Reference-canvas units → percentage of the frame, so the box is correct at
-  // any preview size and any aspect ratio.
-  const boxWidthPct = config.maxLineWidthPct;
-  const boxHeightPct = ((config.fontSizePx * config.lineHeight * 2) / 1920) * 100;
+  useEffect(() => {
+    if (!enabled) return;
+
+    let raf = 0;
+
+    const tick = () => {
+      raf = requestAnimationFrame(tick);
+
+      const container = containerRef.current;
+      const box = boxRef.current;
+      if (container === null || box === null) return;
+      // A gesture owns the geometry until it commits.
+      if (gestureRef.current) return;
+
+      const block = container.parentElement?.querySelector(
+        "[data-bolo-caption-block]",
+      );
+
+      if (!(block instanceof HTMLElement)) {
+        // No active page at this playhead. Hidden rather than frozen at the
+        // last rectangle, which would sit over empty video looking like a bug.
+        box.style.opacity = "0";
+        box.style.pointerEvents = "none";
+        return;
+      }
+
+      const outer = container.getBoundingClientRect();
+
+      /**
+       * Union of the words, not the block's own rectangle.
+       *
+       * The block is a flex container and its rect is a *layout* box, which is
+       * not where the ink is. A single word longer than `maxLineWidthPct` has
+       * nowhere to wrap and simply overflows, and every engine scales its
+       * spoken word — transforms do not grow the parent. Measuring the
+       * container alone therefore drew a box with the headline sticking out of
+       * both sides, which is precisely the thing the box exists to prevent.
+       */
+      let left = Infinity;
+      let top = Infinity;
+      let right = -Infinity;
+      let bottom = -Infinity;
+
+      for (const node of block.querySelectorAll("*")) {
+        const r = node.getBoundingClientRect();
+        if (r.width === 0 && r.height === 0) continue;
+        if (r.left < left) left = r.left;
+        if (r.top < top) top = r.top;
+        if (r.right > right) right = r.right;
+        if (r.bottom > bottom) bottom = r.bottom;
+      }
+
+      // No measurable words yet — fall back to the container so the box does
+      // not collapse to a dot on the first frame of a page.
+      if (left === Infinity) {
+        const r = block.getBoundingClientRect();
+        left = r.left;
+        top = r.top;
+        right = r.right;
+        bottom = r.bottom;
+      }
+
+      box.style.opacity = "1";
+      box.style.pointerEvents = "";
+      box.style.left = `${left - outer.left - BOX_PAD}px`;
+      box.style.top = `${top - outer.top - BOX_PAD}px`;
+      box.style.width = `${right - left + BOX_PAD * 2}px`;
+      box.style.height = `${bottom - top + BOX_PAD * 2}px`;
+    };
+
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [enabled]);
 
   // ---- move ---------------------------------------------------------------
 
@@ -137,36 +218,38 @@ export function CaptionDragLayer({
         nextY: config.verticalOffsetPct,
       };
 
+      gestureRef.current = true;
       (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
       setDragging(true);
     },
     [enabled, config.horizontalOffsetPct, config.verticalOffsetPct],
   );
 
-  const onMovePointer = useCallback(
-    (event: React.PointerEvent) => {
-      const drag = moveRef.current;
-      if (drag === null) return;
+  const onMovePointer = useCallback((event: React.PointerEvent) => {
+    const drag = moveRef.current;
+    const box = boxRef.current;
+    if (drag === null || box === null) return;
 
-      const dx = ((event.clientX - drag.startX) / drag.rectW) * 100;
-      const dy = ((event.clientY - drag.startY) / drag.rectH) * 100;
+    const dxPx = event.clientX - drag.startX;
+    const dyPx = event.clientY - drag.startY;
 
-      drag.nextX = drag.originX + dx;
-      drag.nextY = drag.originY + dy;
+    drag.nextX = drag.originX + (dxPx / drag.rectW) * 100;
+    drag.nextY = drag.originY + (dyPx / drag.rectH) * 100;
 
-      const box = boxRef.current;
-      if (box !== null) {
-        box.style.left = `${horizontalFraction(drag.nextX) * 100}%`;
-        box.style.top = `${clampAnchor(anchorFraction(config.placement, drag.nextY)) * 100}%`;
-      }
-    },
-    [config.placement],
-  );
+    // Nudged by the raw pointer delta rather than recomputed from the anchor
+    // fractions: the box is now measured in px off the real caption block, and
+    // mixing the two coordinate systems mid-drag makes it jump on grab.
+    box.style.translate = `${dxPx}px ${dyPx}px`;
+  }, []);
 
   const endMove = useCallback(() => {
     const drag = moveRef.current;
+    const box = boxRef.current;
     moveRef.current = null;
+    gestureRef.current = false;
     setDragging(false);
+
+    if (box !== null) box.style.translate = "";
     if (drag === null) return;
 
     if (drag.nextX !== drag.originX || drag.nextY !== drag.originY) {
@@ -180,7 +263,8 @@ export function CaptionDragLayer({
     (handle: Handle) => (event: React.PointerEvent) => {
       if (!enabled || onResize === undefined) return;
       const container = containerRef.current;
-      if (container === null) return;
+      const box = boxRef.current;
+      if (container === null || box === null) return;
 
       event.preventDefault();
       event.stopPropagation();
@@ -189,21 +273,30 @@ export function CaptionDragLayer({
         handle,
         startX: event.clientX,
         rectW: container.getBoundingClientRect().width,
+        box: {
+          left: box.offsetLeft,
+          top: box.offsetTop,
+          width: box.offsetWidth,
+          height: box.offsetHeight,
+        },
         originFont: config.fontSizePx,
         originWidth: config.maxLineWidthPct,
         nextFont: config.fontSizePx,
         nextWidth: config.maxLineWidthPct,
       };
 
+      gestureRef.current = true;
       (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
       setResizing(true);
+      setLiveFont(config.fontSizePx);
     },
     [enabled, onResize, config.fontSizePx, config.maxLineWidthPct],
   );
 
   const onResizePointer = useCallback((event: React.PointerEvent) => {
     const size = sizeRef.current;
-    if (size === null) return;
+    const box = boxRef.current;
+    if (size === null || box === null) return;
 
     // Outward drag grows, inward shrinks — so the left-side handles read their
     // delta inverted. Without this, dragging the west edge left would shrink
@@ -214,15 +307,18 @@ export function CaptionDragLayer({
         ? -raw
         : raw;
 
-    const box = boxRef.current;
-
     if (size.handle === "w" || size.handle === "e") {
       size.nextWidth = clamp(
         size.originWidth + outward * 200,
         MIN_WIDTH_PCT,
         MAX_WIDTH_PCT,
       );
-      if (box !== null) box.style.width = `${size.nextWidth}%`;
+      // Preview grows about its centre, matching the caption block, which is
+      // centred on its anchor rather than pinned to the dragged edge.
+      const factor = size.nextWidth / size.originWidth;
+      const width = size.box.width * factor;
+      box.style.left = `${size.box.left - (width - size.box.width) / 2}px`;
+      box.style.width = `${width}px`;
       return;
     }
 
@@ -233,51 +329,59 @@ export function CaptionDragLayer({
       MIN_FONT_PX,
       MAX_FONT_PX,
     );
-    if (box !== null) {
-      box.style.height = `${((size.nextFont * config.lineHeight * 2) / 1920) * 100}%`;
-    }
-  }, [config.lineHeight]);
+    setLiveFont(size.nextFont);
+
+    const factor = size.nextFont / size.originFont;
+    const width = size.box.width * factor;
+    const height = size.box.height * factor;
+    box.style.left = `${size.box.left - (width - size.box.width) / 2}px`;
+    box.style.top = `${size.box.top - (height - size.box.height) / 2}px`;
+    box.style.width = `${width}px`;
+    box.style.height = `${height}px`;
+  }, []);
 
   const endResize = useCallback(() => {
     const size = sizeRef.current;
     sizeRef.current = null;
+    gestureRef.current = false;
     setResizing(false);
+    setLiveFont(null);
     if (size === null || onResize === undefined) return;
 
     if (
       size.nextFont !== size.originFont ||
       size.nextWidth !== size.originWidth
     ) {
-      onResize({
-        fontSizePx: size.nextFont,
-        maxLineWidthPct: size.nextWidth,
-      });
+      onResize({ fontSizePx: size.nextFont, maxLineWidthPct: size.nextWidth });
     }
   }, [onResize]);
 
   if (!enabled) return null;
 
   const active = dragging || resizing;
-  const handles: Handle[] =
-    onResize === undefined ? [] : ["nw", "ne", "sw", "se", "w", "e"];
+  const handles = onResize === undefined ? [] : HANDLES;
+
+  // Only used for the first paint, before the measuring loop has run once.
+  const fallbackX = horizontalFraction(config.horizontalOffsetPct) * 100;
+  const fallbackY =
+    clampAnchor(anchorFraction(config.placement, config.verticalOffsetPct)) *
+    100;
 
   return (
-    <div
-      ref={containerRef}
-      className="pointer-events-none absolute inset-0 z-20"
-    >
+    <div ref={containerRef} className="pointer-events-none absolute inset-0 z-20">
       <div
         ref={boxRef}
         style={{
-          left: `${x * 100}%`,
-          top: `${y * 100}%`,
-          width: `${boxWidthPct}%`,
-          height: `${boxHeightPct}%`,
+          left: `${fallbackX}%`,
+          top: `${fallbackY}%`,
+          width: `${config.maxLineWidthPct}%`,
+          height: "12%",
+          opacity: 0,
         }}
         className={cn(
-          "absolute -translate-x-1/2 -translate-y-1/2",
-          "rounded-[3px] border border-dashed transition-colors",
-          active ? "border-white/80" : "border-white/40 hover:border-white/70",
+          "absolute rounded-[3px] border border-dashed",
+          "transition-colors duration-150",
+          active ? "border-white/85" : "border-white/45 hover:border-white/75",
         )}
       >
         {/* Grab area for moving. Fills the box so the caption can be dragged
@@ -292,7 +396,7 @@ export function CaptionDragLayer({
         />
 
         {handles.map((handle) => {
-          const vertical = handle === "w" || handle === "e";
+          const side = handle === "w" || handle === "e";
           const north = handle === "nw" || handle === "ne";
           const west = handle === "nw" || handle === "sw" || handle === "w";
 
@@ -304,13 +408,13 @@ export function CaptionDragLayer({
               onPointerUp={endResize}
               onPointerCancel={endResize}
               style={{
-                cursor: CORNER_CURSOR[handle],
+                cursor: HANDLE_CURSOR[handle],
                 left: west ? 0 : undefined,
                 right: west ? undefined : 0,
-                top: vertical ? "50%" : north ? 0 : undefined,
-                bottom: vertical || north ? undefined : 0,
+                top: side ? "50%" : north ? 0 : undefined,
+                bottom: side || north ? undefined : 0,
                 transform: `translate(${west ? "-50%" : "50%"}, ${
-                  vertical ? "-50%" : north ? "-50%" : "50%"
+                  side || north ? "-50%" : "50%"
                 })`,
               }}
               className={cn(
@@ -318,9 +422,7 @@ export function CaptionDragLayer({
                 "border border-black/40 bg-white shadow-sm",
                 "transition-transform hover:scale-125",
               )}
-              title={
-                vertical ? "Drag to set line width" : "Drag to resize text"
-              }
+              title={side ? "Drag to set line width" : "Drag to resize text"}
             />
           );
         })}
@@ -335,9 +437,11 @@ export function CaptionDragLayer({
           )}
         >
           <Move className="size-3" />
-          {resizing
-            ? `${sizeRef.current?.nextFont ?? config.fontSizePx}px`
-            : "Drag · resize"}
+          {liveFont !== null
+            ? `${liveFont}px`
+            : resizing
+              ? `${config.maxLineWidthPct.toFixed(0)}%`
+              : "Drag · resize"}
         </div>
       </div>
 
