@@ -148,6 +148,16 @@ export const CaptionOverlay = memo(function CaptionOverlay({
       <div style={anchorStyle}>
         <div
           key={page.id}
+          /**
+           * Marks the caption block for the editor's transform box, which
+           * measures this element to draw bounds that actually contain the
+           * text. Read by `CaptionDragLayer` via `querySelector`.
+           *
+           * Layout-neutral by construction — it is an attribute, not a style —
+           * so it cannot affect the export, which never mounts this component
+           * in a document the editor can see.
+           */
+          data-bolo-caption-block=""
           style={{
             ...rowStyle,
             opacity: entrance,
