@@ -27,6 +27,8 @@ export const TemplateCard = memo(function TemplateCard({
   const isBox = template.engine === "box";
   const isGlow = template.engine === "glow";
   const isSplash = template.engine === "splash";
+  const isDual = template.engine === "dual";
+  const isHero = template.engine === "hero";
 
   return (
     <button
@@ -132,6 +134,89 @@ export const TemplateCard = memo(function TemplateCard({
               }}
             >
               के लिए
+            </span>
+          </div>
+        ) : isHero ? (
+          <div className="flex flex-col items-center justify-center leading-none gap-0.5">
+            <span
+              style={{
+                fontSize: previewSize * (config.annotationSizeRatio || 0.3),
+                color: config.annotationColor || config.baseColor,
+                fontWeight: config.annotationWeight || 500,
+                fontFamily: FONT_FAMILY[config.fontId],
+                textTransform: config.uppercase ? "uppercase" : "none",
+                letterSpacing: previewSize * (config.annotationSizeRatio || 0.3) * 0.02,
+                textShadow: "0 2px 8px rgba(0,0,0,0.55)",
+                WebkitTextStroke: `${Math.max(previewSize * (config.annotationSizeRatio || 0.3) * 0.085, config.strokeWidthPx * (config.annotationSizeRatio || 0.3) * 1.4)}px ${config.strokeColor}`,
+                paintOrder: "stroke fill",
+              }}
+            >
+              FREE
+            </span>
+            <span
+              style={{
+                fontSize: previewSize,
+                color: config.activeColor,
+                WebkitTextStroke: `${Math.max(1, previewSize * 0.085)}px ${config.strokeColor}`,
+                paintOrder: "stroke fill",
+                fontWeight: config.fontWeight,
+                fontFamily: FONT_FAMILY[config.fontId],
+                textTransform: config.uppercase ? "uppercase" : "none",
+                letterSpacing: config.letterSpacingPx * 0.1,
+                textShadow: "0 4px 16px rgba(0,0,0,0.72)",
+              }}
+            >
+              DEMO
+            </span>
+            <span
+              style={{
+                fontSize: previewSize * (config.annotationSizeRatio || 0.3),
+                color: config.annotationColor || config.baseColor,
+                fontWeight: config.annotationWeight || 500,
+                fontFamily: FONT_FAMILY.devanagari,
+                letterSpacing: previewSize * (config.annotationSizeRatio || 0.3) * 0.02,
+                textShadow: "0 2px 8px rgba(0,0,0,0.55)",
+                WebkitTextStroke: `${Math.max(previewSize * (config.annotationSizeRatio || 0.3) * 0.085, config.strokeWidthPx * (config.annotationSizeRatio || 0.3) * 1.4)}px ${config.strokeColor}`,
+                paintOrder: "stroke fill",
+              }}
+            >
+              के लिए
+            </span>
+          </div>
+        ) : isDual ? (
+          <div className="relative flex flex-col items-center justify-center w-full mt-1">
+            <span
+              style={{
+                fontSize: previewSize * (config.annotationSizeRatio || 0.3),
+                color: config.annotationColor || "#ffffff",
+                fontWeight: config.annotationWeight || 300,
+                fontFamily: FONT_FAMILY.poppins,
+                textTransform: config.uppercase ? "uppercase" : "none",
+                marginBottom: `-${previewSize * 0.55}px`,
+                zIndex: 1,
+                letterSpacing: "0.04em",
+                WebkitTextStroke: `${Math.max(1, config.strokeWidthPx * 0.4)}px ${config.strokeColor}`,
+                paintOrder: "stroke fill",
+              }}
+            >
+              BOLO
+            </span>
+            <span
+              style={{
+                fontSize: previewSize,
+                color: config.activeColor,
+                WebkitTextStroke: `${Math.max(1, previewSize * 0.085)}px ${config.strokeColor}`,
+                paintOrder: "stroke fill",
+                fontWeight: config.fontWeight,
+                fontFamily: FONT_FAMILY[config.fontId],
+                textTransform: config.uppercase ? "uppercase" : "none",
+                zIndex: 2,
+                letterSpacing: config.letterSpacingPx * 0.15,
+                textShadow: "0 2px 8px rgba(0,0,0,0.7)",
+                whiteSpace: "nowrap",
+              }}
+            >
+              बोलो BOLO
             </span>
           </div>
         ) : (
