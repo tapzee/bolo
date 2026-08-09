@@ -14,6 +14,7 @@
 export * from "./captions/types";
 export * from "./captions/pages";
 export * from "./captions/sample";
+export * from "./captions/roles";
 export * from "./styles/types";
 export * from "./styles/registry";
 export * from "./styles/scale";
@@ -26,5 +27,6 @@ export * from "./billing/ledger";
 export * from "./billing/pricing";
 export * from "./media/constraints";
 export * from "./i18n/languages";
+export * from "./i18n/romanize";
 export * from "./editor/operations";
 export * from "./editor/history";

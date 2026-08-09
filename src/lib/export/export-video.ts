@@ -95,12 +95,47 @@ export const exportVideo = ({
   let ctx: OffscreenCanvasRenderingContext2D | null = null;
 
   const run = async (): Promise<Blob> => {
-    // Load the caption face up front. A font that arrives mid-encode would be
+    // Load every caption face up front. A font that arrives mid-encode would be
     // baked into the file, with the first seconds in a fallback typeface.
-    await ensureCaptionFontLoaded(
-      config.fontWeight,
-      config.fontSizePx,
-      resolveFontFamily(config.fontId),
+    const fontLoads: Array<{
+      fontId: CaptionStyleConfig["fontId"];
+      weight: number;
+      sizePx: number;
+      style?: string;
+    }> = [
+      {
+        fontId: config.fontId,
+        weight: config.fontWeight,
+        sizePx: config.fontSizePx,
+      },
+    ];
+
+    if (config.secondaryFontId !== undefined) {
+      fontLoads.push({
+        fontId: config.secondaryFontId,
+        weight: 500,
+        sizePx: config.fontSizePx * 0.6,
+      });
+    }
+
+    if (config.specialFontId !== undefined) {
+      fontLoads.push({
+        fontId: config.specialFontId,
+        weight: 400,
+        sizePx: config.fontSizePx * 0.9,
+        style: "italic",
+      });
+    }
+
+    await Promise.all(
+      fontLoads.map((font) =>
+        ensureCaptionFontLoaded(
+          font.weight,
+          font.sizePx,
+          resolveFontFamily(font.fontId),
+          font.style,
+        ),
+      ),
     );
 
     try {

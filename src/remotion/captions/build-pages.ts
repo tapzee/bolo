@@ -1,5 +1,6 @@
 import { createTikTokStyleCaptions } from "@remotion/captions";
 import type { CaptionPage, CaptionToken, CaptionWord } from "@/core";
+import { analyzeWordRoles } from "@/core";
 
 /**
  * The settings that affect page *grouping*.
@@ -60,6 +61,8 @@ const toToken = (word: CaptionWord): CaptionToken => {
   };
   // Only set when present, so untouched words produce a minimal object.
   if (word.color !== undefined) token.color = word.color;
+  if (word.emphasis !== undefined) token.emphasis = word.emphasis;
+  if (word.role !== undefined) token.role = word.role;
   return token;
 };
 
@@ -95,6 +98,15 @@ export const buildCaptionPages = (
     const first = current[0];
     const last = current[current.length - 1];
     if (first === undefined || last === undefined) return;
+
+    // Role analysis runs per-page, not over the whole transcript: the
+    // "critical" salience comparison (see `analyzeWordRoles`) is meant to
+    // pick the standout word *of this on-screen group*, not of the video.
+    // Words that already carry a manual role are left untouched.
+    const roles = analyzeWordRoles(current);
+    current.forEach((token, i) => {
+      if (token.role === undefined) token.role = roles[i];
+    });
 
     pages.push({
       id: `p${pages.length}-${Math.round(first.fromMs)}`,

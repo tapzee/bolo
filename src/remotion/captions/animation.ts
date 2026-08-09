@@ -55,7 +55,7 @@ export const EXIT_SETTLE: Partial<SpringConfig> = {
   mass: 0.8,
 };
 
-const clamp01 = (value: number): number =>
+export const clamp01 = (value: number): number =>
   value < 0 ? 0 : value > 1 ? 1 : value;
 
 /**
@@ -101,6 +101,81 @@ export const tokenPulse = (
   const exit = spring({ frame: frame - toFrame, fps, config: EXIT_SETTLE });
   return enter - exit;
 };
+
+/**
+ * Same envelope as `tokenEnter`, under a name that reads as intent at call
+ * sites — a mask/underline reveal (scaleX 0→1, or a `clip-path` inset) and a
+ * fade-up are different animations that happen to share the exact same
+ * spring math. Used by Underline Punch and Highlight Marker.
+ */
+export const maskRevealX = (
+  input: Omit<TokenAnimationInput, "toFrame">,
+  config: Partial<SpringConfig> = ENTER_SMOOTH,
+): number => tokenEnter(input, config);
+
+/**
+ * Horizontal entrance offset (px) for a word sliding in from one screen edge,
+ * for Kinetic Split. Returns the *offset to apply*, already signed — a
+ * `left`-side word starts at `-distancePx` and eases to 0, `right` the mirror.
+ * Callers add this straight onto a `translateX`.
+ */
+export const splitEntrance = (
+  side: "left" | "right",
+  distancePx: number,
+  input: Omit<TokenAnimationInput, "toFrame">,
+  config: Partial<SpringConfig> = ENTER_SMOOTH,
+): number =>
+  (1 - tokenEnter(input, config)) * distancePx * (side === "left" ? -1 : 1);
+
+/**
+ * Unclamped, enter-only bouncy spring — deliberately *not* `tokenPulse`.
+ * `tokenPulse` subtracts an exit spring keyed to `toFrame` so a continuous
+ * emphasis pulse fades once the word stops being spoken; Center Punch wants
+ * the opposite — punch in past 100%, settle, and *hold* at rest for as long as
+ * the word stays on screen, not fall away when its speech window ends. A bare
+ * `spring()` naturally asymptotes to 1 and stays there, which is exactly that.
+ *
+ * Typical use: `scale = base + centerPunchScale(timing) * amplitude`.
+ */
+export const centerPunchScale = (
+  input: Omit<TokenAnimationInput, "toFrame">,
+  config: Partial<SpringConfig> = ENTER_BOUNCY,
+): number => spring({ frame: input.frame - input.fromFrame, fps: input.fps, config });
+
+/**
+ * Per-character reveal, 0–1, for Vertical Impact's letter-by-letter build.
+ * Each character's spring starts `staggerFrames` later than the one before
+ * it, so the word builds visibly top-to-bottom (or left-to-right) rather than
+ * appearing all at once.
+ */
+export const letterStagger = (
+  charIndex: number,
+  input: Omit<TokenAnimationInput, "toFrame">,
+  config: Partial<SpringConfig> = ENTER_SMOOTH,
+  staggerFrames = 2,
+): number =>
+  clamp01(
+    spring({
+      frame: input.frame - input.fromFrame - charIndex * staggerFrames,
+      fps: input.fps,
+      config,
+    }),
+  );
+
+/**
+ * Slow ambient parallax offset (px) for Layered Depth's oversized backdrop
+ * word. A continuous `Math.sin` of the absolute clock, not a spring: this is
+ * ambient motion for as long as the word is visible, not a one-shot envelope
+ * reacting to speech timing — same precedent as `DynamicHighlight`'s glow
+ * "breathe". Pure function of `frame`/`fps`, so it seeks deterministically
+ * like everything else here.
+ */
+export const layeredDepthDrift = (
+  frame: number,
+  fps: number,
+  amplitudePx = 14,
+  periodSec = 6,
+): number => Math.sin((frame / fps / periodSec) * Math.PI * 2) * amplitudePx;
 
 /** Page-level entrance. Deliberately short — captions must not lag the audio. */
 export const pageEntrance = (

@@ -9,6 +9,21 @@ import { GlowToken } from "./Glow";
 import { HeroStackToken } from "./HeroStack";
 import { PopToken } from "./Pop";
 import { SplashToken } from "./Splash";
+import { DynamicToken } from "./Dynamic";
+import { DynamicHighlightToken } from "./DynamicHighlight";
+import { HeroMixedToken } from "./HeroMixed";
+import { EditorialOverlayToken } from "./EditorialOverlay";
+import { KineticToken } from "./Kinetic";
+import { UnderlinePunchToken } from "./UnderlinePunch";
+import { HighlightMarkerToken } from "./HighlightMarker";
+import { MixedWeightToken } from "./MixedWeight";
+import { KineticSplitToken } from "./KineticSplit";
+import { CenterPunchToken } from "./CenterPunch";
+import { VerticalImpactToken } from "./VerticalImpact";
+import { EditorialStackToken } from "./EditorialStack";
+import { MagazineCutToken } from "./MagazineCut";
+import { MinimalLuxuryToken } from "./MinimalLuxury";
+import { LayeredDepthToken } from "./LayeredDepth";
 
 /**
  * Style id → word renderer.
@@ -23,10 +38,24 @@ export const TOKEN_RENDERERS: Readonly<
   "bold-yellow": BoldYellowToken,
   pop: PopToken,
   box: BoxToken,
-  glow: GlowToken,
-  clean: CleanToken,
   splash: SplashToken,
+  clean: CleanToken,
+  glow: GlowToken,
   dual: DualToken,
   hero: HeroStackToken,
+  dynamic: DynamicToken,
+  heroMixed: HeroMixedToken,
+  dynamicHighlight: DynamicHighlightToken,
+  editorialOverlay: EditorialOverlayToken,
+  kinetic: KineticToken,
+  underlinePunch: UnderlinePunchToken,
+  highlightMarker: HighlightMarkerToken,
+  mixedWeight: MixedWeightToken,
+  kineticSplit: KineticSplitToken,
+  centerPunch: CenterPunchToken,
+  verticalImpact: VerticalImpactToken,
+  editorialStack: EditorialStackToken,
+  magazineCut: MagazineCutToken,
+  minimalLuxury: MinimalLuxuryToken,
+  layeredDepth: LayeredDepthToken,
 };
-

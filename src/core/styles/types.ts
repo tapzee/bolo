@@ -7,6 +7,21 @@ export const STYLE_IDS = [
   "splash",
   "dual",
   "hero",
+  "dynamic",
+  "heroMixed",
+  "dynamicHighlight",
+  "editorialOverlay",
+  "kinetic",
+  "underlinePunch",
+  "highlightMarker",
+  "mixedWeight",
+  "kineticSplit",
+  "centerPunch",
+  "verticalImpact",
+  "editorialStack",
+  "magazineCut",
+  "minimalLuxury",
+  "layeredDepth",
 ] as const;
 
 export type StyleId = (typeof STYLE_IDS)[number];
@@ -19,6 +34,16 @@ export const FONT_IDS = [
   "playfair",
   "caveat",
   "devanagari",
+  "dynapuff",
+  "limelight",
+  "tangerine",
+  "grandHotel",
+  "archivoBlack",
+  "oswald",
+  "inter",
+  "cormorantGaramond",
+  "bodoniModa",
+  "notoSerifDevanagari",
 ] as const;
 
 export type FontId = (typeof FONT_IDS)[number];
@@ -40,6 +65,16 @@ export const FONTS: readonly FontOption[] = [
   { id: "playfair", label: "Playfair Display", nativeDevanagari: false, defaultWeight: 700 },
   { id: "caveat", label: "Caveat Script", nativeDevanagari: false, defaultWeight: 700 },
   { id: "devanagari", label: "Noto Sans Devanagari", nativeDevanagari: true, defaultWeight: 700 },
+  { id: "dynapuff", label: "DynaPuff", nativeDevanagari: false, defaultWeight: 400 },
+  { id: "limelight", label: "Limelight", nativeDevanagari: false, defaultWeight: 400 },
+  { id: "tangerine", label: "Tangerine", nativeDevanagari: false, defaultWeight: 700 },
+  { id: "grandHotel", label: "Grand Hotel", nativeDevanagari: false, defaultWeight: 400 },
+  { id: "archivoBlack", label: "Archivo Black", nativeDevanagari: false, defaultWeight: 400 },
+  { id: "oswald", label: "Oswald", nativeDevanagari: false, defaultWeight: 500 },
+  { id: "inter", label: "Inter", nativeDevanagari: false, defaultWeight: 400 },
+  { id: "cormorantGaramond", label: "Cormorant Garamond", nativeDevanagari: false, defaultWeight: 500 },
+  { id: "bodoniModa", label: "Bodoni Moda", nativeDevanagari: false, defaultWeight: 500 },
+  { id: "notoSerifDevanagari", label: "Noto Serif Devanagari", nativeDevanagari: true, defaultWeight: 600 },
 ];
 
 export type CaptionPlacement = "top" | "center" | "bottom-third" | "bottom";
@@ -79,6 +114,10 @@ export const applyTextCase = (text: string, textCase: TextCase): string =>
 export interface CaptionStyleConfig {
   styleId: StyleId;
   fontId: FontId;
+  /** Used by Dynamic Highlight for supporting text */
+  secondaryFontId?: FontId;
+  /** Used by Dynamic Highlight for special text */
+  specialFontId?: FontId;
   fontWeight: number;
   fontSizePx: number;
   /** Space between words, composition px. */

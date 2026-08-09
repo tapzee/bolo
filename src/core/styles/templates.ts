@@ -64,6 +64,16 @@ const t = (
  */
 export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
   // ---- Trending ----------------------------------------------------------
+  t("hero-mixed-pro", "Hero Mixed Pro", "trending", "heroMixed", {
+    fontId: "montserrat", fontSizePx: 118, textCase: "upper",
+    baseColor: "#ffffff", activeColor: "#ffd60a", accentColor: "#ff00d4",
+    strokeWidthPx: 4, dropShadow: true,
+  }, "New"),
+  t("dynamic-highlight-pro", "Dynamic Highlight", "trending", "dynamicHighlight", {
+    fontId: "anton", fontSizePx: 140, baseColor: "#ffffff",
+    activeColor: "#ffd60a", accentColor: "#ffffff",
+    secondaryFontId: "poppins", specialFontId: "grandHotel",
+  }, "New"),
   t("baba-red-impact", "Baba Red Impact", "trending", "pop", {
     fontId: "anton", uppercase: true, fontSizePx: 96,
     baseColor: "#ffffff", activeColor: "#ff0033", accentColor: "#ff0033",
@@ -636,6 +646,94 @@ export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
     strokeWidthPx: 6, maxWordsPerPage: 5, upcomingOpacity: 0.4,
     annotationSizeRatio: 0.28, annotationWeight: 500, annotationColor: "#bdbdbd",
     backgroundEnabled: true, backgroundColor: "#000000", backgroundOpacity: 0.35,
+  }, "New"),
+
+  // ---- Dynamic Mix -------------------------------------------------------
+  t("dynamic-robot", "Dynamic Robot", "trending", "dynamic", {
+    fontId: "anton", // Base font, but dynamic engine mixes Bebas, Montserrat
+    fontSizePx: 96,
+    baseColor: "#ffffff", activeColor: "#00e5ff", accentColor: "#ff007f",
+    strokeWidthPx: 5, maxWordsPerPage: 3, upcomingOpacity: 0.3, dropShadow: true,
+  }, "New"),
+
+  t("dynamic-stylish", "Dynamic Stylish", "trending", "dynamic", {
+    fontId: "playfair", // Base font, mixes Caveat, Montserrat
+    fontWeight: 700, fontSizePx: 92, textCase: "none",
+    baseColor: "#fbf8f3", activeColor: "#d4af37", accentColor: "#ff9500",
+    strokeWidthPx: 3, maxWordsPerPage: 3, upcomingOpacity: 0.4, dropShadow: true,
+  }, "Hot"),
+
+  // ---- Kinetic Random -----------------------------------------------------
+  // Every word rolls its own entrance (slide up/down/left/right or a blur
+  // pop/out) off the `kinetic` engine, so the mix of directions on a page
+  // never repeats. What separates these templates is palette and weight, not
+  // the motion — that's the randomised part.
+
+  t("kinetic-fire", "Kinetic Fire", "trending", "kinetic", {
+    fontId: "montserrat", fontWeight: 900, fontSizePx: 96,
+    // Same palette as Luxury Serif — white body text, champagne-gold accent.
+    baseColor: "#ffffff", activeColor: "#e6c687", accentColor: "#e6c687",
+    strokeWidthPx: 5, maxWordsPerPage: 3, upcomingOpacity: 0.4,
+  }, "New"),
+
+  t("kinetic-punch", "Kinetic Punch", "bold", "kinetic", {
+    fontId: "anton", uppercase: true, fontSizePx: 100,
+    baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#ff2d55",
+    strokeWidthPx: 6, maxWordsPerPage: 3, upcomingOpacity: 0.35,
+  }, "Hot"),
+
+  t("kinetic-electric", "Kinetic Electric", "neon", "kinetic", {
+    fontId: "bebas", uppercase: true, fontSizePx: 100,
+    baseColor: "#eaf6ff", activeColor: "#ffffff", accentColor: "#00e5ff",
+    strokeWidthPx: 5, maxWordsPerPage: 3, upcomingOpacity: 0.35,
+  }, "Trending"),
+
+  t("kinetic-gold", "Kinetic Gold", "highlight", "kinetic", {
+    fontId: "montserrat", fontWeight: 900, fontSizePx: 90,
+    baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#ffd60a",
+    strokeWidthPx: 5, maxWordsPerPage: 3, upcomingOpacity: 0.4,
+  }, "Popular"),
+
+  t("kinetic-hinglish", "Kinetic Hinglish", "trending", "kinetic", {
+    fontId: "devanagari", fontWeight: 700, fontSizePx: 88, textCase: "none",
+    baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#ff9933",
+    strokeWidthPx: 4, maxWordsPerPage: 3, upcomingOpacity: 0.4,
+  }, "Viral"),
+
+  // ---- 10-template family ------------------------------------------------
+  t("underline-punch-classic", "Underline Punch", "clean", "underlinePunch", {
+    fontId: "anton", fontSizePx: 90, baseColor: "#ffffff", accentColor: "#ffd60a",
+  }, "New"),
+  t("highlight-marker-yellow", "Highlight Marker", "highlight", "highlightMarker", {
+    fontId: "montserrat", fontSizePx: 82, baseColor: "#ffffff", accentColor: "#ffd60a",
+  }, "New"),
+  t("mixed-weight-mono", "Mixed Weight", "bold", "mixedWeight", {
+    fontId: "archivoBlack", secondaryFontId: "inter", fontSizePx: 92, baseColor: "#ffffff",
+  }, "New"),
+  t("kinetic-split-classic", "Kinetic Split", "trending", "kineticSplit", {
+    fontId: "oswald", fontSizePx: 88, baseColor: "#ffffff", accentColor: "#ffd60a",
+  }, "New"),
+  t("center-punch-classic", "Center Punch", "bold", "centerPunch", {
+    fontId: "anton", fontSizePx: 96, baseColor: "#ffffff", accentColor: "#ffd60a",
+  }, "New"),
+  t("vertical-impact-classic", "Vertical Impact", "bold", "verticalImpact", {
+    fontId: "bebas", fontSizePx: 86, baseColor: "#ffffff", accentColor: "#ffd60a",
+  }, "New"),
+  t("editorial-stack-classic", "Editorial Stack", "clean", "editorialStack", {
+    fontId: "bodoniModa", secondaryFontId: "inter", fontSizePx: 84,
+    baseColor: "#ffffff", accentColor: "#c83232",
+  }, "New"),
+  t("magazine-cut-classic", "Magazine Cut", "bold", "magazineCut", {
+    fontId: "bebas", secondaryFontId: "inter", fontSizePx: 88,
+    baseColor: "#ffffff", accentColor: "#c83232",
+  }, "New"),
+  t("minimal-luxury-classic", "Minimal Luxury", "clean", "minimalLuxury", {
+    fontId: "cormorantGaramond", secondaryFontId: "inter", fontSizePx: 78,
+    baseColor: "#f5f5f0", accentColor: "#d4af37",
+  }, "New"),
+  t("layered-depth-classic", "Layered Depth", "clean", "layeredDepth", {
+    fontId: "bodoniModa", secondaryFontId: "inter", fontSizePx: 80,
+    baseColor: "#ffffff", accentColor: "#ffd60a",
   }, "New"),
 ];
 

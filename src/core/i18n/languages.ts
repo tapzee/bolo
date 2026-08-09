@@ -23,6 +23,26 @@ export const AUTO_LANGUAGE: LanguageOption = {
   label: "Auto-detect",
 };
 
+/**
+ * Hindi speech written back in the Latin alphabet — "kya kar rahe ho", not
+ * "क्या कर रहे हो".
+ *
+ * Not a language: it is a *script* choice over Hindi audio, which is why it has
+ * no ISO code and why `client.ts` sends it upstream as `en`. It still has to
+ * live in the catalogue, because `/api/transcribe` validates the incoming code
+ * with `isSupportedLanguage` and silently falls back to `DEFAULT_LANGUAGE` for
+ * anything it does not recognise. While this was missing, every Hinglish
+ * request was quietly downgraded to Devanagari.
+ *
+ * Deliberately kept out of `INDIAN_LANGUAGES` so the "more languages" dropdown
+ * does not list it twice — the script picker owns it.
+ */
+export const HINGLISH_LANGUAGE: LanguageOption = {
+  code: "hinglish",
+  label: "Hinglish",
+  native: "Latin script",
+};
+
 /** Listed first — this is the audience the product is built for. */
 export const INDIAN_LANGUAGES: readonly LanguageOption[] = [
   { code: "hi", label: "Hindi", native: "हिन्दी" },
@@ -83,9 +103,29 @@ export const WORLD_LANGUAGES: readonly LanguageOption[] = [
 
 export const ALL_LANGUAGES: readonly LanguageOption[] = [
   AUTO_LANGUAGE,
+  HINGLISH_LANGUAGE,
   ...INDIAN_LANGUAGES,
   ...WORLD_LANGUAGES,
 ];
+
+/** The two ways Hindi audio can be written down. */
+export type CaptionScript = "latin" | "devanagari";
+
+/**
+ * Which script picker value a spoken-language code corresponds to.
+ *
+ * Both directions live here rather than in the component so the export and the
+ * transcribe route can agree on what "hinglish" means without importing React.
+ */
+export const scriptForLanguage = (code: string): CaptionScript =>
+  code === "hinglish" ? "latin" : "devanagari";
+
+export const languageForScript = (script: CaptionScript): string =>
+  script === "latin" ? "hinglish" : "hi";
+
+/** Script only has a meaning for Hindi audio — Tamil is never written in Latin here. */
+export const scriptAppliesTo = (code: string): boolean =>
+  code === "hi" || code === "hinglish";
 
 const CODES = new Set(ALL_LANGUAGES.map((language) => language.code));
 

@@ -19,7 +19,17 @@
   --bolo-font-poppins: var(--font-poppins), var(--font-devanagari), sans-serif;
   --bolo-font-playfair: var(--font-playfair), var(--font-devanagari), serif;
   --bolo-font-caveat: var(--font-caveat), var(--font-devanagari), cursive, sans-serif;
+  --bolo-font-dynapuff: var(--font-dynapuff), var(--font-devanagari), sans-serif;
+  --bolo-font-limelight: var(--font-limelight), var(--font-devanagari), sans-serif;
+  --bolo-font-tangerine: var(--font-tangerine), var(--font-devanagari), cursive, sans-serif;
+  --bolo-font-grand-hotel: var(--font-grand-hotel), var(--font-devanagari), cursive, sans-serif;
   --bolo-font-devanagari: var(--font-devanagari), sans-serif;
+  --bolo-font-archivo-black: var(--font-archivo-black), var(--font-devanagari), sans-serif;
+  --bolo-font-oswald: var(--font-oswald), var(--font-devanagari), sans-serif;
+  --bolo-font-inter: var(--font-inter), var(--font-devanagari), sans-serif;
+  --bolo-font-cormorant-garamond: var(--font-cormorant-garamond), var(--font-devanagari), serif;
+  --bolo-font-bodoni-moda: var(--font-bodoni-moda), var(--font-devanagari), serif;
+  --bolo-font-noto-serif-devanagari: var(--font-noto-serif-devanagari), var(--font-devanagari), serif;
 }
 
 /* ===========================================================================

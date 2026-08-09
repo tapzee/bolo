@@ -86,7 +86,16 @@ const callOnce = async (
   // Omitting the field entirely is how Scribe is told to auto-detect; sending
   // the literal string "auto" is rejected as an unknown language.
   if (languageCode !== "auto") {
-    form.append("language_code", languageCode);
+    // Hinglish is a script, not a language Scribe knows. It is asked for as
+    // Hindi and romanized afterwards by `romanizeDevanagari`.
+    //
+    // An earlier version sent "en" here on the theory that it would make the
+    // model spell Hindi out phonetically. Measured against the real API, it
+    // does not: the same clip came back with 2844 Devanagari characters under
+    // "en" and 2873 under "hi". Scribe writes in the script of the speech it
+    // hears. Sending "hi" is strictly better — it is the truth about the audio,
+    // so accuracy is the best available before we change the script ourselves.
+    form.append("language_code", languageCode === "hinglish" ? "hi" : languageCode);
   }
 
   const controller = new AbortController();

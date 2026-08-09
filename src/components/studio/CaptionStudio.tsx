@@ -15,6 +15,7 @@ import {
   VIDEO_FPS,
   canvasSize,
   getStyleDefaults,
+  isStyleId,
   msToFrames,
   type AspectRatioId,
   type CaptionPlacement,
@@ -104,10 +105,10 @@ export function CaptionStudio() {
   const [backdrop, setBackdrop] = useState<BackdropId>("studio");
   const [overrides, setOverrides] = useState<Partial<CaptionStyleConfig>>({});
 
-  const config = useMemo<CaptionStyleConfig>(
-    () => ({ ...getStyleDefaults(styleId), ...overrides }),
-    [styleId, overrides],
-  );
+  const config = useMemo<CaptionStyleConfig>(() => {
+    const validStyleId = isStyleId(styleId) ? styleId : "bold-yellow";
+    return { ...getStyleDefaults(validStyleId), ...overrides };
+  }, [styleId, overrides]);
 
   // Switching preset discards tweaks — carrying Anton's 84px size onto Clean
   // would misrepresent what the preset actually looks like.

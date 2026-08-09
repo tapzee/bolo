@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { creditsForSeconds } from "@/core";
+import { creditsForSeconds, romanizeDevanagari } from "@/core";
 import { ScribeError, transcribeAudio } from "@/lib/elevenlabs/client";
 import { transformScribeResponse } from "@/lib/elevenlabs/transform";
 import {
@@ -258,6 +258,21 @@ export async function POST(
       languageCode,
     });
     transcript = transformScribeResponse(response);
+
+    // Hinglish is Hindi audio written in Latin. Scribe only ever returns
+    // Devanagari for it (verified against the live API), so the script change
+    // happens here. Per-word rewrite only — every timestamp, confidence and
+    // ordering is left exactly as transformed, so captions cannot drift.
+    if (languageCode === "hinglish") {
+      transcript = {
+        ...transcript,
+        text: romanizeDevanagari(transcript.text),
+        words: transcript.words.map((word) => ({
+          ...word,
+          text: romanizeDevanagari(word.text),
+        })),
+      };
+    }
   } catch (error) {
     // Must release before every early return, or the user's legitimate retry
     // would be answered with `in_flight` until the pending entry expires.

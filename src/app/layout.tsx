@@ -26,8 +26,17 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     // Shipped default theme is light mode; the toggle adds the `dark` class if dark theme is chosen.
-    <html lang="en" className="" suppressHydrationWarning>
-      <body className={`${fontVariables} font-sans antialiased`}>
+    // `fontVariables` lives here, not on `<body>`: `globals.css`'s
+    // `--bolo-font-*` stacks are declared on `:root` and each references a
+    // `--font-*` variable (e.g. `--bolo-font-montserrat: var(--font-montserrat)...`).
+    // A custom property's var() references resolve using whatever is in scope
+    // at the element where that property's own declaration wins the cascade —
+    // not re-resolved per descendant — so if `--font-montserrat` only existed
+    // one level down on `<body>`, `--bolo-font-montserrat` was unresolvable at
+    // `:root` and inherited everywhere as invalid. Every caption font in the
+    // app was silently falling back to the UI's default sans as a result.
+    <html lang="en" className={fontVariables} suppressHydrationWarning>
+      <body className="font-sans antialiased">
         {/*
           Applies the stored theme before first paint. Render-blocking on
           purpose — deferring it produces a dark-to-light flash for every

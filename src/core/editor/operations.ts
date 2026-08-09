@@ -71,6 +71,23 @@ export const updateWordColor = (
   return replaceAt(words, index, next);
 };
 
+export const updateWordEmphasis = (
+  words: readonly CaptionWord[],
+  index: number,
+  emphasis: CaptionWord["emphasis"] | undefined,
+): CaptionWord[] => {
+  const word = words[index];
+  if (word === undefined) return [...words];
+
+  const next = { ...word };
+  if (emphasis === undefined) {
+    delete next.emphasis;
+  } else {
+    next.emphasis = emphasis;
+  }
+  return replaceAt(words, index, next);
+};
+
 export interface TimingBounds {
   minStartMs: number;
   maxEndMs: number;

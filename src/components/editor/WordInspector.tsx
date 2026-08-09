@@ -5,8 +5,6 @@ import {
   ArrowLeftToLine,
   CornerDownLeft,
   Plus,
-  RotateCcw,
-  Scissors,
   Trash2,
 } from "lucide-react";
 import type { CaptionWord } from "@/core";
@@ -31,6 +29,7 @@ export interface WordInspectorProps {
   totalWords: number;
   onSetText: (index: number, text: string) => void;
   onSetColor: (index: number, color: string | undefined) => void;
+  onSetEmphasis: (index: number, emphasis: CaptionWord["emphasis"] | undefined) => void;
   onSplit: (index: number) => void;
   onMerge: (index: number) => void;
   onClearBreak: (index: number) => void;
@@ -44,6 +43,7 @@ export function WordInspector({
   totalWords,
   onSetText,
   onSetColor,
+  onSetEmphasis,
   onSplit,
   onMerge,
   onClearBreak,
@@ -165,41 +165,60 @@ export function WordInspector({
         </div>
       </div>
 
-      <div className="space-y-2">
-        <Label className="text-xs text-muted-foreground">Line breaks</Label>
-        <div className="flex flex-wrap gap-1.5">
+      <div className="space-y-3">
+        <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground/80">
+          Style & Layout
+        </Label>
+        <div className="flex gap-2">
           <Button
             variant="outline"
             size="sm"
-            className="h-7 text-xs"
-            disabled={index === 0}
-            onClick={() => onSplit(index)}
+            className={cn("h-8 flex-1 text-xs", word.pageBreak === "force" && "border-primary bg-primary/10 text-primary")}
+            onClick={() => (word.pageBreak === "force" ? onClearBreak(index) : onSplit(index))}
           >
-            <Scissors className="size-3" />
-            Start new line
+            <CornerDownLeft className="mr-1.5 size-3.5" /> Break
           </Button>
           <Button
             variant="outline"
             size="sm"
-            className="h-7 text-xs"
-            disabled={index === 0}
-            onClick={() => onMerge(index)}
+            className={cn("h-8 flex-1 text-xs", word.pageBreak === "never" && "border-primary bg-primary/10 text-primary")}
+            onClick={() => (word.pageBreak === "never" ? onClearBreak(index) : onMerge(index))}
           >
-            <ArrowLeftToLine className="size-3" />
-            Join previous
+            <ArrowLeftToLine className="mr-1.5 size-3.5" /> Merge
           </Button>
-          {word.pageBreak !== undefined ? (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-7 text-xs"
-              onClick={() => onClearBreak(index)}
-            >
-              <RotateCcw className="size-3" />
-              Auto
-            </Button>
-          ) : null}
         </div>
+      </div>
+
+      {/* --- EMPHASIS ROLE (DYNAMIC HIGHLIGHT) --- */}
+      <div className="space-y-3">
+        <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground/80">
+          Word Emphasis Role
+        </Label>
+        <div className="grid grid-cols-2 gap-2">
+          {[
+            { value: undefined, label: "Auto" },
+            { value: "supporting", label: "Supporting" },
+            { value: "normal", label: "Normal" },
+            { value: "important", label: "Important" },
+            { value: "special", label: "Special" },
+          ].map((role) => (
+            <button
+              key={role.value ?? "auto"}
+              onClick={() => onSetEmphasis(index, role.value as import("@/core").WordEmphasis | undefined)}
+              className={cn(
+                "flex h-8 items-center justify-center rounded-md border text-xs transition-colors",
+                word.emphasis === role.value
+                  ? "border-primary bg-primary/10 text-primary font-medium"
+                  : "border-input bg-transparent hover:bg-muted text-muted-foreground"
+              )}
+            >
+              {role.label}
+            </button>
+          ))}
+        </div>
+        <p className="text-[10px] text-muted-foreground/70 leading-relaxed">
+          Auto-assignment will pick the role if left on &apos;Auto&apos;. Only templates with Dynamic Emphasis support these roles.
+        </p>
       </div>
 
       <div className="space-y-2">

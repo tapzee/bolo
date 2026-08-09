@@ -32,8 +32,13 @@ import {
   canvasForSource,
   formatDuration,
   getStyleDefaults,
+  isStyleId,
   lowConfidenceIndices,
   msToFrames,
+  languageForScript,
+  scriptAppliesTo,
+  scriptForLanguage,
+  type CaptionScript,
   type CaptionStyleConfig,
   type StyleId,
   type ExportResolution,
@@ -98,7 +103,8 @@ const PlayerStage = dynamic(() => import("@/components/studio/PlayerStage"), {
 
 /** Quick picks. The full catalogue lives in the dropdown beneath them. */
 const QUICK_LANGUAGES: readonly SegmentedOption<LanguageCode>[] = [
-  { value: "hi", label: "Hindi", hint: "Best for Hindi and Hinglish" },
+  { value: "hi", label: "Hindi", hint: "Hindi script (अपना)" },
+  { value: "hinglish" as LanguageCode, label: "Hinglish", hint: "English script (apna)" },
   { value: "en", label: "English", hint: "English-only speech" },
   { value: "auto", label: "Auto", hint: "Let the model detect it" },
 ];
@@ -108,7 +114,9 @@ export function CreateFlow() {
     useCaptionPipeline();
   const [restoreFailed, setRestoreFailed] = useState(false);
   const { user } = useAuth();
-  const [language, setLanguage] = useState<LanguageCode>("hi");
+  // Latin by default: Hinglish captions are what most reels here actually want,
+  // and Devanagari is one dropdown away for the people who want it.
+  const [language, setLanguage] = useState<LanguageCode>("hinglish");
   const [styleId, setStyleId] = useState<StyleId>(DEFAULT_STYLE_ID);
   const [overrides, setOverrides] = useState<Partial<CaptionStyleConfig>>({});
   const [timelineMode, setTimelineMode] = useState<TimelineMode>("word");
@@ -124,10 +132,11 @@ export function CreateFlow() {
 
   const editor = useCaptionEditor(state.words);
 
-  const config = useMemo<CaptionStyleConfig>(
-    () => ({ ...getStyleDefaults(styleId), ...overrides }),
-    [styleId, overrides],
-  );
+  const config = useMemo<CaptionStyleConfig>(() => {
+    // Defensive check: if styleId is undefined or invalid (e.g. stale local storage or bad import)
+    const validStyleId = isStyleId(styleId) ? styleId : "bold-yellow";
+    return { ...getStyleDefaults(validStyleId), ...overrides };
+  }, [styleId, overrides]);
 
   const applyTemplate = useCallback(
     (next: CaptionStyleConfig, appliedId: string | null) => {
@@ -229,7 +238,7 @@ export function CreateFlow() {
       }
 
       setOverrides(saved.styleConfig);
-      setStyleId(saved.styleConfig.styleId);
+      setStyleId(isStyleId(saved.styleConfig.styleId) ? saved.styleConfig.styleId : "bold-yellow");
     })();
   }, [restore, user?.uid]);
 
@@ -393,7 +402,16 @@ export function CreateFlow() {
                   label="Spoken language"
                 />
 
-                <Select value={language} onValueChange={setLanguage}>
+                {/*
+                  "hinglish" is deliberately absent from this list — it is a
+                  script, not a dialect, and the picker below owns it. Passing
+                  it as the value would render an empty trigger, since Radix
+                  only falls back to the placeholder when the value is blank.
+                */}
+                <Select
+                  value={language === "hinglish" ? "" : language}
+                  onValueChange={setLanguage}
+                >
                   <SelectTrigger className="w-full h-9 text-xs bg-background">
                     <SelectValue placeholder="More dialects & languages…" />
                   </SelectTrigger>
@@ -427,6 +445,43 @@ export function CreateFlow() {
                     </SelectGroup>
                   </SelectContent>
                 </Select>
+
+                {/*
+                  Script picker. Only rendered for Hindi audio — there is no
+                  Latin/Devanagari choice to make about a Tamil or Spanish clip,
+                  and a control that does nothing is worse than a missing one.
+                */}
+                {scriptAppliesTo(language) ? (
+                  <div className="space-y-1.5 pt-0.5">
+                    <label className="text-[11px] font-medium text-muted-foreground">
+                      Caption script
+                    </label>
+                    <Select
+                      value={scriptForLanguage(language)}
+                      onValueChange={(next) =>
+                        setLanguage(languageForScript(next as CaptionScript))
+                      }
+                    >
+                      <SelectTrigger className="w-full h-9 text-xs bg-background">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="latin">
+                          <span className="font-medium">Hinglish (Latin)</span>
+                          <span className="ml-2 text-muted-foreground text-[11px]">
+                            kya kar rahe ho
+                          </span>
+                        </SelectItem>
+                        <SelectItem value="devanagari">
+                          <span className="font-medium">Hindi (Devanagari)</span>
+                          <span className="ml-2 text-muted-foreground text-[11px]">
+                            क्या कर रहे हो
+                          </span>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                ) : null}
               </div>
 
               {/* Step 2: Video Dropzone */}
@@ -720,6 +775,7 @@ export function CreateFlow() {
                       totalWords={editor.words.length}
                       onSetText={editor.actions.setText}
                       onSetColor={editor.actions.setColor}
+                      onSetEmphasis={editor.actions.setEmphasis}
                       onSplit={editor.actions.splitAt}
                       onMerge={editor.actions.mergeAt}
                       onClearBreak={editor.actions.clearBreak}

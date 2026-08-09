@@ -188,6 +188,7 @@ export function WordTimeline({
     element: HTMLElement;
     nextStartMs: number;
     nextEndMs: number;
+    lastSeek: number;
   } | null>(null);
 
   const beginDrag = useCallback(
@@ -197,6 +198,10 @@ export function WordTimeline({
 
       event.preventDefault();
       event.stopPropagation();
+      
+      if (player && typeof player.pause === "function") {
+        player.pause();
+      }
 
       const element = (event.currentTarget as HTMLElement).parentElement;
       if (element === null) return;
@@ -216,11 +221,12 @@ export function WordTimeline({
         element,
         nextStartMs: word.startMs,
         nextEndMs: word.endMs,
+        lastSeek: 0,
       };
 
       (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
     },
-    [words, durationMs],
+    [words, durationMs, player],
   );
 
   const moveDrag = useCallback((event: React.PointerEvent) => {
@@ -233,17 +239,28 @@ export function WordTimeline({
 
     let startMs = drag.originalStartMs;
     let endMs = drag.originalEndMs;
+    
+    const now = Date.now();
+    const shouldSeek = now - drag.lastSeek > 30;
 
     if (drag.mode === "start") {
       startMs = Math.min(
         Math.max(drag.minStartMs, drag.originalStartMs + deltaMs),
         drag.originalEndMs - minSpanMs,
       );
+      if (shouldSeek) {
+        onSeekMs(startMs);
+        drag.lastSeek = now;
+      }
     } else {
       endMs = Math.max(
         Math.min(drag.maxEndMs, drag.originalEndMs + deltaMs),
         drag.originalStartMs + minSpanMs,
       );
+      if (shouldSeek) {
+        onSeekMs(endMs);
+        drag.lastSeek = now;
+      }
     }
 
     drag.nextStartMs = startMs;
@@ -253,7 +270,7 @@ export function WordTimeline({
     // pointer, not an animation, and it must not re-render the tree.
     drag.element.style.left = `${startMs * scale}px`;
     drag.element.style.width = `${(endMs - startMs) * scale}px`;
-  }, []);
+  }, [onSeekMs]);
 
   const endDrag = useCallback(() => {
     const drag = dragRef.current;
@@ -329,6 +346,16 @@ export function WordTimeline({
       <div
         ref={scrollRef}
         onScroll={updateViewport}
+        onWheel={(event) => {
+          // Translate vertical mouse wheel scrolling into horizontal scrolling
+          // for standard desktop mice, unless holding shift (which some mice use natively).
+          if (event.deltaY !== 0 && event.deltaX === 0 && !event.shiftKey) {
+            const el = scrollRef.current;
+            if (el) {
+              el.scrollLeft += event.deltaY;
+            }
+          }
+        }}
         // Tall enough that the word blocks and the waveform strip below them
         // occupy separate bands instead of overlapping.
         className="relative h-32 w-full overflow-x-auto overflow-y-hidden rounded-xl border bg-surface-inset"
@@ -337,12 +364,46 @@ export function WordTimeline({
           className="relative h-full"
           style={{ width: contentWidth }}
           onPointerDown={(event) => {
-            // Bare track click seeks; word clicks stop propagation below.
             const el = scrollRef.current;
             if (el === null) return;
-            const x =
-              event.clientX - el.getBoundingClientRect().left + el.scrollLeft;
-            onSeekMs(x / pxPerMs);
+            // Only left clicks
+            if (event.button !== 0) return;
+            
+            // Capture initial state for drag vs click detection
+            const startX = event.clientX;
+            const initialScrollLeft = el.scrollLeft;
+            let isDragging = false;
+
+            const onPointerMove = (moveEvent: PointerEvent) => {
+              const deltaX = moveEvent.clientX - startX;
+              // If moved more than 3 pixels, treat as a drag
+              if (!isDragging && Math.abs(deltaX) > 3) {
+                isDragging = true;
+                el.style.cursor = "grabbing";
+              }
+              
+              if (isDragging) {
+                el.scrollLeft = initialScrollLeft - deltaX;
+              }
+            };
+
+            const onPointerUp = (upEvent: PointerEvent) => {
+              window.removeEventListener("pointermove", onPointerMove);
+              window.removeEventListener("pointerup", onPointerUp);
+              window.removeEventListener("pointercancel", onPointerUp);
+              el.style.cursor = "";
+
+              if (!isDragging) {
+                // It was just a click, so seek
+                const rect = el.getBoundingClientRect();
+                const x = upEvent.clientX - rect.left + el.scrollLeft;
+                onSeekMs(x / pxPerMs);
+              }
+            };
+
+            window.addEventListener("pointermove", onPointerMove);
+            window.addEventListener("pointerup", onPointerUp);
+            window.addEventListener("pointercancel", onPointerUp);
           }}
         >
           {/* Second gridlines, drawn as a repeating gradient so a 30-minute
@@ -445,7 +506,7 @@ export function WordTimeline({
                     onPointerUp={endDrag}
                     onPointerCancel={endDrag}
                     className={cn(
-                      "absolute inset-y-0 w-2 cursor-ew-resize rounded-sm",
+                      "absolute inset-y-0 w-2 cursor-ew-resize touch-none rounded-sm",
                       mode === "start" ? "left-0" : "right-0",
                       "opacity-0 group-hover:opacity-100",
                       isSelected
@@ -460,8 +521,45 @@ export function WordTimeline({
 
           <div
             ref={playheadRef}
-            className="pointer-events-none absolute top-0 bottom-0 left-0 w-px bg-brand will-change-transform"
+            className="absolute top-0 bottom-0 left-0 w-px bg-brand will-change-transform z-20 cursor-col-resize touch-none"
+            onPointerDown={(event) => {
+              event.stopPropagation();
+              const el = scrollRef.current;
+              if (el === null) return;
+              
+              if (player && typeof player.pause === "function") {
+                player.pause();
+              }
+              
+              const target = event.currentTarget as HTMLElement;
+              target.setPointerCapture(event.pointerId);
+
+              // Throttle seeks to ~30fps for smooth video scrubbing
+              let lastSeek = 0;
+              const onPointerMove = (moveEvent: Event) => {
+                const me = moveEvent as PointerEvent;
+                const x = me.clientX - el.getBoundingClientRect().left + el.scrollLeft;
+                const now = Date.now();
+                if (now - lastSeek > 30) {
+                  onSeekMs(Math.max(0, x / pxPerMs));
+                  lastSeek = now;
+                }
+              };
+
+              const onPointerUp = () => {
+                target.releasePointerCapture(event.pointerId);
+                target.removeEventListener("pointermove", onPointerMove);
+                target.removeEventListener("pointerup", onPointerUp);
+                target.removeEventListener("pointercancel", onPointerUp);
+              };
+
+              target.addEventListener("pointermove", onPointerMove);
+              target.addEventListener("pointerup", onPointerUp);
+              target.addEventListener("pointercancel", onPointerUp);
+            }}
           >
+            {/* Invisible expanded hit area so users can grab the 1px line easily */}
+            <div className="absolute -left-3 top-0 bottom-0 w-6" />
             <div className="absolute -top-px -left-[3px] size-[7px] rounded-full bg-brand" />
           </div>
         </div>

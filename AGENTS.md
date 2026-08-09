@@ -285,6 +285,103 @@ explicit `aspectRatio`.
 `patch({ fontSizePx, maxLineWidthPct })`. The prop is optional, so nothing
 breaks if it is removed. **Gemini: yours, please review.**
 
+### Hinglish was silently broken + script picker — 9 Aug
+
+**`"hinglish"` was not in `core/i18n/languages.ts`.** `/api/transcribe` validates
+the incoming code with `isSupportedLanguage` and falls back to
+`DEFAULT_LANGUAGE` (`"hi"`) for anything it does not recognise, so every request
+from the "Hinglish" quick-pick was quietly downgraded to Devanagari. The UI cast
+it `as LanguageCode` at the call site, which is exactly the cast that hid it —
+nothing errored, the user just got the wrong script. Now registered as
+`HINGLISH_LANGUAGE`, deliberately **outside** `INDIAN_LANGUAGES` so the "more
+languages" dropdown does not list it twice. `i18n/languages.test.ts` pins it.
+
+New in the same file: `CaptionScript`, `scriptForLanguage`,
+`languageForScript`, `scriptAppliesTo`. They live in `core` rather than the
+component so the route and the export can agree on what `"hinglish"` means
+without importing React.
+
+**Default is now Latin.** `CreateFlow`'s `language` state starts at
+`"hinglish"`, not `"hi"`.
+
+### Hinglish, properly — 9 Aug
+
+**Measured fact, do not re-litigate this from intuition: Scribe has no
+romanized-Hindi mode, and `language_code` does not choose the output script.**
+
+The previous fix sent `language_code=en` for Hinglish on the theory that the
+model would spell Hindi out phonetically in the English alphabet. It was tested
+against the live API with a real Hindi clip. Same audio, both codes:
+
+| sent | detected | output |
+|---|---|---|
+| `en` | `eng` p=1 | 2844 Devanagari chars, 12 Latin |
+| `hi` | `hin` p=1 | 2873 Devanagari chars, 12 Latin |
+
+Identical script. Scribe transcribes in the native script of the speech it
+hears. `en` bought nothing and cost accuracy, because it also lied to the model
+about the language.
+
+An earlier probe using a Windows SAPI *English* voice reading Hinglish text
+returned Latin under both codes and looked like it confirmed the old theory.
+It did not — the audio was English-accented, so Latin was the native script of
+what Scribe heard. **Test script questions with authentically-accented audio or
+the result means nothing.**
+
+So `client.ts` now asks for `hi` (the truth about the audio, hence the most
+accurate transcript available) and `src/core/i18n/romanize.ts` changes the
+script afterwards.
+
+`romanizeDevanagari` is a per-word string rewrite applied in the transcribe
+route, **after** `transformScribeResponse`. It touches `text` and `words[].text`
+only — every timestamp, confidence and ordering is passed through untouched, so
+changing script can never move a caption. Anything that reformulated words as a
+side effect (asking the model to romanize, re-running the transform) could.
+
+It targets how people actually type Hinglish, not IAST — no diacritics ever, and
+Hindi schwa deletion so words come out "kar"/"karna"/"ladka" rather than
+"kara"/"karanaa"/"ladakaa". Two rules, both pinned in `romanize.test.ts`:
+final schwa always drops; a non-initial schwa drops when the following syllable
+still has a vowel, applied right-to-left so deletions cascade. The cascade is
+load-bearing — it is the difference between "sirdard" and "siradard", and
+between "samajhna" and "samjhna". The first syllable is never eligible, without
+which बहुत becomes "bhut".
+
+Long vowels shorten only in the final syllable: "kya" not "kyaa", but "aaj" and
+"skool" keep theirs. Shortening everywhere would give "sath", "bat" and "yad",
+which collide with English words.
+
+`LOANWORDS` is a deliberately short override list for words the rules get
+wrong — सब्सक्राइब would otherwise be "sabskraib", में would be "men". Extend it
+when something reads wrong; it is not meant to become a dictionary.
+
+**Known rough edges** (correct-but-not-idiomatic, not bugs): medial आ stays long,
+so अचानक → "achaanak" rather than "achanak". Judged the better trade against
+losing "saath"/"baat".
+
+### Cross-boundary edit — Claude → create/, 9 Aug
+
+`CreateFlow.tsx`. **Gemini: this is yours, please review.** User asked for it
+directly. Three things:
+
+- default `language` state `"hi"` → `"hinglish"`
+- a "Caption script" `Select` under the existing language dropdown — Hinglish
+  (Latin) / Hindi (Devanagari), with a sample of each script as the hint
+- it renders only when `scriptAppliesTo(language)`, i.e. Hindi audio. There is
+  no Latin/Devanagari choice to make about a Tamil clip, and the repo already
+  learned from `CaptionDragLayer` that a control which does nothing is worse
+  than a missing one.
+
+No layout, tab state or step structure touched.
+
+**Redundancy worth a decision, not fixed here:** the segmented control still has
+a "Hinglish" button, which now sets exactly what the script dropdown sets. They
+are bound to the same state so they cannot contradict each other, but two
+controls for one choice is a smell. The clean version drops "Hinglish" from
+`QUICK_LANGUAGES` and lets the segmented control mean *spoken language* only
+(Hindi / English / Auto) with script as its own axis. That removes a button from
+Gemini's layout, so it was left alone.
+
 ### Known gap — the ₹9 single export
 
 `PLANS` in `legal-content.tsx` no longer lists it. It is a *count* of

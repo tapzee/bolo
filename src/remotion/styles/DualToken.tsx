@@ -11,7 +11,6 @@ import {
   displayText,
   tokenGlyphStyle,
   tokenShellStyle,
-  strokeStyle,
   type TokenViewProps,
 } from "../captions/primitives";
 

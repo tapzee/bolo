@@ -1,5 +1,5 @@
 import type { CSSProperties } from "react";
-import type { CaptionStyleConfig, CaptionToken } from "@/core";
+import type { CaptionStyleConfig, CaptionToken, FontId, WordRole } from "@/core";
 import { resolveTextCase } from "@/core";
 
 export interface TokenViewProps {
@@ -30,6 +30,30 @@ export interface TokenViewProps {
    * anything about it changed.
    */
   heroIndex?: number;
+  /**
+   * Which word (if any) carries DynamicHighlight's script flourish this page.
+   * See `specialWordIndex` — computed once per page, same reason `heroIndex`
+   * is: every word needs to agree, and only the page's full token list can
+   * answer it.
+   */
+  specialIndex?: number;
+  /**
+   * Deterministic hash of the page's own id, for engines that vary their
+   * whole-page treatment (not just a per-word roll) from scene to scene —
+   * `heroMixed` picks its layout with it, so every word on the same page
+   * agrees, and the choice is stable across re-renders of the same page.
+   */
+  pageSeed?: number;
+  /**
+   * Frame the current *page* (not this word) started on. Combined with
+   * `pageDurationFrames`, lets a template compute page-relative progress for
+   * `frameProgress`/`pickFrameState` — the 10-template family's frame-state
+   * system runs off how far through the whole page it is, not just this one
+   * word's own speaking window.
+   */
+  pageStartFrame?: number;
+  /** How many frames the current page lasts, start to end. */
+  pageDurationFrames?: number;
 }
 
 /**
@@ -159,6 +183,48 @@ export const heroWordIndex = (texts: readonly string[]): number => {
   return best;
 };
 
+/**
+ * Which word on a page (if any) carries DynamicHighlight's script flourish,
+ * independent of the header word.
+ *
+ * Before this existed, "special" and "important" were both decided from the
+ * *same* index (`heroIndex % 3`), so a page could only ever get a bold header
+ * OR a script flourish, never both — which is why reference captions built on
+ * this look (a bold header word plus a separate cursive word, e.g. "PURCHASE"
+ * + "kiya") never matched what this engine actually produced. Picking a
+ * second, distinct word fixes that.
+ *
+ * Longest-remaining-word, same as `heroWordIndex`, but scored over the words
+ * `heroWordIndex` didn't pick — a short page with nothing left worth
+ * flourishing returns -1, and every word just falls through to normal/
+ * supporting sizing instead of a script word forced onto whatever's closest.
+ *
+ * Pure and index-only for the same reason `heroWordIndex` is: the DOM preview
+ * and the Canvas2D export must pick the identical word.
+ */
+export const specialWordIndex = (
+  texts: readonly string[],
+  heroIndex: number,
+): number => {
+  if (texts.length < 3) return -1;
+
+  let best = -1;
+  let bestScore = -1;
+
+  texts.forEach((raw, index) => {
+    if (index === heroIndex) return;
+    const text = raw.trim();
+    // Too short to read as a flourish rather than a stray connecting word.
+    if (text.length <= 3) return;
+    if (text.length > bestScore) {
+      bestScore = text.length;
+      best = index;
+    }
+  });
+
+  return best;
+};
+
 export type SplashWordRole = "accent" | "script" | "base";
 
 /**
@@ -182,4 +248,305 @@ export const getSplashWordRole = (
     return "script";
   }
   return "base";
+};
+
+/**
+ * Deterministic pseudo-random based on the string itself so it doesn't flicker.
+ */
+export const getHash = (str: string) => {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return Math.abs(hash);
+};
+
+/**
+ * Kinetic engine — per-word entrance direction.
+ *
+ * Chosen from the word's own text plus its position on the page rather than
+ * a random number, so the DOM preview and the Canvas2D export land on the
+ * identical variant for the identical word, and so replaying the same page
+ * twice (e.g. scrubbing) never flickers a different animation.
+ */
+export const KINETIC_VARIANTS = [
+  "slideUp",
+  "slideDown",
+  "slideLeft",
+  "slideRight",
+  "blurPop",
+  "blurOut",
+] as const;
+
+export type KineticVariant = (typeof KINETIC_VARIANTS)[number];
+
+export const kineticVariant = (text: string, index: number): KineticVariant =>
+  KINETIC_VARIANTS[
+    getHash(`${text.toLowerCase()}-${index}`) % KINETIC_VARIANTS.length
+  ]!;
+
+/**
+ * Roughly 1 in 3 words render in the accent colour with a moving light-streak
+ * sweeping across them once, instead of the plain karaoke highlight every
+ * other word gets. Hashed off the word alone (not its index) so the same
+ * word reads the same way wherever it recurs on the page — matching how
+ * `isCursiveHero` in HeroMixed.tsx picks its own "special" words.
+ */
+export const isKineticAccentWord = (text: string): boolean =>
+  getHash(text.toLowerCase()) % 3 === 0;
+
+/**
+ * Lightens a `#rrggbb` (or `#rgb`) hex colour toward white by `amount` (0–1).
+ *
+ * Shared by the DOM and Canvas2D kinetic renderers so the light end of the
+ * accent-word gloss gradient is derived from the template's own `accentColor`
+ * rather than a hand-picked highlight that would need updating every time a
+ * template's palette changes.
+ */
+export const lightenHex = (hex: string, amount: number): string => {
+  const clean = hex.replace("#", "");
+  const full = clean.length === 3
+    ? clean.split("").map((c) => c + c).join("")
+    : clean;
+  const r = parseInt(full.slice(0, 2), 16) || 0;
+  const g = parseInt(full.slice(2, 4), 16) || 0;
+  const b = parseInt(full.slice(4, 6), 16) || 0;
+  const mix = (channel: number) => Math.round(channel + (255 - channel) * amount);
+  const toHex = (channel: number) => mix(channel).toString(16).padStart(2, "0");
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+};
+
+/**
+ * HeroMixed engine — which display face the hero word borrows for this page.
+ *
+ * Chosen from the word's own text (not its index or the page), so a hero word
+ * always dresses the same way wherever it recurs, and the DOM preview and the
+ * Canvas2D export never disagree about which face a given hero word gets.
+ * "primary" keeps the template's own font untouched; the other three borrow a
+ * face from elsewhere in the catalogue for a page of visible variety.
+ */
+export const HERO_FONT_STYLES = ["primary", "impact", "cursive", "serif"] as const;
+
+export type HeroFontStyle = (typeof HERO_FONT_STYLES)[number];
+
+export const heroFontStyle = (text: string): HeroFontStyle =>
+  HERO_FONT_STYLES[getHash(text.toLowerCase()) % HERO_FONT_STYLES.length]!;
+
+/**
+ * HeroMixed engine — which face a small annotation word borrows.
+ *
+ * Restricted to two condensed-but-legible sans faces (not the wider kinetic
+ * roster) because this text renders as small as ~20px on a phone: a display
+ * or script face at that size is the readability failure this whole change
+ * exists to fix, not a look worth adding.
+ */
+export const ANNOTATION_FONTS = ["montserrat", "poppins"] as const satisfies readonly FontId[];
+
+export const annotationFontId = (text: string): FontId =>
+  ANNOTATION_FONTS[getHash(text.toLowerCase()) % ANNOTATION_FONTS.length]!;
+
+export type ChaosWordRole = "hero" | "sub" | "base";
+
+export const getChaosWordRole = (
+  rawText: string,
+  index: number,
+  totalTokens: number,
+  heroIndex: number,
+): ChaosWordRole => {
+  if (index === heroIndex) return "hero";
+  
+  // Try to pick a sub-hero: ideally a long word that isn't the hero
+  // For simplicity here, just pick the next longest word, or index 0 if hero is 1
+  if (totalTokens > 1) {
+    if (index === (heroIndex === 0 ? 1 : 0)) return "sub";
+  }
+  return "base";
+};
+
+/**
+ * Page-relative progress, 0–1, clamped.
+ *
+ * The 10-template family's frame states are driven by how far through the
+ * *whole page* playback is, not by any single word's own speaking window —
+ * `pageStartFrame`/`pageDurationFrames` on `TokenViewProps` carry that,
+ * computed once per page by `CaptionOverlay` the same way `heroIndex` is.
+ */
+export const frameProgress = (
+  frame: number,
+  pageStartFrame: number,
+  pageDurationFrames: number,
+): number => {
+  if (pageDurationFrames <= 0) return 1;
+  const raw = (frame - pageStartFrame) / pageDurationFrames;
+  return raw < 0 ? 0 : raw > 1 ? 1 : raw;
+};
+
+/** One named point in a template's frame-state sequence. */
+export interface FrameStateBreakpoint<TState extends string> {
+  readonly state: TState;
+  /** Page progress (0–1) at which this state becomes active. */
+  readonly at: number;
+}
+
+/**
+ * Resolves which named frame state is active at a given page progress.
+ *
+ * `breakpoints` must be sorted ascending by `at` — this walks them once and
+ * returns the last one whose threshold has been crossed, so e.g. Editorial
+ * Stack's `[{state:"supporting-in",at:0},{state:"keyword-enter",at:0.15},
+ * {state:"hindi-emphasis",at:0.45},{state:"settle",at:0.7}]` reports
+ * "keyword-enter" for any progress in `[0.15, 0.45)`.
+ */
+/**
+ * Shared word-role → visual-treatment lookups for the 10-template family.
+ *
+ * Deliberately living here rather than inline in each `.tsx`/`draw-captions.ts`
+ * branch: the DOM renderer and the Canvas2D export must compute the *exact*
+ * same font-size ratio and accent/keyword boolean for the same role, or a
+ * word that measures one size while wrapping the export's lines and draws at
+ * another size breaks line-wrap parity — the project's worst class of bug.
+ */
+
+/** Underline Punch: which roles get the keyword treatment + underline. */
+export const isUnderlinePunchAccent = (role: WordRole): boolean =>
+  role === "keyword" || role === "critical" || role === "emphasis";
+
+export const underlinePunchFontScale = (role: WordRole): number =>
+  role === "critical" ? 1.08 : role === "keyword" ? 1 : role === "connector" ? 0.55 : 0.75;
+
+/** Highlight Marker: which roles get the highlight block. */
+export const isHighlightMarkerAccent = (role: WordRole): boolean =>
+  role === "critical" || role === "keyword";
+
+export const highlightMarkerFontScale = (role: WordRole): number =>
+  role === "critical" ? 1.05 : role === "keyword" ? 0.95 : role === "connector" ? 0.5 : 0.7;
+
+/** Mixed Weight: which roles get the ultra-bold keyword treatment. */
+export const isMixedWeightKeyword = (role: WordRole): boolean =>
+  role === "critical" || role === "keyword" || role === "number";
+
+export const mixedWeightFontScale = (role: WordRole): number =>
+  role === "critical" || role === "keyword" || role === "number"
+    ? 1.15
+    : role === "connector"
+      ? 0.55
+      : 0.65;
+
+/** Kinetic Split: alternates which screen edge a word enters from. */
+export const kineticSplitSide = (index: number): "left" | "right" =>
+  index % 2 === 0 ? "left" : "right";
+
+export const isKineticSplitAccent = (role: WordRole): boolean =>
+  role === "critical" || role === "keyword" || role === "number";
+
+export const kineticSplitFontScale = (role: WordRole): number =>
+  role === "critical" ? 1.1 : role === "keyword" ? 0.95 : role === "connector" ? 0.5 : 0.65;
+
+/**
+ * Center Punch's frame-state sequence: build tension with small words, then
+ * let the page's critical word take over the screen, then hold at a calmer
+ * rest size. `at` values are page progress (0–1) — see `pickFrameState`.
+ */
+export const CENTER_PUNCH_STATES = [
+  { state: "buildup", at: 0 },
+  { state: "punch", at: 0.4 },
+  { state: "settle", at: 0.75 },
+] as const;
+
+export type CenterPunchState = (typeof CENTER_PUNCH_STATES)[number]["state"];
+
+export const centerPunchFontScale = (
+  role: WordRole,
+  state: CenterPunchState,
+): number => {
+  const isCritical = role === "critical";
+  if (state === "buildup") return isCritical ? 0.55 : 0.5;
+  if (state === "punch") return isCritical ? 1.6 : 0.62;
+  return isCritical ? 1.15 : 0.62; // settle
+};
+
+/**
+ * Vertical Impact's stacked-column keyword sizing, shared by the DOM
+ * renderer, the Canvas2D line-wrap measurement pass and the Canvas2D draw
+ * pass — three places that must agree on exactly how tall a column of `n`
+ * characters is, or the DOM preview and the export disagree about how much
+ * vertical room the word needs.
+ */
+export const VERTICAL_IMPACT_CHAR_RATIO = 0.82;
+const VERTICAL_IMPACT_LINE_HEIGHT = 0.94;
+const VERTICAL_IMPACT_GAP_PX = 2;
+
+export const verticalImpactCharFontSize = (fontSizePx: number): number =>
+  fontSizePx * VERTICAL_IMPACT_CHAR_RATIO;
+
+export const verticalImpactColumnHeight = (text: string, fontSizePx: number): number => {
+  const charFontSize = verticalImpactCharFontSize(fontSizePx);
+  const chars = Array.from(text).length;
+  return chars * charFontSize * VERTICAL_IMPACT_LINE_HEIGHT + Math.max(0, chars - 1) * VERTICAL_IMPACT_GAP_PX;
+};
+
+/** Editorial Stack: which roles get the huge serif keyword treatment. */
+export const isEditorialStackKeyword = (role: WordRole): boolean =>
+  role === "critical" || role === "keyword";
+
+/**
+ * Editorial Stack font scale. Devanagari words get their own large-serif
+ * emphasis tier regardless of role — Hindi is meant to visually punctuate the
+ * line, not just inherit whatever role English content-word scoring gave it.
+ */
+export const editorialStackFontScale = (role: WordRole, isDevanagariWord: boolean): number => {
+  if (isDevanagariWord) return role === "critical" ? 1.3 : 1.05;
+  if (isEditorialStackKeyword(role)) return role === "critical" ? 1.35 : 1.05;
+  return role === "connector" ? 0.4 : 0.5;
+};
+
+/** Magazine Cut: which roles get the oversized, cropped headline treatment. */
+export const isMagazineCutKeyword = (role: WordRole): boolean =>
+  role === "critical" || role === "keyword";
+
+export const magazineCutFontScale = (role: WordRole, isDevanagariWord: boolean): number => {
+  if (isMagazineCutKeyword(role)) return role === "critical" ? 1.55 : 1.2;
+  if (isDevanagariWord) return 0.85;
+  return role === "connector" ? 0.35 : 0.45;
+};
+
+/** Minimal Luxury: font scale per role/script — quiet by default, only the keyword is large. */
+export const minimalLuxuryFontScale = (role: WordRole, isDevanagariWord: boolean): number => {
+  if (isDevanagariWord) return 0.75;
+  if (role === "critical") return 1.3;
+  if (role === "keyword") return 1.05;
+  if (role === "number") return 0.32;
+  return 0.4;
+};
+
+/**
+ * Minimal Luxury: static resting tracking (letter-spacing) per role, as a
+ * fraction of font size. Deliberately not time-varying — see
+ * `MinimalLuxuryToken`'s doc comment on why animating letter-spacing on
+ * layout-participating text is unsafe here.
+ */
+export const minimalLuxuryTrackingRatio = (role: WordRole): number =>
+  role === "critical" || role === "keyword" ? 0.15 : role === "number" ? 0.25 : 0.08;
+
+/** Layered Depth: foreground (non-backdrop) font scale per role. */
+export const layeredDepthForegroundScale = (role: WordRole): number => {
+  if (role === "critical") return 0.95;
+  if (role === "keyword") return 1.05;
+  if (role === "connector") return 0.5;
+  return 0.65;
+};
+
+export const pickFrameState = <TState extends string>(
+  progress: number,
+  breakpoints: readonly FrameStateBreakpoint<TState>[],
+): TState => {
+  let current = breakpoints[0]?.state;
+  for (const breakpoint of breakpoints) {
+    if (progress < breakpoint.at) break;
+    current = breakpoint.state;
+  }
+  if (current === undefined) {
+    throw new Error("pickFrameState: breakpoints must not be empty");
+  }
+  return current;
 };

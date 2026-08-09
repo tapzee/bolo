@@ -1,3 +1,28 @@
+export type WordEmphasis = "supporting" | "normal" | "important" | "special";
+
+/**
+ * Semantic role of a word, independent of any one template's visual
+ * treatment — a template decides how e.g. "keyword" renders (huge serif for
+ * Editorial Stack, a highlight block for Highlight Marker), the role itself
+ * stays template-agnostic.
+ *
+ * Deliberately richer than `WordEmphasis`: that field is a legacy 4-value
+ * visual-priority knob a handful of older engines read directly, this is the
+ * full taxonomy from the 10-template spec. The two are not meant to merge —
+ * new engines read `role`, old ones keep reading `emphasis`.
+ */
+export type WordRole =
+  | "connector"
+  | "supporting"
+  | "normal"
+  | "keyword"
+  | "emphasis"
+  | "critical"
+  | "special"
+  | "question"
+  | "number"
+  | "cta";
+
 /**
  * Caption data model.
  *
@@ -25,6 +50,17 @@ export interface CaptionWord {
    */
   color?: string;
 
+  /** Visual priority used by dynamic templates (e.g. Dynamic Highlight). */
+  emphasis?: WordEmphasis;
+
+  /**
+   * Semantic role used by the 10-template engine family. Set by
+   * `analyzeWordRoles` when absent; once set (by analysis or by a manual
+   * editor override) it is never overwritten by re-analysis — same contract
+   * as `pageBreak` below.
+   */
+  role?: WordRole;
+
   /**
    * Manual page-break override, set by split/merge in the editor.
    *
@@ -45,6 +81,8 @@ export interface CaptionToken {
   toMs: number;
   /** Per-word colour override set in the editor. Overrides the style's active colour. */
   color?: string;
+  emphasis?: WordEmphasis;
+  role?: WordRole;
 }
 
 /** A group of words shown together as a single on-screen line/block. */
