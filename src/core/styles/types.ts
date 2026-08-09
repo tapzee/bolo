@@ -90,12 +90,24 @@ export type TextAlign = (typeof TEXT_ALIGNS)[number];
  *
  * Templates written before `textCase` existed still set `uppercase: true`, and
  * silently ignoring them would change how half the catalogue renders.
+ *
+ * `uppercase` is checked *first*, not as a `??` fallback: `CaptionStyleConfig`
+ * is built from `BASE`, which always sets a concrete `textCase: "none"` — so
+ * `config.textCase` is never actually `undefined` at the point this runs, and
+ * a `config.textCase ?? ...` fallback can never trigger. That silently broke
+ * every style/template that sets `uppercase: true` without also repeating
+ * `textCase: "upper"` (most of the catalogue) — discovered via `/dev/frames`
+ * visual QA, where "bold-yellow" rendered "income" in lower case despite
+ * `uppercase: true`. Safe to invert: the editor's Tt/T/t control always
+ * writes both fields together in sync (see `TextPanel.tsx`), so this only
+ * changes the previously-broken default-config path, never an explicit
+ * user choice.
  */
 export const resolveTextCase = (config: {
   textCase?: TextCase;
   uppercase?: boolean;
 }): TextCase =>
-  config.textCase ?? (config.uppercase === true ? "upper" : "none");
+  config.uppercase === true ? "upper" : (config.textCase ?? "none");
 
 export const applyTextCase = (text: string, textCase: TextCase): string =>
   textCase === "upper"
