@@ -36,6 +36,10 @@ export const MagazineCutToken: React.FC<TokenViewProps> = ({
   if (isKeyword) {
     const reveal = maskRevealX(timing, ENTER_SMOOTH);
     const drift = layeredDepthDrift(frame, fps, 6, 9);
+    // Only the page's critical word gets the accent colour — a "keyword"
+    // that isn't the critical one stays neutral white so the wipe reveal
+    // still reads as one deliberate headline, not several competing ones.
+    const isCritical = role === "critical";
     return (
       <span style={tokenShellStyle}>
         <span
@@ -43,7 +47,7 @@ export const MagazineCutToken: React.FC<TokenViewProps> = ({
             ...textStyle,
             fontFamily: FONT_FAMILY[config.fontId],
             fontSize,
-            color: token.color ?? config.baseColor,
+            color: token.color ?? (isCritical ? config.accentColor : config.baseColor),
             fontWeight: 800,
             letterSpacing: -fontSize * 0.02,
             transform: `translateX(${drift}px)`,

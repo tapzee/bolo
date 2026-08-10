@@ -416,7 +416,7 @@ export const CAPTION_STYLES: Readonly<
       fontSizePx: 90,
       uppercase: false,
       baseColor: "#ffffff",
-      accentColor: "#ffffff",
+      accentColor: "#ffd60a",
       strokeWidthPx: 0,
       maxWordsPerPage: 6,
       dropShadow: true,

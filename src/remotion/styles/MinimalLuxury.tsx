@@ -38,7 +38,8 @@ export const MinimalLuxuryToken: React.FC<TokenViewProps> = ({
   const timing = { frame, fps, fromFrame };
   const enter = tokenEnter(timing, ENTER_SUBTLE);
 
-  const isKeyword = role === "critical" || role === "keyword";
+  const isCritical = role === "critical";
+  const isKeyword = isCritical || role === "keyword";
   const isNumber = role === "number";
 
   const fontFamily = isDevanagariWord
@@ -52,11 +53,13 @@ export const MinimalLuxuryToken: React.FC<TokenViewProps> = ({
 
   const color = isDevanagariWord
     ? (token.color ?? config.accentColor)
-    : isKeyword
-      ? (token.color ?? config.baseColor)
-      : isNumber
-        ? (token.color ?? config.accentColor)
-        : (token.color ?? "#ffffff");
+    : isCritical
+      ? (token.color ?? config.accentColor)
+      : isKeyword
+        ? (token.color ?? config.baseColor)
+        : isNumber
+          ? (token.color ?? config.accentColor)
+          : (token.color ?? "#ffffff");
 
   const yOffset = isKeyword || isDevanagariWord ? (1 - enter) * 8 : 0;
 

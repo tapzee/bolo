@@ -53,7 +53,10 @@ export const EditorialStackToken: React.FC<TokenViewProps> = ({
     scale = 0.95 + enter * 0.05;
   } else if (isKeyword) {
     fontFamily = primaryFamily;
-    color = token.color ?? config.baseColor;
+    // The page's one critical word carries the accent colour, same as the
+    // Hindi emphasis tier — everything else large stays neutral white so
+    // only one word per page actually reads as "the highlighted one."
+    color = token.color ?? (role === "critical" ? config.accentColor : config.baseColor);
     fontWeight = 500;
     enter = tokenEnter(timing, ENTER_SMOOTH);
     // Slow editorial settle — 94% → 102% → 100%, not a bouncy overshoot.

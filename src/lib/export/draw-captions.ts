@@ -1734,7 +1734,7 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           ctx.globalAlpha = entrance * alpha;
           ctx.translate(cx, cy + translateY);
           ctx.scale(wordScale, wordScale);
-          ctx.fillStyle = token.color ?? config.baseColor;
+          ctx.fillStyle = token.color ?? (isKeyword ? config.accentColor : config.baseColor);
           ctx.fillText(text, -tokenWidth / 2, 0);
 
           ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
@@ -1814,7 +1814,10 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
 
             ctx.font = canvasFont(config.fontWeight, charFontSize, family);
             ctx.textAlign = "center";
-            const color = token.color ?? config.baseColor;
+            // Only the page's critical word gets the accent colour running
+            // down its column — mirrors `VerticalImpactToken`'s DOM version.
+            const isCritical = role === "critical";
+            const color = token.color ?? (isCritical ? config.accentColor : config.baseColor);
 
             Array.from(text).forEach((ch, i) => {
               const reveal = letterStagger(i, timing, ENTER_SMOOTH, staggerFrames);
@@ -1883,7 +1886,9 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           } else if (isKeyword) {
             enter = tokenEnter(timing, ENTER_SMOOTH);
             punchScale = 0.94 + enter * 0.08;
-            color = token.color ?? config.baseColor;
+            // Only the page's critical word carries the accent colour —
+            // mirrors `EditorialStackToken`'s DOM version.
+            color = token.color ?? (role === "critical" ? config.accentColor : config.baseColor);
           } else {
             enter = tokenEnter(timing, ENTER_SMOOTH);
             yOffset = (1 - enter) * 10 * scaleFactor;
@@ -1924,7 +1929,9 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
             ctx.clip();
             ctx.globalAlpha = entrance * Math.min(1, reveal * 3);
             ctx.translate(cx + drift, cy);
-            ctx.fillStyle = token.color ?? config.baseColor;
+            // Only the page's critical word carries the accent colour —
+            // mirrors `MagazineCutToken`'s DOM version.
+            ctx.fillStyle = token.color ?? (role === "critical" ? config.accentColor : config.baseColor);
             ctx.fillText(text, -tokenWidth / 2, 0);
             ctx.restore();
 
@@ -1958,7 +1965,8 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
         case "minimalLuxury": {
           const role = token.role ?? "normal";
           const isDevanagariWord = hasDevanagari(token.text);
-          const isKeyword = role === "critical" || role === "keyword";
+          const isCritical = role === "critical";
+          const isKeyword = isCritical || role === "keyword";
           const isNumber = role === "number";
           const scaleFactor = canvasScale({ width, height });
 
@@ -1979,11 +1987,13 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           const enter = tokenEnter(timing, ENTER_SUBTLE);
           const color = isDevanagariWord
             ? (token.color ?? config.accentColor)
-            : isKeyword
-              ? (token.color ?? config.baseColor)
-              : isNumber
-                ? (token.color ?? config.accentColor)
-                : (token.color ?? "#ffffff");
+            : isCritical
+              ? (token.color ?? config.accentColor)
+              : isKeyword
+                ? (token.color ?? config.baseColor)
+                : isNumber
+                  ? (token.color ?? config.accentColor)
+                  : (token.color ?? "#ffffff");
           const yOffset = isKeyword || isDevanagariWord ? (1 - enter) * 8 * scaleFactor : 0;
 
           ctx.globalAlpha = entrance * enter;
@@ -2010,7 +2020,9 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
             ctx.save();
             ctx.font = canvasFont(700, backdropSize, family);
             const backdropWidth = ctx.measureText(backdropText).width;
-            ctx.globalAlpha = entrance * 0.14 * enter;
+            // Top of the spec's own "10-20% opacity" range — mirrors
+            // `LayeredDepthToken`'s DOM version.
+            ctx.globalAlpha = entrance * 0.2 * enter;
             ctx.translate(cx + drift, cy);
             ctx.fillStyle = config.baseColor;
             ctx.fillText(backdropText, -backdropWidth / 2, 0);
@@ -2027,8 +2039,10 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
               : config.secondaryFontId
                 ? resolveFontFamily(config.secondaryFontId)
                 : family;
+          // The critical word's readable foreground copy carries the accent
+          // colour — mirrors `LayeredDepthToken`'s DOM version.
           const color = isCritical
-            ? (token.color ?? config.baseColor)
+            ? (token.color ?? config.accentColor)
             : (token.color ?? (isDevanagariWord ? config.accentColor : config.baseColor));
 
           ctx.font = canvasFont(500, roleFontSize, fam);

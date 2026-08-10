@@ -34,8 +34,11 @@ export const LayeredDepthToken: React.FC<TokenViewProps> = ({
       : FONT_FAMILY[config.secondaryFontId ?? "inter"];
 
   const foregroundSize = (textStyle.fontSize as number) * layeredDepthForegroundScale(role);
+  // The critical word's readable foreground copy carries the accent colour
+  // — the backdrop ghost behind it is deliberately quiet, so the colour is
+  // what actually signals "this is the highlighted word," not just size.
   const foregroundColor = isCritical
-    ? (token.color ?? config.baseColor)
+    ? (token.color ?? config.accentColor)
     : (token.color ?? (isDevanagariWord ? config.accentColor : config.baseColor));
 
   return (
@@ -51,7 +54,9 @@ export const LayeredDepthToken: React.FC<TokenViewProps> = ({
             fontFamily: FONT_FAMILY[config.fontId],
             fontSize: (textStyle.fontSize as number) * 2.6,
             color: config.baseColor,
-            opacity: 0.14 * enter,
+            // Top of the spec's own "10-20% opacity" range for the backdrop
+            // — 0.14 read as essentially invisible against real footage.
+            opacity: 0.2 * enter,
             fontWeight: 700,
             whiteSpace: "nowrap",
             zIndex: 0,

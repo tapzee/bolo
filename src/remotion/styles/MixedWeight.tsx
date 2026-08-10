@@ -15,9 +15,10 @@ import { ENTER_BOUNCY, ENTER_SMOOTH, centerPunchScale, tokenEnter } from "../cap
  * Mixed Weight — Template 08.
  *
  * Extreme typographic-weight contrast: supporting words sit at the light end
- * of the same family (300), the keyword explodes into an ultra-bold 900 with
- * a punch-in overshoot. The contrast *is* the design — no colour or size
- * tricks are needed on top of it, so both tiers stay the same neutral white.
+ * of the same family (300) in neutral white, the keyword explodes into an
+ * ultra-bold 900 in the template's accent colour with a punch-in overshoot —
+ * weight *and* colour both signal "this is the word," matching how every
+ * other template in the family highlights its keyword.
  */
 export const MixedWeightToken: React.FC<TokenViewProps> = ({
   token,
@@ -70,7 +71,7 @@ export const MixedWeightToken: React.FC<TokenViewProps> = ({
           fontFamily,
           fontSize,
           fontWeight: isKeyword ? 900 : 300,
-          color: token.color ?? config.baseColor,
+          color: token.color ?? (isKeyword ? config.accentColor : config.baseColor),
           opacity,
           transform: `scale(${scale}) translateY(${yOffset}px)`,
           zIndex: 1,

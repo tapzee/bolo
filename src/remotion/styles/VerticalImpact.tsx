@@ -35,6 +35,9 @@ export const VerticalImpactToken: React.FC<TokenViewProps> = ({
   if (isVerticalKeyword) {
     const chars = displayText(token).split("");
     const staggerFrames = Math.round(fps * 0.05);
+    // Only the page's critical word gets the accent colour running down its
+    // column; a "keyword" that isn't the critical one stays neutral white.
+    const isCritical = role === "critical";
     return (
       <span style={{ ...tokenShellStyle, flexDirection: "column", lineHeight: 0.94, gap: 2 }}>
         {chars.map((ch, i) => {
@@ -46,7 +49,7 @@ export const VerticalImpactToken: React.FC<TokenViewProps> = ({
                 ...textStyle,
                 fontFamily,
                 fontSize: verticalImpactCharFontSize(textStyle.fontSize as number),
-                color: token.color ?? config.baseColor,
+                color: token.color ?? (isCritical ? config.accentColor : config.baseColor),
                 opacity: reveal,
                 transform: `translateY(${(1 - reveal) * 10}px)`,
                 display: "block",
