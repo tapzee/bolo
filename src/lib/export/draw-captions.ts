@@ -101,6 +101,9 @@ import {
   isDepth3dAccent,
   depth3dFontScale,
   roleTextCase,
+  editorialKineticRole,
+  editorialKineticFontScale,
+  isEditorialKineticAccent,
 } from "@/remotion/captions/primitives";
 import { resolveEmphasis, DYNAMIC_HIGHLIGHT_EMPHASIS_SCALE } from "@/remotion/styles/DynamicHighlight";
 import { canvasFont, resolveFontFamily } from "./fonts";
@@ -205,6 +208,13 @@ const getRenderText = (
     if (emphasis === "important") return text.toUpperCase();
     if (emphasis === "special") return text;
     return applyTextCase(text, resolveTextCase(config));
+  }
+  if (config.styleId === "editorialKinetic" || config.styleId === "editorialKineticPop") {
+    // Display words shout in caps, editorial and support words stay
+    // lowercase — the same case contrast `EditorialKineticToken` applies via
+    // CSS `text-transform`, reproduced here since Canvas has none.
+    const ekRole = editorialKineticRole(token.role ?? "normal", text);
+    return ekRole === "display" ? text.toUpperCase() : text.toLowerCase();
   }
   // Canvas has no `text-transform`, so casing is applied to the string
   // itself. Goes through `roleTextCase` (shared with the DOM's
@@ -518,6 +528,24 @@ const layoutLines = (
       fontSize = config.fontSizePx * depth3dFontScale(role);
       ctx.font = canvasFont(config.fontWeight, fontSize, family);
       fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
+    } else if (config.styleId === "editorialKinetic" || config.styleId === "editorialKineticPop") {
+      const role = token.role ?? "normal";
+      const isDevanagariWord = hasDevanagari(text);
+      const ekRole = editorialKineticRole(role, text);
+      fontSize = config.fontSizePx * editorialKineticFontScale(role, ekRole);
+      const fam = isDevanagariWord
+        ? ekRole === "support"
+          ? resolveFontFamily("devanagari")
+          : resolveFontFamily("notoSerifDevanagari")
+        : ekRole === "display"
+          ? family
+          : ekRole === "editorial"
+            ? resolveFontFamily(config.specialFontId ?? "playfair")
+            : resolveFontFamily(config.secondaryFontId ?? "inter");
+      const weight = ekRole === "display" ? config.fontWeight : ekRole === "editorial" ? 500 : 600;
+      const style = ekRole === "editorial" && !isDevanagariWord ? "italic" : "normal";
+      ctx.font = canvasFont(weight, fontSize, fam, style);
+      fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
     }
 
     // Vertical Impact's keyword is a stacked column, not a row item — it
@@ -573,6 +601,15 @@ const layoutLines = (
         lines.push({ items: [measured], width, height: rowHeight([measured]) });
         return;
       }
+    }
+
+    // Every Editorial Kinetic word owns its row — mirrors the DOM's
+    // `flexBasis: 100%` on every token, matching `resolveTokenBoxes`'
+    // one-row-per-token box-fit estimate.
+    if (config.styleId === "editorialKinetic" || config.styleId === "editorialKineticPop") {
+      flush();
+      lines.push({ items: [measured], width, height: rowHeight([measured]) });
+      return;
     }
 
     const withGap =
@@ -2717,6 +2754,77 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           }
 
           strokeThenFill(ctx, text, -tokenWidth / 2, 0, colour, isAccent ? config.strokeWidthPx : 0, config.strokeColor);
+          ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
+          break;
+        }
+
+        case "editorialKinetic":
+        case "editorialKineticPop": {
+          const role = token.role ?? "normal";
+          const isDevanagariWord = hasDevanagari(token.text);
+          const ekRole = editorialKineticRole(role, token.text);
+          const isAccent = isEditorialKineticAccent(role);
+          const isPop = config.styleId === "editorialKineticPop";
+          const roleFontSize = config.fontSizePx * editorialKineticFontScale(role, ekRole);
+          const scaleFactor = canvasScale({ width, height });
+
+          const fam = isDevanagariWord
+            ? ekRole === "support"
+              ? resolveFontFamily("devanagari")
+              : resolveFontFamily("notoSerifDevanagari")
+            : ekRole === "display"
+              ? family
+              : ekRole === "editorial"
+                ? resolveFontFamily(config.specialFontId ?? "playfair")
+                : resolveFontFamily(config.secondaryFontId ?? "inter");
+          const weight = ekRole === "display" ? config.fontWeight : ekRole === "editorial" ? 500 : 600;
+          const fontStyle = ekRole === "editorial" && !isDevanagariWord ? "italic" : "normal";
+          ctx.font = canvasFont(weight, roleFontSize, fam, fontStyle);
+
+          let enter: number;
+          let scale = 1;
+          let yOffset = 0;
+          let xOffset = 0;
+          let blurPx = 0;
+          let color: string;
+
+          if (ekRole === "display") {
+            color = isAccent ? (token.color ?? config.accentColor) : (token.color ?? config.baseColor);
+            if (isPop) {
+              // Punch in past 100%, settle, and hold — mirrors
+              // `EditorialKineticToken`'s pop variant.
+              const punch = centerPunchScale(timing, ENTER_BOUNCY);
+              scale = 0.8 + punch * 0.2;
+              enter = tokenEnter(timing, ENTER_SMOOTH);
+              blurPx = (1 - enter) * 6 * scaleFactor;
+            } else {
+              enter = tokenEnter(timing, ENTER_SMOOTH);
+              yOffset = (1 - enter) * 26 * scaleFactor;
+              scale = 0.97 + enter * 0.03;
+              blurPx = (1 - enter) * 8 * scaleFactor;
+            }
+          } else if (ekRole === "editorial") {
+            color = token.color ?? "#f5f5f0";
+            // Flowing, not bouncy, regardless of variant.
+            enter = tokenEnter(timing, ENTER_SUBTLE);
+            yOffset = (1 - enter) * 15 * scaleFactor;
+            blurPx = (1 - enter) * 4 * scaleFactor;
+            xOffset = roleFontSize * 0.03;
+          } else {
+            color = token.color ?? "#ffffff";
+            enter = tokenEnter(timing, ENTER_SMOOTH);
+            yOffset = (1 - enter) * 8 * scaleFactor;
+            xOffset = -roleFontSize * 0.02;
+          }
+
+          ctx.filter = blurPx > 0.3 ? `blur(${blurPx}px)` : "none";
+          ctx.globalAlpha = entrance * enter;
+          ctx.translate(cx + xOffset, cy + yOffset);
+          ctx.scale(scale, scale);
+          ctx.fillStyle = color;
+          ctx.fillText(text, -tokenWidth / 2, 0);
+          ctx.filter = "none";
+
           ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
           break;
         }

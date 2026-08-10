@@ -39,6 +39,7 @@ import { GradientFlowToken } from "./GradientFlow";
 import { MaskRevealToken } from "./MaskReveal";
 import { DrawOnToken } from "./DrawOn";
 import { Depth3DToken } from "./Depth3D";
+import { EditorialKineticToken, EditorialKineticPopToken } from "./EditorialKinetic";
 
 /**
  * Style id → word renderer.
@@ -89,5 +90,7 @@ export const TOKEN_RENDERERS: Readonly<
   maskReveal: MaskRevealToken,
   drawOn: DrawOnToken,
   depth3d: Depth3DToken,
+  editorialKinetic: EditorialKineticToken,
+  editorialKineticPop: EditorialKineticPopToken,
 };
 

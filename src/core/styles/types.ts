@@ -38,6 +38,9 @@ export const STYLE_IDS = [
   "maskReveal",
   "drawOn",
   "depth3d",
+  // Editorial Kinetic family (2 variants, one design system)
+  "editorialKinetic",
+  "editorialKineticPop",
 ] as const;
 
 export type StyleId = (typeof STYLE_IDS)[number];

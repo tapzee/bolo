@@ -847,6 +847,66 @@ export const CAPTION_STYLES: Readonly<
       dropShadow: false,
     },
   ),
+
+  // ==========================================================================
+  // EDITORIAL KINETIC FAMILY (2 variants, one typographic design system)
+  // ==========================================================================
+
+  editorialKinetic: define(
+    "editorialKinetic",
+    "Editorial Kinetic",
+    "Premium editorial typography: bold condensed anchor words, an elegant italic accent, tiny sans connectors — stacked one word per line with controlled overlap. Classic Flow motion.",
+    {
+      fontId: "anton",
+      secondaryFontId: "inter",
+      specialFontId: "playfair",
+      fontWeight: 400,
+      fontSizePx: 90,
+      uppercase: false,
+      baseColor: "#ffffff",
+      activeColor: "#ffffff",
+      accentColor: "#f1d400",
+      strokeWidthPx: 0,
+      wordGapPx: 26,
+      maxWordsPerPage: 5,
+      combineWithinMs: 1000,
+      dropShadow: true,
+      placement: "center",
+      // One word per line (see EditorialKinetic.tsx) stacks tall fast, and
+      // the critical word alone can render up to 1.15x fontSizePx.
+      maxBlockHeightPct: 48,
+      // Tight leading is what produces the reference's controlled overlap
+      // between stacked lines instead of evenly-spaced subtitle rows.
+      lineHeight: 0.98,
+    },
+  ),
+
+  editorialKineticPop: define(
+    "editorialKineticPop",
+    "Editorial Kinetic Pop",
+    "Same Editorial Kinetic typography system with punchier Pop Editorial motion: display words overshoot in with a controlled bounce instead of a smooth slide.",
+    {
+      fontId: "anton",
+      secondaryFontId: "inter",
+      specialFontId: "playfair",
+      fontWeight: 400,
+      fontSizePx: 90,
+      uppercase: false,
+      baseColor: "#ffffff",
+      activeColor: "#ffffff",
+      accentColor: "#f1d400",
+      strokeWidthPx: 0,
+      wordGapPx: 26,
+      maxWordsPerPage: 5,
+      combineWithinMs: 1000,
+      dropShadow: true,
+      placement: "center",
+      // Slightly taller than the Classic variant's box: the overshoot peaks
+      // a touch larger than fontSizePx * 1.15 mid-bounce.
+      maxBlockHeightPct: 50,
+      lineHeight: 0.98,
+    },
+  ),
 };
 
 export const CAPTION_STYLE_LIST: readonly CaptionStyleDefinition[] =

@@ -683,6 +683,67 @@ export const isDepth3dAccent = (role: WordRole): boolean =>
 export const depth3dFontScale = (role: WordRole): number =>
   role === "critical" ? 1.08 : role === "keyword" ? 0.95 : role === "connector" ? 0.45 : 0.62;
 
+/**
+ * Editorial Kinetic — the three-tier typographic role every word on a page is
+ * sorted into: a tiny sans "support" word (ki/se/and/log), a bold condensed
+ * "display" word (the headline anchor), and an elegant italic "editorial"
+ * word that supplies contrast. Shared by both StyleId variants
+ * (`editorialKinetic`/`editorialKineticPop` — same typography, different
+ * animation choreography) and by `draw-captions.ts`/`page-fit.ts`, so all
+ * three agree on exactly which word gets which treatment.
+ *
+ * Built on top of the existing `WordRole` taxonomy rather than a bespoke
+ * classifier: closed-class connectors/short words already map to "support",
+ * the page's one salient word ("critical") and numbers anchor "display", and
+ * Hindi intensifiers ("emphasis"/"special") are a natural fit for the italic
+ * "editorial" accent. The remaining open-class "keyword" words are split by a
+ * hash of the word itself — deterministic, so the DOM preview and the
+ * Canvas2D export (and re-renders of the same word) never disagree — biased
+ * roughly 2:1 toward "display", matching the reference's shape of several
+ * bold anchor words per one italic accent.
+ */
+export type EditorialKineticRole = "support" | "display" | "editorial";
+
+export const editorialKineticRole = (
+  role: WordRole,
+  text: string,
+): EditorialKineticRole => {
+  if (role === "critical" || role === "number") return "display";
+  if (role === "emphasis" || role === "special") return "editorial";
+  if (
+    role === "connector" ||
+    role === "supporting" ||
+    role === "question" ||
+    role === "cta"
+  ) {
+    return "support";
+  }
+  if (role === "keyword") {
+    return getHash(text.toLowerCase()) % 3 === 0 ? "editorial" : "display";
+  }
+  return "support";
+};
+
+/**
+ * Font-size scale relative to `config.fontSizePx`, per the spec's stated
+ * ranges (support ~25-35%, editorial ~50-80%, display ~65-100%). The page's
+ * `critical` word (the single visual anchor) gets the top of the display
+ * range; other display words sit a little smaller so the anchor still reads
+ * as the biggest thing on screen.
+ */
+export const editorialKineticFontScale = (
+  role: WordRole,
+  ekRole: EditorialKineticRole,
+): number => {
+  if (ekRole === "display") return role === "critical" ? 1.15 : 0.92;
+  if (ekRole === "editorial") return 0.62;
+  return 0.3;
+};
+
+/** Only the page's single critical word carries the restrained yellow accent — see the spec's "do not make everything yellow" rule. */
+export const isEditorialKineticAccent = (role: WordRole): boolean =>
+  role === "critical";
+
 export const pickFrameState = <TState extends string>(
   progress: number,
   breakpoints: readonly FrameStateBreakpoint<TState>[],

@@ -1,5 +1,10 @@
 import type { CaptionBoxFitConfig, CaptionToken, EstimatedTokenBox, StyleId } from "@/core";
-import { analyzeWordRoles, estimateWordWidthPx, hasDevanagari } from "@/core";
+import {
+  analyzeWordRoles,
+  estimateMaxLineWidthPx,
+  estimateWordWidthPx,
+  hasDevanagari,
+} from "@/core";
 import {
   DYNAMIC_HIGHLIGHT_EMPHASIS_SCALE,
   resolveEmphasis,
@@ -33,6 +38,8 @@ import {
   maskRevealFontScale,
   drawOnFontScale,
   depth3dFontScale,
+  editorialKineticRole,
+  editorialKineticFontScale,
 } from "./primitives";
 
 /**
@@ -262,6 +269,28 @@ export const resolveTokenBoxes = (
     case "depth3d": {
       const roles = analyzeWordRoles(tokens);
       return tokens.map((token, i) => toBox(token.text, config.fontSizePx * depth3dFontScale(roles[i]!)));
+    }
+
+    case "editorialKinetic":
+    case "editorialKineticPop": {
+      // Every word renders on its own row (see EditorialKinetic.tsx), so
+      // reporting a token's width as the full line-wrap width forces the
+      // same greedy-wrap simulation `estimateBlockHeightPx` runs to close a
+      // row after each one — matching the real one-word-per-line layout
+      // instead of packing several short words onto an estimated row that
+      // never happens in the actual render.
+      const roles = analyzeWordRoles(tokens);
+      const rowWidth = estimateMaxLineWidthPx(config);
+      return tokens.map((token, i) => {
+        const ekRole = editorialKineticRole(roles[i]!, token.text);
+        return {
+          width: rowWidth,
+          height:
+            config.fontSizePx *
+            editorialKineticFontScale(roles[i]!, ekRole) *
+            config.lineHeight,
+        };
+      });
     }
 
     default:
