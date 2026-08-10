@@ -911,6 +911,196 @@ export const CAPTION_STYLES: Readonly<
       lineHeight: 0.98,
     },
   ),
+
+  // ==========================================================================
+  // MOTION SYSTEMS FAMILY — genuinely-new subset of the 20-template brief
+  // ==========================================================================
+
+  dynamicSlideStack: define(
+    "dynamicSlideStack",
+    "Dynamic Slide Stack",
+    "Words stack one per line at different sizes, each sliding in from a different edge; the sentence's one keyword dominates with a bounce overshoot.",
+    {
+      fontId: "archivoBlack",
+      fontWeight: 400,
+      fontSizePx: 88,
+      uppercase: true,
+      baseColor: "#ffffff",
+      accentColor: "#ffd60a",
+      strokeWidthPx: 4,
+      wordGapPx: 20,
+      maxWordsPerPage: 5,
+      combineWithinMs: 1000,
+      dropShadow: true,
+      placement: "center",
+      // One word per row stacks tall fast, and the hero can reach 1.3x.
+      maxBlockHeightPct: 52,
+      lineHeight: 0.98,
+    },
+  ),
+
+  glassHighlight: define(
+    "glassHighlight",
+    "Glass Highlight",
+    "A translucent glassmorphism panel scales in behind the keyword — soft blur, subtle border, gentle shadow. Reads on any footage.",
+    {
+      fontId: "inter",
+      fontWeight: 700,
+      fontSizePx: 78,
+      uppercase: false,
+      baseColor: "#ffffff",
+      accentColor: "#5ce6c8",
+      strokeWidthPx: 0,
+      wordGapPx: 30,
+      maxWordsPerPage: 6,
+      dropShadow: false,
+    },
+  ),
+
+  splitText: define(
+    "splitText",
+    "Split Text",
+    "The keyword splits into two clipped halves that slide apart then converge, seamed by a thin diagonal accent line.",
+    {
+      fontId: "oswald",
+      fontWeight: 600,
+      fontSizePx: 90,
+      uppercase: true,
+      baseColor: "#ffffff",
+      accentColor: "#ff5a2c",
+      strokeWidthPx: 4,
+      maxWordsPerPage: 5,
+      dropShadow: true,
+    },
+  ),
+
+  liquidFlow: define(
+    "liquidFlow",
+    "Liquid Flow",
+    "A flowing curved ribbon drifts behind the keyword as it rises out of a soft blur. Premium motion-graphics curve, not a splash.",
+    {
+      fontId: "bebas",
+      fontWeight: 400,
+      fontSizePx: 96,
+      uppercase: true,
+      baseColor: "#ffffff",
+      accentColor: "#29b6f6",
+      strokeWidthPx: 3,
+      maxWordsPerPage: 4,
+      dropShadow: true,
+    },
+  ),
+
+  lightSweep: define(
+    "lightSweep",
+    "Light Sweep",
+    "The keyword starts dim; a bright diagonal light sweeps across it once, then it settles fully lit. Cinematic, restrained.",
+    {
+      fontId: "anton",
+      fontWeight: 400,
+      fontSizePx: 92,
+      uppercase: true,
+      baseColor: "#7a7a82",
+      accentColor: "#ffe9a8",
+      strokeWidthPx: 3,
+      maxWordsPerPage: 4,
+      dropShadow: true,
+    },
+  ),
+
+  paperCut: define(
+    "paperCut",
+    "Paper Cut",
+    "The keyword sits on a torn-edge yellow paper strip, supporting words on plain white — layered, premium paper typography.",
+    {
+      fontId: "montserrat",
+      secondaryFontId: "inter",
+      fontWeight: 900,
+      fontSizePx: 84,
+      uppercase: false,
+      baseColor: "#ffffff",
+      accentColor: "#ffd60a",
+      strokeWidthPx: 0,
+      wordGapPx: 30,
+      maxWordsPerPage: 6,
+      dropShadow: false,
+    },
+  ),
+
+  flipCard: define(
+    "flipCard",
+    "Flip Card",
+    "The keyword flips up on a white 3D card, supporting words on a green card behind it — layered, tactile depth.",
+    {
+      fontId: "poppins",
+      secondaryFontId: "inter",
+      fontWeight: 800,
+      fontSizePx: 82,
+      uppercase: false,
+      baseColor: "#ffffff",
+      accentColor: "#00e676",
+      strokeWidthPx: 0,
+      wordGapPx: 28,
+      maxWordsPerPage: 5,
+      dropShadow: false,
+    },
+  ),
+
+  ribbonSlide: define(
+    "ribbonSlide",
+    "Ribbon Slide",
+    "The keyword sits on a pointed banner ribbon that slides in from alternating edges, purple and accent alternating.",
+    {
+      fontId: "rubik",
+      fontWeight: 900,
+      fontSizePx: 80,
+      uppercase: true,
+      baseColor: "#ffffff",
+      accentColor: "#ffd60a",
+      strokeWidthPx: 3,
+      wordGapPx: 34,
+      maxWordsPerPage: 5,
+      dropShadow: true,
+    },
+  ),
+
+  spiralReveal: define(
+    "spiralReveal",
+    "Spiral Reveal",
+    "The sentence's one keyword curves along an arc while supporting words stay small and centred inside it. Quiet, premium.",
+    {
+      fontId: "outfit",
+      fontWeight: 700,
+      fontSizePx: 76,
+      uppercase: true,
+      baseColor: "#e8e8f0",
+      accentColor: "#d4af37",
+      strokeWidthPx: 0,
+      maxWordsPerPage: 5,
+      dropShadow: true,
+      placement: "center",
+      // The curving hero word owns a square-ish arc box taller than a flat line.
+      maxBlockHeightPct: 46,
+    },
+  ),
+
+  floatingBubble: define(
+    "floatingBubble",
+    "Floating Bubble",
+    "Each word floats inside a soft glass pill with gentle ambient drift and a bounce-settle entrance. Premium motion-design objects, not chat bubbles.",
+    {
+      fontId: "dynapuff",
+      fontWeight: 600,
+      fontSizePx: 70,
+      uppercase: false,
+      baseColor: "#ffffff",
+      accentColor: "#7c4dff",
+      strokeWidthPx: 0,
+      wordGapPx: 34,
+      maxWordsPerPage: 6,
+      dropShadow: false,
+    },
+  ),
 };
 
 export const CAPTION_STYLE_LIST: readonly CaptionStyleDefinition[] =

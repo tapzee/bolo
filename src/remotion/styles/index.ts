@@ -40,6 +40,16 @@ import { MaskRevealToken } from "./MaskReveal";
 import { DrawOnToken } from "./DrawOn";
 import { Depth3DToken } from "./Depth3D";
 import { EditorialKineticToken, EditorialKineticPopToken } from "./EditorialKinetic";
+import { DynamicSlideStackToken } from "./DynamicSlideStack";
+import { GlassHighlightToken } from "./GlassHighlight";
+import { SplitTextToken } from "./SplitText";
+import { LiquidFlowToken } from "./LiquidFlow";
+import { LightSweepToken } from "./LightSweep";
+import { PaperCutToken } from "./PaperCut";
+import { FlipCardToken } from "./FlipCard";
+import { RibbonSlideToken } from "./RibbonSlide";
+import { SpiralRevealToken } from "./SpiralReveal";
+import { FloatingBubbleToken } from "./FloatingBubble";
 
 /**
  * Style id → word renderer.
@@ -92,5 +102,15 @@ export const TOKEN_RENDERERS: Readonly<
   depth3d: Depth3DToken,
   editorialKinetic: EditorialKineticToken,
   editorialKineticPop: EditorialKineticPopToken,
+  dynamicSlideStack: DynamicSlideStackToken,
+  glassHighlight: GlassHighlightToken,
+  splitText: SplitTextToken,
+  liquidFlow: LiquidFlowToken,
+  lightSweep: LightSweepToken,
+  paperCut: PaperCutToken,
+  flipCard: FlipCardToken,
+  ribbonSlide: RibbonSlideToken,
+  spiralReveal: SpiralRevealToken,
+  floatingBubble: FloatingBubbleToken,
 };
 

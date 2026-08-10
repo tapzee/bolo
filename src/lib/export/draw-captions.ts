@@ -104,6 +104,34 @@ import {
   editorialKineticRole,
   editorialKineticFontScale,
   isEditorialKineticAccent,
+  isDynamicSlideStackHero,
+  dynamicSlideStackFontScale,
+  dynamicSlideStackDirection,
+  isGlassHighlightAccent,
+  glassHighlightFontScale,
+  isSplitTextHero,
+  splitTextFontScale,
+  isLiquidFlowAccent,
+  liquidFlowFontScale,
+  liquidRibbonControlPoints,
+  isLightSweepAccent,
+  lightSweepFontScale,
+  isPaperCutAccent,
+  paperCutFontScale,
+  paperStripClipPath,
+  type PaperCutPoint,
+  isFlipCardAccent,
+  flipCardFontScale,
+  isRibbonSlideAccent,
+  ribbonSlideFontScale,
+  ribbonSlideSide,
+  ribbonClipPath,
+  isSpiralRevealHero,
+  spiralRevealFontScale,
+  spiralCharAngleDeg,
+  floatingBubbleFontScale,
+  floatingBubbleOffset,
+  floatingBubbleTint,
 } from "@/remotion/captions/primitives";
 import { resolveEmphasis, DYNAMIC_HIGHLIGHT_EMPHASIS_SCALE } from "@/remotion/styles/DynamicHighlight";
 import { canvasFont, resolveFontFamily } from "./fonts";
@@ -549,6 +577,85 @@ const layoutLines = (
       const style = ekRole === "editorial" && !isDevanagariWord ? "italic" : "normal";
       ctx.font = canvasFont(weight, fontSize, fam, style);
       fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
+    } else if (config.styleId === "dynamicSlideStack") {
+      const role = token.role ?? "normal";
+      fontSize = config.fontSizePx * dynamicSlideStackFontScale(role);
+      ctx.font = canvasFont(config.fontWeight, fontSize, family);
+      fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
+    } else if (config.styleId === "glassHighlight") {
+      const role = token.role ?? "normal";
+      fontSize = config.fontSizePx * glassHighlightFontScale(role);
+      ctx.font = canvasFont(config.fontWeight, fontSize, family);
+      fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
+    } else if (config.styleId === "splitText") {
+      const role = token.role ?? "normal";
+      fontSize = config.fontSizePx * splitTextFontScale(role);
+      ctx.font = canvasFont(config.fontWeight, fontSize, family);
+      fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
+    } else if (config.styleId === "liquidFlow") {
+      const role = token.role ?? "normal";
+      fontSize = config.fontSizePx * liquidFlowFontScale(role);
+      ctx.font = canvasFont(config.fontWeight, fontSize, family);
+      fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
+    } else if (config.styleId === "lightSweep") {
+      const role = token.role ?? "normal";
+      fontSize = config.fontSizePx * lightSweepFontScale(role);
+      ctx.font = canvasFont(config.fontWeight, fontSize, family);
+      fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
+    } else if (config.styleId === "paperCut") {
+      const role = token.role ?? "normal";
+      const isAccent = isPaperCutAccent(role);
+      fontSize = config.fontSizePx * paperCutFontScale(role);
+      const paperFamily = isAccent
+        ? family
+        : config.secondaryFontId
+          ? resolveFontFamily(config.secondaryFontId)
+          : family;
+      ctx.font = canvasFont(isAccent ? 900 : 500, fontSize, paperFamily);
+      fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
+    } else if (config.styleId === "flipCard") {
+      const role = token.role ?? "normal";
+      const isAccent = isFlipCardAccent(role);
+      fontSize = config.fontSizePx * flipCardFontScale(role);
+      const cardFamily = isAccent
+        ? family
+        : config.secondaryFontId
+          ? resolveFontFamily(config.secondaryFontId)
+          : family;
+      ctx.font = canvasFont(config.fontWeight, fontSize, cardFamily);
+      fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
+    } else if (config.styleId === "ribbonSlide") {
+      const role = token.role ?? "normal";
+      fontSize = config.fontSizePx * ribbonSlideFontScale(role);
+      ctx.font = canvasFont(config.fontWeight, fontSize, family);
+      fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
+    } else if (config.styleId === "spiralReveal") {
+      const role = token.role ?? "normal";
+      fontSize = config.fontSizePx * spiralRevealFontScale(role);
+      ctx.font = canvasFont(config.fontWeight, fontSize, family);
+      fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
+    } else if (config.styleId === "floatingBubble") {
+      const role = token.role ?? "normal";
+      fontSize = config.fontSizePx * floatingBubbleFontScale(role);
+      ctx.font = canvasFont(config.fontWeight, fontSize, family);
+      fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
+    }
+
+    // Spiral Reveal's hero word owns a square arc box (matches
+    // `resolveTokenBoxes`' `size = radius * 2.4` estimate and
+    // `SpiralRevealToken`'s SVG box exactly), not a normal text-width row
+    // item — sized and measured here rather than in the generic path below
+    // so neighbouring words never overlap the circle in the export.
+    if (config.styleId === "spiralReveal") {
+      const role = token.role ?? "normal";
+      if (isSpiralRevealHero(role)) {
+        const heroFontSize = config.fontSizePx * spiralRevealFontScale(role);
+        const size = heroFontSize * 1.9 * 2.4;
+        const measured: Measured = { token, index, width: size, fontSize: size / config.lineHeight };
+        flush();
+        lines.push({ items: [measured], width: size, height: size });
+        return;
+      }
     }
 
     // Vertical Impact's keyword is a stacked column, not a row item — it
@@ -610,6 +717,14 @@ const layoutLines = (
     // `flexBasis: 100%` on every token, matching `resolveTokenBoxes`'
     // one-row-per-token box-fit estimate.
     if (config.styleId === "editorialKinetic" || config.styleId === "editorialKineticPop") {
+      flush();
+      lines.push({ items: [measured], width, height: rowHeight([measured]) });
+      return;
+    }
+
+    // Dynamic Slide Stack: every word owns its row too, mirroring the DOM's
+    // `flexBasis: 100%` (see DynamicSlideStackToken).
+    if (config.styleId === "dynamicSlideStack") {
       flush();
       lines.push({ items: [measured], width, height: rowHeight([measured]) });
       return;
@@ -2824,6 +2939,418 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           ctx.fillStyle = color;
           ctx.fillText(text, -tokenWidth / 2, 0);
           ctx.filter = "none";
+
+          ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
+          break;
+        }
+
+        case "dynamicSlideStack": {
+          const role = token.role ?? "normal";
+          const isHero = isDynamicSlideStackHero(role);
+          const direction = dynamicSlideStackDirection(token.text, index);
+          const roleFontSize = config.fontSizePx * dynamicSlideStackFontScale(role);
+          const scaleFactor = canvasScale({ width, height });
+
+          const enter = tokenEnter({ frame, fps, fromFrame: timing.fromFrame }, isHero ? ENTER_BOUNCY : ENTER_SMOOTH);
+          const pulse = tokenPulse(timing, ENTER_BOUNCY);
+          const travel = (1 - enter) * (isHero ? 60 : 40) * scaleFactor;
+          const xOffset = direction === "left" ? -travel : direction === "right" ? travel : 0;
+          const yOffset = direction === "up" ? -travel : direction === "down" ? travel : 0;
+          const heroScale = isHero ? Math.min(1.08, 0.85 + pulse * 0.23) : 1;
+          const blurPx = (1 - enter) * (isHero ? 5 : 3) * scaleFactor;
+          const color = token.color ?? (isHero ? config.accentColor : config.baseColor);
+
+          ctx.font = canvasFont(config.fontWeight, roleFontSize, family);
+          ctx.globalAlpha = entrance * enter;
+          ctx.filter = blurPx > 0.3 ? `blur(${blurPx}px)` : "none";
+          ctx.translate(cx + xOffset, cy + yOffset);
+          ctx.scale(heroScale, heroScale);
+          strokeThenFill(ctx, text, -tokenWidth / 2, 0, color, isHero ? config.strokeWidthPx : 0, config.strokeColor);
+          ctx.filter = "none";
+
+          ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
+          break;
+        }
+
+        case "glassHighlight": {
+          const role = token.role ?? "normal";
+          const isAccent = isGlassHighlightAccent(role);
+          const roleFontSize = config.fontSizePx * glassHighlightFontScale(role);
+          const enter = tokenEnter({ frame, fps, fromFrame: timing.fromFrame }, ENTER_SMOOTH);
+          const yOffset = (1 - enter) * 12 * canvasScale({ width, height });
+          const panelScale = isAccent ? Math.max(0, Math.min(1, (enter - 0.1) / 0.9)) : 0;
+
+          ctx.font = canvasFont(config.fontWeight, roleFontSize, family);
+          ctx.globalAlpha = entrance * enter;
+          ctx.translate(cx, cy + yOffset);
+
+          if (isAccent && panelScale > 0.01) {
+            const padX = roleFontSize * 0.22;
+            const padY = roleFontSize * 0.14;
+            ctx.save();
+            ctx.scale(panelScale, 1);
+            ctx.fillStyle = "rgba(255,255,255,0.18)";
+            ctx.strokeStyle = "rgba(255,255,255,0.35)";
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.roundRect(
+              -tokenWidth / 2 - padX,
+              -roleFontSize / 2 - padY,
+              tokenWidth + padX * 2,
+              roleFontSize + padY * 2,
+              roleFontSize * 0.28,
+            );
+            ctx.fill();
+            ctx.stroke();
+            ctx.restore();
+          }
+
+          strokeThenFill(
+            ctx, text, -tokenWidth / 2, 0,
+            token.color ?? (isAccent ? config.accentColor : config.baseColor),
+            0, config.strokeColor,
+          );
+
+          ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
+          break;
+        }
+
+        case "splitText": {
+          const role = token.role ?? "normal";
+          const isHero = isSplitTextHero(role);
+          const roleFontSize = config.fontSizePx * splitTextFontScale(role);
+          const enter = tokenEnter({ frame, fps, fromFrame: timing.fromFrame }, ENTER_SMOOTH);
+          const color = token.color ?? (isHero ? config.accentColor : config.baseColor);
+
+          ctx.font = canvasFont(config.fontWeight, roleFontSize, family);
+
+          if (!isHero) {
+            ctx.globalAlpha = entrance * enter;
+            ctx.translate(cx, cy + (1 - enter) * 10 * canvasScale({ width, height }));
+            strokeThenFill(ctx, text, -tokenWidth / 2, 0, color, 0, config.strokeColor);
+            ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
+            break;
+          }
+
+          const splitOffset = (1 - enter) * roleFontSize * 0.5;
+          ctx.globalAlpha = entrance * enter;
+          ctx.translate(cx, cy);
+
+          ctx.strokeStyle = color;
+          ctx.lineWidth = 2;
+          ctx.globalAlpha = entrance * enter * 0.7;
+          ctx.beginPath();
+          ctx.moveTo(-tokenWidth / 2, -1);
+          ctx.lineTo(tokenWidth / 2, 1);
+          ctx.stroke();
+          ctx.globalAlpha = entrance * enter;
+
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(-tokenWidth / 2 - 2, -roleFontSize / 2 - 2, tokenWidth + 4, roleFontSize / 2 + 2);
+          ctx.clip();
+          ctx.fillStyle = color;
+          ctx.fillText(text, -tokenWidth / 2 - splitOffset, 0);
+          ctx.restore();
+
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(-tokenWidth / 2 - 2, 0, tokenWidth + 4, roleFontSize / 2 + 2);
+          ctx.clip();
+          ctx.fillStyle = color;
+          ctx.fillText(text, -tokenWidth / 2 + splitOffset, 0);
+          ctx.restore();
+
+          ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
+          break;
+        }
+
+        case "liquidFlow": {
+          const role = token.role ?? "normal";
+          const isAccent = isLiquidFlowAccent(role);
+          const roleFontSize = config.fontSizePx * liquidFlowFontScale(role);
+          const enter = tokenEnter({ frame, fps, fromFrame: timing.fromFrame }, ENTER_SMOOTH);
+          const scaleFactor = canvasScale({ width, height });
+          const yOffset = (1 - enter) * 14 * scaleFactor;
+          const blurPx = (1 - enter) * 5 * scaleFactor;
+          const color = token.color ?? (isAccent ? config.accentColor : config.baseColor);
+
+          ctx.font = canvasFont(config.fontWeight, roleFontSize, family);
+          ctx.globalAlpha = entrance * enter;
+          ctx.filter = blurPx > 0.3 ? `blur(${blurPx}px)` : "none";
+          ctx.translate(cx, cy + yOffset);
+
+          if (isAccent) {
+            const ribbonW = roleFontSize * 3.2;
+            const ribbonH = roleFontSize * 0.9;
+            const phase = frame / fps / 4 + (timing.fromFrame % 17) / 17;
+            const { start, cp1, cp2, end } = liquidRibbonControlPoints(ribbonW, ribbonH, phase);
+            ctx.save();
+            ctx.globalAlpha = entrance * enter * 0.55;
+            ctx.translate(-ribbonW / 2, -ribbonH / 2);
+            ctx.strokeStyle = config.accentColor;
+            ctx.lineWidth = ribbonH * 0.22;
+            ctx.lineCap = "round";
+            ctx.beginPath();
+            ctx.moveTo(start[0], start[1]);
+            ctx.bezierCurveTo(cp1[0], cp1[1], cp2[0], cp2[1], end[0], end[1]);
+            ctx.stroke();
+            ctx.restore();
+            ctx.globalAlpha = entrance * enter;
+          }
+
+          strokeThenFill(ctx, text, -tokenWidth / 2, 0, color, isAccent ? config.strokeWidthPx : 0, config.strokeColor);
+          ctx.filter = "none";
+          ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
+          break;
+        }
+
+        case "lightSweep": {
+          const role = token.role ?? "normal";
+          const isAccent = isLightSweepAccent(role);
+          const roleFontSize = config.fontSizePx * lightSweepFontScale(role);
+          const enter = tokenEnter({ frame, fps, fromFrame: timing.fromFrame }, ENTER_SMOOTH);
+          const dim = token.color ?? config.baseColor;
+          const bright = token.color ?? config.accentColor;
+          const bandCenter = -40 + enter * 180;
+          const settled = enter > 0.92;
+
+          ctx.font = canvasFont(config.fontWeight, roleFontSize, family);
+          ctx.globalAlpha = entrance * Math.max(0.35, enter);
+          ctx.translate(cx, cy);
+
+          let colour: string | CanvasGradient = bright;
+          if (isAccent && !settled) {
+            const grad = ctx.createLinearGradient(-tokenWidth / 2, 0, tokenWidth / 2, 0);
+            const stop = Math.max(0, Math.min(1, (bandCenter + 40) / 220));
+            grad.addColorStop(Math.max(0, stop - 0.3), dim);
+            grad.addColorStop(stop, bright);
+            grad.addColorStop(Math.min(1, stop + 0.3), dim);
+            colour = grad;
+          } else if (!isAccent) {
+            colour = dim;
+          }
+
+          strokeThenFill(ctx, text, -tokenWidth / 2, 0, colour, isAccent ? config.strokeWidthPx : 0, config.strokeColor);
+          ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
+          break;
+        }
+
+        case "paperCut": {
+          const role = token.role ?? "normal";
+          const isAccent = isPaperCutAccent(role);
+          const roleFontSize = config.fontSizePx * paperCutFontScale(role);
+          const enter = tokenEnter({ frame, fps, fromFrame: timing.fromFrame }, ENTER_SMOOTH);
+          const scaleFactor = canvasScale({ width, height });
+          const rotationDeg = (1 - enter) * (isAccent ? -6 : 4);
+          const yOffset = (1 - enter) * 20 * scaleFactor;
+          const paperFamily = isAccent
+            ? family
+            : config.secondaryFontId
+              ? resolveFontFamily(config.secondaryFontId)
+              : family;
+          const paperColor = isAccent ? "#ffd60a" : "#f5f2e8";
+          const ink = isAccent ? "#1a1206" : "#2a2a2a";
+
+          ctx.font = canvasFont(isAccent ? 900 : 500, roleFontSize, paperFamily);
+          ctx.globalAlpha = entrance * enter;
+          ctx.translate(cx, cy + yOffset);
+          ctx.rotate((rotationDeg * Math.PI) / 180);
+
+          const padX = roleFontSize * 0.22;
+          const padY = roleFontSize * 0.16;
+          const stripW = tokenWidth + padX * 2;
+          const stripH = roleFontSize + padY * 2;
+          const points: readonly PaperCutPoint[] = paperStripClipPath(getHash(token.text.toLowerCase()));
+
+          ctx.fillStyle = paperColor;
+          ctx.beginPath();
+          points.forEach((p, i) => {
+            const px = -stripW / 2 + p.x * stripW;
+            const py = -stripH / 2 + p.y * stripH;
+            if (i === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+          });
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.fillStyle = ink;
+          ctx.fillText(text, -tokenWidth / 2, 0);
+
+          ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
+          break;
+        }
+
+        case "flipCard": {
+          const role = token.role ?? "normal";
+          const isAccent = isFlipCardAccent(role);
+          const roleFontSize = config.fontSizePx * flipCardFontScale(role);
+          const enter = tokenEnter({ frame, fps, fromFrame: timing.fromFrame }, ENTER_SMOOTH);
+          const rotateXDeg = (1 - enter) * -100;
+          // Flat-projection equivalent of the DOM's `rotateX` — no perspective
+          // skew, see this case's doc note in FlipCard.tsx.
+          const squashY = Math.max(0.05, Math.cos((rotateXDeg * Math.PI) / 180));
+          const textOpacity = Math.max(0, Math.min(1, (enter - 0.45) / 0.35));
+          const cardColor = isAccent ? "#ffffff" : config.accentColor;
+          const textColor = isAccent ? "#111111" : "#062b16";
+          const cardFamily = isAccent
+            ? family
+            : config.secondaryFontId
+              ? resolveFontFamily(config.secondaryFontId)
+              : family;
+
+          ctx.font = canvasFont(config.fontWeight, roleFontSize, cardFamily);
+          ctx.globalAlpha = entrance * enter;
+          ctx.translate(cx, cy);
+
+          const padX = roleFontSize * 0.2;
+          const padY = roleFontSize * 0.16;
+          const cardW = tokenWidth + padX * 2;
+          const cardH = roleFontSize + padY * 2;
+
+          ctx.save();
+          ctx.scale(1, squashY);
+          ctx.fillStyle = cardColor;
+          ctx.beginPath();
+          ctx.roundRect(-cardW / 2, -cardH / 2, cardW, cardH, roleFontSize * 0.1);
+          ctx.fill();
+          ctx.restore();
+
+          ctx.globalAlpha = entrance * textOpacity;
+          ctx.fillStyle = textColor;
+          ctx.fillText(text, -tokenWidth / 2, 0);
+
+          ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
+          break;
+        }
+
+        case "ribbonSlide": {
+          const role = token.role ?? "normal";
+          const isAccent = isRibbonSlideAccent(role);
+          const roleFontSize = config.fontSizePx * ribbonSlideFontScale(role);
+          const scaleFactor = canvasScale({ width, height });
+
+          if (!isAccent) {
+            const enter = tokenEnter({ frame, fps, fromFrame: timing.fromFrame }, ENTER_SMOOTH);
+            ctx.font = canvasFont(config.fontWeight, roleFontSize, family);
+            ctx.globalAlpha = entrance * enter;
+            ctx.translate(cx, cy);
+            strokeThenFill(ctx, text, -tokenWidth / 2, 0, token.color ?? config.baseColor, config.strokeWidthPx, config.strokeColor);
+            ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
+            break;
+          }
+
+          const side = ribbonSlideSide(index);
+          const ribbonOffset = splitEntrance(side, 220, { frame, fps, fromFrame: timing.fromFrame }, ENTER_SMOOTH) * scaleFactor;
+          const textEnter = tokenEnter({ frame, fps, fromFrame: timing.fromFrame + 2 }, ENTER_SMOOTH);
+          const ribbonColor = index % 2 === 0 ? "#7c4dff" : config.accentColor;
+          const points: readonly PaperCutPoint[] = ribbonClipPath();
+
+          ctx.font = canvasFont(config.fontWeight, roleFontSize, family);
+          ctx.globalAlpha = entrance * textEnter;
+          ctx.translate(cx + ribbonOffset, cy);
+
+          const padX = roleFontSize * 0.3;
+          const padY = roleFontSize * 0.12;
+          const ribbonW = tokenWidth + padX * 2;
+          const ribbonH = roleFontSize + padY * 2;
+
+          ctx.fillStyle = ribbonColor;
+          ctx.beginPath();
+          points.forEach((p, i) => {
+            const px = -ribbonW / 2 + p.x * ribbonW;
+            const py = -ribbonH / 2 + p.y * ribbonH;
+            if (i === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+          });
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.fillStyle = "#ffffff";
+          ctx.fillText(text, -tokenWidth / 2, 0);
+
+          ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
+          break;
+        }
+
+        case "spiralReveal": {
+          const role = token.role ?? "normal";
+          const isHero = isSpiralRevealHero(role);
+          const roleFontSize = config.fontSizePx * spiralRevealFontScale(role);
+          const enter = tokenEnter({ frame, fps, fromFrame: timing.fromFrame }, ENTER_SMOOTH);
+          const color = token.color ?? (isHero ? config.accentColor : config.baseColor);
+
+          ctx.font = canvasFont(config.fontWeight, roleFontSize, family);
+          ctx.globalAlpha = entrance * enter;
+
+          if (!isHero) {
+            ctx.translate(cx, cy);
+            strokeThenFill(ctx, text, -tokenWidth / 2, 0, color, 0, config.strokeColor);
+            ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
+            break;
+          }
+
+          const rotateDeg = (1 - enter) * 40;
+          const arcScale = 0.9 + enter * 0.1;
+          const radius = roleFontSize * 1.9;
+          const chars = Array.from(text);
+
+          ctx.translate(cx, cy);
+          ctx.rotate((rotateDeg * Math.PI) / 180);
+          ctx.scale(arcScale, arcScale);
+          ctx.fillStyle = color;
+          ctx.textAlign = "center";
+
+          // Manual per-character placement around the same arc the DOM's SVG
+          // `textPath` follows — see `spiralCharAngleDeg`'s doc comment for
+          // why the two aren't pixel-identical.
+          chars.forEach((ch, i) => {
+            const angleRad = (spiralCharAngleDeg(i, chars.length) * Math.PI) / 180;
+            const px = Math.sin(angleRad) * radius;
+            const py = -Math.cos(angleRad) * radius;
+            ctx.save();
+            ctx.translate(px, py);
+            ctx.rotate(angleRad);
+            ctx.fillText(ch, 0, 0);
+            ctx.restore();
+          });
+
+          ctx.textAlign = "left";
+          ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
+          break;
+        }
+
+        case "floatingBubble": {
+          const role = token.role ?? "normal";
+          const roleFontSize = config.fontSizePx * floatingBubbleFontScale(role);
+          const enter = tokenEnter({ frame, fps, fromFrame: timing.fromFrame }, ENTER_BOUNCY);
+          const pulse = tokenPulse(timing, ENTER_BOUNCY);
+          const scaleFactor = canvasScale({ width, height });
+          const drift = floatingBubbleOffset(token.text, index, frame, fps);
+          const settleScale = 0.7 + Math.min(1.1, pulse) * 0.3;
+          const tint = floatingBubbleTint(token.text);
+          const color = token.color ?? "#ffffff";
+
+          ctx.font = canvasFont(config.fontWeight, roleFontSize, family);
+          ctx.globalAlpha = entrance * enter;
+          ctx.translate(cx + drift.x * scaleFactor, cy + (drift.y - (1 - enter) * 24) * scaleFactor);
+          ctx.scale(settleScale, settleScale);
+
+          const padX = roleFontSize * 0.42;
+          const padY = roleFontSize * 0.28;
+          const bubbleW = tokenWidth + padX * 2;
+          const bubbleH = roleFontSize + padY * 2;
+
+          ctx.fillStyle = withOpacity(tint, 0.28);
+          ctx.strokeStyle = withOpacity(tint, 0.55);
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.roundRect(-bubbleW / 2, -bubbleH / 2, bubbleW, bubbleH, bubbleH / 2);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.fillStyle = color;
+          ctx.fillText(text, -tokenWidth / 2, 0);
 
           ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
           break;

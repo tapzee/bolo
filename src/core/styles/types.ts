@@ -41,6 +41,20 @@ export const STYLE_IDS = [
   // Editorial Kinetic family (2 variants, one design system)
   "editorialKinetic",
   "editorialKineticPop",
+  // Motion Systems family — the genuinely-new subset of the 20-template
+  // brief (the other 10 already had a same-concept engine and were skipped).
+  // Batch A:
+  "dynamicSlideStack",
+  "glassHighlight",
+  "splitText",
+  "liquidFlow",
+  "lightSweep",
+  // Batch B:
+  "paperCut",
+  "flipCard",
+  "ribbonSlide",
+  "spiralReveal",
+  "floatingBubble",
 ] as const;
 
 export type StyleId = (typeof STYLE_IDS)[number];

@@ -758,3 +758,219 @@ export const pickFrameState = <TState extends string>(
   }
   return current;
 };
+
+/**
+ * Shared word-role → visual-treatment lookups for the "motion systems"
+ * family — the genuinely-new subset of the 20-template brief (the other 10
+ * of the 20 already have a same-concept engine in the catalogue and were
+ * deliberately skipped, see the plan). Same rationale as the two blocks
+ * above: the DOM renderer, `draw-captions.ts` and `page-fit.ts` must agree
+ * exactly on which role gets the accent treatment and how large it draws.
+ */
+
+/** Dynamic Slide Stack: only the page's one critical word gets the oversized stacked treatment. */
+export const isDynamicSlideStackHero = (role: WordRole): boolean => role === "critical";
+
+export const dynamicSlideStackFontScale = (role: WordRole): number =>
+  role === "critical" ? 1.3 : role === "keyword" ? 0.85 : role === "connector" ? 0.4 : 0.55;
+
+/**
+ * Alternating slide-in direction per word, hashed from the word's own text
+ * plus its index (same pattern as `kineticVariant`) so the DOM preview and
+ * the Canvas2D export always agree, and the same word entering twice always
+ * slides the same way.
+ */
+export const SLIDE_STACK_DIRECTIONS = ["left", "right", "up", "down"] as const;
+export type SlideStackDirection = (typeof SLIDE_STACK_DIRECTIONS)[number];
+export const dynamicSlideStackDirection = (text: string, index: number): SlideStackDirection =>
+  SLIDE_STACK_DIRECTIONS[
+    getHash(`${text.toLowerCase()}-${index}`) % SLIDE_STACK_DIRECTIONS.length
+  ]!;
+
+/** Glass Highlight: which roles sit inside the translucent glass panel. */
+export const isGlassHighlightAccent = (role: WordRole): boolean =>
+  role === "critical" || role === "keyword";
+
+export const glassHighlightFontScale = (role: WordRole): number =>
+  role === "critical" ? 1.05 : role === "keyword" ? 0.95 : role === "connector" ? 0.55 : 0.75;
+
+/** Split Text: only the page's critical word gets the two-layer split treatment. */
+export const isSplitTextHero = (role: WordRole): boolean => role === "critical";
+
+export const splitTextFontScale = (role: WordRole): number =>
+  role === "critical" ? 1.15 : role === "keyword" ? 0.85 : role === "connector" ? 0.45 : 0.6;
+
+/** Liquid Flow: which roles get the flowing-ribbon backdrop + accent colour. */
+export const isLiquidFlowAccent = (role: WordRole): boolean =>
+  role === "critical" || role === "keyword";
+
+export const liquidFlowFontScale = (role: WordRole): number =>
+  role === "critical" ? 1.1 : role === "keyword" ? 0.95 : role === "connector" ? 0.5 : 0.68;
+
+export interface LiquidRibbonPoints {
+  start: readonly [number, number];
+  cp1: readonly [number, number];
+  cp2: readonly [number, number];
+  end: readonly [number, number];
+}
+
+/**
+ * Bezier control points for Liquid Flow's ribbon, relative to a `width` x
+ * `height` box. The DOM turns these into an SVG `<path d="...">`, Canvas2D
+ * calls `bezierCurveTo` with the same numbers — shared so preview and export
+ * trace the identical curve. `phase` (any real number, the caller's own
+ * clock in seconds/period) drifts the curve horizontally for the "flowing"
+ * read; this stays a pure function of that input, never frame-stored state.
+ */
+export const liquidRibbonControlPoints = (
+  width: number,
+  height: number,
+  phase: number,
+): LiquidRibbonPoints => {
+  const wave = Math.sin(phase * Math.PI * 2) * height * 0.28;
+  const midY = height * 0.5;
+  return {
+    start: [0, midY + wave * 0.4],
+    cp1: [width * 0.32, midY - wave],
+    cp2: [width * 0.68, midY + wave],
+    end: [width, midY - wave * 0.4],
+  };
+};
+
+/** Light Sweep: which roles get the dim → illuminated sweep. */
+export const isLightSweepAccent = (role: WordRole): boolean =>
+  role === "critical" || role === "keyword";
+
+export const lightSweepFontScale = (role: WordRole): number =>
+  role === "critical" ? 1.08 : role === "keyword" ? 0.95 : role === "connector" ? 0.45 : 0.62;
+
+/** Paper Cut: which roles sit on the accent (yellow) paper strip vs the plain white strip. */
+export const isPaperCutAccent = (role: WordRole): boolean =>
+  role === "critical" || role === "keyword";
+
+export const paperCutFontScale = (role: WordRole): number =>
+  role === "critical" ? 1.1 : role === "keyword" ? 0.9 : role === "connector" ? 0.5 : 0.65;
+
+export interface PaperCutPoint {
+  x: number;
+  y: number;
+}
+
+/**
+ * Deterministic torn-edge polygon for Paper Cut's strips, as fractions
+ * (0-1) of the strip's own width/height, hashed from a `seed` (the word's
+ * own text hash). Shared so the DOM `clip-path: polygon(...)` and the
+ * Canvas2D manual `lineTo` path trace the identical jagged edge for the
+ * same word — a different polygon per side would make the preview and the
+ * export visibly different shapes for the same word.
+ */
+export const paperStripClipPath = (seed: number): readonly PaperCutPoint[] => {
+  const jag = (i: number, base: number, amplitude: number): number => {
+    const h = getHash(`${seed}-${i}`);
+    return base + (((h % 100) / 100) - 0.5) * 2 * amplitude;
+  };
+  const steps = 6;
+  const top: PaperCutPoint[] = [];
+  const bottom: PaperCutPoint[] = [];
+  for (let i = 0; i <= steps; i++) {
+    const x = i / steps;
+    top.push({ x, y: jag(i, 0, 0.1) });
+    bottom.push({ x, y: jag(i + 100, 1, 0.1) });
+  }
+  return [...top, ...bottom.reverse()];
+};
+
+/** Flip Card: which roles get the 3D card treatment vs plain support text. */
+export const isFlipCardAccent = (role: WordRole): boolean =>
+  role === "critical" || role === "keyword";
+
+export const flipCardFontScale = (role: WordRole): number =>
+  role === "critical" ? 1.1 : role === "keyword" ? 0.95 : role === "connector" ? 0.5 : 0.68;
+
+/** Ribbon Slide: which roles get a ribbon banner (vs plain text). */
+export const isRibbonSlideAccent = (role: WordRole): boolean =>
+  role === "critical" || role === "keyword" || role === "number";
+
+export const ribbonSlideFontScale = (role: WordRole): number =>
+  role === "critical"
+    ? 1.08
+    : role === "keyword" || role === "number"
+      ? 0.95
+      : role === "connector"
+        ? 0.48
+        : 0.62;
+
+/** Alternates which edge a ribbon slides in from. */
+export const ribbonSlideSide = (index: number): "left" | "right" =>
+  index % 2 === 0 ? "left" : "right";
+
+/**
+ * Fixed banner-notch polygon for Ribbon Slide, as fractions of the
+ * ribbon's own width/height — a pointed chevron cut into both ends. Shared
+ * for the same DOM-clip-path / Canvas2D-manual-path reason as
+ * `paperStripClipPath`.
+ */
+export const ribbonClipPath = (): readonly PaperCutPoint[] => [
+  { x: 0, y: 0 },
+  { x: 1, y: 0 },
+  { x: 0.96, y: 0.5 },
+  { x: 1, y: 1 },
+  { x: 0, y: 1 },
+  { x: 0.04, y: 0.5 },
+];
+
+/** Spiral Reveal: only the page's one critical/keyword word curves around the circle. */
+export const isSpiralRevealHero = (role: WordRole): boolean =>
+  role === "critical" || role === "keyword";
+
+export const spiralRevealFontScale = (role: WordRole): number =>
+  isSpiralRevealHero(role) ? 0.62 : role === "connector" ? 0.3 : 0.4;
+
+/**
+ * Per-character angle (degrees) around Spiral Reveal's circle, shared by
+ * the Canvas2D export's manual per-character placement. The DOM renders the
+ * curving word via native SVG `<textPath>`, which needs no manual math —
+ * see `SpiralReveal.tsx`'s doc comment for why the two are not
+ * pixel-identical (documented deviation). `charCount` words fan across a
+ * capped span so a long word never wraps more than a full circle.
+ */
+export const spiralCharAngleDeg = (
+  charIndex: number,
+  charCount: number,
+  anglePerChar = 18,
+): number => {
+  const span = Math.min(340, charCount * anglePerChar);
+  const start = -span / 2;
+  return charCount <= 1 ? 0 : start + (span * charIndex) / (charCount - 1);
+};
+
+/** Floating Bubble: font scale per role — the bubble itself grows/shrinks with it. */
+export const floatingBubbleFontScale = (role: WordRole): number =>
+  role === "critical" ? 1.05 : role === "keyword" ? 0.95 : role === "connector" ? 0.55 : 0.75;
+
+/**
+ * Small ambient x/y drift (px) per bubble, hashed from the word's own text
+ * plus its page index so neighbouring bubbles don't float in lockstep. Pure
+ * transform — doesn't affect the layout box, so `page-fit.ts` only needs
+ * `floatingBubbleFontScale`, not this.
+ */
+export const floatingBubbleOffset = (
+  text: string,
+  index: number,
+  frame: number,
+  fps: number,
+): { x: number; y: number } => {
+  const seed = getHash(`${text.toLowerCase()}-${index}`);
+  const phaseX = (seed % 100) / 100;
+  const phaseY = ((seed >> 4) % 100) / 100;
+  const t = frame / fps;
+  return {
+    x: Math.sin((t / 3.2 + phaseX) * Math.PI * 2) * 8,
+    y: Math.cos((t / 2.6 + phaseY) * Math.PI * 2) * 10,
+  };
+};
+
+/** A curated glass tint per bubble, hashed from the word's own text. */
+export const FLOATING_BUBBLE_TINTS = ["#7c4dff", "#00b8d4", "#ff6ec7", "#ffb74d"] as const;
+export const floatingBubbleTint = (text: string): string =>
+  FLOATING_BUBBLE_TINTS[getHash(text.toLowerCase()) % FLOATING_BUBBLE_TINTS.length]!;

@@ -40,6 +40,17 @@ import {
   depth3dFontScale,
   editorialKineticRole,
   editorialKineticFontScale,
+  dynamicSlideStackFontScale,
+  glassHighlightFontScale,
+  splitTextFontScale,
+  liquidFlowFontScale,
+  lightSweepFontScale,
+  paperCutFontScale,
+  flipCardFontScale,
+  ribbonSlideFontScale,
+  isSpiralRevealHero,
+  spiralRevealFontScale,
+  floatingBubbleFontScale,
 } from "./primitives";
 
 /**
@@ -291,6 +302,72 @@ export const resolveTokenBoxes = (
             config.lineHeight,
         };
       });
+    }
+
+    case "dynamicSlideStack": {
+      // Every word owns its row (see DynamicSlideStackToken's `flexBasis:
+      // 100%`), same reasoning as `editorialKinetic` above.
+      const roles = analyzeWordRoles(tokens);
+      const rowWidth = estimateMaxLineWidthPx(config);
+      return tokens.map((token, i) => ({
+        width: rowWidth,
+        height: config.fontSizePx * dynamicSlideStackFontScale(roles[i]!) * config.lineHeight,
+      }));
+    }
+
+    case "glassHighlight": {
+      const roles = analyzeWordRoles(tokens);
+      return tokens.map((token, i) => toBox(token.text, config.fontSizePx * glassHighlightFontScale(roles[i]!)));
+    }
+
+    case "splitText": {
+      const roles = analyzeWordRoles(tokens);
+      return tokens.map((token, i) => toBox(token.text, config.fontSizePx * splitTextFontScale(roles[i]!)));
+    }
+
+    case "liquidFlow": {
+      const roles = analyzeWordRoles(tokens);
+      return tokens.map((token, i) => toBox(token.text, config.fontSizePx * liquidFlowFontScale(roles[i]!)));
+    }
+
+    case "lightSweep": {
+      const roles = analyzeWordRoles(tokens);
+      return tokens.map((token, i) => toBox(token.text, config.fontSizePx * lightSweepFontScale(roles[i]!)));
+    }
+
+    case "paperCut": {
+      const roles = analyzeWordRoles(tokens);
+      return tokens.map((token, i) => toBox(token.text, config.fontSizePx * paperCutFontScale(roles[i]!)));
+    }
+
+    case "flipCard": {
+      const roles = analyzeWordRoles(tokens);
+      return tokens.map((token, i) => toBox(token.text, config.fontSizePx * flipCardFontScale(roles[i]!)));
+    }
+
+    case "ribbonSlide": {
+      const roles = analyzeWordRoles(tokens);
+      return tokens.map((token, i) => toBox(token.text, config.fontSizePx * ribbonSlideFontScale(roles[i]!)));
+    }
+
+    case "spiralReveal": {
+      // The hero (curving) word owns a square-ish arc box, not a flat line —
+      // matches `SpiralRevealToken`'s `size = radius * 2.4` box exactly.
+      const roles = analyzeWordRoles(tokens);
+      return tokens.map((token, i) => {
+        const role = roles[i]!;
+        if (isSpiralRevealHero(role)) {
+          const heroFontSize = config.fontSizePx * spiralRevealFontScale(role);
+          const size = heroFontSize * 1.9 * 2.4;
+          return { width: size, height: size };
+        }
+        return toBox(token.text, config.fontSizePx * spiralRevealFontScale(role));
+      });
+    }
+
+    case "floatingBubble": {
+      const roles = analyzeWordRoles(tokens);
+      return tokens.map((token, i) => toBox(token.text, config.fontSizePx * floatingBubbleFontScale(roles[i]!)));
     }
 
     default:
