@@ -9,7 +9,7 @@ import {
 } from "../captions/primitives";
 import { FONT_FAMILY } from "../fonts";
 import { hasDevanagari } from "@/core";
-import { ENTER_SMOOTH, ENTER_SUBTLE, tokenEnter } from "../captions/animation";
+import { ENTER_SMOOTH, tokenEnter } from "../captions/animation";
 
 /**
  * Editorial Stack — Template 01.
@@ -19,6 +19,13 @@ import { ENTER_SMOOTH, ENTER_SUBTLE, tokenEnter } from "../captions/animation";
  * typographic tiers reading as one deliberate composition rather than one
  * shouted line. Hindi gets its own large-serif tier regardless of the word's
  * computed role, since in this template Hindi is always meant to punctuate.
+ *
+ * Motion mirrors Editorial Kinetic's per-tier reveal (blur + rise on the big
+ * serif anchor, a quiet fade-up on everything else) — the original version
+ * only scaled 94%→102%, which read as flat next to that template. The accent
+ * colour is restricted to the page's one `critical` word (previously every
+ * Devanagari word got it unconditionally, which is what made the whole line
+ * look uniformly tinted instead of having one clear highlight).
  */
 export const EditorialStackToken: React.FC<TokenViewProps> = ({
   token,
@@ -31,7 +38,10 @@ export const EditorialStackToken: React.FC<TokenViewProps> = ({
   const role = token.role ?? "normal";
   const isDevanagariWord = hasDevanagari(token.text);
   const isKeyword = isEditorialStackKeyword(role);
+  const isCritical = role === "critical";
+  const isBigTier = isDevanagariWord || isKeyword;
   const timing = { frame, fps, fromFrame };
+  const enter = tokenEnter(timing, ENTER_SMOOTH);
 
   const primaryFamily = FONT_FAMILY[config.fontId];
   const secondaryFamily = FONT_FAMILY[config.secondaryFontId ?? "inter"];
@@ -39,36 +49,20 @@ export const EditorialStackToken: React.FC<TokenViewProps> = ({
 
   const fontSize = (textStyle.fontSize as number) * editorialStackFontScale(role, isDevanagariWord);
 
-  let fontFamily: string;
-  let color: string;
-  let fontWeight: number;
-  let enter: number;
-  let scale = 1;
-  let yOffset = 0;
+  const fontFamily = isDevanagariWord ? hindiFamily : isKeyword ? primaryFamily : secondaryFamily;
+  const fontWeight = isCritical ? 700 : isBigTier ? 600 : 500;
+  // Only the page's one critical word carries the accent colour — everything
+  // else in the big tier stays neutral white so one word actually reads as
+  // "the highlighted one" instead of the whole line looking tinted.
+  const color = isCritical
+    ? (token.color ?? config.accentColor)
+    : isBigTier
+      ? (token.color ?? config.baseColor)
+      : (token.color ?? "#ffffff");
 
-  if (isDevanagariWord) {
-    fontFamily = hindiFamily;
-    color = token.color ?? config.accentColor;
-    fontWeight = 600;
-    enter = tokenEnter(timing, ENTER_SUBTLE);
-    scale = 0.95 + enter * 0.05;
-  } else if (isKeyword) {
-    fontFamily = primaryFamily;
-    // The page's one critical word carries the accent colour, same as the
-    // Hindi emphasis tier — everything else large stays neutral white so
-    // only one word per page actually reads as "the highlighted one."
-    color = token.color ?? (role === "critical" ? config.accentColor : config.baseColor);
-    fontWeight = 500;
-    enter = tokenEnter(timing, ENTER_SMOOTH);
-    // Slow editorial settle — 94% → 102% → 100%, not a bouncy overshoot.
-    scale = 0.94 + enter * 0.08;
-  } else {
-    fontFamily = secondaryFamily;
-    color = token.color ?? "#ffffff";
-    fontWeight = 500;
-    enter = tokenEnter(timing, ENTER_SMOOTH);
-    yOffset = (1 - enter) * 10;
-  }
+  const yOffset = (isBigTier ? (1 - enter) * 22 : (1 - enter) * 8);
+  const blurPx = isBigTier ? (1 - enter) * 7 : 0;
+  const scale = isBigTier ? 0.96 + enter * 0.04 : 1;
 
   return (
     <span style={tokenShellStyle}>
@@ -80,7 +74,8 @@ export const EditorialStackToken: React.FC<TokenViewProps> = ({
           color,
           fontWeight,
           opacity: enter,
-          transform: `scale(${scale}) translateY(${yOffset}px)`,
+          transform: `translateY(${yOffset}px) scale(${scale})`,
+          filter: blurPx > 0.3 ? `blur(${blurPx}px)` : undefined,
           zIndex: 1,
           textTransform: roleCaseTransform(role, config),
         }}

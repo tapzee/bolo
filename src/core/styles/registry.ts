@@ -507,14 +507,18 @@ export const CAPTION_STYLES: Readonly<
     {
       fontId: "bodoniModa",
       secondaryFontId: "inter",
-      fontWeight: 500,
+      fontWeight: 700,
       fontSizePx: 84,
       uppercase: false,
       baseColor: "#ffffff",
-      accentColor: "#c83232",
+      // Brightened from #c83232 — the darker crimson read as dull/low-contrast
+      // against dark video backdrops, and every Devanagari word used to carry
+      // it unconditionally so the whole line looked uniformly tinted instead
+      // of having one clear highlight (now restricted to the critical word).
+      accentColor: "#ff3b3b",
       strokeWidthPx: 0,
       maxWordsPerPage: 6,
-      dropShadow: false,
+      dropShadow: true,
     },
   ),
 

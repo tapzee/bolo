@@ -531,9 +531,9 @@ export const isEditorialStackKeyword = (role: WordRole): boolean =>
  * line, not just inherit whatever role English content-word scoring gave it.
  */
 export const editorialStackFontScale = (role: WordRole, isDevanagariWord: boolean): number => {
-  if (isDevanagariWord) return role === "critical" ? 1.3 : 1.05;
-  if (isEditorialStackKeyword(role)) return role === "critical" ? 1.35 : 1.05;
-  return role === "connector" ? 0.4 : 0.5;
+  if (isDevanagariWord) return role === "critical" ? 1.3 : 0.85;
+  if (isEditorialStackKeyword(role)) return role === "critical" ? 1.3 : 0.85;
+  return role === "connector" ? 0.28 : 0.34;
 };
 
 /** Magazine Cut: which roles get the oversized, cropped headline treatment. */

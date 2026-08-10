@@ -408,15 +408,18 @@ const layoutLines = (
     } else if (config.styleId === "editorialStack") {
       const role = token.role ?? "normal";
       const isDevanagariWord = hasDevanagari(text);
+      const isKeyword = isEditorialStackKeyword(role);
+      const isBigTier = isDevanagariWord || isKeyword;
       fontSize = config.fontSizePx * editorialStackFontScale(role, isDevanagariWord);
       const fam = isDevanagariWord
         ? resolveFontFamily("notoSerifDevanagari")
-        : isEditorialStackKeyword(role)
+        : isKeyword
           ? family
           : config.secondaryFontId
             ? resolveFontFamily(config.secondaryFontId)
             : family;
-      ctx.font = canvasFont(isDevanagariWord ? 600 : 500, fontSize, fam);
+      const weight = role === "critical" ? 700 : isBigTier ? 600 : 500;
+      ctx.font = canvasFont(weight, fontSize, fam);
       fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
     } else if (config.styleId === "magazineCut") {
       const role = token.role ?? "normal";
@@ -2033,6 +2036,8 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           const role = token.role ?? "normal";
           const isDevanagariWord = hasDevanagari(token.text);
           const isKeyword = isEditorialStackKeyword(role);
+          const isCritical = role === "critical";
+          const isBigTier = isDevanagariWord || isKeyword;
           const roleFontSize = config.fontSizePx * editorialStackFontScale(role, isDevanagariWord);
           const scaleFactor = canvasScale({ width, height });
           const fam = isDevanagariWord
@@ -2042,34 +2047,29 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
               : config.secondaryFontId
                 ? resolveFontFamily(config.secondaryFontId)
                 : family;
-          ctx.font = canvasFont(isDevanagariWord ? 600 : 500, roleFontSize, fam);
+          const weight = isCritical ? 700 : isBigTier ? 600 : 500;
+          ctx.font = canvasFont(weight, roleFontSize, fam);
 
-          let enter: number;
-          let punchScale = 1;
-          let yOffset = 0;
-          let color: string;
+          // Mirrors `EditorialStackToken`'s Editorial-Kinetic-style reveal:
+          // blur + rise on the big serif tier, a quiet fade-up on everything
+          // else. Only the critical word carries the accent colour.
+          const enter = tokenEnter(timing, ENTER_SMOOTH);
+          const yOffset = (isBigTier ? (1 - enter) * 22 : (1 - enter) * 8) * scaleFactor;
+          const blurPx = isBigTier ? (1 - enter) * 7 * scaleFactor : 0;
+          const scale = isBigTier ? 0.96 + enter * 0.04 : 1;
+          const color = isCritical
+            ? (token.color ?? config.accentColor)
+            : isBigTier
+              ? (token.color ?? config.baseColor)
+              : (token.color ?? "#ffffff");
 
-          if (isDevanagariWord) {
-            enter = tokenEnter(timing, ENTER_SUBTLE);
-            punchScale = 0.95 + enter * 0.05;
-            color = token.color ?? config.accentColor;
-          } else if (isKeyword) {
-            enter = tokenEnter(timing, ENTER_SMOOTH);
-            punchScale = 0.94 + enter * 0.08;
-            // Only the page's critical word carries the accent colour —
-            // mirrors `EditorialStackToken`'s DOM version.
-            color = token.color ?? (role === "critical" ? config.accentColor : config.baseColor);
-          } else {
-            enter = tokenEnter(timing, ENTER_SMOOTH);
-            yOffset = (1 - enter) * 10 * scaleFactor;
-            color = token.color ?? "#ffffff";
-          }
-
+          ctx.filter = blurPx > 0.3 ? `blur(${blurPx}px)` : "none";
           ctx.globalAlpha = entrance * enter;
           ctx.translate(cx, cy + yOffset);
-          ctx.scale(punchScale, punchScale);
+          ctx.scale(scale, scale);
           ctx.fillStyle = color;
           ctx.fillText(text, -tokenWidth / 2, 0);
+          ctx.filter = "none";
 
           ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
           break;
