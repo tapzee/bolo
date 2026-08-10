@@ -73,12 +73,18 @@ export const HeroStackToken = memo(function HeroStackToken({
     const isTopLine = index < heroIndex;
     const isBottomLine = index > heroIndex;
 
+    const slideX = isTopLine ? (1 - enter) * -30 : isBottomLine ? (1 - enter) * 30 : 0;
+    const slideY = isTopLine ? (1 - enter) * 15 : isBottomLine ? (1 - enter) * -15 : 0;
+    const blurAmount = (1 - enter) * 8;
+    const displayRatio = smallRatio * 1.6; // Tangerine is a thin script, needs to be larger to be properly visible
+
     return (
       <span
         style={{
           ...tokenShellStyle,
           opacity: smallAlpha,
-          transform: `translateY(${(1 - enter) * 6}px)`,
+          transform: `translate(${slideX}px, ${slideY}px)`,
+          filter: `blur(${blurAmount}px)`,
           transition: "opacity 0.1s ease-out",
           marginLeft: isTopLine && index === 0 ? "auto" : undefined,
           marginRight: isBottomLine && index === totalTokens - 1 ? "auto" : undefined,
@@ -90,26 +96,17 @@ export const HeroStackToken = memo(function HeroStackToken({
           style={{
             ...textStyle,
             ...tokenGlyphStyle,
-            fontFamily: `"Grand Hotel", cursive`,
-            fontSize: `${config.fontSizePx * smallRatio}px`,
-            fontWeight: config.annotationWeight > 0 ? config.annotationWeight : 500,
-            letterSpacing: `${config.fontSizePx * smallRatio * 0.02}px`,
+            fontFamily: `"Tangerine", cursive`,
+            fontSize: `${config.fontSizePx * displayRatio}px`,
+            fontWeight: 700,
+            letterSpacing: `${config.fontSizePx * displayRatio * 0.02}px`,
             color: config.annotationColor || config.baseColor,
-            // Scaled with the small text rather than inherited: the block
-            // stroke is sized for the hero, and at a third of the size it
-            // closes up the counters of small glyphs entirely.
-            //
-            // The floor is the readability ratio the whole app is held to
-            // (~8.5% of glyph size, see `strokeRatio`) rather than a fraction
-            // of the hero's stroke. Scaling the hero's stroke down by the size
-            // ratio alone lands the supporting text under 6%, which measured
-            // against the `busy` backdrop is where white text stops separating.
             WebkitTextStroke: `${Math.max(
-              config.fontSizePx * smallRatio * 0.085,
-              config.strokeWidthPx * smallRatio * 1.4,
+              config.fontSizePx * displayRatio * 0.06,
+              config.strokeWidthPx * displayRatio * 1.1,
             )}px ${config.strokeColor}`,
             paintOrder: "stroke fill",
-            textShadow: "0 2px 10px rgba(0,0,0,0.55)",
+            textShadow: "0 3px 12px rgba(0,0,0,0.85)",
           }}
         >
           {text}

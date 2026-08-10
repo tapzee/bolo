@@ -1107,27 +1107,38 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
 
             let heroOffsetX = 0;
             let heroOffsetY = 0;
+            let slideX = 0;
+            let slideY = 0;
+            const blurAmount = (1 - enter) * 8;
+            
             if (index < heroIndex) {
               heroOffsetX = (widestLine - line.width) / 2;
               heroOffsetY = config.fontSizePx * 0.15 * scaleFactor; // Push down closer to hero
+              slideX = (1 - enter) * -30 * scaleFactor;
+              slideY = (1 - enter) * 15 * scaleFactor;
             } else if (index > heroIndex) {
               heroOffsetX = -(widestLine - line.width) / 2;
               heroOffsetY = -config.fontSizePx * 0.15 * scaleFactor; // Push up closer to hero
+              slideX = (1 - enter) * 30 * scaleFactor;
+              slideY = (1 - enter) * -15 * scaleFactor;
             }
 
             ctx.globalAlpha = entrance * smallAlpha;
-            const smallSize = config.fontSizePx * smallRatio;
+            const displayRatio = smallRatio * 1.6;
+            const smallSize = config.fontSizePx * displayRatio;
             ctx.font = canvasFont(
-              config.annotationWeight > 0 ? config.annotationWeight : 500,
+              700,
               smallSize,
-              resolveFontFamily("grandHotel"),
+              resolveFontFamily("tangerine"),
             );
             ctx.letterSpacing = `${smallSize * 0.02}px`;
-            ctx.shadowColor = "rgba(0,0,0,0.55)";
-            ctx.shadowBlur = 10 * scaleFactor;
-            ctx.shadowOffsetY = 2 * scaleFactor;
+            ctx.shadowColor = "rgba(0,0,0,0.85)";
+            ctx.shadowBlur = 12 * scaleFactor;
+            ctx.shadowOffsetY = 3 * scaleFactor;
+            
+            if (blurAmount > 0.05) ctx.filter = `blur(${blurAmount}px)`;
 
-            ctx.translate(cx + heroOffsetX, cy + (1 - enter) * 6 * scaleFactor + heroOffsetY);
+            ctx.translate(cx + heroOffsetX + slideX, cy + slideY + heroOffsetY);
             strokeThenFill(
               ctx,
               text,
@@ -1143,6 +1154,7 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
               config.strokeColor,
             );
             clearShadow(ctx);
+            if (blurAmount > 0.05) ctx.filter = "none";
             // Restored for the next token, which may be the hero and must not
             // inherit the small face or its tracking.
             ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
