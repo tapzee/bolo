@@ -635,6 +635,42 @@ export const CAPTION_STYLES: Readonly<
     }
   ),
 
+  floatingBubble: define(
+    "floatingBubble",
+    "Floating Bubble",
+    "Words bubble up gently with an organic drifting motion.",
+    {
+      fontId: "dynapuff",
+      fontSizePx: 84,
+      uppercase: false,
+      baseColor: "#ffffff",
+      activeColor: "#ffffff",
+      accentColor: "#00e5ff",
+      strokeWidthPx: 3,
+      dropShadow: true,
+      maxWordsPerPage: 4,
+    }
+  ),
+
+  dynamicTypography: define(
+    "dynamicTypography",
+    "Dynamic Typography",
+    "Inspired by short-form video caption styles, mixing heavy and cursive fonts.",
+    {
+      fontId: "montserrat",
+      secondaryFontId: "playfair",
+      fontSizePx: 90,
+      uppercase: false,
+      baseColor: "#ffffff",
+      activeColor: "#ffffff",
+      accentColor: "#ffd60a",
+      strokeWidthPx: 0,
+      maxWordsPerPage: 4,
+      dropShadow: true,
+      wordGapPx: 20,
+    }
+  ),
+
   rotateReveal: define(
     "rotateReveal",
     "Rotate Reveal",
