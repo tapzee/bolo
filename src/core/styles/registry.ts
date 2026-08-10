@@ -55,6 +55,9 @@ const BASE: CaptionStyleConfig = {
   strokeColor: "#000000",
 
   maxWordsPerPage: 4,
+  // 0 = auto (no explicit row cap) — every existing style keeps its current
+  // behaviour until a user or template opts into a specific line count.
+  linesPerPage: 0,
   combineWithinMs: 1200,
   holdMs: 220,
 
@@ -246,12 +249,18 @@ export const CAPTION_STYLES: Readonly<
       // Five gives the hero enough context to sit inside — three leaves it
       // stranded with a single word above it, which reads as a mistake.
       maxWordsPerPage: 5,
+      // The template's whole identity is exactly 3 rows — small supporting
+      // words above, the oversized headline, small supporting words below —
+      // so that shape is now the explicit default rather than an incidental
+      // result of word count and wrap width.
+      linesPerPage: 3,
       combineWithinMs: 1100,
       upcomingOpacity: 0.55,
       dropShadow: true,
-      // Row gap is `lineHeight * 0.28 * fontSizePx`, so this is what keeps the
-      // supporting text off the headline's descenders and Devanagari matras.
-      lineHeight: 1.12,
+      // Tightened from 1.12 — row gap is `lineHeight * 0.28 * fontSizePx`, so
+      // this is what keeps the small/BIG/small stack reading as one tight
+      // composition instead of three evenly-spaced lines.
+      lineHeight: 1.0,
       annotationSizeRatio: 0.34,
       annotationWeight: 600,
       annotationColor: "#ffffff",

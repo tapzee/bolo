@@ -5,6 +5,7 @@ import {
   displayText,
   isHighlightMarkerAccent,
   highlightMarkerFontScale,
+  roleCaseTransform,
 } from "../captions/primitives";
 import { FONT_FAMILY } from "../fonts";
 import type { WordRole } from "@/core";
@@ -80,6 +81,7 @@ export const HighlightMarkerToken: React.FC<TokenViewProps> = ({
           color: isKeyword ? "#111111" : (token.color ?? "#ffffff"),
           // Small supporting text stays clean — no stroke.
           WebkitTextStroke: "0px transparent",
+          textTransform: roleCaseTransform(role, config),
         }}
       >
         {displayText(token)}

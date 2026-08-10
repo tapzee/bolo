@@ -101,6 +101,11 @@ export const HeroStackToken = memo(function HeroStackToken({
             fontWeight: 700,
             letterSpacing: `${config.fontSizePx * displayRatio * 0.02}px`,
             color: config.annotationColor || config.baseColor,
+            // Forces lowercase unconditionally, same as `heroMixed`'s
+            // annotation layer — the small/BIG/small case contrast is this
+            // template's own signature, not something that should depend on
+            // whatever case the user picked for the template overall.
+            textTransform: "lowercase",
             WebkitTextStroke: `${Math.max(
               config.fontSizePx * displayRatio * 0.06,
               config.strokeWidthPx * displayRatio * 1.1,

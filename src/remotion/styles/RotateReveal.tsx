@@ -5,6 +5,7 @@ import { ENTER_BOUNCY, ENTER_SMOOTH, tokenEnter, tokenHighlight } from "../capti
 import {
   displayText,
   isRotateRevealAccent,
+  roleCaseTransform,
   rotateRevealFontScale,
   tokenGlyphStyle,
   tokenShellStyle,
@@ -77,6 +78,7 @@ export const RotateRevealToken = memo(function RotateRevealToken({
           fontSize,
           color,
           WebkitTextStroke: isAccent ? textStyle.WebkitTextStroke : "0px transparent",
+          textTransform: roleCaseTransform(role, config),
         }}
       >
         {displayText(token)}

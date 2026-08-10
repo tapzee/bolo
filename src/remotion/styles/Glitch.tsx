@@ -5,6 +5,7 @@ import {
   displayText,
   getHash,
   isGlitchAccent,
+  roleCaseTransform,
   tokenGlyphStyle,
   tokenShellStyle,
   type TokenViewProps,
@@ -33,6 +34,7 @@ export const GlitchToken = memo(function GlitchToken({
   const sliceOffset = burst > 0 ? (seed % 5) - 2 : 0;
 
   const baseColor = token.color ?? config.baseColor;
+  const caseTransform = roleCaseTransform(role, config);
 
   return (
     <span style={{ ...tokenShellStyle, opacity: enter, transform: `translateX(${sliceOffset}px)` }}>
@@ -49,6 +51,7 @@ export const GlitchToken = memo(function GlitchToken({
               transform: "translateX(-3px)",
               opacity: 0.85,
               WebkitTextStroke: "0px transparent",
+              textTransform: caseTransform,
             }}
           >
             {text}
@@ -64,6 +67,7 @@ export const GlitchToken = memo(function GlitchToken({
               transform: "translateX(3px)",
               opacity: 0.85,
               WebkitTextStroke: "0px transparent",
+              textTransform: caseTransform,
             }}
           >
             {text}
@@ -76,6 +80,7 @@ export const GlitchToken = memo(function GlitchToken({
           ...tokenGlyphStyle,
           color: baseColor,
           WebkitTextStroke: isAccent ? textStyle.WebkitTextStroke : "0px transparent",
+          textTransform: caseTransform,
         }}
       >
         {text}

@@ -252,6 +252,16 @@ export interface CaptionStyleConfig {
   strokeColor: string;
 
   maxWordsPerPage: number;
+  /**
+   * Hard cap on how many wrapped rows a page may use, `0` meaning "no cap —
+   * let `maxBlockHeightPct`/`maxWordsPerPage` decide" as they always have.
+   * Layered on top of those as an *additional* constraint (whichever limit
+   * is hit first closes the page), not a replacement for them — a page that
+   * already fits the height budget in 2 rows can still be forced to close
+   * earlier by a `linesPerPage: 1` cap, but a 6-line box budget can't be
+   * used to squeeze more than `linesPerPage` rows out of it either.
+   */
+  linesPerPage: number;
   /** Words closer together than this share a page. */
   combineWithinMs: number;
   /** How long a page lingers after its last word, so captions don't blink. */

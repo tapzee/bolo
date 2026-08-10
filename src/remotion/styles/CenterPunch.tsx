@@ -7,6 +7,7 @@ import {
   pickFrameState,
   CENTER_PUNCH_STATES,
   centerPunchFontScale,
+  roleCaseTransform,
 } from "../captions/primitives";
 import { FONT_FAMILY } from "../fonts";
 import { ENTER_BOUNCY, ENTER_SMOOTH, centerPunchScale, tokenEnter } from "../captions/animation";
@@ -64,6 +65,7 @@ export const CenterPunchToken: React.FC<TokenViewProps> = ({
           // Small buildup text stays clean — no stroke, bright white only.
           WebkitTextStroke: isCritical ? textStyle.WebkitTextStroke : "0px transparent",
           color: isCritical ? color : "#ffffff",
+          textTransform: roleCaseTransform(role, config),
         }}
       >
         {displayText(token)}

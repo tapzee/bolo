@@ -6,6 +6,7 @@ import {
   blurFocusFontScale,
   displayText,
   isBlurFocusAccent,
+  roleCaseTransform,
   tokenGlyphStyle,
   tokenShellStyle,
   type TokenViewProps,
@@ -59,6 +60,7 @@ export const BlurFocusToken = memo(function BlurFocusToken({
           color,
           WebkitTextStroke: isAccent ? textStyle.WebkitTextStroke : "0px transparent",
           textShadow: isAccent && enter > 0.7 ? `0 0 ${fontSize * 0.14}px ${config.accentColor}` : undefined,
+          textTransform: roleCaseTransform(role, config),
         }}
       >
         {displayText(token)}

@@ -5,6 +5,7 @@ import {
   depth3dFontScale,
   displayText,
   isDepth3dAccent,
+  roleCaseTransform,
   tokenGlyphStyle,
   tokenShellStyle,
   type TokenViewProps,
@@ -62,6 +63,7 @@ export const Depth3DToken = memo(function Depth3DToken({
           color,
           WebkitTextStroke: isAccent ? textStyle.WebkitTextStroke : "0px transparent",
           textShadow: isAccent ? shadowLayers.join(", ") : undefined,
+          textTransform: roleCaseTransform(role, config),
         }}
       >
         {displayText(token)}

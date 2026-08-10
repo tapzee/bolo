@@ -5,6 +5,7 @@ import { ENTER_SMOOTH, maskRevealY, tokenHighlight } from "../captions/animation
 import {
   displayText,
   isWipeUpAccent,
+  roleCaseTransform,
   tokenGlyphStyle,
   tokenShellStyle,
   wipeUpFontScale,
@@ -68,6 +69,7 @@ export const WipeUpToken = memo(function WipeUpToken({
           fontSize,
           color: isAccent && blockScale > 0.5 ? "#0a0a0b" : color,
           WebkitTextStroke: isAccent ? textStyle.WebkitTextStroke : "0px transparent",
+          textTransform: roleCaseTransform(role, config),
         }}
       >
         {displayText(token)}

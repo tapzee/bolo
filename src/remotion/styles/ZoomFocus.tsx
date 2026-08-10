@@ -5,6 +5,7 @@ import { centerPunchScale, ENTER_BOUNCY, ENTER_SMOOTH, tokenEnter, tokenHighligh
 import {
   displayText,
   isZoomFocusAccent,
+  roleCaseTransform,
   tokenGlyphStyle,
   tokenShellStyle,
   zoomFocusFontScale,
@@ -83,6 +84,7 @@ export const ZoomFocusToken = memo(function ZoomFocusToken({
           fontSize,
           color,
           WebkitTextStroke: isAccent ? textStyle.WebkitTextStroke : "0px transparent",
+          textTransform: roleCaseTransform(role, config),
         }}
       >
         {displayText(token)}

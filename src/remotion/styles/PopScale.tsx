@@ -10,6 +10,7 @@ import {
   displayText,
   isPopScaleHero,
   popScaleFontScale,
+  roleCaseTransform,
   tokenGlyphStyle,
   tokenShellStyle,
   type TokenViewProps,
@@ -79,6 +80,7 @@ export const PopScaleToken = memo(function PopScaleToken({
           fontSize,
           color,
           WebkitTextStroke: isHero ? textStyle.WebkitTextStroke : "0px transparent",
+          textTransform: roleCaseTransform(role, config),
         }}
       >
         {displayText(token)}

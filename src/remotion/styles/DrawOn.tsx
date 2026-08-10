@@ -6,6 +6,7 @@ import {
   displayText,
   drawOnFontScale,
   isDrawOnScript,
+  roleCaseTransform,
   tokenGlyphStyle,
   tokenShellStyle,
   type TokenViewProps,
@@ -55,6 +56,7 @@ export const DrawOnToken = memo(function DrawOnToken({
           fontFamily: isScript ? textStyle.fontFamily : secondaryFamily,
           color: isScript ? (token.color ?? config.accentColor) : color,
           WebkitTextStroke: isScript ? textStyle.WebkitTextStroke : "0px transparent",
+          textTransform: roleCaseTransform(role, config),
         }}
       >
         {displayText(token)}

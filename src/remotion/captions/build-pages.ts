@@ -3,6 +3,7 @@ import type { CaptionPage, CaptionToken, CaptionWord, StyleId } from "@/core";
 import {
   analyzeWordRoles,
   estimateBlockHeightPx,
+  estimateLineCount,
   estimateMaxBlockHeightPx,
 } from "@/core";
 import { resolveTokenBoxes } from "./page-fit";
@@ -24,6 +25,8 @@ export interface PageLayoutOptions {
   styleId: StyleId;
   combineWithinMs: number;
   maxWordsPerPage: number;
+  /** `0` = no explicit row cap — see `CaptionStyleConfig.linesPerPage`. */
+  linesPerPage: number;
   fontSizePx: number;
   letterSpacingPx: number;
   wordGapPx: number;
@@ -140,14 +143,16 @@ export const buildCaptionPages = (
     current = [];
   };
 
-  // Would adding `candidate` to the current page overflow its fixed box?
-  // Re-resolves the page-scoped size signal (hero index, role, emphasis —
-  // whichever the active style uses) fresh over the candidate list each
-  // time, because which word is "the big one" isn't known until the page's
-  // membership is — exactly what this function is deciding as it goes.
+  // Would adding `candidate` to the current page overflow its fixed box, or
+  // (independently) its explicit row cap? Re-resolves the page-scoped size
+  // signal (hero index, role, emphasis — whichever the active style uses)
+  // fresh over the candidate list each time, because which word is "the big
+  // one" isn't known until the page's membership is — exactly what this
+  // function is deciding as it goes.
   const overflowsBox = (candidate: readonly CaptionToken[]): boolean => {
     const boxes = resolveTokenBoxes(candidate, options.styleId, options);
-    return estimateBlockHeightPx(boxes, options) > maxBlockHeightPx;
+    if (estimateBlockHeightPx(boxes, options) > maxBlockHeightPx) return true;
+    return options.linesPerPage > 0 && estimateLineCount(boxes, options) > options.linesPerPage;
   };
 
   words.forEach((word, index) => {

@@ -5,6 +5,7 @@ import {
   displayText,
   isMixedWeightKeyword,
   mixedWeightFontScale,
+  roleCaseTransform,
 } from "../captions/primitives";
 import { FONT_FAMILY } from "../fonts";
 import type { WordRole } from "@/core";
@@ -75,6 +76,7 @@ export const MixedWeightToken: React.FC<TokenViewProps> = ({
           opacity,
           transform: `scale(${scale}) translateY(${yOffset}px)`,
           zIndex: 1,
+          textTransform: roleCaseTransform(role, config),
         }}
       >
         {displayText(token)}

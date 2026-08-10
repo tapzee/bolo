@@ -5,6 +5,7 @@ import {
   displayText,
   isEditorialStackKeyword,
   editorialStackFontScale,
+  roleCaseTransform,
 } from "../captions/primitives";
 import { FONT_FAMILY } from "../fonts";
 import { hasDevanagari } from "@/core";
@@ -81,6 +82,7 @@ export const EditorialStackToken: React.FC<TokenViewProps> = ({
           opacity: enter,
           transform: `scale(${scale}) translateY(${yOffset}px)`,
           zIndex: 1,
+          textTransform: roleCaseTransform(role, config),
         }}
       >
         {displayText(token)}

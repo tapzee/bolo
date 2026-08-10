@@ -5,6 +5,7 @@ import { ENTER_SMOOTH, tokenEnter } from "../captions/animation";
 import {
   displayText,
   isStrokeFillAccent,
+  roleCaseTransform,
   strokeFillFontScale,
   tokenGlyphStyle,
   tokenShellStyle,
@@ -47,6 +48,7 @@ export const StrokeFillToken = memo(function StrokeFillToken({
           color: isAccent ? withOpacity(fillColor, fillIn) : "transparent",
           WebkitTextStroke: `${config.strokeWidthPx}px ${outlineColor}`,
           paintOrder: "stroke fill",
+          textTransform: roleCaseTransform(role, config),
         }}
       >
         {displayText(token)}

@@ -100,6 +100,7 @@ import {
   drawOnFontScale,
   isDepth3dAccent,
   depth3dFontScale,
+  roleTextCase,
 } from "@/remotion/captions/primitives";
 import { resolveEmphasis, DYNAMIC_HIGHLIGHT_EMPHASIS_SCALE } from "@/remotion/styles/DynamicHighlight";
 import { canvasFont, resolveFontFamily } from "./fonts";
@@ -178,12 +179,12 @@ const getRenderText = (
     return text;
   }
   if (config.styleId === "hero") {
-    // Only the headline is forced upper. The supporting text keeps whatever the
-    // template asked for, which is what makes the contrast read as deliberate
-    // typography rather than as one shouted line.
-    return index === heroIndex
-      ? text.toUpperCase()
-      : applyTextCase(text, resolveTextCase(config));
+    // The headline is forced upper, the supporting text forced lower —
+    // unconditionally, same as `heroMixed`'s annotation layer just below.
+    // The small/BIG/small case contrast is this template's own signature,
+    // not something that should depend on whatever case the user picked for
+    // the template overall.
+    return index === heroIndex ? text.toUpperCase() : text.toLowerCase();
   }
   if (config.styleId === "heroMixed") {
     if (index === heroIndex) return text.toUpperCase();
@@ -205,9 +206,12 @@ const getRenderText = (
     if (emphasis === "special") return text;
     return applyTextCase(text, resolveTextCase(config));
   }
-  // Canvas has no `text-transform`, so casing is applied to the string itself.
-  // Must go through `resolveTextCase` for parity with the DOM renderer.
-  return applyTextCase(text, resolveTextCase(config));
+  // Canvas has no `text-transform`, so casing is applied to the string
+  // itself. Goes through `roleTextCase` (shared with the DOM's
+  // `roleCaseTransform`) rather than the flat `resolveTextCase`, so the
+  // ~25 role-aware engines' highlighted/de-emphasised words draw upper/
+  // lower cased the same way here as in the preview.
+  return applyTextCase(text, roleTextCase(token.role ?? "normal", config));
 };
 
 const layoutLines = (

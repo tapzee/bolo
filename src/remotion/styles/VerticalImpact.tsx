@@ -3,6 +3,7 @@ import type { TokenViewProps } from "../captions/primitives";
 import {
   tokenShellStyle,
   displayText,
+  roleCaseTransform,
   verticalImpactCharFontSize,
 } from "../captions/primitives";
 import { FONT_FAMILY } from "../fonts";
@@ -54,6 +55,7 @@ export const VerticalImpactToken: React.FC<TokenViewProps> = ({
                 transform: `translateY(${(1 - reveal) * 10}px)`,
                 display: "block",
                 textAlign: "center",
+                textTransform: "uppercase",
               }}
             >
               {ch}
@@ -82,6 +84,7 @@ export const VerticalImpactToken: React.FC<TokenViewProps> = ({
           // The small English connector/supporting tier stays clean — no
           // stroke. The dominant Hindi word keeps the template's own stroke.
           WebkitTextStroke: isDevanagariWord ? textStyle.WebkitTextStroke : "0px transparent",
+          textTransform: roleCaseTransform(role, config),
         }}
       >
         {displayText(token)}

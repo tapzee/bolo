@@ -5,6 +5,7 @@ import {
   displayText,
   highlightWordFontScale,
   isHighlightWordAccent,
+  roleCaseTransform,
   tokenGlyphStyle,
   tokenShellStyle,
   type TokenViewProps,
@@ -46,6 +47,7 @@ export const HighlightWordToken = memo(function HighlightWordToken({
           zIndex: 1,
           color: isAccent && isCovered ? "#0a0a0b" : (token.color ?? config.baseColor),
           WebkitTextStroke: isAccent && !isCovered ? textStyle.WebkitTextStroke : "0px transparent",
+          textTransform: roleCaseTransform(role, config),
         }}
       >
         {isAccent && marker > 0 && (

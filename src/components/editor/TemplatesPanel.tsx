@@ -398,6 +398,36 @@ export function TemplatesPanel({
 
           <div className="space-y-2.5">
             <div className="flex items-center justify-between">
+              <Label className="font-semibold text-foreground">Lines Per Page</Label>
+              <span className="rounded bg-muted px-2 py-0.5 font-mono text-xs font-bold text-brand">
+                {config.linesPerPage === 0 ? "Auto" : `${config.linesPerPage} ${config.linesPerPage === 1 ? "line" : "lines"}`}
+              </span>
+            </div>
+            <div className="flex gap-1">
+              {[0, 1, 2, 3, 4, 5, 6].map((num) => (
+                <button
+                  key={num}
+                  type="button"
+                  onClick={() => updateConfig({ linesPerPage: num })}
+                  className={cn(
+                    "flex-1 rounded-md border py-1.5 text-center font-mono text-xs transition-all",
+                    config.linesPerPage === num
+                      ? "border-brand bg-brand text-brand-foreground font-bold shadow"
+                      : "border-border bg-muted/40 text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {num === 0 ? "Auto" : num}
+                </button>
+              ))}
+            </div>
+            <p className="text-[11px] text-muted-foreground/80 leading-relaxed">
+              💡 Caps how many wrapped rows a page can use — independent of word count. A page
+              closes as soon as either this or the word cap above is hit, whichever comes first.
+            </p>
+          </div>
+
+          <div className="space-y-2.5">
+            <div className="flex items-center justify-between">
               <Label className="font-semibold text-foreground">Speech Merge Window</Label>
               <span className="font-mono text-xs text-muted-foreground">
                 {config.combineWithinMs}ms

@@ -5,6 +5,7 @@ import {
   displayText,
   isMagazineCutKeyword,
   magazineCutFontScale,
+  roleCaseTransform,
 } from "../captions/primitives";
 import { FONT_FAMILY } from "../fonts";
 import { hasDevanagari } from "@/core";
@@ -54,6 +55,7 @@ export const MagazineCutToken: React.FC<TokenViewProps> = ({
             clipPath: `inset(0 ${(1 - reveal) * 100}% 0 0)`,
             opacity: Math.min(1, reveal * 3),
             zIndex: 2,
+            textTransform: roleCaseTransform(role, config),
           }}
         >
           {displayText(token)}
@@ -75,6 +77,7 @@ export const MagazineCutToken: React.FC<TokenViewProps> = ({
             fontWeight: 600,
             opacity: enter,
             zIndex: 1,
+            textTransform: roleCaseTransform(role, config),
           }}
         >
           {displayText(token)}
@@ -94,6 +97,7 @@ export const MagazineCutToken: React.FC<TokenViewProps> = ({
           color: token.color ?? "#ffffff",
           opacity: enter,
           zIndex: 1,
+          textTransform: roleCaseTransform(role, config),
         }}
       >
         {displayText(token)}

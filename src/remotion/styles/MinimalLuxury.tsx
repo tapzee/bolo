@@ -5,6 +5,7 @@ import {
   displayText,
   minimalLuxuryFontScale,
   minimalLuxuryTrackingRatio,
+  roleCaseTransform,
 } from "../captions/primitives";
 import { FONT_FAMILY } from "../fonts";
 import { hasDevanagari } from "@/core";
@@ -76,6 +77,7 @@ export const MinimalLuxuryToken: React.FC<TokenViewProps> = ({
           opacity: enter,
           transform: `translateY(${yOffset}px)`,
           zIndex: 1,
+          textTransform: roleCaseTransform(role, config),
         }}
       >
         {displayText(token)}

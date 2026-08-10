@@ -4,6 +4,7 @@ import { ENTER_SMOOTH, tokenEnter } from "../captions/animation";
 import {
   displayText,
   isTypewriterAccent,
+  roleCaseTransform,
   tokenGlyphStyle,
   tokenShellStyle,
   type TokenViewProps,
@@ -48,6 +49,7 @@ export const TypewriterToken = memo(function TypewriterToken({
           ...tokenGlyphStyle,
           color,
           WebkitTextStroke: isAccent ? textStyle.WebkitTextStroke : "0px transparent",
+          textTransform: roleCaseTransform(role, config),
         }}
       >
         {visible}

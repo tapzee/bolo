@@ -5,6 +5,7 @@ import {
   displayText,
   gradientFlowFontScale,
   isGradientFlowAccent,
+  roleCaseTransform,
   tokenGlyphStyle,
   tokenShellStyle,
   type TokenViewProps,
@@ -50,6 +51,7 @@ export const GradientFlowToken = memo(function GradientFlowToken({
           WebkitBackgroundClip: isAccent ? "text" : undefined,
           backgroundClip: isAccent ? "text" : undefined,
           backgroundPosition: `${flowPct}% center`,
+          textTransform: roleCaseTransform(role, config),
         }}
       >
         {displayText(token)}

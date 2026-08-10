@@ -9,6 +9,7 @@ import {
 import {
   displayText,
   isSlideInAccent,
+  roleCaseTransform,
   slideInDirection,
   slideInFontScale,
   tokenGlyphStyle,
@@ -80,6 +81,7 @@ export const SlideInToken = memo(function SlideInToken({
           color: isAccent ? "#ffffff" : (token.color ?? config.baseColor),
           fontWeight: isAccent ? 800 : textStyle.fontWeight,
           WebkitTextStroke: isAccent ? textStyle.WebkitTextStroke : "0px transparent",
+          textTransform: roleCaseTransform(role, config),
         }}
       >
         {displayText(token)}

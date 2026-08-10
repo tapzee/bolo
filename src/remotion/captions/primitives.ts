@@ -1,5 +1,5 @@
 import type { CSSProperties } from "react";
-import type { CaptionStyleConfig, CaptionToken, FontId, WordRole } from "@/core";
+import type { CaptionStyleConfig, CaptionToken, FontId, TextCase, WordRole } from "@/core";
 import { resolveTextCase } from "@/core";
 
 export interface TokenViewProps {
@@ -132,6 +132,42 @@ export const tokenGlyphStyle: CSSProperties = {
 
 /** Words carry a leading space by Remotion convention; the flex gap spaces them. */
 export const displayText = (token: CaptionToken): string => token.text.trim();
+
+/**
+ * Per-word case for the ~25 role-aware engines (10-template and 15-template
+ * families), matching the pattern the older `hero`/`heroMixed`/`splash`/
+ * `dynamicHighlight` engines already hand-rolled: the highlighted word(s)
+ * force uppercase, the de-emphasised word(s) force lowercase, so the size
+ * contrast reads as deliberate typography rather than one shouted line.
+ *
+ * Falls back to the template's own configured case for every role in
+ * between (`emphasis`, `question`, `number`, `cta`, `special`) — those
+ * aren't clearly "the big word" or "the small word", so forcing either
+ * would be a guess this function isn't in a position to make.
+ *
+ * Shared by both renderers: the DOM applies the result as a CSS
+ * `text-transform` (`roleCaseTransform`, below), Canvas2D has no such
+ * concept and mutates the string itself (`applyTextCase` in
+ * `draw-captions.ts`'s `getRenderText`) — both read this one function so
+ * they can never disagree about which word is upper/lower.
+ */
+export const roleTextCase = (
+  role: WordRole,
+  config: Pick<CaptionStyleConfig, "textCase" | "uppercase">,
+): TextCase => {
+  if (role === "critical" || role === "keyword") return "upper";
+  if (role === "connector" || role === "supporting") return "lower";
+  return resolveTextCase(config);
+};
+
+/** DOM-side wrapper of `roleTextCase` — see its doc comment. */
+export const roleCaseTransform = (
+  role: WordRole,
+  config: Pick<CaptionStyleConfig, "textCase" | "uppercase">,
+): CSSProperties["textTransform"] => {
+  const textCase = roleTextCase(role, config);
+  return textCase === "upper" ? "uppercase" : textCase === "lower" ? "lowercase" : "none";
+};
 
 /**
  * Small text as a fraction of the hero word, when a template does not say.

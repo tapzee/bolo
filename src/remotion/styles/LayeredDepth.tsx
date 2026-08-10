@@ -1,6 +1,6 @@
 import React from "react";
 import type { TokenViewProps } from "../captions/primitives";
-import { tokenShellStyle, displayText, layeredDepthForegroundScale } from "../captions/primitives";
+import { tokenShellStyle, displayText, layeredDepthForegroundScale, roleCaseTransform } from "../captions/primitives";
 import { FONT_FAMILY } from "../fonts";
 import { hasDevanagari } from "@/core";
 import { ENTER_SMOOTH, layeredDepthDrift, tokenEnter } from "../captions/animation";
@@ -75,6 +75,7 @@ export const LayeredDepthToken: React.FC<TokenViewProps> = ({
           opacity: enter,
           position: "relative",
           zIndex: 1,
+          textTransform: roleCaseTransform(role, config),
         }}
       >
         {displayText(token)}

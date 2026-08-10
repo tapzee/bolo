@@ -4,6 +4,7 @@ import {
   tokenShellStyle,
   displayText,
   isUnderlinePunchAccent,
+  roleCaseTransform,
   underlinePunchFontScale,
 } from "../captions/primitives";
 import { FONT_FAMILY } from "../fonts";
@@ -61,6 +62,7 @@ export const UnderlinePunchToken: React.FC<TokenViewProps> = ({
           zIndex: 1,
           // Small supporting text stays clean — no stroke, bright white only.
           WebkitTextStroke: isAccent ? textStyle.WebkitTextStroke : "0px transparent",
+          textTransform: roleCaseTransform(role, config),
         }}
       >
         {displayText(token)}

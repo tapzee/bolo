@@ -5,6 +5,7 @@ import {
   displayText,
   isMaskRevealHero,
   maskRevealFontScale,
+  roleCaseTransform,
   tokenGlyphStyle,
   tokenShellStyle,
   type TokenViewProps,
@@ -53,6 +54,7 @@ export const MaskRevealToken = memo(function MaskRevealToken({
           backgroundClip: isHero ? "text" : undefined,
           WebkitTextStroke: "0px transparent",
           textShadow: isHero ? `0 0 18px ${config.accentColor}` : undefined,
+          textTransform: roleCaseTransform(role, config),
         }}
       >
         {displayText(token)}

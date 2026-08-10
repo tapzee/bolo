@@ -130,3 +130,39 @@ export const estimateBlockHeightPx = (
     Math.max(0, rowHeights.length - 1) * gap
   );
 };
+
+/**
+ * Simulates the same greedy line-wrap as `estimateBlockHeightPx`, but
+ * returns how many rows it produced rather than their summed height — for
+ * the explicit "Lines Per Page" cap, which counts wrapped rows directly
+ * instead of going through a height budget. Kept as its own pass (not
+ * derived from `estimateBlockHeightPx`'s return value) because that
+ * function's signature is public and tested as returning a height in px;
+ * changing it to also carry a row count would be a breaking change to that
+ * contract for every existing caller.
+ */
+export const estimateLineCount = (
+  boxes: readonly EstimatedTokenBox[],
+  config: CaptionBoxFitConfig,
+): number => {
+  if (boxes.length === 0) return 0;
+  const maxWidth = estimateMaxLineWidthPx(config);
+
+  let lines = 0;
+  let currentWidth = 0;
+  let currentCount = 0;
+
+  for (const box of boxes) {
+    const withGap = currentCount === 0 ? box.width : currentWidth + config.wordGapPx + box.width;
+    if (currentCount > 0 && withGap > maxWidth) {
+      lines += 1;
+      currentWidth = box.width;
+      currentCount = 1;
+    } else {
+      currentWidth = withGap;
+      currentCount += 1;
+    }
+  }
+  if (currentCount > 0) lines += 1;
+  return lines;
+};

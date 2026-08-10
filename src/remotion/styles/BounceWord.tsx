@@ -5,6 +5,7 @@ import {
   bounceWordFontScale,
   displayText,
   isBounceWordAccent,
+  roleCaseTransform,
   tokenGlyphStyle,
   tokenShellStyle,
   type TokenViewProps,
@@ -67,6 +68,7 @@ export const BounceWordToken = memo(function BounceWordToken({
           fontSize,
           color: token.color ?? "#ffffff",
           WebkitTextStroke: isAccent ? "0px transparent" : textStyle.WebkitTextStroke,
+          textTransform: roleCaseTransform(role, config),
         }}
       >
         {displayText(token)}
