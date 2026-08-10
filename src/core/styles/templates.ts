@@ -754,6 +754,20 @@ export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
   t("mask-reveal-pro", "Mask Reveal", "bold", "maskReveal", {}, "New"),
   t("draw-on-pro", "Draw On", "clean", "drawOn", {}, "New"),
   t("depth-3d-pro", "3D Depth", "trending", "depth3d", {}, "New"),
+
+  // ==========================================================================
+  // MOTION SYSTEMS FAMILY
+  // ==========================================================================
+  t("dynamic-slide-stack-pro", "Dynamic Slide Stack", "trending", "dynamicSlideStack", {}, "New"),
+  t("glass-highlight-pro", "Glass Highlight", "clean", "glassHighlight", {}, "New"),
+  t("split-text-pro", "Split Text", "bold", "splitText", {}, "New"),
+  t("liquid-flow-pro", "Liquid Flow", "neon", "liquidFlow", {}, "New"),
+  t("light-sweep-pro", "Light Sweep", "clean", "lightSweep", {}, "New"),
+  t("paper-cut-pro", "Paper Cut", "highlight", "paperCut", {}, "New"),
+  t("flip-card-pro", "Flip Card", "bold", "flipCard", {}, "New"),
+  t("ribbon-slide-pro", "Ribbon Slide", "festive", "ribbonSlide", {}, "New"),
+  t("spiral-reveal-pro", "Spiral Reveal", "trending", "spiralReveal", {}, "New"),
+  t("floating-bubble-pro", "Floating Bubble", "festive", "floatingBubble", {}, "New"),
 ];
 
 export const templateById = (
