@@ -31,6 +31,20 @@
   --bolo-font-bodoni-moda: var(--font-bodoni-moda), var(--font-devanagari), serif;
   --bolo-font-noto-serif-devanagari: var(--font-noto-serif-devanagari), var(--font-devanagari), serif;
   --bolo-font-ibm-plex-mono: var(--font-ibm-plex-mono), var(--font-devanagari), monospace;
+  
+  --bolo-font-open-sans: var(--font-open-sans), var(--font-devanagari), sans-serif;
+  --bolo-font-instrument-sans: var(--font-instrument-sans), var(--font-devanagari), sans-serif;
+  --bolo-font-rubik: var(--font-rubik), var(--font-devanagari), sans-serif;
+  --bolo-font-luckiest-guy: var(--font-luckiest-guy), var(--font-devanagari), sans-serif;
+  --bolo-font-instrument-serif: var(--font-instrument-serif), var(--font-devanagari), serif;
+  --bolo-font-lobster-two: var(--font-lobster-two), var(--font-devanagari), cursive;
+  --bolo-font-kaushan-script: var(--font-kaushan-script), var(--font-devanagari), cursive;
+  --bolo-font-great-vibes: var(--font-great-vibes), var(--font-devanagari), cursive;
+  --bolo-font-bungee: var(--font-bungee), var(--font-devanagari), sans-serif;
+  --bolo-font-outfit: var(--font-outfit), var(--font-devanagari), sans-serif;
+  --bolo-font-syncopate: var(--font-syncopate), var(--font-devanagari), sans-serif;
+  --bolo-font-jost: var(--font-jost), var(--font-devanagari), sans-serif;
+  --bolo-font-bangers: var(--font-bangers), var(--font-devanagari), cursive;
 }
 
 /* ===========================================================================

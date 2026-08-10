@@ -88,6 +88,37 @@ export const updateWordEmphasis = (
   return replaceAt(words, index, next);
 };
 
+/**
+ * Manually overrides a word's semantic role, read by the 10-template and
+ * 15-template engine families to decide which words get accent treatment
+ * (`analyzeWordRoles` never touches a word once its `role` is set — see
+ * `CaptionWord.role`'s doc comment).
+ *
+ * `"keyword"`/`"critical"` is what every one of those engines' `is*Accent`
+ * predicates treats as "highlighted"; `"supporting"`/`"connector"` is what
+ * they render small and plain. Exposing exactly those two states (plus
+ * clearing back to automatic) is what lets a user highlight or unhighlight
+ * any single word regardless of which of the ~25 role-aware templates is
+ * currently applied, without the editor needing to know each template's own
+ * predicate.
+ */
+export const updateWordRole = (
+  words: readonly CaptionWord[],
+  index: number,
+  role: CaptionWord["role"] | undefined,
+): CaptionWord[] => {
+  const word = words[index];
+  if (word === undefined) return [...words];
+
+  const next = { ...word };
+  if (role === undefined) {
+    delete next.role;
+  } else {
+    next.role = role;
+  }
+  return replaceAt(words, index, next);
+};
+
 export interface TimingBounds {
   minStartMs: number;
   maxEndMs: number;

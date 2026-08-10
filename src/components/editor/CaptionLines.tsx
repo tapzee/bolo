@@ -19,7 +19,41 @@ export interface CaptionLinesProps {
   onSelectWord: (index: number) => void;
   onSetText: (index: number, text: string) => void;
   onSplitAt: (index: number) => void;
+  /**
+   * The current template's accent colour, used to preview which words are
+   * "highlighted" the same way the caption itself will render them.
+   */
+  accentColor: string;
 }
+
+/**
+ * Which roles the ~25 role-aware engines (10-template and 15-template
+ * families) treat as the accented/highlighted tier. Mirrors what every
+ * `is<Engine>Accent(role)` predicate in `remotion/captions/primitives.ts`
+ * agrees on — deliberately not importing any one of those 25 predicates here,
+ * since this list has to stay correct for whichever template is currently
+ * applied, not one specific engine.
+ */
+const HIGHLIGHTED_ROLES = new Set(["critical", "keyword"]);
+
+/**
+ * Resolves the colour a word will actually render in, so this panel doesn't
+ * show plain grey text for a word the caption itself highlights.
+ *
+ * Priority mirrors every renderer's own `token.color ?? ...` fallback chain:
+ * an explicit per-word colour always wins; otherwise a word highlighted via
+ * role (the 10/15-template families) or the legacy emphasis field
+ * (Dynamic Highlight and friends) previews in the template's accent colour.
+ */
+const displayColor = (
+  token: { color?: string; role?: string; emphasis?: string },
+  accentColor: string,
+): string | undefined => {
+  if (token.color !== undefined) return token.color;
+  if (token.role !== undefined && HIGHLIGHTED_ROLES.has(token.role)) return accentColor;
+  if (token.emphasis === "important" || token.emphasis === "special") return accentColor;
+  return undefined;
+};
 
 /**
  * Line-by-line caption editor.
@@ -42,6 +76,7 @@ export function CaptionLines({
   onSelectWord,
   onSetText,
   onSplitAt,
+  accentColor,
 }: CaptionLinesProps) {
   const [editing, setEditing] = useState<number | null>(null);
   const [draft, setDraft] = useState("");
@@ -135,6 +170,7 @@ export function CaptionLines({
                   word?.confidence !== null &&
                   word?.confidence !== undefined &&
                   word.confidence < 0.6;
+                const highlight = displayColor(token, accentColor);
 
                 if (editing === wordIndex) {
                   return (
@@ -183,8 +219,8 @@ export function CaptionLines({
                           : "hover:bg-accent",
                     )}
                     style={
-                      token.color !== undefined && !isSelected
-                        ? { color: token.color }
+                      highlight !== undefined && !isSelected
+                        ? { color: highlight, fontWeight: 700, borderBottom: `2px solid ${highlight}` }
                         : undefined
                     }
                   >

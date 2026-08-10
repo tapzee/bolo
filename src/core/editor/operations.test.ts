@@ -9,6 +9,7 @@ import {
   splitPageAt,
   timingBoundsFor,
   updateWordColor,
+  updateWordRole,
   updateWordText,
   updateWordTiming,
 } from "./operations";
@@ -91,6 +92,21 @@ describe("updateWordColor", () => {
 
     const cleared = updateWordColor(coloured, 0, undefined);
     expect(cleared[0]).not.toHaveProperty("color");
+  });
+});
+
+describe("updateWordRole", () => {
+  it("sets and clears the manual role override", () => {
+    const highlighted = updateWordRole(SAMPLE, 0, "keyword");
+    expect(highlighted[0]?.role).toBe("keyword");
+
+    const cleared = updateWordRole(highlighted, 0, undefined);
+    expect(cleared[0]).not.toHaveProperty("role");
+  });
+
+  it("does not disturb other fields on the word", () => {
+    const next = updateWordRole(SAMPLE, 1, "supporting");
+    expect(next[1]).toMatchObject({ text: "दोस्तों", startMs: 500, endMs: 900 });
   });
 });
 

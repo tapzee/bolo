@@ -19,6 +19,19 @@ import {
   DynaPuff,
   Limelight,
   Tangerine,
+  Open_Sans,
+  Instrument_Sans,
+  Rubik,
+  Luckiest_Guy,
+  Instrument_Serif,
+  Lobster_Two,
+  Kaushan_Script,
+  Great_Vibes,
+  Bungee,
+  Outfit,
+  Syncopate,
+  Jost,
+  Bangers,
 } from "next/font/google";
 
 /**
@@ -206,6 +219,110 @@ export const ibmPlexMono = IBM_Plex_Mono({
   adjustFontFallback: false,
 });
 
+export const openSans = Open_Sans({
+  variable: "--font-open-sans",
+  subsets: ["latin", "latin-ext"],
+  display: "swap",
+  adjustFontFallback: false,
+});
+
+export const instrumentSans = Instrument_Sans({
+  variable: "--font-instrument-sans",
+  subsets: ["latin", "latin-ext"],
+  display: "swap",
+  adjustFontFallback: false,
+});
+
+export const rubik = Rubik({
+  variable: "--font-rubik",
+  subsets: ["latin", "latin-ext"],
+  weight: ["400", "500", "700", "900"],
+  display: "swap",
+  adjustFontFallback: false,
+});
+
+export const luckiestGuy = Luckiest_Guy({
+  variable: "--font-luckiest-guy",
+  subsets: ["latin"],
+  weight: "400",
+  display: "swap",
+  adjustFontFallback: false,
+});
+
+export const instrumentSerif = Instrument_Serif({
+  variable: "--font-instrument-serif",
+  subsets: ["latin", "latin-ext"],
+  style: ["normal", "italic"],
+  weight: "400",
+  display: "swap",
+  adjustFontFallback: false,
+});
+
+export const lobsterTwo = Lobster_Two({
+  variable: "--font-lobster-two",
+  subsets: ["latin"],
+  style: ["normal", "italic"],
+  weight: ["400", "700"],
+  display: "swap",
+  adjustFontFallback: false,
+});
+
+export const kaushanScript = Kaushan_Script({
+  variable: "--font-kaushan-script",
+  subsets: ["latin", "latin-ext"],
+  weight: "400",
+  display: "swap",
+  adjustFontFallback: false,
+});
+
+export const greatVibes = Great_Vibes({
+  variable: "--font-great-vibes",
+  subsets: ["latin", "latin-ext"],
+  weight: "400",
+  display: "swap",
+  adjustFontFallback: false,
+});
+
+export const bungee = Bungee({
+  variable: "--font-bungee",
+  subsets: ["latin"],
+  weight: "400",
+  display: "swap",
+  adjustFontFallback: false,
+});
+
+export const outfit = Outfit({
+  variable: "--font-outfit",
+  subsets: ["latin", "latin-ext"],
+  weight: ["400", "500", "600", "700", "800", "900"],
+  display: "swap",
+  adjustFontFallback: false,
+});
+
+export const syncopate = Syncopate({
+  variable: "--font-syncopate",
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  display: "swap",
+  adjustFontFallback: false,
+});
+
+export const jost = Jost({
+  variable: "--font-jost",
+  subsets: ["latin", "latin-ext"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+  adjustFontFallback: false,
+});
+
+export const bangers = Bangers({
+  variable: "--font-bangers",
+  subsets: ["latin"],
+  weight: "400",
+  display: "swap",
+  adjustFontFallback: false,
+});
+
 export const fontVariables = [
   geistSans.variable,
   geistMono.variable,
@@ -227,4 +344,17 @@ export const fontVariables = [
   bodoniModa.variable,
   notoSerifDevanagari.variable,
   ibmPlexMono.variable,
+  openSans.variable,
+  instrumentSans.variable,
+  rubik.variable,
+  luckiestGuy.variable,
+  instrumentSerif.variable,
+  lobsterTwo.variable,
+  kaushanScript.variable,
+  greatVibes.variable,
+  bungee.variable,
+  outfit.variable,
+  syncopate.variable,
+  jost.variable,
+  bangers.variable,
 ].join(" ");

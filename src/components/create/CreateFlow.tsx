@@ -623,6 +623,7 @@ export function CreateFlow() {
                 onSelectWord={selectWord}
                 onSetText={editor.actions.setText}
                 onSplitAt={editor.actions.splitAt}
+                accentColor={config.accentColor}
               />
             </div>
           </div>
@@ -796,6 +797,7 @@ export function CreateFlow() {
                       onSetText={editor.actions.setText}
                       onSetColor={editor.actions.setColor}
                       onSetEmphasis={editor.actions.setEmphasis}
+                      onSetRole={editor.actions.setRole}
                       onSplit={editor.actions.splitAt}
                       onMerge={editor.actions.mergeAt}
                       onClearBreak={editor.actions.clearBreak}

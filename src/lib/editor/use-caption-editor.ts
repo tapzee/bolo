@@ -16,6 +16,7 @@ import {
   undo,
   updateWordColor,
   updateWordEmphasis,
+  updateWordRole,
   updateWordText,
   updateWordTiming,
 } from "@/core";
@@ -72,6 +73,9 @@ export const useCaptionEditor = (initialWords: readonly CaptionWord[]) => {
 
       setEmphasis: (index: number, emphasis: CaptionWord["emphasis"] | undefined) =>
         apply((w) => updateWordEmphasis(w, index, emphasis)),
+
+      setRole: (index: number, role: CaptionWord["role"] | undefined) =>
+        apply((w) => updateWordRole(w, index, role)),
 
       splitAt: (index: number) => apply((w) => splitPageAt(w, index)),
       mergeAt: (index: number) => apply((w) => mergePageAt(w, index)),

@@ -61,6 +61,19 @@ export const FONT_IDS = [
   "bodoniModa",
   "notoSerifDevanagari",
   "ibmPlexMono",
+  "openSans",
+  "instrumentSans",
+  "rubik",
+  "luckiestGuy",
+  "instrumentSerif",
+  "lobsterTwo",
+  "kaushanScript",
+  "greatVibes",
+  "bungee",
+  "outfit",
+  "syncopate",
+  "jost",
+  "bangers",
 ] as const;
 
 export type FontId = (typeof FONT_IDS)[number];
@@ -93,6 +106,19 @@ export const FONTS: readonly FontOption[] = [
   { id: "bodoniModa", label: "Bodoni Moda", nativeDevanagari: false, defaultWeight: 500 },
   { id: "notoSerifDevanagari", label: "Noto Serif Devanagari", nativeDevanagari: true, defaultWeight: 600 },
   { id: "ibmPlexMono", label: "IBM Plex Mono", nativeDevanagari: false, defaultWeight: 500 },
+  { id: "openSans", label: "Open Sans", nativeDevanagari: false, defaultWeight: 400 },
+  { id: "instrumentSans", label: "Instrument Sans", nativeDevanagari: false, defaultWeight: 400 },
+  { id: "rubik", label: "Rubik Black", nativeDevanagari: false, defaultWeight: 900 },
+  { id: "luckiestGuy", label: "LUCKIEST GUY", nativeDevanagari: false, defaultWeight: 400 },
+  { id: "instrumentSerif", label: "Instrument Serif (italic)", nativeDevanagari: false, defaultWeight: 400 },
+  { id: "lobsterTwo", label: "Lobster Two (italic)", nativeDevanagari: false, defaultWeight: 700 },
+  { id: "kaushanScript", label: "Kaushan (brush script)", nativeDevanagari: false, defaultWeight: 400 },
+  { id: "greatVibes", label: "Great Vibes (roundhand)", nativeDevanagari: false, defaultWeight: 400 },
+  { id: "bungee", label: "THE BOLD FONT", nativeDevanagari: false, defaultWeight: 400 },
+  { id: "outfit", label: "Clash Display", nativeDevanagari: false, defaultWeight: 700 },
+  { id: "syncopate", label: "Druk Wide", nativeDevanagari: false, defaultWeight: 700 },
+  { id: "jost", label: "Futura", nativeDevanagari: false, defaultWeight: 500 },
+  { id: "bangers", label: "KOMIKA AXIS", nativeDevanagari: false, defaultWeight: 400 },
 ];
 
 export type CaptionPlacement = "top" | "center" | "bottom-third" | "bottom";

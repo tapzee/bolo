@@ -7,7 +7,7 @@ import {
   Plus,
   Trash2,
 } from "lucide-react";
-import type { CaptionWord } from "@/core";
+import type { CaptionWord, WordRole } from "@/core";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useDebouncedCallback } from "@/lib/hooks/use-debounced-callback";
@@ -30,6 +30,7 @@ export interface WordInspectorProps {
   onSetText: (index: number, text: string) => void;
   onSetColor: (index: number, color: string | undefined) => void;
   onSetEmphasis: (index: number, emphasis: CaptionWord["emphasis"] | undefined) => void;
+  onSetRole: (index: number, role: WordRole | undefined) => void;
   onSplit: (index: number) => void;
   onMerge: (index: number) => void;
   onClearBreak: (index: number) => void;
@@ -44,6 +45,7 @@ export function WordInspector({
   onSetText,
   onSetColor,
   onSetEmphasis,
+  onSetRole,
   onSplit,
   onMerge,
   onClearBreak,
@@ -163,6 +165,38 @@ export function WordInspector({
             Reset
           </Button>
         </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label className="text-xs text-muted-foreground">Highlight</Label>
+        <div className="grid grid-cols-3 gap-1.5">
+          {(
+            [
+              { value: undefined, label: "Auto" },
+              { value: "keyword", label: "Highlight" },
+              { value: "supporting", label: "Un-highlight" },
+            ] as const
+          ).map((opt) => (
+            <button
+              key={opt.label}
+              type="button"
+              onClick={() => onSetRole(index, opt.value as WordRole | undefined)}
+              className={cn(
+                "flex h-8 items-center justify-center rounded-md border text-xs transition-colors",
+                word.role === opt.value
+                  ? "border-primary bg-primary/10 text-primary font-medium"
+                  : "border-input bg-transparent hover:bg-muted text-muted-foreground",
+              )}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+        <p className="text-[10px] text-muted-foreground/70 leading-relaxed">
+          Forces whether this word gets the accent treatment (bigger, coloured) in
+          the current template, instead of letting auto-detection decide. Shows the
+          same way here and in the caption preview.
+        </p>
       </div>
 
       <div className="space-y-3">
