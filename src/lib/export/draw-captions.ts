@@ -1593,7 +1593,7 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           const playfair = config.specialFontId ? resolveFontFamily(config.specialFontId) : resolveFontFamily("playfair");
 
           let color = config.baseColor;
-          let strokeWidth = config.strokeWidthPx;
+          const strokeWidth = config.strokeWidthPx;
           let displayFont = family;
           let weight = config.fontWeight;
           let style = "normal";
