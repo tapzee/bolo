@@ -1,5 +1,4 @@
 import { memo } from "react";
-import { interpolateColors } from "remotion";
 import {
   ENTER_SMOOTH,
   tokenHighlight,

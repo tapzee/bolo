@@ -2376,7 +2376,7 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
 
           if (isHighlighted) {
             const grad = ctx.createLinearGradient(-tokenWidth, 0, tokenWidth, 0);
-            const offset = (Math.floor(frame) % 30) / 30;
+            
             // Simulated animated gradient
             grad.addColorStop(0, config.accentColor);
             grad.addColorStop(0.5, "#ff007f");
