@@ -2589,7 +2589,14 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           const roleFontSize = config.fontSizePx * maskRevealFontScale(role);
           const enter = tokenEnter(timing, ENTER_SMOOTH);
           const pulse = tokenPulse(timing, ENTER_BOUNCY);
+          
+          const durationFrames = Math.max(1, timing.toFrame - timing.fromFrame);
+          const elapsed = Math.max(0, frame - timing.fromFrame);
+          const progress = Math.min(1, elapsed / durationFrames);
+          
           const scale = isHero ? 0.82 + Math.min(1.1, pulse) * 0.18 : 1;
+          const sweepX = isHero ? (progress - 0.5) * roleFontSize * 1.5 : 0;
+          
           const colour = token.color ?? (isHero ? config.accentColor : config.baseColor);
 
           ctx.font = canvasFont(config.fontWeight, roleFontSize, family);
@@ -2600,10 +2607,12 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           if (isHero) {
             ctx.shadowColor = config.accentColor;
             ctx.shadowBlur = roleFontSize * 0.14;
+            ctx.shadowOffsetX = sweepX;
           }
 
           strokeThenFill(ctx, text, -tokenWidth / 2, 0, colour, 0, config.strokeColor);
           clearShadow(ctx);
+          ctx.shadowOffsetX = 0; // ensure it's cleared if clearShadow doesn't
           ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
           break;
         }
