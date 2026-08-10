@@ -1,19 +1,23 @@
 import { memo } from "react";
 import { interpolateColors } from "remotion";
+import type { WordRole } from "@/core";
+import { ENTER_SMOOTH, tokenEnter, tokenHighlight } from "../captions/animation";
 import {
-  ENTER_SMOOTH,
-  tokenHighlight,
-  tokenPulse,
-} from "../captions/animation";
-import {
+  blurFocusFontScale,
   displayText,
+  isBlurFocusAccent,
   tokenGlyphStyle,
   tokenShellStyle,
   type TokenViewProps,
 } from "../captions/primitives";
 
 /**
- * Blur Focus — Cinematic reveal from heavy blur into perfect sharpness.
+ * Blur Focus — cinematic reveal from heavy blur into perfect sharpness.
+ *
+ * Only keyword/critical words carry the full blur-to-sharp treatment plus a
+ * soft accent glow once sharp; supporting words snap in fast and small with
+ * no blur, so the blur reads as a deliberate cinematic focus pull rather
+ * than every word swimming into view.
  */
 export const BlurFocusToken = memo(function BlurFocusToken({
   token,
@@ -24,33 +28,39 @@ export const BlurFocusToken = memo(function BlurFocusToken({
   config,
   textStyle,
 }: TokenViewProps) {
-  const pulse = tokenPulse({ frame, fps, fromFrame, toFrame }, ENTER_SMOOTH);
-  const highlight = tokenHighlight({ frame, fps, fromFrame, toFrame }, ENTER_SMOOTH);
+  const role: WordRole = token.role ?? "normal";
+  const timing = { frame, fps, fromFrame, toFrame };
+  const isAccent = isBlurFocusAccent(role);
+  const enter = tokenEnter(timing, ENTER_SMOOTH);
+  const highlight = tokenHighlight(timing, ENTER_SMOOTH);
 
-  const color = interpolateColors(
-    highlight,
-    [0, 1],
-    [token.color ?? config.baseColor, token.color ?? config.activeColor],
-  );
+  const fontSize = (textStyle.fontSize as number) * blurFocusFontScale(role);
+  const color = isAccent
+    ? interpolateColors(highlight, [0, 1], [token.color ?? config.accentColor, token.color ?? config.activeColor])
+    : (token.color ?? config.baseColor);
 
-  // Blur starts at 20px and goes to 0px
-  const blurAmount = (1 - pulse) * 20;
+  const blurPx = isAccent ? (1 - enter) * 22 : (1 - enter) * 4;
+  const scale = isAccent ? 1.08 - enter * 0.08 : 1;
 
   return (
     <span
       style={{
         ...tokenShellStyle,
-        filter: `blur(${blurAmount}px)`,
-        opacity: pulse, 
-        transform: `scale(${1 + highlight * 0.1 * config.emphasisScale})`,
+        opacity: enter,
+        transform: `scale(${scale})`,
+        filter: blurPx > 0.3 ? `blur(${blurPx}px)` : undefined,
       }}
     >
-      <span style={{ 
-        ...textStyle, 
-        ...tokenGlyphStyle, 
-        color,
-        textShadow: highlight > 0.5 ? `0 0 10px ${config.accentColor}` : "none",
-      }}>
+      <span
+        style={{
+          ...textStyle,
+          ...tokenGlyphStyle,
+          fontSize,
+          color,
+          WebkitTextStroke: isAccent ? textStyle.WebkitTextStroke : "0px transparent",
+          textShadow: isAccent && enter > 0.7 ? `0 0 ${fontSize * 0.14}px ${config.accentColor}` : undefined,
+        }}
+      >
         {displayText(token)}
       </span>
     </span>

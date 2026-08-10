@@ -1,13 +1,15 @@
 import { memo } from "react";
-import { interpolateColors } from "remotion";
+import type { WordRole } from "@/core";
 import {
   ENTER_BOUNCY,
   ENTER_SMOOTH,
-  tokenHighlight,
+  tokenEnter,
   tokenPulse,
 } from "../captions/animation";
 import {
   displayText,
+  isPopScaleHero,
+  popScaleFontScale,
   tokenGlyphStyle,
   tokenShellStyle,
   type TokenViewProps,
@@ -16,7 +18,11 @@ import {
 /**
  * Pop Scale — hierarchy-driven punch in.
  *
- * The hero word gets enlarged, and the spoken word springs in with scale overshoot.
+ * Supporting words fade up plainly. The page's one critical word (from
+ * `analyzeWordRoles`, not a hard-coded index) punches in with a bounce
+ * overshoot, a brief blur-out and a pair of accent tick marks flanking it —
+ * the "keyword punches into frame" read from the reference, built from role
+ * hierarchy so it works on any sentence, not just the demo one.
  */
 export const PopScaleToken = memo(function PopScaleToken({
   token,
@@ -26,39 +32,73 @@ export const PopScaleToken = memo(function PopScaleToken({
   toFrame,
   config,
   textStyle,
-  index,
-  heroIndex,
 }: TokenViewProps) {
-  const isHero = index === heroIndex;
-  
-  const pulse = tokenPulse({ frame, fps, fromFrame, toFrame }, ENTER_BOUNCY);
-  const highlight = tokenHighlight(
-    { frame, fps, fromFrame, toFrame },
-    ENTER_SMOOTH,
-  );
+  const role: WordRole = token.role ?? "normal";
+  const timing = { frame, fps, fromFrame, toFrame };
+  const isHero = isPopScaleHero(role);
 
-  const baseColor = isHero ? config.accentColor : config.baseColor;
-  
-  // Replace ramp with baseColor if not highlighting, or highlight if it is
-  const color = interpolateColors(
-    highlight,
-    [0, 1],
-    [token.color ?? baseColor, token.color ?? config.activeColor],
-  );
+  const enter = tokenEnter(timing, isHero ? ENTER_BOUNCY : ENTER_SMOOTH);
+  const pulse = tokenPulse(timing, ENTER_BOUNCY);
 
-  // Hero text is larger, supporting text is smaller
-  const scaleMult = isHero ? 1.0 : 0.7;
+  const color = token.color ?? (isHero ? config.accentColor : config.baseColor);
+  const fontSize = (textStyle.fontSize as number) * popScaleFontScale(role);
+  // Overshoots to ~1.12x then settles — clamped so the punch never turns cartoonish.
+  const heroScale = Math.min(1.12, 0.7 + pulse * 0.42);
+  const yOffset = isHero ? 0 : (1 - enter) * 14;
+  const blurPx = isHero ? (1 - Math.min(1, enter * 1.4)) * 6 : 0;
 
   return (
     <span
       style={{
         ...tokenShellStyle,
-        transform: `scale(${scaleMult + pulse * 0.4 * config.emphasisScale})`,
+        opacity: enter,
+        transform: `translateY(${yOffset}px) scale(${isHero ? heroScale : 1})`,
+        filter: blurPx > 0.3 ? `blur(${blurPx}px)` : undefined,
       }}
     >
-      <span style={{ ...textStyle, ...tokenGlyphStyle, color, fontSize: `${(textStyle.fontSize as number) * scaleMult}px` }}>
+      {isHero && (
+        <span
+          aria-hidden
+          style={{
+            position: "absolute",
+            left: -fontSize * 0.24,
+            top: "50%",
+            width: fontSize * 0.1,
+            height: fontSize * 0.46,
+            background: color,
+            opacity: enter * 0.85,
+            transform: "translateY(-50%)",
+            borderRadius: 2,
+          }}
+        />
+      )}
+      <span
+        style={{
+          ...textStyle,
+          ...tokenGlyphStyle,
+          fontSize,
+          color,
+          WebkitTextStroke: isHero ? textStyle.WebkitTextStroke : "0px transparent",
+        }}
+      >
         {displayText(token)}
       </span>
+      {isHero && (
+        <span
+          aria-hidden
+          style={{
+            position: "absolute",
+            right: -fontSize * 0.24,
+            top: "50%",
+            width: fontSize * 0.1,
+            height: fontSize * 0.46,
+            background: color,
+            opacity: enter * 0.85,
+            transform: "translateY(-50%)",
+            borderRadius: 2,
+          }}
+        />
+      )}
     </span>
   );
 });

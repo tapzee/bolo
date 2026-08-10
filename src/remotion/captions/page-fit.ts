@@ -20,6 +20,19 @@ import {
   layeredDepthForegroundScale,
   verticalImpactCharFontSize,
   verticalImpactColumnHeight,
+  popScaleFontScale,
+  slideInFontScale,
+  blurFocusFontScale,
+  rotateRevealFontScale,
+  wipeUpFontScale,
+  strokeFillFontScale,
+  bounceWordFontScale,
+  highlightWordFontScale,
+  zoomFocusFontScale,
+  gradientFlowFontScale,
+  maskRevealFontScale,
+  drawOnFontScale,
+  depth3dFontScale,
 } from "./primitives";
 
 /**
@@ -186,12 +199,78 @@ export const resolveTokenBoxes = (
       });
     }
 
+    case "popScale": {
+      const roles = analyzeWordRoles(tokens);
+      return tokens.map((token, i) => toBox(token.text, config.fontSizePx * popScaleFontScale(roles[i]!)));
+    }
+
+    case "slideIn": {
+      const roles = analyzeWordRoles(tokens);
+      return tokens.map((token, i) => toBox(token.text, config.fontSizePx * slideInFontScale(roles[i]!)));
+    }
+
+    case "blurFocus": {
+      const roles = analyzeWordRoles(tokens);
+      return tokens.map((token, i) => toBox(token.text, config.fontSizePx * blurFocusFontScale(roles[i]!)));
+    }
+
+    case "rotateReveal": {
+      const roles = analyzeWordRoles(tokens);
+      return tokens.map((token, i) => toBox(token.text, config.fontSizePx * rotateRevealFontScale(roles[i]!)));
+    }
+
+    case "wipeUp": {
+      const roles = analyzeWordRoles(tokens);
+      return tokens.map((token, i) => toBox(token.text, config.fontSizePx * wipeUpFontScale(roles[i]!)));
+    }
+
+    case "strokeFill": {
+      const roles = analyzeWordRoles(tokens);
+      return tokens.map((token, i) => toBox(token.text, config.fontSizePx * strokeFillFontScale(roles[i]!)));
+    }
+
+    case "bounceWord": {
+      const roles = analyzeWordRoles(tokens);
+      return tokens.map((token, i) => toBox(token.text, config.fontSizePx * bounceWordFontScale(roles[i]!)));
+    }
+
+    case "highlightWord": {
+      const roles = analyzeWordRoles(tokens);
+      return tokens.map((token, i) => toBox(token.text, config.fontSizePx * highlightWordFontScale(roles[i]!)));
+    }
+
+    case "zoomFocus": {
+      const roles = analyzeWordRoles(tokens);
+      return tokens.map((token, i) => toBox(token.text, config.fontSizePx * zoomFocusFontScale(roles[i]!)));
+    }
+
+    case "gradientFlow": {
+      const roles = analyzeWordRoles(tokens);
+      return tokens.map((token, i) => toBox(token.text, config.fontSizePx * gradientFlowFontScale(roles[i]!)));
+    }
+
+    case "maskReveal": {
+      const roles = analyzeWordRoles(tokens);
+      return tokens.map((token, i) => toBox(token.text, config.fontSizePx * maskRevealFontScale(roles[i]!)));
+    }
+
+    case "drawOn": {
+      const roles = analyzeWordRoles(tokens);
+      return tokens.map((token, i) => toBox(token.text, config.fontSizePx * drawOnFontScale(roles[i]!)));
+    }
+
+    case "depth3d": {
+      const roles = analyzeWordRoles(tokens);
+      return tokens.map((token, i) => toBox(token.text, config.fontSizePx * depth3dFontScale(roles[i]!)));
+    }
+
     default:
       // Flat styles (bold-yellow, pop, box, glow, clean, kinetic, dynamic,
-      // and any future style that doesn't vary size per word): the active
-      // word's "boost" is a CSS/canvas transform, which never affects layout
-      // — so every word genuinely renders at `config.fontSizePx`, and this
-      // isn't an approximation for these styles, it's exact.
+      // typewriter, glitch, and any future style that doesn't vary size per
+      // word): the active word's "boost" is a CSS/canvas transform, which
+      // never affects layout — so every word genuinely renders at
+      // `config.fontSizePx`, and this isn't an approximation for these
+      // styles, it's exact.
       return tokens.map((token) => toBox(token.text, config.fontSizePx));
   }
 };

@@ -1,22 +1,31 @@
 import { memo } from "react";
-import {
-  ENTER_SMOOTH,
-  tokenHighlight,
-  tokenPulse,
-} from "../captions/animation";
+import type { WordRole } from "@/core";
+import { ENTER_BOUNCY, ENTER_SMOOTH, tokenEnter, tokenPulse } from "../captions/animation";
 import {
   displayText,
+  isMaskRevealHero,
+  maskRevealFontScale,
   tokenGlyphStyle,
   tokenShellStyle,
   type TokenViewProps,
 } from "../captions/primitives";
 
 /**
- * Mask Reveal — Large keyword contains the video visually inside the letters.
- * Since we can't easily punch a hole through to the *video* in standard DOM without mix-blend-mode tricky setups
- * that might not export cleanly, we simulate it here by making the text transparent with a thick white outline
- * or white background with transparent text. 
- * Actually, we will just use a massive scale up with bold text.
+ * Mask Reveal.
+ *
+ * The reference concept is the video showing through the glyph shapes.
+ * `mix-blend-mode: overlay` on the hero word achieves that directly: the
+ * blend is computed per-pixel only where the glyph is opaque, so the
+ * footage's own tone and detail show through the letterforms while the area
+ * around them is untouched — genuinely different from a plain scale-up, and
+ * portable to the Canvas2D export as `globalCompositeOperation`.
+ *
+ * The fill is mid-grey (`#808080`), not white — verified against a rendered
+ * frame, not assumed. Overlay blend's neutral point is 50% grey, where the
+ * blend leaves the base almost unchanged (near pass-through); a white fill
+ * only lightens, which reads as a plain glow over dark footage and washes
+ * out to solid white over bright footage. Grey is what actually lets the
+ * footage's own detail show inside the letterforms at any brightness.
  */
 export const MaskRevealToken = memo(function MaskRevealToken({
   token,
@@ -26,31 +35,29 @@ export const MaskRevealToken = memo(function MaskRevealToken({
   toFrame,
   config,
   textStyle,
-  index,
-  heroIndex
 }: TokenViewProps) {
-  const isHero = index === heroIndex;
-  const pulse = tokenPulse({ frame, fps, fromFrame, toFrame }, ENTER_SMOOTH);
-  const highlight = tokenHighlight({ frame, fps, fromFrame, toFrame }, ENTER_SMOOTH);
+  const role: WordRole = token.role ?? "normal";
+  const isHero = isMaskRevealHero(role);
+  const timing = { frame, fps, fromFrame, toFrame };
+  const enter = tokenEnter(timing, ENTER_SMOOTH);
+  const pulse = tokenPulse(timing, ENTER_BOUNCY);
 
-  const scaleMult = isHero ? 1.5 : 1.0;
+  const fontSize = (textStyle.fontSize as number) * maskRevealFontScale(role);
+  const scale = isHero ? 0.82 + Math.min(1.1, pulse) * 0.18 : 1;
 
   return (
-    <span
-      style={{
-        ...tokenShellStyle,
-        transform: `scale(${scaleMult * pulse})`,
-        opacity: pulse, 
-      }}
-    >
-      <span style={{ 
-        ...textStyle, 
-        ...tokenGlyphStyle, 
-        color: highlight > 0.5 ? config.accentColor : config.baseColor,
-        // Optional: mix-blend-mode: overlay for a cool effect if we want to fake a mask reveal
-        mixBlendMode: isHero ? "overlay" : "normal",
-        fontSize: `${(textStyle.fontSize as number) * scaleMult}px`
-      }}>
+    <span style={{ ...tokenShellStyle, opacity: enter, transform: `scale(${scale})` }}>
+      <span
+        style={{
+          ...textStyle,
+          ...tokenGlyphStyle,
+          fontSize,
+          color: token.color ?? (isHero ? "#808080" : config.baseColor),
+          WebkitTextStroke: isHero ? textStyle.WebkitTextStroke : "0px transparent",
+          mixBlendMode: isHero ? "overlay" : "normal",
+          textShadow: isHero ? "0 0 18px rgba(255,255,255,0.25)" : undefined,
+        }}
+      >
         {displayText(token)}
       </span>
     </span>

@@ -1,54 +1,54 @@
 import { memo } from "react";
-
-import {
-  ENTER_SMOOTH,
-  tokenHighlight,
-  tokenPulse,
-} from "../captions/animation";
+import type { WordRole } from "@/core";
+import { withOpacity } from "@/core";
+import { ENTER_SMOOTH, tokenEnter } from "../captions/animation";
 import {
   displayText,
+  isStrokeFillAccent,
+  strokeFillFontScale,
   tokenGlyphStyle,
   tokenShellStyle,
   type TokenViewProps,
 } from "../captions/primitives";
 
 /**
- * Stroke Fill — Shows outlined typography then fills with solid color.
+ * Stroke Fill — outlined typography that fills solid.
+ *
+ * Non-keyword words stay permanently outline-only (transparent interior,
+ * solid stroke) — that's the "DREAM" half of the reference. The page's
+ * keyword(s) additionally animate their fill in over the outline once
+ * their entrance has mostly settled, so the fill reads as a deliberate
+ * second beat rather than every word filling at once.
  */
 export const StrokeFillToken = memo(function StrokeFillToken({
   token,
   frame,
   fps,
   fromFrame,
-  toFrame,
   config,
   textStyle,
 }: TokenViewProps) {
-  const pulse = tokenPulse({ frame, fps, fromFrame, toFrame }, ENTER_SMOOTH);
-  const highlight = tokenHighlight({ frame, fps, fromFrame, toFrame }, ENTER_SMOOTH);
+  const role: WordRole = token.role ?? "normal";
+  const isAccent = isStrokeFillAccent(role);
+  const enter = tokenEnter({ frame, fps, fromFrame }, ENTER_SMOOTH);
+  const fillIn = isAccent ? Math.max(0, Math.min(1, (enter - 0.35) / 0.65)) : 0;
 
-  const isHighlighted = highlight > 0.5;
-
-  // The outline color vs the fill color
-  const color = isHighlighted ? (token.color ?? config.activeColor) : "transparent";
-
-  // Use the stroke color from config or baseColor if we want the outline to match baseColor
-  const outlineColor = config.baseColor;
+  const fontSize = (textStyle.fontSize as number) * strokeFillFontScale(role);
+  const fillColor = token.color ?? config.activeColor;
+  const outlineColor = token.color ?? config.baseColor;
 
   return (
-    <span
-      style={{
-        ...tokenShellStyle,
-        transform: `scale(${0.9 + pulse * 0.1})`,
-        opacity: pulse, 
-      }}
-    >
-      <span style={{ 
-        ...textStyle, 
-        ...tokenGlyphStyle, 
-        color,
-        WebkitTextStroke: `${config.strokeWidthPx}px ${outlineColor}`,
-      }}>
+    <span style={{ ...tokenShellStyle, opacity: enter }}>
+      <span
+        style={{
+          ...textStyle,
+          ...tokenGlyphStyle,
+          fontSize,
+          color: isAccent ? withOpacity(fillColor, fillIn) : "transparent",
+          WebkitTextStroke: `${config.strokeWidthPx}px ${outlineColor}`,
+          paintOrder: "stroke fill",
+        }}
+      >
         {displayText(token)}
       </span>
     </span>

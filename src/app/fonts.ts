@@ -8,6 +8,7 @@ import {
   Geist,
   Geist_Mono,
   Grand_Hotel,
+  IBM_Plex_Mono,
   Inter,
   Montserrat,
   Noto_Sans_Devanagari,
@@ -196,6 +197,15 @@ export const notoSerifDevanagari = Noto_Serif_Devanagari({
   adjustFontFallback: false,
 });
 
+/** Typewriter's monospace face — the whole template reads as a typed caption. */
+export const ibmPlexMono = IBM_Plex_Mono({
+  variable: "--font-ibm-plex-mono",
+  subsets: ["latin", "latin-ext"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+  adjustFontFallback: false,
+});
+
 export const fontVariables = [
   geistSans.variable,
   geistMono.variable,
@@ -216,4 +226,5 @@ export const fontVariables = [
   cormorantGaramond.variable,
   bodoniModa.variable,
   notoSerifDevanagari.variable,
+  ibmPlexMono.variable,
 ].join(" ");

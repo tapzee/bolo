@@ -35,6 +35,8 @@ import {
   splitEntrance,
   letterStagger,
   layeredDepthDrift,
+  maskRevealY,
+  glitchBurst,
 } from "@/remotion/captions/animation";
 import {
   HERO_SMALL_RATIO,
@@ -69,6 +71,35 @@ import {
   minimalLuxuryFontScale,
   minimalLuxuryTrackingRatio,
   layeredDepthForegroundScale,
+  isPopScaleHero,
+  popScaleFontScale,
+  isSlideInAccent,
+  slideInFontScale,
+  slideInDirection,
+  isBlurFocusAccent,
+  blurFocusFontScale,
+  isTypewriterAccent,
+  isRotateRevealAccent,
+  rotateRevealFontScale,
+  isWipeUpAccent,
+  wipeUpFontScale,
+  isStrokeFillAccent,
+  strokeFillFontScale,
+  isBounceWordAccent,
+  bounceWordFontScale,
+  isGlitchAccent,
+  isHighlightWordAccent,
+  highlightWordFontScale,
+  isZoomFocusAccent,
+  zoomFocusFontScale,
+  isGradientFlowAccent,
+  gradientFlowFontScale,
+  isMaskRevealHero,
+  maskRevealFontScale,
+  isDrawOnScript,
+  drawOnFontScale,
+  isDepth3dAccent,
+  depth3dFontScale,
 } from "@/remotion/captions/primitives";
 import { resolveEmphasis, DYNAMIC_HIGHLIGHT_EMPHASIS_SCALE } from "@/remotion/styles/DynamicHighlight";
 import { canvasFont, resolveFontFamily } from "./fonts";
@@ -274,7 +305,8 @@ const layoutLines = (
       ctx.font = canvasFont(config.fontWeight, fontSize, family);
       fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
     } else if (config.styleId === "popScale") {
-      fontSize = config.fontSizePx * (index === heroIndex ? 1.0 : 0.7);
+      const role = token.role ?? "normal";
+      fontSize = config.fontSizePx * popScaleFontScale(role);
       ctx.font = canvasFont(config.fontWeight, fontSize, family);
       fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
     } else if (config.styleId === "heroMixed" && index === heroIndex) {
@@ -415,6 +447,72 @@ const layoutLines = (
             ? resolveFontFamily(config.secondaryFontId)
             : family;
       ctx.font = canvasFont(500, fontSize, fam);
+      fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
+    } else if (config.styleId === "slideIn") {
+      const role = token.role ?? "normal";
+      fontSize = config.fontSizePx * slideInFontScale(role);
+      ctx.font = canvasFont(isSlideInAccent(role) ? 800 : config.fontWeight, fontSize, family);
+      fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
+    } else if (config.styleId === "blurFocus") {
+      const role = token.role ?? "normal";
+      fontSize = config.fontSizePx * blurFocusFontScale(role);
+      ctx.font = canvasFont(config.fontWeight, fontSize, family);
+      fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
+    } else if (config.styleId === "rotateReveal") {
+      const role = token.role ?? "normal";
+      fontSize = config.fontSizePx * rotateRevealFontScale(role);
+      ctx.font = canvasFont(config.fontWeight, fontSize, family);
+      fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
+    } else if (config.styleId === "wipeUp") {
+      const role = token.role ?? "normal";
+      fontSize = config.fontSizePx * wipeUpFontScale(role);
+      ctx.font = canvasFont(config.fontWeight, fontSize, family);
+      fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
+    } else if (config.styleId === "strokeFill") {
+      const role = token.role ?? "normal";
+      fontSize = config.fontSizePx * strokeFillFontScale(role);
+      ctx.font = canvasFont(config.fontWeight, fontSize, family);
+      fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
+    } else if (config.styleId === "bounceWord") {
+      const role = token.role ?? "normal";
+      fontSize = config.fontSizePx * bounceWordFontScale(role);
+      ctx.font = canvasFont(config.fontWeight, fontSize, family);
+      fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
+    } else if (config.styleId === "highlightWord") {
+      const role = token.role ?? "normal";
+      fontSize = config.fontSizePx * highlightWordFontScale(role);
+      ctx.font = canvasFont(config.fontWeight, fontSize, family);
+      fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
+    } else if (config.styleId === "zoomFocus") {
+      const role = token.role ?? "normal";
+      fontSize = config.fontSizePx * zoomFocusFontScale(role);
+      ctx.font = canvasFont(config.fontWeight, fontSize, family);
+      fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
+    } else if (config.styleId === "gradientFlow") {
+      const role = token.role ?? "normal";
+      fontSize = config.fontSizePx * gradientFlowFontScale(role);
+      ctx.font = canvasFont(config.fontWeight, fontSize, family);
+      fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
+    } else if (config.styleId === "maskReveal") {
+      const role = token.role ?? "normal";
+      fontSize = config.fontSizePx * maskRevealFontScale(role);
+      ctx.font = canvasFont(config.fontWeight, fontSize, family);
+      fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
+    } else if (config.styleId === "drawOn") {
+      const role = token.role ?? "normal";
+      const isScript = isDrawOnScript(role);
+      fontSize = config.fontSizePx * drawOnFontScale(role);
+      const scriptFamily = isScript
+        ? family
+        : config.secondaryFontId
+          ? resolveFontFamily(config.secondaryFontId)
+          : family;
+      ctx.font = canvasFont(config.fontWeight, fontSize, scriptFamily);
+      fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
+    } else if (config.styleId === "depth3d") {
+      const role = token.role ?? "normal";
+      fontSize = config.fontSizePx * depth3dFontScale(role);
+      ctx.font = canvasFont(config.fontWeight, fontSize, family);
       fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
     }
 
@@ -2069,409 +2167,520 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
         // ====================================================================
 
         case "popScale": {
-          const isHero = index === heroIndex;
+          const role = token.role ?? "normal";
+          const isHero = isPopScaleHero(role);
+          const roleFontSize = config.fontSizePx * popScaleFontScale(role);
+          const enter = tokenEnter(timing, isHero ? ENTER_BOUNCY : ENTER_SMOOTH);
           const pulse = tokenPulse(timing, ENTER_BOUNCY);
-          const highlight = tokenHighlight(timing, ENTER_SMOOTH);
-          const baseColor = isHero ? config.accentColor : config.baseColor;
-          
-          const colour = interpolateColors(
-            highlight,
-            [0, 1],
-            [token.color ?? baseColor, token.color ?? config.activeColor],
-          );
+          const colour = token.color ?? (isHero ? config.accentColor : config.baseColor);
+          // Overshoots to ~1.12x then settles — clamped so the punch never turns cartoonish.
+          const heroScale = Math.min(1.12, 0.7 + pulse * 0.42);
+          const yOffset = isHero ? 0 : (1 - enter) * 14;
+          const blurPx = isHero ? (1 - Math.min(1, enter * 1.4)) * 6 : 0;
 
-          const scaleMult = isHero ? 1.0 : 0.7;
-          const popScale = scaleMult + pulse * 0.4 * config.emphasisScale;
+          ctx.font = canvasFont(config.fontWeight, roleFontSize, family);
+          ctx.globalAlpha = entrance * enter;
+          ctx.translate(cx, cy + yOffset);
+          if (isHero) ctx.scale(heroScale, heroScale);
+          if (blurPx > 0.3) ctx.filter = `blur(${blurPx}px)`;
 
-          ctx.translate(cx, cy);
-          ctx.scale(popScale, popScale);
-          strokeThenFill(
-            ctx,
-            text,
-            -tokenWidth / 2,
-            0,
-            colour,
-            config.strokeWidthPx,
-            config.strokeColor,
-          );
+          if (isHero) {
+            const tickW = roleFontSize * 0.1;
+            const tickH = roleFontSize * 0.46;
+            ctx.fillStyle = colour;
+            ctx.globalAlpha = entrance * enter * 0.85;
+            ctx.fillRect(-tokenWidth / 2 - roleFontSize * 0.24 - tickW, -tickH / 2, tickW, tickH);
+            ctx.fillRect(tokenWidth / 2 + roleFontSize * 0.24, -tickH / 2, tickW, tickH);
+            ctx.globalAlpha = entrance * enter;
+          }
+
+          strokeThenFill(ctx, text, -tokenWidth / 2, 0, colour, isHero ? config.strokeWidthPx : 0, config.strokeColor);
+          ctx.filter = "none";
+          ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
           break;
         }
 
         case "slideIn": {
-          const pulse = tokenPulse(timing, ENTER_BOUNCY);
-          const highlight = tokenHighlight(timing, ENTER_BOUNCY);
-          const colour = interpolateColors(
-            highlight,
-            [0, 1],
-            [token.color ?? config.baseColor, token.color ?? config.activeColor],
-          );
+          const role = token.role ?? "normal";
+          const isAccent = isSlideInAccent(role);
+          const roleFontSize = config.fontSizePx * slideInFontScale(role);
+          const enter = tokenEnter(timing, ENTER_BOUNCY);
+          const highlight = tokenHighlight(timing, ENTER_SMOOTH);
+          const dir = slideInDirection(role, index);
+          const travel = dir === "up" ? 60 : 90;
+          const offset = (1 - enter) * travel;
+          const scaleFactor = canvasScale({ width, height });
+          const tx = (dir === "left" ? -offset : dir === "right" ? offset : 0) * scaleFactor;
+          const ty = (dir === "up" ? offset : 0) * scaleFactor;
+          const blurPx = Math.abs(1 - enter) * 8;
 
-          const directions = [
-            { x: -50, y: 0 },
-            { x: 50, y: 0 },
-            { x: 0, y: -50 },
-            { x: 0, y: 50 }
-          ];
-          const dir = directions[index % directions.length] || directions[0];
-          const offsetX = dir!.x * (1 - pulse);
-          const offsetY = dir!.y * (1 - pulse);
+          ctx.font = canvasFont(isAccent ? 800 : config.fontWeight, roleFontSize, family);
+          ctx.globalAlpha = entrance * enter;
+          ctx.translate(cx + tx, cy + ty);
+          if (blurPx > 0.5) ctx.filter = `blur(${blurPx}px)`;
 
-          ctx.globalAlpha = entrance * pulse;
-          ctx.translate(cx + offsetX, cy + offsetY);
-          
-          if (highlight > 0.5) {
-            const pillPadX = 10;
+          if (isAccent) {
+            const padX = roleFontSize * 0.18;
+            const fullW = tokenWidth + padX * 2;
+            const pillW = fullW * highlight;
+            const originX = dir === "right" ? tokenWidth / 2 + padX - pillW : -tokenWidth / 2 - padX;
             ctx.fillStyle = config.accentColor;
             ctx.beginPath();
-            ctx.roundRect(-tokenWidth / 2 - pillPadX, -config.fontSizePx / 2, tokenWidth + pillPadX * 2, config.fontSizePx, 8);
+            ctx.roundRect(originX, -roleFontSize * 0.58, pillW, roleFontSize * 1.16, roleFontSize * 0.16);
             ctx.fill();
           }
 
-          strokeThenFill(ctx, text, -tokenWidth / 2, 0, colour, config.strokeWidthPx, config.strokeColor);
+          strokeThenFill(
+            ctx, text, -tokenWidth / 2, 0,
+            isAccent ? "#ffffff" : (token.color ?? config.baseColor),
+            isAccent ? config.strokeWidthPx : 0,
+            config.strokeColor,
+          );
+          ctx.filter = "none";
+          ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
           break;
         }
 
         case "blurFocus": {
-          const pulse = tokenPulse(timing, ENTER_SMOOTH);
+          const role = token.role ?? "normal";
+          const isAccent = isBlurFocusAccent(role);
+          const roleFontSize = config.fontSizePx * blurFocusFontScale(role);
+          const enter = tokenEnter(timing, ENTER_SMOOTH);
           const highlight = tokenHighlight(timing, ENTER_SMOOTH);
-          const colour = interpolateColors(
-            highlight,
-            [0, 1],
-            [token.color ?? config.baseColor, token.color ?? config.activeColor],
-          );
+          const colour = isAccent
+            ? interpolateColors(highlight, [0, 1], [token.color ?? config.accentColor, token.color ?? config.activeColor])
+            : (token.color ?? config.baseColor);
+          const blurPx = isAccent ? (1 - enter) * 22 : (1 - enter) * 4;
+          const scale = isAccent ? 1.08 - enter * 0.08 : 1;
 
-          const blurAmount = (1 - pulse) * 20;
-          const scale = 1 + highlight * 0.1 * config.emphasisScale;
-
-          ctx.globalAlpha = entrance * pulse;
+          ctx.font = canvasFont(config.fontWeight, roleFontSize, family);
+          ctx.globalAlpha = entrance * enter;
           ctx.translate(cx, cy);
           ctx.scale(scale, scale);
-          
-          ctx.filter = `blur(${blurAmount}px)`;
-          if (highlight > 0.5) {
+          if (blurPx > 0.3) ctx.filter = `blur(${blurPx}px)`;
+          if (isAccent && enter > 0.7) {
             ctx.shadowColor = config.accentColor;
-            ctx.shadowBlur = 10;
+            ctx.shadowBlur = roleFontSize * 0.14;
           }
-          
-          strokeThenFill(ctx, text, -tokenWidth / 2, 0, colour, config.strokeWidthPx, config.strokeColor);
+
+          strokeThenFill(ctx, text, -tokenWidth / 2, 0, colour, isAccent ? config.strokeWidthPx : 0, config.strokeColor);
           ctx.filter = "none";
           clearShadow(ctx);
+          ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
           break;
         }
 
         case "typewriter": {
-          const highlight = tokenHighlight(timing, ENTER_SMOOTH);
-          const colour = interpolateColors(
-            highlight,
-            [0, 1],
-            [token.color ?? config.baseColor, token.color ?? config.activeColor],
-          );
+          const role = token.role ?? "normal";
+          const isAccent = isTypewriterAccent(role);
+          const enter = tokenEnter({ frame, fps, fromFrame: timing.fromFrame }, ENTER_SMOOTH);
+          const durationFrames = Math.max(1, timing.toFrame - timing.fromFrame);
+          const elapsed = Math.max(0, frame - timing.fromFrame);
+          const typedChars = Math.min(text.length, Math.ceil((elapsed / durationFrames) * text.length));
+          const visibleText = text.slice(0, typedChars);
+          const isTyping = typedChars < text.length && frame <= timing.toFrame;
+          const cursorOn = isTyping && Math.floor((frame / fps) * 4) % 2 === 0;
+          const colour = token.color ?? (isAccent ? config.accentColor : config.baseColor);
 
-          const visibleChars = Math.max(1, Math.floor(highlight * text.length));
-          const visibleText = text.substring(0, visibleChars);
-          
-          ctx.globalAlpha = entrance;
+          ctx.globalAlpha = entrance * enter;
           ctx.translate(cx, cy);
-          
+          ctx.textAlign = "left";
           ctx.fillStyle = colour;
-          // Only fill the visible characters, but measure correctly from left
-          // (Since text is aligned center based on total tokenWidth, we draw the substring starting at left edge)
-          ctx.textAlign = "left";
           ctx.fillText(visibleText, -tokenWidth / 2, 0);
-          ctx.textAlign = "center"; // restore
-          break;
-        }
-
-        case "rotateReveal": {
-          const pulse = tokenPulse(timing, ENTER_BOUNCY);
-          const highlight = tokenHighlight(timing, ENTER_SMOOTH);
-          const colour = interpolateColors(
-            highlight,
-            [0, 1],
-            [token.color ?? config.baseColor, token.color ?? config.activeColor],
-          );
-
-          const rotation = (1 - pulse) * -20;
-          const scale = 0.8 + (pulse * 0.2);
-
-          ctx.globalAlpha = entrance * pulse;
-          // Transform origin bottom left:
-          ctx.translate(cx - tokenWidth / 2, cy + config.fontSizePx / 2);
-          ctx.rotate((rotation * Math.PI) / 180);
-          ctx.scale(scale, scale);
-          
-          ctx.textAlign = "left";
-          strokeThenFill(ctx, text, 0, -config.fontSizePx / 2, colour, config.strokeWidthPx, config.strokeColor);
+          if (cursorOn) {
+            const caretX = -tokenWidth / 2 + ctx.measureText(visibleText).width + config.fontSizePx * 0.05;
+            ctx.fillStyle = config.accentColor;
+            ctx.fillRect(caretX, -config.fontSizePx * 0.42, Math.max(2, config.fontSizePx * 0.06), config.fontSizePx * 0.84);
+          }
           ctx.textAlign = "center";
           break;
         }
 
-        case "wipeUp": {
-          const pulse = tokenPulse(timing, ENTER_SMOOTH);
+        case "rotateReveal": {
+          const role = token.role ?? "normal";
+          const isAccent = isRotateRevealAccent(role);
+          const roleFontSize = config.fontSizePx * rotateRevealFontScale(role);
+          const enter = tokenEnter(timing, ENTER_BOUNCY);
           const highlight = tokenHighlight(timing, ENTER_SMOOTH);
-          const colour = interpolateColors(
-            highlight,
-            [0, 1],
-            [token.color ?? config.baseColor, token.color ?? config.activeColor],
-          );
+          const colour = interpolateColors(highlight, [0, 1], [token.color ?? config.baseColor, token.color ?? config.activeColor]);
+          const swing = index % 2 === 0 ? -8 : 8;
+          const rotation = (1 - enter) * swing;
+          const scale = 0.9 + enter * 0.1;
 
-          const clipPercentage = (1 - pulse);
-          
+          ctx.font = canvasFont(config.fontWeight, roleFontSize, family);
+          ctx.globalAlpha = entrance * enter;
+          ctx.translate(cx, cy);
+          ctx.rotate((rotation * Math.PI) / 180);
+          ctx.scale(scale, scale);
+
+          if (isAccent) {
+            const scaleFactor = canvasScale({ width, height });
+            const s = (roleFontSize * 0.6) / 24;
+            ctx.save();
+            ctx.translate(tokenWidth / 2 + 14 * scaleFactor, -roleFontSize * 0.5 - 6 * scaleFactor);
+            ctx.strokeStyle = config.accentColor;
+            ctx.lineWidth = 2.5 * scaleFactor;
+            ctx.lineCap = "round";
+            ctx.lineJoin = "round";
+            ctx.globalAlpha = entrance * enter * 0.85;
+            ctx.beginPath();
+            ctx.moveTo(4 * s, 14 * s);
+            ctx.quadraticCurveTo(10 * s, 2 * s, 20 * s, 6 * s);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(15 * s, 4 * s);
+            ctx.lineTo(20 * s, 6 * s);
+            ctx.lineTo(17 * s, 10 * s);
+            ctx.stroke();
+            ctx.restore();
+          }
+
+          strokeThenFill(ctx, text, -tokenWidth / 2, 0, colour, isAccent ? config.strokeWidthPx : 0, config.strokeColor);
+          ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
+          break;
+        }
+
+        case "wipeUp": {
+          const role = token.role ?? "normal";
+          const isAccent = isWipeUpAccent(role);
+          const roleFontSize = config.fontSizePx * wipeUpFontScale(role);
+          const reveal = maskRevealY({ frame, fps, fromFrame: timing.fromFrame }, ENTER_SMOOTH);
+          const highlight = tokenHighlight(timing, ENTER_SMOOTH);
+          const colour = interpolateColors(highlight, [0, 1], [token.color ?? config.baseColor, token.color ?? config.activeColor]);
+          const blockScale = isAccent ? Math.max(0, Math.min(1, (reveal - 0.15) / 0.85)) : 0;
+
+          ctx.font = canvasFont(config.fontWeight, roleFontSize, family);
           ctx.globalAlpha = entrance;
           ctx.translate(cx, cy);
 
           ctx.save();
-          // Wipe up clip
           ctx.beginPath();
-          ctx.rect(-tokenWidth / 2, -config.fontSizePx / 2 + config.fontSizePx * clipPercentage, tokenWidth, config.fontSizePx * (1 - clipPercentage));
+          const visibleH = roleFontSize * reveal;
+          ctx.rect(-tokenWidth / 2, roleFontSize / 2 - visibleH, tokenWidth, visibleH);
           ctx.clip();
-          
-          if (highlight > 0.5) {
+
+          if (isAccent && blockScale > 0) {
             ctx.fillStyle = config.accentColor;
-            ctx.fillRect(-tokenWidth / 2, -config.fontSizePx / 2, tokenWidth, config.fontSizePx);
+            ctx.fillRect(
+              -tokenWidth / 2 - roleFontSize * 0.14,
+              -roleFontSize * 0.42,
+              (tokenWidth + roleFontSize * 0.28) * blockScale,
+              roleFontSize * 0.84,
+            );
           }
-          
-          strokeThenFill(ctx, text, -tokenWidth / 2, 0, colour, config.strokeWidthPx, config.strokeColor);
+
+          strokeThenFill(
+            ctx, text, -tokenWidth / 2, 0,
+            isAccent && blockScale > 0.5 ? "#0a0a0b" : colour,
+            isAccent ? config.strokeWidthPx : 0,
+            config.strokeColor,
+          );
           ctx.restore();
+          ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
           break;
         }
 
         case "strokeFill": {
-          const pulse = tokenPulse(timing, ENTER_SMOOTH);
-          const highlight = tokenHighlight(timing, ENTER_SMOOTH);
-          const isHighlighted = highlight > 0.5;
-          const colour = isHighlighted ? (token.color ?? config.activeColor) : "transparent";
+          const role = token.role ?? "normal";
+          const isAccent = isStrokeFillAccent(role);
+          const roleFontSize = config.fontSizePx * strokeFillFontScale(role);
+          const enter = tokenEnter({ frame, fps, fromFrame: timing.fromFrame }, ENTER_SMOOTH);
+          const fillIn = isAccent ? Math.max(0, Math.min(1, (enter - 0.35) / 0.65)) : 0;
+          const fillColor = token.color ?? config.activeColor;
+          const outlineColor = token.color ?? config.baseColor;
 
-          const scale = 0.9 + pulse * 0.1;
-          
-          ctx.globalAlpha = entrance * pulse;
+          ctx.font = canvasFont(config.fontWeight, roleFontSize, family);
+          ctx.globalAlpha = entrance * enter;
           ctx.translate(cx, cy);
-          ctx.scale(scale, scale);
-          
-          // Draw outline first, then optionally fill
-          if (config.strokeWidthPx > 0) {
-            ctx.lineWidth = config.strokeWidthPx * 2;
-            ctx.strokeStyle = config.baseColor;
-            ctx.strokeText(text, -tokenWidth / 2, 0);
-          }
-          
-          if (isHighlighted) {
-            ctx.fillStyle = colour;
+
+          ctx.lineWidth = config.strokeWidthPx * 2;
+          ctx.strokeStyle = outlineColor;
+          ctx.lineJoin = "round";
+          ctx.miterLimit = 2;
+          ctx.strokeText(text, -tokenWidth / 2, 0);
+
+          if (isAccent && fillIn > 0) {
+            ctx.fillStyle = withOpacity(fillColor, fillIn);
             ctx.fillText(text, -tokenWidth / 2, 0);
           }
+
+          ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
           break;
         }
 
         case "bounceWord": {
-          const pulse = tokenPulse(timing, ENTER_BOUNCY);
-          const highlight = tokenHighlight(timing, ENTER_SMOOTH);
-          const colour = interpolateColors(
-            highlight,
-            [0, 1],
-            [token.color ?? config.baseColor, token.color ?? config.activeColor],
-          );
+          const role = token.role ?? "normal";
+          const isAccent = isBounceWordAccent(role);
+          const roleFontSize = config.fontSizePx * bounceWordFontScale(role);
+          // `enter` (holds after rising) drives visibility; only the scale
+          // overshoot uses the non-decaying `centerPunchScale` — using
+          // `tokenPulse` for opacity faded already-spoken words back out.
+          const enter = tokenEnter({ frame, fps, fromFrame: timing.fromFrame }, ENTER_SMOOTH);
+          const punch = centerPunchScale({ frame, fps, fromFrame: timing.fromFrame }, ENTER_BOUNCY);
+          const pillGrow = maskRevealX({ frame, fps, fromFrame: timing.fromFrame }, ENTER_SMOOTH);
+          const yOffset = (1 - enter) * 26;
+          const scale = 0.75 + Math.min(1.18, punch) * 0.25;
 
-          const yOffset = (1 - pulse) * 30;
-          const scale = 0.8 + pulse * 0.2;
-
-          ctx.globalAlpha = entrance * pulse;
+          ctx.font = canvasFont(config.fontWeight, roleFontSize, family);
+          ctx.globalAlpha = entrance * enter;
           ctx.translate(cx, cy + yOffset);
           ctx.scale(scale, scale);
-          
-          if (highlight > 0.5) {
-            const pillPadX = 10;
+
+          if (isAccent) {
+            const padX = roleFontSize * 0.2;
             ctx.fillStyle = config.accentColor;
+            ctx.globalAlpha = entrance * enter * pillGrow * 0.95;
             ctx.beginPath();
-            ctx.roundRect(-tokenWidth / 2 - pillPadX, -config.fontSizePx / 2, tokenWidth + pillPadX * 2, config.fontSizePx, 8);
+            ctx.roundRect(-tokenWidth / 2 - padX, -roleFontSize * 0.6, tokenWidth + padX * 2, roleFontSize * 1.2, roleFontSize * 0.22);
             ctx.fill();
+            ctx.globalAlpha = entrance * enter;
           }
 
-          strokeThenFill(ctx, text, -tokenWidth / 2, 0, colour, config.strokeWidthPx, config.strokeColor);
+          strokeThenFill(ctx, text, -tokenWidth / 2, 0, token.color ?? "#ffffff", isAccent ? 0 : config.strokeWidthPx, config.strokeColor);
+          ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
           break;
         }
 
         case "glitch": {
-          const pulse = tokenPulse(timing, ENTER_SMOOTH);
-          const highlight = tokenHighlight(timing, ENTER_SMOOTH);
-          const colour = interpolateColors(
-            highlight,
-            [0, 1],
-            [token.color ?? config.baseColor, token.color ?? config.activeColor],
-          );
+          const role = token.role ?? "normal";
+          const isAccent = isGlitchAccent(role);
+          const enter = tokenEnter({ frame, fps, fromFrame: timing.fromFrame }, ENTER_SMOOTH);
+          const seed = getHash(text);
+          const burst = isAccent ? glitchBurst(frame, fps, timing.fromFrame, seed) : 0;
+          const scaleFactor = canvasScale({ width, height });
+          const sliceOffset = burst > 0 ? ((seed % 5) - 2) * scaleFactor : 0;
+          const baseColour = token.color ?? config.baseColor;
 
-          const isHighlighted = highlight > 0.5;
-          const glitchOffset = isHighlighted && Math.floor(frame) % 3 === 0 ? 3 : 0;
-          const scale = 0.9 + pulse * 0.1;
+          ctx.globalAlpha = entrance * enter;
+          ctx.translate(cx + sliceOffset, cy);
 
-          ctx.globalAlpha = entrance * pulse;
-          ctx.translate(cx + glitchOffset, cy);
-          ctx.scale(scale, scale);
-
-          if (isHighlighted) {
-            // Draw cyan left
+          if (burst > 0) {
+            ctx.globalAlpha = entrance * enter * 0.85;
             ctx.fillStyle = "#00ffff";
-            ctx.fillText(text, -tokenWidth / 2 - 2, 0);
-            // Draw red right
+            ctx.fillText(text, -tokenWidth / 2 - 3 * scaleFactor, 0);
             ctx.fillStyle = config.accentColor;
-            ctx.fillText(text, -tokenWidth / 2 + 2, 0);
+            ctx.fillText(text, -tokenWidth / 2 + 3 * scaleFactor, 0);
+            ctx.globalAlpha = entrance * enter;
           }
 
-          strokeThenFill(ctx, text, -tokenWidth / 2, 0, colour, config.strokeWidthPx, config.strokeColor);
+          strokeThenFill(ctx, text, -tokenWidth / 2, 0, baseColour, isAccent ? config.strokeWidthPx : 0, config.strokeColor);
           break;
         }
 
         case "highlightWord": {
-          const pulse = tokenPulse(timing, ENTER_SMOOTH);
-          const highlight = tokenHighlight(timing, ENTER_SMOOTH);
-          const colour = interpolateColors(
-            highlight,
-            [0, 1],
-            [token.color ?? config.baseColor, token.color ?? config.activeColor],
-          );
+          const role = token.role ?? "normal";
+          const isAccent = isHighlightWordAccent(role);
+          const roleFontSize = config.fontSizePx * highlightWordFontScale(role);
+          const enter = tokenEnter({ frame, fps, fromFrame: timing.fromFrame }, ENTER_SMOOTH);
+          const markerDelay = Math.round(fps * 0.1);
+          const marker = isAccent
+            ? maskRevealX({ frame, fps, fromFrame: timing.fromFrame + markerDelay }, ENTER_SMOOTH)
+            : 0;
+          const isCovered = marker > 0.6;
 
-          ctx.globalAlpha = entrance * pulse;
+          ctx.font = canvasFont(config.fontWeight, roleFontSize, family);
+          ctx.globalAlpha = entrance * enter;
           ctx.translate(cx, cy);
 
-          if (highlight > 0) {
+          if (isAccent && marker > 0) {
+            const padX = roleFontSize * 0.12;
+            const fullW = tokenWidth + padX * 2;
             ctx.fillStyle = config.accentColor;
-            ctx.globalAlpha = entrance * pulse * 0.7;
-            const bgWidth = tokenWidth * highlight;
-            ctx.fillRect(-tokenWidth / 2, config.fontSizePx * 0.1, bgWidth, config.fontSizePx * 0.4);
-            ctx.globalAlpha = entrance * pulse;
+            ctx.beginPath();
+            ctx.roundRect(-tokenWidth / 2 - padX, -roleFontSize * 0.42, fullW * marker, roleFontSize * 0.84, roleFontSize * 0.08);
+            ctx.fill();
           }
 
-          strokeThenFill(ctx, text, -tokenWidth / 2, 0, colour, config.strokeWidthPx, config.strokeColor);
+          strokeThenFill(
+            ctx, text, -tokenWidth / 2, 0,
+            isAccent && isCovered ? "#0a0a0b" : (token.color ?? config.baseColor),
+            isAccent && !isCovered ? config.strokeWidthPx : 0,
+            config.strokeColor,
+          );
+          ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
           break;
         }
 
         case "zoomFocus": {
-          const pulse = tokenPulse(timing, ENTER_BOUNCY);
+          const role = token.role ?? "normal";
+          const isAccent = isZoomFocusAccent(role);
+          const roleFontSize = config.fontSizePx * zoomFocusFontScale(role);
+          // `enter` (holds after rising) drives visibility; only the punch-in
+          // scale uses the non-decaying `centerPunchScale` — using
+          // `tokenPulse` for opacity faded already-spoken words back out.
+          const enter = tokenEnter({ frame, fps, fromFrame: timing.fromFrame }, ENTER_SMOOTH);
+          const punch = centerPunchScale({ frame, fps, fromFrame: timing.fromFrame }, ENTER_BOUNCY);
           const highlight = tokenHighlight(timing, ENTER_SMOOTH);
-          const colour = interpolateColors(
-            highlight,
-            [0, 1],
-            [token.color ?? config.baseColor, token.color ?? config.activeColor],
-          );
+          const scale = isAccent
+            ? Math.min(1.25, 0.4 + punch * 0.85 * config.emphasisScale)
+            : 0.7 + enter * 0.3;
+          const colour = interpolateColors(highlight, [0, 1], [token.color ?? config.baseColor, token.color ?? config.activeColor]);
 
-          const scale = 0.5 + (pulse * 0.5) + (highlight > 0.5 ? 0.3 * config.emphasisScale : 0);
-
-          ctx.globalAlpha = entrance * pulse;
+          ctx.font = canvasFont(config.fontWeight, roleFontSize, family);
+          ctx.globalAlpha = entrance * enter;
           ctx.translate(cx, cy);
           ctx.scale(scale, scale);
 
-          strokeThenFill(ctx, text, -tokenWidth / 2, 0, colour, config.strokeWidthPx, config.strokeColor);
+          if (isAccent) {
+            const scaleFactor = canvasScale({ width, height });
+            const boxHalf = roleFontSize * 0.8 * enter;
+            const armLen = roleFontSize * 0.18;
+            ctx.save();
+            ctx.strokeStyle = config.accentColor;
+            ctx.lineWidth = 4 * scaleFactor;
+            ctx.lineCap = "round";
+            ctx.globalAlpha = entrance * enter * 0.8;
+            const corners: Array<[number, number, number, number]> = [
+              [-boxHalf, -boxHalf, 1, 1],
+              [boxHalf, -boxHalf, -1, 1],
+              [-boxHalf, boxHalf, 1, -1],
+              [boxHalf, boxHalf, -1, -1],
+            ];
+            for (const [cornerX, cornerY, sx, sy] of corners) {
+              ctx.beginPath();
+              ctx.moveTo(cornerX + armLen * sx, cornerY);
+              ctx.lineTo(cornerX, cornerY);
+              ctx.lineTo(cornerX, cornerY + armLen * sy);
+              ctx.stroke();
+            }
+            ctx.restore();
+          }
+
+          strokeThenFill(ctx, text, -tokenWidth / 2, 0, colour, isAccent ? config.strokeWidthPx : 0, config.strokeColor);
+          ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
           break;
         }
 
         case "gradientFlow": {
-          const pulse = tokenPulse(timing, ENTER_SMOOTH);
-          const highlight = tokenHighlight(timing, ENTER_SMOOTH);
-          const isHighlighted = highlight > 0.5;
+          const role = token.role ?? "normal";
+          const isAccent = isGradientFlowAccent(role);
+          const roleFontSize = config.fontSizePx * gradientFlowFontScale(role);
+          const enter = tokenEnter(timing, ENTER_SMOOTH);
+          const scaleFactor = canvasScale({ width, height });
+          const yOffset = (1 - enter) * 10 * scaleFactor;
+          const flowPct = ((frame / fps) * 22) % 200;
 
-          const scale = 0.9 + pulse * 0.1;
+          ctx.font = canvasFont(config.fontWeight, roleFontSize, family);
+          ctx.globalAlpha = entrance * enter;
+          ctx.translate(cx, cy + yOffset);
 
-          ctx.globalAlpha = entrance * pulse;
-          ctx.translate(cx, cy);
-          ctx.scale(scale, scale);
-
-          if (isHighlighted) {
+          if (isAccent) {
             const grad = ctx.createLinearGradient(-tokenWidth, 0, tokenWidth, 0);
-            
-            // Simulated animated gradient
+            const shift = Math.max(0.001, Math.min(0.999, (flowPct % 100) / 100));
             grad.addColorStop(0, config.accentColor);
-            grad.addColorStop(0.5, "#ff007f");
+            grad.addColorStop(shift, "#9b5cff");
             grad.addColorStop(1, config.accentColor);
-            
-            // Note: The true animated effect on Canvas requires shifting stops, which is simplified here
-            strokeThenFill(ctx, text, -tokenWidth / 2, 0, grad, config.strokeWidthPx, config.strokeColor);
+            strokeThenFill(ctx, text, -tokenWidth / 2, 0, grad, 0, config.strokeColor);
+
+            ctx.fillStyle = config.accentColor;
+            ctx.globalAlpha = entrance * enter * 0.85;
+            ctx.font = canvasFont(500, roleFontSize * 0.32, family);
+            ctx.fillText("›››", 0, roleFontSize * 0.66);
           } else {
-            strokeThenFill(ctx, text, -tokenWidth / 2, 0, token.color ?? config.baseColor, config.strokeWidthPx, config.strokeColor);
+            strokeThenFill(ctx, text, -tokenWidth / 2, 0, token.color ?? config.baseColor, 0, config.strokeColor);
           }
+          ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
           break;
         }
 
         case "maskReveal": {
-          const isHero = index === heroIndex;
-          const pulse = tokenPulse(timing, ENTER_SMOOTH);
-          const highlight = tokenHighlight(timing, ENTER_SMOOTH);
+          const role = token.role ?? "normal";
+          const isHero = isMaskRevealHero(role);
+          const roleFontSize = config.fontSizePx * maskRevealFontScale(role);
+          const enter = tokenEnter(timing, ENTER_SMOOTH);
+          const pulse = tokenPulse(timing, ENTER_BOUNCY);
+          const scale = isHero ? 0.82 + Math.min(1.1, pulse) * 0.18 : 1;
+          // Mid-grey, not white — overlay blend's neutral point is 50% grey,
+          // where the underlying footage shows through nearly unchanged;
+          // white only lightens, which reads as a glow rather than the video
+          // showing through the letterforms. Verified against a rendered
+          // frame, not assumed — see MaskReveal.tsx's doc comment.
+          const colour = token.color ?? (isHero ? "#808080" : config.baseColor);
 
-          const scaleMult = isHero ? 1.5 : 1.0;
-          const scale = scaleMult * pulse;
-          const colour = highlight > 0.5 ? config.accentColor : config.baseColor;
-
-          ctx.globalAlpha = entrance * pulse;
+          ctx.font = canvasFont(config.fontWeight, roleFontSize, family);
+          ctx.globalAlpha = entrance * enter;
           ctx.translate(cx, cy);
           ctx.scale(scale, scale);
 
           if (isHero) {
+            ctx.shadowColor = "rgba(255,255,255,0.25)";
+            ctx.shadowBlur = roleFontSize * 0.14;
             ctx.globalCompositeOperation = "overlay";
           }
-          
-          strokeThenFill(ctx, text, -tokenWidth / 2, 0, colour, config.strokeWidthPx, config.strokeColor);
-          
+
+          strokeThenFill(ctx, text, -tokenWidth / 2, 0, colour, isHero ? config.strokeWidthPx : 0, config.strokeColor);
+
           ctx.globalCompositeOperation = "source-over";
+          clearShadow(ctx);
+          ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
           break;
         }
 
         case "drawOn": {
-          const isSpecial = index === specialIndex;
-          const pulse = tokenPulse(timing, ENTER_SMOOTH);
+          const role = token.role ?? "normal";
+          const isScript = isDrawOnScript(role);
+          const roleFontSize = config.fontSizePx * drawOnFontScale(role);
+          const enter = tokenEnter(timing, ENTER_SMOOTH);
           const highlight = tokenHighlight(timing, ENTER_SMOOTH);
-          const colour = interpolateColors(
-            highlight,
-            [0, 1],
-            [token.color ?? config.baseColor, token.color ?? config.activeColor],
+          const underline = isScript
+            ? maskRevealX({ frame, fps, fromFrame: timing.fromFrame + Math.round(fps * 0.15) }, ENTER_SMOOTH)
+            : 0;
+          const scaleFactor = canvasScale({ width, height });
+          const yOffset = (1 - enter) * 10 * scaleFactor;
+          const secondaryFamily = config.secondaryFontId ? resolveFontFamily(config.secondaryFontId) : family;
+          const colour = interpolateColors(highlight, [0, 1], [token.color ?? config.baseColor, token.color ?? config.activeColor]);
+
+          ctx.font = canvasFont(config.fontWeight, roleFontSize, isScript ? family : secondaryFamily);
+          ctx.globalAlpha = entrance * enter;
+          ctx.translate(cx, cy + yOffset);
+
+          strokeThenFill(
+            ctx, text, -tokenWidth / 2, 0,
+            isScript ? (token.color ?? config.accentColor) : colour,
+            isScript ? config.strokeWidthPx : 0,
+            config.strokeColor,
           );
 
-          if (isSpecial && config.secondaryFontId) {
-            ctx.font = canvasFont(config.fontWeight, config.fontSizePx, resolveFontFamily(config.secondaryFontId));
-          }
-
-          ctx.globalAlpha = entrance * pulse;
-          ctx.translate(cx, cy);
-          strokeThenFill(ctx, text, -tokenWidth / 2, 0, colour, config.strokeWidthPx, config.strokeColor);
-
-          if (highlight > 0) {
-            const drawWidth = tokenWidth * highlight;
-            ctx.beginPath();
-            // A simple slight curve
-            ctx.moveTo(-tokenWidth / 2, config.fontSizePx * 0.4);
-            ctx.quadraticCurveTo(0, config.fontSizePx * 0.5, -tokenWidth / 2 + drawWidth, config.fontSizePx * 0.4);
+          if (isScript && underline > 0) {
             ctx.strokeStyle = config.accentColor;
-            ctx.lineWidth = 4;
+            ctx.lineWidth = 3 * scaleFactor;
+            ctx.lineCap = "round";
+            ctx.globalAlpha = entrance * enter * underline;
+            const underlineY = roleFontSize * 0.62;
+            const w = tokenWidth * underline;
+            ctx.beginPath();
+            ctx.moveTo(-tokenWidth / 2, underlineY);
+            ctx.quadraticCurveTo(-tokenWidth / 2 + w * 0.5, underlineY + roleFontSize * 0.05, -tokenWidth / 2 + w, underlineY - roleFontSize * 0.02);
             ctx.stroke();
           }
 
-          ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family); // restore font
+          ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
           break;
         }
 
         case "depth3d": {
-          const pulse = tokenPulse(timing, ENTER_SMOOTH);
-          const highlight = tokenHighlight(timing, ENTER_SMOOTH);
-          const colour = interpolateColors(
-            highlight,
-            [0, 1],
-            [token.color ?? config.baseColor, token.color ?? config.activeColor],
-          );
+          const role = token.role ?? "normal";
+          const isAccent = isDepth3dAccent(role);
+          const roleFontSize = config.fontSizePx * depth3dFontScale(role);
+          const enter = tokenEnter({ frame, fps, fromFrame: timing.fromFrame }, ENTER_SMOOTH);
+          const depth = isAccent ? enter * 6 : 0;
+          const scaleFactor = canvasScale({ width, height });
+          const colour = token.color ?? "#ffffff";
 
-          const isHighlighted = highlight > 0.5;
-          const depth = isHighlighted ? 6 : 0;
-          const scale = 0.9 + pulse * 0.1;
+          ctx.font = canvasFont(config.fontWeight, roleFontSize, family);
+          ctx.globalAlpha = entrance * enter;
+          ctx.translate(cx, cy - depth * 0.4 * scaleFactor);
 
-          ctx.globalAlpha = entrance * pulse;
-          ctx.translate(cx, cy - depth);
-          ctx.scale(scale, scale);
-
-          if (isHighlighted) {
-            // Draw 3D shadow layers
+          if (isAccent && depth > 0.1) {
             ctx.fillStyle = config.accentColor;
-            for(let i = depth; i > 0; i--) {
-              ctx.fillText(text, -tokenWidth / 2 + i, i);
+            for (let i = 6; i >= 1; i--) {
+              const t = (depth * i) / 6;
+              ctx.fillText(text, -tokenWidth / 2 + t * scaleFactor, t * scaleFactor);
             }
           }
 
-          strokeThenFill(ctx, text, -tokenWidth / 2, 0, colour, config.strokeWidthPx, config.strokeColor);
+          strokeThenFill(ctx, text, -tokenWidth / 2, 0, colour, isAccent ? config.strokeWidthPx : 0, config.strokeColor);
+          ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
           break;
         }
       }

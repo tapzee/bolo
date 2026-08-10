@@ -177,6 +177,43 @@ export const layeredDepthDrift = (
   periodSec = 6,
 ): number => Math.sin((frame / fps / periodSec) * Math.PI * 2) * amplitudePx;
 
+/**
+ * Same envelope as `tokenEnter`, named for a *vertical* mask/clip reveal
+ * (Wipe Up's bottom-to-top clip-path) — shares `maskRevealX`'s math, kept as
+ * its own name so a call site reads as "this drives a vertical wipe" rather
+ * than requiring the reader to know the two happen to be identical.
+ */
+export const maskRevealY = (
+  input: Omit<TokenAnimationInput, "toFrame">,
+  config: Partial<SpringConfig> = ENTER_SMOOTH,
+): number => tokenEnter(input, config);
+
+/**
+ * Deterministic short glitch-burst schedule for the Glitch engine, 0 or 1.
+ *
+ * The reference look is 2-4 *brief* RGB/slice flashes right as the word
+ * lands, not a continuously glitching word — a caption that glitches for its
+ * entire on-screen time reads as broken rendering, not a style choice. Active
+ * only for `~0.9s` after `fromFrame`, split into short slots a few frames
+ * wide; `seed` (a word's own hash) offsets the phase so neighbouring words on
+ * the same page don't flash in lockstep. Pure function of frame/fps/seed, so
+ * the DOM preview and the Canvas2D export land on the identical burst frames.
+ */
+export const glitchBurst = (
+  frame: number,
+  fps: number,
+  fromFrame: number,
+  seed: number,
+): number => {
+  const elapsed = frame - fromFrame;
+  if (elapsed < 0) return 0;
+  const windowFrames = Math.round(fps * 0.9);
+  if (elapsed > windowFrames) return 0;
+  const slotFrames = Math.max(4, Math.round(fps * 0.22));
+  const phase = (elapsed + (seed % slotFrames)) % slotFrames;
+  return phase < 2 ? 1 : 0;
+};
+
 /** Page-level entrance. Deliberately short — captions must not lag the audio. */
 export const pageEntrance = (
   frame: number,

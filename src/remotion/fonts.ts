@@ -25,4 +25,5 @@ export const FONT_FAMILY: Readonly<Record<FontId, string>> = {
   cormorantGaramond: "var(--bolo-font-cormorant-garamond)",
   bodoniModa: "var(--bolo-font-bodoni-moda)",
   notoSerifDevanagari: "var(--bolo-font-noto-serif-devanagari)",
+  ibmPlexMono: "var(--bolo-font-ibm-plex-mono)",
 };

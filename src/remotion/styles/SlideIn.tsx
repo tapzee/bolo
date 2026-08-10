@@ -1,19 +1,26 @@
 import { memo } from "react";
-import { interpolateColors } from "remotion";
+import type { WordRole } from "@/core";
 import {
   ENTER_BOUNCY,
+  ENTER_SMOOTH,
+  tokenEnter,
   tokenHighlight,
-  tokenPulse,
 } from "../captions/animation";
 import {
   displayText,
+  isSlideInAccent,
+  slideInDirection,
+  slideInFontScale,
   tokenGlyphStyle,
   tokenShellStyle,
   type TokenViewProps,
 } from "../captions/primitives";
 
 /**
- * Slide In — Words slide from different directions with a configurable highlight pill.
+ * Slide In — directional entrance with motion blur and a coloured highlight
+ * pill on the page's keyword(s). Non-critical words alternate their entry
+ * edge by position so a page doesn't read as one word repeated; the critical
+ * word always rises from below, distinguishing it as the punchline.
  */
 export const SlideInToken = memo(function SlideInToken({
   token,
@@ -25,46 +32,56 @@ export const SlideInToken = memo(function SlideInToken({
   textStyle,
   index = 0,
 }: TokenViewProps) {
-  const pulse = tokenPulse({ frame, fps, fromFrame, toFrame }, ENTER_BOUNCY);
-  const highlight = tokenHighlight({ frame, fps, fromFrame, toFrame }, ENTER_BOUNCY);
+  const role: WordRole = token.role ?? "normal";
+  const timing = { frame, fps, fromFrame, toFrame };
+  const isAccent = isSlideInAccent(role);
+  const enter = tokenEnter(timing, ENTER_BOUNCY);
+  const highlight = tokenHighlight(timing, ENTER_SMOOTH);
 
-  const color = interpolateColors(
-    highlight,
-    [0, 1],
-    [token.color ?? config.baseColor, token.color ?? config.activeColor],
-  );
+  const dir = slideInDirection(role, index);
+  const travel = dir === "up" ? 60 : 90;
+  const offset = (1 - enter) * travel;
+  const tx = dir === "left" ? -offset : dir === "right" ? offset : 0;
+  const ty = dir === "up" ? offset : 0;
+  // Motion blur scales with how far the word still has to travel.
+  const blurPx = Math.abs(1 - enter) * 8;
 
-  // Direction depends on the index so it's pseudo-random but stable
-  const directions = [
-    { x: -50, y: 0 },
-    { x: 50, y: 0 },
-    { x: 0, y: -50 },
-    { x: 0, y: 50 }
-  ];
-  const dir = directions[index % directions.length] || directions[0];
-
-  // Starts from dir and moves to 0 as pulse goes from 0 to 1
-  const x = dir!.x * (1 - pulse);
-  const y = dir!.y * (1 - pulse);
+  const fontSize = (textStyle.fontSize as number) * slideInFontScale(role);
 
   return (
     <span
       style={{
         ...tokenShellStyle,
-        transform: `translate(${x}px, ${y}px)`,
-        opacity: pulse, // Fades in as it slides
+        opacity: enter,
+        transform: `translate(${tx}px, ${ty}px)`,
+        filter: blurPx > 0.5 ? `blur(${blurPx}px)` : undefined,
       }}
     >
-      <span style={{ 
-        ...textStyle, 
-        ...tokenGlyphStyle, 
-        color,
-        // Green Pill Background for highlight
-        backgroundColor: highlight > 0.5 ? config.accentColor : "transparent",
-        padding: highlight > 0.5 ? "0 10px" : "0",
-        borderRadius: "8px",
-        transition: "background-color 0.1s, padding 0.1s"
-      }}>
+      {isAccent && (
+        <span
+          aria-hidden
+          style={{
+            position: "absolute",
+            inset: `${-fontSize * 0.08}px ${-fontSize * 0.18}px`,
+            background: config.accentColor,
+            borderRadius: fontSize * 0.16,
+            transform: `scaleX(${highlight})`,
+            transformOrigin: dir === "right" ? "right center" : "left center",
+            opacity: 0.95,
+            zIndex: 0,
+          }}
+        />
+      )}
+      <span
+        style={{
+          ...textStyle,
+          ...tokenGlyphStyle,
+          fontSize,
+          color: isAccent ? "#ffffff" : (token.color ?? config.baseColor),
+          fontWeight: isAccent ? 800 : textStyle.fontWeight,
+          WebkitTextStroke: isAccent ? textStyle.WebkitTextStroke : "0px transparent",
+        }}
+      >
         {displayText(token)}
       </span>
     </span>

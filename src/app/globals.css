@@ -30,6 +30,7 @@
   --bolo-font-cormorant-garamond: var(--font-cormorant-garamond), var(--font-devanagari), serif;
   --bolo-font-bodoni-moda: var(--font-bodoni-moda), var(--font-devanagari), serif;
   --bolo-font-noto-serif-devanagari: var(--font-noto-serif-devanagari), var(--font-devanagari), serif;
+  --bolo-font-ibm-plex-mono: var(--font-ibm-plex-mono), var(--font-devanagari), monospace;
 }
 
 /* ===========================================================================

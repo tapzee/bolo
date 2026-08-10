@@ -536,6 +536,117 @@ export const layeredDepthForegroundScale = (role: WordRole): number => {
   return 0.65;
 };
 
+/**
+ * Shared word-role → visual-treatment lookups for the 15-template premium
+ * family. Same rationale as the 10-template block above: the DOM renderer,
+ * `draw-captions.ts` and `page-fit.ts` must agree on exactly which role gets
+ * the "hero"/"accent" treatment and how large it draws, or the page-fit
+ * estimate and the real render disagree about how much room a page needs.
+ */
+
+/** Pop Scale: only the page's one critical word gets the hero punch-in. */
+export const isPopScaleHero = (role: WordRole): boolean => role === "critical";
+
+export const popScaleFontScale = (role: WordRole): number =>
+  role === "critical" ? 1 : role === "connector" ? 0.5 : 0.66;
+
+/** Slide In: which roles get the coloured pill + heavier slide-in weight. */
+export const isSlideInAccent = (role: WordRole): boolean =>
+  role === "critical" || role === "keyword";
+
+export const slideInFontScale = (role: WordRole): number =>
+  role === "critical" ? 1.05 : role === "keyword" ? 0.95 : role === "connector" ? 0.55 : 0.75;
+
+/** Slide In: alternates entry edge so consecutive words don't all slide the same way; the critical word always rises from below. */
+export const slideInDirection = (
+  role: WordRole,
+  index: number,
+): "left" | "right" | "up" =>
+  role === "critical" ? "up" : index % 2 === 0 ? "left" : "right";
+
+/** Blur Focus: which roles hold the heavy cinematic blur-to-sharp reveal. */
+export const isBlurFocusAccent = (role: WordRole): boolean =>
+  role === "critical" || role === "keyword";
+
+export const blurFocusFontScale = (role: WordRole): number =>
+  role === "critical" ? 1.08 : role === "keyword" ? 0.95 : role === "connector" ? 0.42 : 0.55;
+
+/** Typewriter: which roles hold the accent colour once typed. Size stays flat — a monospace caption's whole identity is the uniform grid. */
+export const isTypewriterAccent = (role: WordRole): boolean =>
+  role === "critical" || role === "keyword" || role === "number";
+
+/** Rotate Reveal: which roles get the swing-in rotation + arrow flourish. */
+export const isRotateRevealAccent = (role: WordRole): boolean =>
+  role === "critical" || role === "keyword";
+
+export const rotateRevealFontScale = (role: WordRole): number =>
+  role === "critical" ? 1.05 : role === "keyword" ? 0.92 : role === "connector" ? 0.5 : 0.68;
+
+/** Wipe Up: which roles get the upward mask reveal + solid highlight block. */
+export const isWipeUpAccent = (role: WordRole): boolean =>
+  role === "critical" || role === "keyword";
+
+export const wipeUpFontScale = (role: WordRole): number =>
+  role === "critical" ? 1.05 : role === "keyword" ? 0.95 : role === "connector" ? 0.5 : 0.7;
+
+/** Stroke Fill: which roles fill solid; everything else stays outline-only. */
+export const isStrokeFillAccent = (role: WordRole): boolean =>
+  role === "critical" || role === "keyword";
+
+export const strokeFillFontScale = (role: WordRole): number =>
+  role === "critical" ? 1.1 : role === "keyword" ? 1 : role === "connector" ? 0.55 : 0.75;
+
+/** Bounce Word: which roles get the pill highlight + bigger bounce. */
+export const isBounceWordAccent = (role: WordRole): boolean =>
+  role === "critical" || role === "keyword";
+
+export const bounceWordFontScale = (role: WordRole): number =>
+  role === "critical" ? 1.05 : role === "keyword" ? 0.95 : role === "connector" ? 0.5 : 0.72;
+
+/** Glitch: which roles are eligible for the brief RGB/slice burst. Size stays flat — the reference keeps every word the same cap-height, distinguished only by the burst treatment. */
+export const isGlitchAccent = (role: WordRole): boolean =>
+  role === "critical" || role === "keyword";
+
+/** Highlight Word: which roles get the sliding highlight marker. */
+export const isHighlightWordAccent = (role: WordRole): boolean =>
+  role === "critical" || role === "keyword";
+
+export const highlightWordFontScale = (role: WordRole): number =>
+  role === "critical" ? 1.05 : role === "keyword" ? 0.95 : role === "connector" ? 0.55 : 0.78;
+
+/** Zoom Focus: only the critical word gets the camera punch + corner brackets. */
+export const isZoomFocusAccent = (role: WordRole): boolean => role === "critical";
+
+export const zoomFocusFontScale = (role: WordRole): number =>
+  role === "critical" ? 1 : role === "connector" ? 0.45 : 0.6;
+
+/** Gradient Flow: which roles carry the animated blue→purple gradient fill. */
+export const isGradientFlowAccent = (role: WordRole): boolean =>
+  role === "critical" || role === "keyword";
+
+export const gradientFlowFontScale = (role: WordRole): number =>
+  role === "critical" ? 1.05 : role === "keyword" ? 0.95 : role === "connector" ? 0.5 : 0.72;
+
+/** Mask Reveal: only the critical word becomes the oversized glass cutout. */
+export const isMaskRevealHero = (role: WordRole): boolean => role === "critical";
+
+export const maskRevealFontScale = (role: WordRole): number =>
+  role === "critical" ? 1 : role === "connector" ? 0.4 : 0.5;
+
+/** Draw On: which roles borrow the script face + hand-drawn underline. */
+export const isDrawOnScript = (role: WordRole): boolean =>
+  role === "critical" || role === "keyword";
+
+export const drawOnFontScale = (role: WordRole): number =>
+  role === "critical" ? 1.05 : role === "keyword" ? 0.95 : role === "connector" ? 0.6 : 0.8;
+
+/** 3D Depth: which roles get the extruded layered-shadow treatment. */
+export const isDepth3dAccent = (role: WordRole): boolean =>
+  role === "critical" || role === "keyword";
+
+export const depth3dFontScale = (role: WordRole): number =>
+  role === "critical" ? 1.08 : role === "keyword" ? 0.95 : role === "connector" ? 0.45 : 0.62;
+
 export const pickFrameState = <TState extends string>(
   progress: number,
   breakpoints: readonly FrameStateBreakpoint<TState>[],

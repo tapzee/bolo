@@ -60,6 +60,7 @@ export const FONT_IDS = [
   "cormorantGaramond",
   "bodoniModa",
   "notoSerifDevanagari",
+  "ibmPlexMono",
 ] as const;
 
 export type FontId = (typeof FONT_IDS)[number];
@@ -91,6 +92,7 @@ export const FONTS: readonly FontOption[] = [
   { id: "cormorantGaramond", label: "Cormorant Garamond", nativeDevanagari: false, defaultWeight: 500 },
   { id: "bodoniModa", label: "Bodoni Moda", nativeDevanagari: false, defaultWeight: 500 },
   { id: "notoSerifDevanagari", label: "Noto Serif Devanagari", nativeDevanagari: true, defaultWeight: 600 },
+  { id: "ibmPlexMono", label: "IBM Plex Mono", nativeDevanagari: false, defaultWeight: 500 },
 ];
 
 export type CaptionPlacement = "top" | "center" | "bottom-third" | "bottom";

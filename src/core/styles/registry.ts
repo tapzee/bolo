@@ -606,9 +606,9 @@ export const CAPTION_STYLES: Readonly<
   typewriter: define(
     "typewriter",
     "Typewriter",
-    "Clean monospace caption revealing character-by-character.",
+    "Clean monospace caption revealing character-by-character, synced to word timing.",
     {
-      fontId: "inter", // Or use a mono if available in the future
+      fontId: "ibmPlexMono",
       fontWeight: 500,
       fontSizePx: 64,
       uppercase: false,
@@ -765,7 +765,7 @@ export const CAPTION_STYLES: Readonly<
   maskReveal: define(
     "maskReveal",
     "Mask Reveal",
-    "Large keyword contains the video visually inside the letters.",
+    "Oversized keyword blended into the footage via an overlay blend, so the video's own tone shows through the letterforms.",
     {
       fontId: "anton",
       fontSizePx: 140,
@@ -776,6 +776,10 @@ export const CAPTION_STYLES: Readonly<
       strokeWidthPx: 4,
       maxWordsPerPage: 4,
       dropShadow: true, // Inner/outer shadow
+      // The hero word draws at up to 1.4x fontSizePx and the reference
+      // treatment leans on very large single words — the 30% default box
+      // clips it too early.
+      maxBlockHeightPct: 38,
     }
   ),
 

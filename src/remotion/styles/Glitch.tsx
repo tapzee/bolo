@@ -1,57 +1,84 @@
 import { memo } from "react";
-import { interpolateColors } from "remotion";
-import {
-  ENTER_SMOOTH,
-  tokenHighlight,
-  tokenPulse,
-} from "../captions/animation";
+import type { WordRole } from "@/core";
+import { ENTER_SMOOTH, glitchBurst, tokenEnter } from "../captions/animation";
 import {
   displayText,
+  getHash,
+  isGlitchAccent,
   tokenGlyphStyle,
   tokenShellStyle,
   type TokenViewProps,
 } from "../captions/primitives";
 
 /**
- * Glitch Effect — Quick RGB glitch bursts on the active word.
+ * Glitch — 2-4 brief RGB-split/slice bursts on the page's keyword(s), not a
+ * continuous glitch. `glitchBurst` is a deterministic, seeded schedule so
+ * the burst frames are identical between the DOM preview and the Canvas2D
+ * export, and so a word never glitches for its entire time on screen.
  */
 export const GlitchToken = memo(function GlitchToken({
   token,
   frame,
   fps,
   fromFrame,
-  toFrame,
   config,
   textStyle,
 }: TokenViewProps) {
-  const pulse = tokenPulse({ frame, fps, fromFrame, toFrame }, ENTER_SMOOTH);
-  const highlight = tokenHighlight({ frame, fps, fromFrame, toFrame }, ENTER_SMOOTH);
+  const role: WordRole = token.role ?? "normal";
+  const isAccent = isGlitchAccent(role);
+  const enter = tokenEnter({ frame, fps, fromFrame }, ENTER_SMOOTH);
+  const text = displayText(token);
+  const seed = getHash(text);
+  const burst = isAccent ? glitchBurst(frame, fps, fromFrame, seed) : 0;
+  const sliceOffset = burst > 0 ? (seed % 5) - 2 : 0;
 
-  const color = interpolateColors(
-    highlight,
-    [0, 1],
-    [token.color ?? config.baseColor, token.color ?? config.activeColor],
-  );
-
-  // A simple glitch offset based on frame parity when highlighted
-  const isHighlighted = highlight > 0.5;
-  const glitchOffset = isHighlighted && frame % 3 === 0 ? 3 : 0;
+  const baseColor = token.color ?? config.baseColor;
 
   return (
-    <span
-      style={{
-        ...tokenShellStyle,
-        transform: `scale(${0.9 + pulse * 0.1}) translateX(${glitchOffset}px)`,
-        opacity: pulse, 
-      }}
-    >
-      <span style={{ 
-        ...textStyle, 
-        ...tokenGlyphStyle, 
-        color,
-        textShadow: isHighlighted ? `2px 0 ${config.accentColor}, -2px 0 #00ffff` : "none",
-      }}>
-        {displayText(token)}
+    <span style={{ ...tokenShellStyle, opacity: enter, transform: `translateX(${sliceOffset}px)` }}>
+      {burst > 0 && (
+        <>
+          <span
+            aria-hidden
+            style={{
+              ...textStyle,
+              ...tokenGlyphStyle,
+              position: "absolute",
+              inset: 0,
+              color: "#00ffff",
+              transform: "translateX(-3px)",
+              opacity: 0.85,
+              WebkitTextStroke: "0px transparent",
+            }}
+          >
+            {text}
+          </span>
+          <span
+            aria-hidden
+            style={{
+              ...textStyle,
+              ...tokenGlyphStyle,
+              position: "absolute",
+              inset: 0,
+              color: config.accentColor,
+              transform: "translateX(3px)",
+              opacity: 0.85,
+              WebkitTextStroke: "0px transparent",
+            }}
+          >
+            {text}
+          </span>
+        </>
+      )}
+      <span
+        style={{
+          ...textStyle,
+          ...tokenGlyphStyle,
+          color: baseColor,
+          WebkitTextStroke: isAccent ? textStyle.WebkitTextStroke : "0px transparent",
+        }}
+      >
+        {text}
       </span>
     </span>
   );
