@@ -24,6 +24,21 @@ import { EditorialStackToken } from "./EditorialStack";
 import { MagazineCutToken } from "./MagazineCut";
 import { MinimalLuxuryToken } from "./MinimalLuxury";
 import { LayeredDepthToken } from "./LayeredDepth";
+import { PopScaleToken } from "./PopScale";
+import { SlideInToken } from "./SlideIn";
+import { BlurFocusToken } from "./BlurFocus";
+import { TypewriterToken } from "./Typewriter";
+import { RotateRevealToken } from "./RotateReveal";
+import { WipeUpToken } from "./WipeUp";
+import { StrokeFillToken } from "./StrokeFill";
+import { BounceWordToken } from "./BounceWord";
+import { GlitchToken } from "./Glitch";
+import { HighlightWordToken } from "./HighlightWord";
+import { ZoomFocusToken } from "./ZoomFocus";
+import { GradientFlowToken } from "./GradientFlow";
+import { MaskRevealToken } from "./MaskReveal";
+import { DrawOnToken } from "./DrawOn";
+import { Depth3DToken } from "./Depth3D";
 
 /**
  * Style id → word renderer.
@@ -58,4 +73,21 @@ export const TOKEN_RENDERERS: Readonly<
   magazineCut: MagazineCutToken,
   minimalLuxury: MinimalLuxuryToken,
   layeredDepth: LayeredDepthToken,
+  // 15 Premium Templates
+  popScale: PopScaleToken,
+  slideIn: SlideInToken,
+  blurFocus: BlurFocusToken,
+  typewriter: TypewriterToken,
+  rotateReveal: RotateRevealToken,
+  wipeUp: WipeUpToken,
+  strokeFill: StrokeFillToken,
+  bounceWord: BounceWordToken,
+  glitch: GlitchToken,
+  highlightWord: HighlightWordToken,
+  zoomFocus: ZoomFocusToken,
+  gradientFlow: GradientFlowToken,
+  maskReveal: MaskRevealToken,
+  drawOn: DrawOnToken,
+  depth3d: Depth3DToken,
 };
+

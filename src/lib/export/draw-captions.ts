@@ -242,7 +242,7 @@ const layoutLines = (
       fontSize = config.fontSizePx * 0.52;
       ctx.font = canvasFont(800, fontSize, family);
       fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
-    } else if ((config.styleId === "hero" || config.styleId === "heroMixed") && index !== heroIndex) {
+    } else if ((config.styleId === "hero" || config.styleId === "heroMixed" || config.styleId === "maskReveal") && index !== heroIndex) {
       // Mirrors HeroMixed.tsx's `fitScale`: shrink the annotation side that's
       // carrying more words so it stays on one row instead of wrapping.
       // `hero` (Hero Stack) isn't included — its own layout wasn't reported
@@ -253,6 +253,7 @@ const layoutLines = (
             ? heroIndex
             : page.tokens.length - heroIndex - 1
           : 0;
+
       const fitScale = clusterSize <= 2 ? 1 : clusterSize === 3 ? 0.88 : 0.78;
 
       fontSize = config.fontSizePx * heroSmallRatio * fitScale;
@@ -267,6 +268,14 @@ const layoutLines = (
         fontSize,
         annotationFamily,
       );
+      fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
+    } else if (config.styleId === "maskReveal" && index === heroIndex) {
+      fontSize = config.fontSizePx * 1.5;
+      ctx.font = canvasFont(config.fontWeight, fontSize, family);
+      fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
+    } else if (config.styleId === "popScale") {
+      fontSize = config.fontSizePx * (index === heroIndex ? 1.0 : 0.7);
+      ctx.font = canvasFont(config.fontWeight, fontSize, family);
       fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
     } else if (config.styleId === "heroMixed" && index === heroIndex) {
       // Mirrors HeroMixed.tsx's `heroFontStyle` — measured at the same face
@@ -448,7 +457,7 @@ const layoutLines = (
     // The hero owns its row, exactly as `flexBasis: 100%` does in the DOM:
     // close whatever was accumulating, emit the hero alone, and let the
     // remaining words start a fresh row beneath it.
-    if ((config.styleId === "hero" || config.styleId === "heroMixed") && index === heroIndex) {
+    if ((config.styleId === "hero" || config.styleId === "heroMixed" || config.styleId === "maskReveal") && index === heroIndex) {
       flush();
       lines.push({ items: [measured], width, height: rowHeight([measured]) });
       return;
@@ -2052,6 +2061,417 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           ctx.fillText(text, -tokenWidth / 2, 0);
 
           ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
+          break;
+        }
+
+        // ====================================================================
+        // 15 PREMIUM TEMPLATES (CANVAS EXPORT PARITY)
+        // ====================================================================
+
+        case "popScale": {
+          const isHero = index === heroIndex;
+          const pulse = tokenPulse(timing, ENTER_BOUNCY);
+          const highlight = tokenHighlight(timing, ENTER_SMOOTH);
+          const baseColor = isHero ? config.accentColor : config.baseColor;
+          
+          const colour = interpolateColors(
+            highlight,
+            [0, 1],
+            [token.color ?? baseColor, token.color ?? config.activeColor],
+          );
+
+          const scaleMult = isHero ? 1.0 : 0.7;
+          const popScale = scaleMult + pulse * 0.4 * config.emphasisScale;
+
+          ctx.translate(cx, cy);
+          ctx.scale(popScale, popScale);
+          strokeThenFill(
+            ctx,
+            text,
+            -tokenWidth / 2,
+            0,
+            colour,
+            config.strokeWidthPx,
+            config.strokeColor,
+          );
+          break;
+        }
+
+        case "slideIn": {
+          const pulse = tokenPulse(timing, ENTER_BOUNCY);
+          const highlight = tokenHighlight(timing, ENTER_BOUNCY);
+          const colour = interpolateColors(
+            highlight,
+            [0, 1],
+            [token.color ?? config.baseColor, token.color ?? config.activeColor],
+          );
+
+          const directions = [
+            { x: -50, y: 0 },
+            { x: 50, y: 0 },
+            { x: 0, y: -50 },
+            { x: 0, y: 50 }
+          ];
+          const dir = directions[index % directions.length] || directions[0];
+          const offsetX = dir!.x * (1 - pulse);
+          const offsetY = dir!.y * (1 - pulse);
+
+          ctx.globalAlpha = entrance * pulse;
+          ctx.translate(cx + offsetX, cy + offsetY);
+          
+          if (highlight > 0.5) {
+            const pillPadX = 10;
+            ctx.fillStyle = config.accentColor;
+            ctx.beginPath();
+            ctx.roundRect(-tokenWidth / 2 - pillPadX, -config.fontSizePx / 2, tokenWidth + pillPadX * 2, config.fontSizePx, 8);
+            ctx.fill();
+          }
+
+          strokeThenFill(ctx, text, -tokenWidth / 2, 0, colour, config.strokeWidthPx, config.strokeColor);
+          break;
+        }
+
+        case "blurFocus": {
+          const pulse = tokenPulse(timing, ENTER_SMOOTH);
+          const highlight = tokenHighlight(timing, ENTER_SMOOTH);
+          const colour = interpolateColors(
+            highlight,
+            [0, 1],
+            [token.color ?? config.baseColor, token.color ?? config.activeColor],
+          );
+
+          const blurAmount = (1 - pulse) * 20;
+          const scale = 1 + highlight * 0.1 * config.emphasisScale;
+
+          ctx.globalAlpha = entrance * pulse;
+          ctx.translate(cx, cy);
+          ctx.scale(scale, scale);
+          
+          ctx.filter = `blur(${blurAmount}px)`;
+          if (highlight > 0.5) {
+            ctx.shadowColor = config.accentColor;
+            ctx.shadowBlur = 10;
+          }
+          
+          strokeThenFill(ctx, text, -tokenWidth / 2, 0, colour, config.strokeWidthPx, config.strokeColor);
+          ctx.filter = "none";
+          clearShadow(ctx);
+          break;
+        }
+
+        case "typewriter": {
+          const highlight = tokenHighlight(timing, ENTER_SMOOTH);
+          const colour = interpolateColors(
+            highlight,
+            [0, 1],
+            [token.color ?? config.baseColor, token.color ?? config.activeColor],
+          );
+
+          const visibleChars = Math.max(1, Math.floor(highlight * text.length));
+          const visibleText = text.substring(0, visibleChars);
+          
+          ctx.globalAlpha = entrance;
+          ctx.translate(cx, cy);
+          
+          ctx.fillStyle = colour;
+          // Only fill the visible characters, but measure correctly from left
+          // (Since text is aligned center based on total tokenWidth, we draw the substring starting at left edge)
+          ctx.textAlign = "left";
+          ctx.fillText(visibleText, -tokenWidth / 2, 0);
+          ctx.textAlign = "center"; // restore
+          break;
+        }
+
+        case "rotateReveal": {
+          const pulse = tokenPulse(timing, ENTER_BOUNCY);
+          const highlight = tokenHighlight(timing, ENTER_SMOOTH);
+          const colour = interpolateColors(
+            highlight,
+            [0, 1],
+            [token.color ?? config.baseColor, token.color ?? config.activeColor],
+          );
+
+          const rotation = (1 - pulse) * -20;
+          const scale = 0.8 + (pulse * 0.2);
+
+          ctx.globalAlpha = entrance * pulse;
+          // Transform origin bottom left:
+          ctx.translate(cx - tokenWidth / 2, cy + config.fontSizePx / 2);
+          ctx.rotate((rotation * Math.PI) / 180);
+          ctx.scale(scale, scale);
+          
+          ctx.textAlign = "left";
+          strokeThenFill(ctx, text, 0, -config.fontSizePx / 2, colour, config.strokeWidthPx, config.strokeColor);
+          ctx.textAlign = "center";
+          break;
+        }
+
+        case "wipeUp": {
+          const pulse = tokenPulse(timing, ENTER_SMOOTH);
+          const highlight = tokenHighlight(timing, ENTER_SMOOTH);
+          const colour = interpolateColors(
+            highlight,
+            [0, 1],
+            [token.color ?? config.baseColor, token.color ?? config.activeColor],
+          );
+
+          const clipPercentage = (1 - pulse);
+          
+          ctx.globalAlpha = entrance;
+          ctx.translate(cx, cy);
+
+          ctx.save();
+          // Wipe up clip
+          ctx.beginPath();
+          ctx.rect(-tokenWidth / 2, -config.fontSizePx / 2 + config.fontSizePx * clipPercentage, tokenWidth, config.fontSizePx * (1 - clipPercentage));
+          ctx.clip();
+          
+          if (highlight > 0.5) {
+            ctx.fillStyle = config.accentColor;
+            ctx.fillRect(-tokenWidth / 2, -config.fontSizePx / 2, tokenWidth, config.fontSizePx);
+          }
+          
+          strokeThenFill(ctx, text, -tokenWidth / 2, 0, colour, config.strokeWidthPx, config.strokeColor);
+          ctx.restore();
+          break;
+        }
+
+        case "strokeFill": {
+          const pulse = tokenPulse(timing, ENTER_SMOOTH);
+          const highlight = tokenHighlight(timing, ENTER_SMOOTH);
+          const isHighlighted = highlight > 0.5;
+          const colour = isHighlighted ? (token.color ?? config.activeColor) : "transparent";
+
+          const scale = 0.9 + pulse * 0.1;
+          
+          ctx.globalAlpha = entrance * pulse;
+          ctx.translate(cx, cy);
+          ctx.scale(scale, scale);
+          
+          // Draw outline first, then optionally fill
+          if (config.strokeWidthPx > 0) {
+            ctx.lineWidth = config.strokeWidthPx * 2;
+            ctx.strokeStyle = config.baseColor;
+            ctx.strokeText(text, -tokenWidth / 2, 0);
+          }
+          
+          if (isHighlighted) {
+            ctx.fillStyle = colour;
+            ctx.fillText(text, -tokenWidth / 2, 0);
+          }
+          break;
+        }
+
+        case "bounceWord": {
+          const pulse = tokenPulse(timing, ENTER_BOUNCY);
+          const highlight = tokenHighlight(timing, ENTER_SMOOTH);
+          const colour = interpolateColors(
+            highlight,
+            [0, 1],
+            [token.color ?? config.baseColor, token.color ?? config.activeColor],
+          );
+
+          const yOffset = (1 - pulse) * 30;
+          const scale = 0.8 + pulse * 0.2;
+
+          ctx.globalAlpha = entrance * pulse;
+          ctx.translate(cx, cy + yOffset);
+          ctx.scale(scale, scale);
+          
+          if (highlight > 0.5) {
+            const pillPadX = 10;
+            ctx.fillStyle = config.accentColor;
+            ctx.beginPath();
+            ctx.roundRect(-tokenWidth / 2 - pillPadX, -config.fontSizePx / 2, tokenWidth + pillPadX * 2, config.fontSizePx, 8);
+            ctx.fill();
+          }
+
+          strokeThenFill(ctx, text, -tokenWidth / 2, 0, colour, config.strokeWidthPx, config.strokeColor);
+          break;
+        }
+
+        case "glitch": {
+          const pulse = tokenPulse(timing, ENTER_SMOOTH);
+          const highlight = tokenHighlight(timing, ENTER_SMOOTH);
+          const colour = interpolateColors(
+            highlight,
+            [0, 1],
+            [token.color ?? config.baseColor, token.color ?? config.activeColor],
+          );
+
+          const isHighlighted = highlight > 0.5;
+          const glitchOffset = isHighlighted && Math.floor(frame) % 3 === 0 ? 3 : 0;
+          const scale = 0.9 + pulse * 0.1;
+
+          ctx.globalAlpha = entrance * pulse;
+          ctx.translate(cx + glitchOffset, cy);
+          ctx.scale(scale, scale);
+
+          if (isHighlighted) {
+            // Draw cyan left
+            ctx.fillStyle = "#00ffff";
+            ctx.fillText(text, -tokenWidth / 2 - 2, 0);
+            // Draw red right
+            ctx.fillStyle = config.accentColor;
+            ctx.fillText(text, -tokenWidth / 2 + 2, 0);
+          }
+
+          strokeThenFill(ctx, text, -tokenWidth / 2, 0, colour, config.strokeWidthPx, config.strokeColor);
+          break;
+        }
+
+        case "highlightWord": {
+          const pulse = tokenPulse(timing, ENTER_SMOOTH);
+          const highlight = tokenHighlight(timing, ENTER_SMOOTH);
+          const colour = interpolateColors(
+            highlight,
+            [0, 1],
+            [token.color ?? config.baseColor, token.color ?? config.activeColor],
+          );
+
+          ctx.globalAlpha = entrance * pulse;
+          ctx.translate(cx, cy);
+
+          if (highlight > 0) {
+            ctx.fillStyle = config.accentColor;
+            ctx.globalAlpha = entrance * pulse * 0.7;
+            const bgWidth = tokenWidth * highlight;
+            ctx.fillRect(-tokenWidth / 2, config.fontSizePx * 0.1, bgWidth, config.fontSizePx * 0.4);
+            ctx.globalAlpha = entrance * pulse;
+          }
+
+          strokeThenFill(ctx, text, -tokenWidth / 2, 0, colour, config.strokeWidthPx, config.strokeColor);
+          break;
+        }
+
+        case "zoomFocus": {
+          const pulse = tokenPulse(timing, ENTER_BOUNCY);
+          const highlight = tokenHighlight(timing, ENTER_SMOOTH);
+          const colour = interpolateColors(
+            highlight,
+            [0, 1],
+            [token.color ?? config.baseColor, token.color ?? config.activeColor],
+          );
+
+          const scale = 0.5 + (pulse * 0.5) + (highlight > 0.5 ? 0.3 * config.emphasisScale : 0);
+
+          ctx.globalAlpha = entrance * pulse;
+          ctx.translate(cx, cy);
+          ctx.scale(scale, scale);
+
+          strokeThenFill(ctx, text, -tokenWidth / 2, 0, colour, config.strokeWidthPx, config.strokeColor);
+          break;
+        }
+
+        case "gradientFlow": {
+          const pulse = tokenPulse(timing, ENTER_SMOOTH);
+          const highlight = tokenHighlight(timing, ENTER_SMOOTH);
+          const isHighlighted = highlight > 0.5;
+
+          const scale = 0.9 + pulse * 0.1;
+
+          ctx.globalAlpha = entrance * pulse;
+          ctx.translate(cx, cy);
+          ctx.scale(scale, scale);
+
+          if (isHighlighted) {
+            const grad = ctx.createLinearGradient(-tokenWidth, 0, tokenWidth, 0);
+            const offset = (Math.floor(frame) % 30) / 30;
+            // Simulated animated gradient
+            grad.addColorStop(0, config.accentColor);
+            grad.addColorStop(0.5, "#ff007f");
+            grad.addColorStop(1, config.accentColor);
+            
+            // Note: The true animated effect on Canvas requires shifting stops, which is simplified here
+            strokeThenFill(ctx, text, -tokenWidth / 2, 0, grad, config.strokeWidthPx, config.strokeColor);
+          } else {
+            strokeThenFill(ctx, text, -tokenWidth / 2, 0, token.color ?? config.baseColor, config.strokeWidthPx, config.strokeColor);
+          }
+          break;
+        }
+
+        case "maskReveal": {
+          const isHero = index === heroIndex;
+          const pulse = tokenPulse(timing, ENTER_SMOOTH);
+          const highlight = tokenHighlight(timing, ENTER_SMOOTH);
+
+          const scaleMult = isHero ? 1.5 : 1.0;
+          const scale = scaleMult * pulse;
+          const colour = highlight > 0.5 ? config.accentColor : config.baseColor;
+
+          ctx.globalAlpha = entrance * pulse;
+          ctx.translate(cx, cy);
+          ctx.scale(scale, scale);
+
+          if (isHero) {
+            ctx.globalCompositeOperation = "overlay";
+          }
+          
+          strokeThenFill(ctx, text, -tokenWidth / 2, 0, colour, config.strokeWidthPx, config.strokeColor);
+          
+          ctx.globalCompositeOperation = "source-over";
+          break;
+        }
+
+        case "drawOn": {
+          const isSpecial = index === specialIndex;
+          const pulse = tokenPulse(timing, ENTER_SMOOTH);
+          const highlight = tokenHighlight(timing, ENTER_SMOOTH);
+          const colour = interpolateColors(
+            highlight,
+            [0, 1],
+            [token.color ?? config.baseColor, token.color ?? config.activeColor],
+          );
+
+          if (isSpecial && config.secondaryFontId) {
+            ctx.font = canvasFont(config.fontWeight, config.fontSizePx, resolveFontFamily(config.secondaryFontId));
+          }
+
+          ctx.globalAlpha = entrance * pulse;
+          ctx.translate(cx, cy);
+          strokeThenFill(ctx, text, -tokenWidth / 2, 0, colour, config.strokeWidthPx, config.strokeColor);
+
+          if (highlight > 0) {
+            const drawWidth = tokenWidth * highlight;
+            ctx.beginPath();
+            // A simple slight curve
+            ctx.moveTo(-tokenWidth / 2, config.fontSizePx * 0.4);
+            ctx.quadraticCurveTo(0, config.fontSizePx * 0.5, -tokenWidth / 2 + drawWidth, config.fontSizePx * 0.4);
+            ctx.strokeStyle = config.accentColor;
+            ctx.lineWidth = 4;
+            ctx.stroke();
+          }
+
+          ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family); // restore font
+          break;
+        }
+
+        case "depth3d": {
+          const pulse = tokenPulse(timing, ENTER_SMOOTH);
+          const highlight = tokenHighlight(timing, ENTER_SMOOTH);
+          const colour = interpolateColors(
+            highlight,
+            [0, 1],
+            [token.color ?? config.baseColor, token.color ?? config.activeColor],
+          );
+
+          const isHighlighted = highlight > 0.5;
+          const depth = isHighlighted ? 6 : 0;
+          const scale = 0.9 + pulse * 0.1;
+
+          ctx.globalAlpha = entrance * pulse;
+          ctx.translate(cx, cy - depth);
+          ctx.scale(scale, scale);
+
+          if (isHighlighted) {
+            // Draw 3D shadow layers
+            ctx.fillStyle = config.accentColor;
+            for(let i = depth; i > 0; i--) {
+              ctx.fillText(text, -tokenWidth / 2 + i, i);
+            }
+          }
+
+          strokeThenFill(ctx, text, -tokenWidth / 2, 0, colour, config.strokeWidthPx, config.strokeColor);
           break;
         }
       }

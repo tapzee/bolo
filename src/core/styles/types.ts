@@ -22,6 +22,22 @@ export const STYLE_IDS = [
   "magazineCut",
   "minimalLuxury",
   "layeredDepth",
+  // 15 Premium Templates
+  "popScale",
+  "slideIn",
+  "blurFocus",
+  "typewriter",
+  "rotateReveal",
+  "wipeUp",
+  "strokeFill",
+  "bounceWord",
+  "glitch",
+  "highlightWord",
+  "zoomFocus",
+  "gradientFlow",
+  "maskReveal",
+  "drawOn",
+  "depth3d",
 ] as const;
 
 export type StyleId = (typeof STYLE_IDS)[number];

@@ -735,6 +735,25 @@ export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
     fontId: "bodoniModa", secondaryFontId: "inter", fontSizePx: 80,
     baseColor: "#ffffff", accentColor: "#ffd60a",
   }, "New"),
+
+  // ==========================================================================
+  // 15 PREMIUM TEMPLATES
+  // ==========================================================================
+  t("pop-scale-pro", "Pop Scale", "trending", "popScale", {}, "New"),
+  t("slide-in-pro", "Slide In", "trending", "slideIn", {}, "New"),
+  t("blur-focus-pro", "Blur Focus", "trending", "blurFocus", {}, "New"),
+  t("typewriter-pro", "Typewriter", "clean", "typewriter", {}, "New"),
+  t("rotate-reveal-pro", "Rotate Reveal", "trending", "rotateReveal", {}, "New"),
+  t("wipe-up-pro", "Wipe Up", "bold", "wipeUp", {}, "New"),
+  t("stroke-fill-pro", "Stroke Fill", "bold", "strokeFill", {}, "New"),
+  t("bounce-word-pro", "Bounce Word", "highlight", "bounceWord", {}, "New"),
+  t("glitch-effect-pro", "Glitch Effect", "neon", "glitch", {}, "New"),
+  t("highlight-word-pro", "Highlight Word", "highlight", "highlightWord", {}, "New"),
+  t("zoom-focus-pro", "Zoom Focus", "bold", "zoomFocus", {}, "New"),
+  t("gradient-flow-pro", "Gradient Flow", "neon", "gradientFlow", {}, "New"),
+  t("mask-reveal-pro", "Mask Reveal", "bold", "maskReveal", {}, "New"),
+  t("draw-on-pro", "Draw On", "clean", "drawOn", {}, "New"),
+  t("depth-3d-pro", "3D Depth", "trending", "depth3d", {}, "New"),
 ];
 
 export const templateById = (

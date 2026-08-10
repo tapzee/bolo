@@ -540,10 +540,282 @@ export const CAPTION_STYLES: Readonly<
       baseColor: "#f5f5f0",
       accentColor: "#d4af37",
       strokeWidthPx: 0,
-      maxWordsPerPage: 7,
+      maxWordsPerPage: 6,
       dropShadow: false,
     },
   ),
+
+  // ==========================================================================
+  // PREMIUM ENGINES (15 STYLES)
+  // ==========================================================================
+
+  popScale: define(
+    "popScale",
+    "Pop Scale",
+    "Large keyword hierarchy with dynamic punch-in and overshoot.",
+    {
+      fontId: "anton",
+      fontSizePx: 100,
+      uppercase: true,
+      baseColor: "#ffffff",
+      activeColor: "#ffffff",
+      accentColor: "#ffd60a", // Yellow keyword
+      strokeWidthPx: 4,
+      maxWordsPerPage: 4,
+      dropShadow: true,
+      emphasisScale: 1.15,
+    }
+  ),
+
+  slideIn: define(
+    "slideIn",
+    "Slide In",
+    "Words slide from different directions with a configurable highlight pill.",
+    {
+      fontId: "montserrat", // Condensed bold feel
+      fontWeight: 900,
+      fontSizePx: 84,
+      uppercase: true,
+      baseColor: "#ffffff",
+      activeColor: "#0a0a0b",
+      accentColor: "#00e676", // Green pill
+      strokeWidthPx: 3,
+      maxWordsPerPage: 5,
+      combineWithinMs: 1200,
+      wordGapPx: 36,
+    }
+  ),
+
+  blurFocus: define(
+    "blurFocus",
+    "Blur Focus",
+    "Cinematic reveal from heavy blur into perfect sharpness.",
+    {
+      fontId: "anton",
+      fontSizePx: 96,
+      uppercase: true,
+      baseColor: "#ffffff",
+      activeColor: "#ffffff",
+      accentColor: "#00e5ff", // Blue keyword
+      strokeWidthPx: 4,
+      maxWordsPerPage: 4,
+      dropShadow: true,
+    }
+  ),
+
+  typewriter: define(
+    "typewriter",
+    "Typewriter",
+    "Clean monospace caption revealing character-by-character.",
+    {
+      fontId: "inter", // Or use a mono if available in the future
+      fontWeight: 500,
+      fontSizePx: 64,
+      uppercase: false,
+      baseColor: "#ffffff",
+      activeColor: "#ffffff",
+      accentColor: "#ffd60a",
+      strokeWidthPx: 3,
+      maxWordsPerPage: 6,
+      placement: "bottom",
+      upcomingOpacity: 0,
+    }
+  ),
+
+  rotateReveal: define(
+    "rotateReveal",
+    "Rotate Reveal",
+    "Text slightly rotates and swings into place with spring easing.",
+    {
+      fontId: "bebas",
+      fontSizePx: 104,
+      uppercase: true,
+      baseColor: "#ffffff",
+      activeColor: "#ffffff",
+      accentColor: "#ff00d4",
+      strokeWidthPx: 5,
+      maxWordsPerPage: 3,
+      dropShadow: true,
+    }
+  ),
+
+  wipeUp: define(
+    "wipeUp",
+    "Wipe Up",
+    "Text reveals upward through a mask with a highlight block.",
+    {
+      fontId: "montserrat",
+      fontWeight: 900,
+      fontSizePx: 86,
+      uppercase: true,
+      baseColor: "#ffffff",
+      activeColor: "#0a0a0b",
+      accentColor: "#ffd60a",
+      strokeWidthPx: 4,
+      maxWordsPerPage: 4,
+    }
+  ),
+
+  strokeFill: define(
+    "strokeFill",
+    "Stroke Fill",
+    "Shows outlined typography then fills with solid color.",
+    {
+      fontId: "anton",
+      fontSizePx: 120,
+      uppercase: true,
+      baseColor: "#ffffff",
+      activeColor: "#ffd60a",
+      accentColor: "#ffd60a",
+      strokeWidthPx: 5, // Actually the outline width
+      maxWordsPerPage: 3,
+      combineWithinMs: 1000,
+    }
+  ),
+
+  bounceWord: define(
+    "bounceWord",
+    "Bounce Word",
+    "Words appear one-by-one with energetic emphasis.",
+    {
+      fontId: "poppins",
+      fontWeight: 800,
+      fontSizePx: 84,
+      uppercase: true,
+      baseColor: "#ffffff",
+      activeColor: "#ffffff",
+      accentColor: "#b388ff", // Purple pill
+      strokeWidthPx: 0,
+      maxWordsPerPage: 4,
+    }
+  ),
+
+  glitch: define(
+    "glitch",
+    "Glitch Effect",
+    "Quick RGB glitch bursts on the active word.",
+    {
+      fontId: "montserrat",
+      fontWeight: 900,
+      fontSizePx: 92,
+      uppercase: true,
+      baseColor: "#ffffff",
+      activeColor: "#ffffff",
+      accentColor: "#ff0033", // Glitch tint
+      strokeWidthPx: 4,
+      maxWordsPerPage: 3,
+      dropShadow: true,
+    }
+  ),
+
+  highlightWord: define(
+    "highlightWord",
+    "Highlight Word",
+    "Highlight slides underneath the active word.",
+    {
+      fontId: "montserrat",
+      fontWeight: 900,
+      fontSizePx: 86,
+      uppercase: true,
+      baseColor: "#ffffff",
+      activeColor: "#000000",
+      accentColor: "#ffd60a",
+      strokeWidthPx: 0,
+      maxWordsPerPage: 4,
+    }
+  ),
+
+  zoomFocus: define(
+    "zoomFocus",
+    "Zoom Focus",
+    "Starts small, rapid zoom in, then zooms out with camera motion.",
+    {
+      fontId: "montserrat",
+      fontWeight: 900,
+      fontSizePx: 96,
+      uppercase: true,
+      baseColor: "#ffffff",
+      activeColor: "#ffffff",
+      accentColor: "#ff007f", // Pink/red
+      strokeWidthPx: 5,
+      maxWordsPerPage: 3,
+      dropShadow: true,
+      emphasisScale: 1.3, // Overshoot
+    }
+  ),
+
+  gradientFlow: define(
+    "gradientFlow",
+    "Gradient Flow",
+    "Premium animated gradient applied to important text.",
+    {
+      fontId: "montserrat",
+      fontWeight: 900,
+      fontSizePx: 90,
+      uppercase: true,
+      baseColor: "#ffffff",
+      activeColor: "#ffffff", // Will be gradient
+      accentColor: "#0057ff",
+      strokeWidthPx: 4,
+      maxWordsPerPage: 3,
+      dropShadow: true,
+    }
+  ),
+
+  maskReveal: define(
+    "maskReveal",
+    "Mask Reveal",
+    "Large keyword contains the video visually inside the letters.",
+    {
+      fontId: "anton",
+      fontSizePx: 140,
+      uppercase: true,
+      baseColor: "#ffffff",
+      activeColor: "#ffffff",
+      accentColor: "#ffffff",
+      strokeWidthPx: 4,
+      maxWordsPerPage: 4,
+      dropShadow: true, // Inner/outer shadow
+    }
+  ),
+
+  drawOn: define(
+    "drawOn",
+    "Draw On",
+    "Elegant script typography with a hand-drawn animated underline.",
+    {
+      fontId: "caveat", // Script font
+      secondaryFontId: "playfair",
+      fontWeight: 700,
+      fontSizePx: 110,
+      uppercase: false,
+      baseColor: "#ffffff",
+      activeColor: "#ffd60a",
+      accentColor: "#ffd60a",
+      strokeWidthPx: 2,
+      maxWordsPerPage: 4,
+      dropShadow: true,
+    }
+  ),
+
+  depth3d: define(
+    "depth3d",
+    "3D Depth",
+    "Extruded layered text creating a solid 3D depth effect.",
+    {
+      fontId: "anton",
+      fontSizePx: 120,
+      uppercase: true,
+      baseColor: "#ffffff",
+      activeColor: "#ffffff",
+      accentColor: "#ffd60a", // Shadow/depth color
+      strokeWidthPx: 0,
+      maxWordsPerPage: 3,
+      dropShadow: false,
+    }
+  ),
+
+
 
   layeredDepth: define(
     "layeredDepth",
