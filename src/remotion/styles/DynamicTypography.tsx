@@ -1,4 +1,5 @@
 import { memo } from "react";
+import type { CSSProperties } from "react";
 import { interpolate } from "remotion";
 import {
   ENTER_BOUNCY,
@@ -65,7 +66,7 @@ export const DynamicTypographyToken = memo(function DynamicTypographyToken({
   let fontFamily = textStyle.fontFamily;
   let fontWeight = config.fontWeight;
   let fontStyle = "normal";
-  let textTransform: any = "none";
+  let textTransform: CSSProperties["textTransform"] = "none";
   let color = config.baseColor;
   let letterSpacing = 0;
 
