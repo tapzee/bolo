@@ -55,6 +55,7 @@ export const STYLE_IDS = [
   "ribbonSlide",
   "spiralReveal",
   "floatingBubble",
+  "dynamicTypography",
 ] as const;
 
 export type StyleId = (typeof STYLE_IDS)[number];
