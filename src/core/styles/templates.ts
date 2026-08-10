@@ -717,7 +717,7 @@ export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
     fontId: "anton", fontSizePx: 96, baseColor: "#ffffff", accentColor: "#ffd60a",
   }, "New"),
   t("vertical-impact-classic", "Vertical Impact", "bold", "verticalImpact", {
-    fontId: "bebas", fontSizePx: 86, baseColor: "#ffffff", accentColor: "#ffd60a",
+    fontId: "bebas", fontSizePx: 72, baseColor: "#ffffff", accentColor: "#ffd60a",
   }, "New"),
   t("editorial-stack-classic", "Editorial Stack", "clean", "editorialStack", {
     fontId: "bodoniModa", secondaryFontId: "inter", fontSizePx: 84,
