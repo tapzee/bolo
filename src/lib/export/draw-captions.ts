@@ -230,6 +230,11 @@ const getRenderText = (
     // words in the export while the live preview kept showing them lowercase.
     return text.toLowerCase();
   }
+  if (config.styleId === "dynamicTypography") {
+    if (index === heroIndex) return text.toLowerCase();
+    if (index < heroIndex) return text.toLowerCase();
+    return text.toUpperCase();
+  }
   if (config.styleId === "dynamicHighlight") {
     const emphasis = resolveEmphasis(token, index, heroIndex, specialIndex);
     if (emphasis === "supporting") return text.toLowerCase();
@@ -638,6 +643,30 @@ const layoutLines = (
       const role = token.role ?? "normal";
       fontSize = config.fontSizePx * floatingBubbleFontScale(role);
       ctx.font = canvasFont(config.fontWeight, fontSize, family);
+      fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
+    } else if (config.styleId === "dynamicTypography") {
+      let type: "heavy" | "cursive" | "small";
+      if (index === heroIndex) {
+        type = "cursive";
+      } else if (index < heroIndex) {
+        type = "small";
+      } else {
+        type = "heavy";
+      }
+      
+      const montserrat = config.secondaryFontId ? resolveFontFamily(config.secondaryFontId) : resolveFontFamily("montserrat");
+      const playfair = config.specialFontId ? resolveFontFamily(config.specialFontId) : resolveFontFamily("playfair");
+      
+      if (type === "heavy") {
+        fontSize = config.fontSizePx;
+        ctx.font = canvasFont(900, fontSize, montserrat);
+      } else if (type === "cursive") {
+        fontSize = config.fontSizePx * 1.2;
+        ctx.font = canvasFont(600, fontSize, playfair, "italic");
+      } else if (type === "small") {
+        fontSize = config.fontSizePx * 0.55;
+        ctx.font = canvasFont(700, fontSize, montserrat);
+      }
       fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
     }
 
@@ -1530,6 +1559,85 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
             strokeWidth,
             config.strokeColor,
           );
+          break;
+        }
+
+        case "dynamicTypography": {
+          const enter = tokenEnter(timing, ENTER_BOUNCY);
+          const isSpoken = timing.fromFrame <= frame;
+          
+          let scale = 1;
+          let translateY = 0;
+          if (enter < 0.6) {
+             scale = 0.5 + (enter / 0.6) * 0.6;
+             translateY = 20 - (enter / 0.6) * 25;
+          } else {
+             const t = (enter - 0.6) / 0.4;
+             scale = 1.1 - t * 0.1;
+             translateY = -5 + t * 5;
+          }
+          
+          const scaleFactor = canvasScale({ width, height });
+          translateY = translateY * scaleFactor;
+
+          let type: "heavy" | "cursive" | "small";
+          if (index === heroIndex) {
+            type = "cursive";
+          } else if (index < heroIndex) {
+            type = "small";
+          } else {
+            type = "heavy";
+          }
+
+          const montserrat = config.secondaryFontId ? resolveFontFamily(config.secondaryFontId) : resolveFontFamily("montserrat");
+          const playfair = config.specialFontId ? resolveFontFamily(config.specialFontId) : resolveFontFamily("playfair");
+
+          let color = config.baseColor;
+          let strokeWidth = config.strokeWidthPx;
+          let displayFont = family;
+          let weight = config.fontWeight;
+          let style = "normal";
+          let fontSizeStr = config.fontSizePx;
+
+          if (type === "heavy") {
+            displayFont = montserrat;
+            weight = 900;
+            color = token.color ?? config.accentColor;
+          } else if (type === "cursive") {
+            displayFont = playfair;
+            weight = 600;
+            style = "italic";
+            fontSizeStr = config.fontSizePx * 1.2;
+            color = "#ffffff";
+          } else if (type === "small") {
+            displayFont = montserrat;
+            weight = 700;
+            fontSizeStr = config.fontSizePx * 0.55;
+            color = "#ffffff";
+          }
+
+          ctx.globalAlpha = entrance * (isSpoken ? 1 : Math.max(0, config.upcomingOpacity)) * enter;
+
+          ctx.translate(cx, cy + translateY);
+          ctx.scale(scale, scale);
+          
+          ctx.font = canvasFont(weight, fontSizeStr, displayFont, style);
+
+          ctx.shadowColor = "rgba(0, 0, 0, 0.8)";
+          ctx.shadowBlur = 10 * scaleFactor;
+          ctx.shadowOffsetY = 4 * scaleFactor;
+          ctx.shadowOffsetX = 2 * scaleFactor;
+
+          strokeThenFill(
+            ctx,
+            text,
+            -tokenWidth / 2,
+            0,
+            color,
+            strokeWidth,
+            config.strokeColor,
+          );
+          clearShadow(ctx);
           break;
         }
 
