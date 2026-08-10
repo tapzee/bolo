@@ -1,18 +1,36 @@
 import { createTikTokStyleCaptions } from "@remotion/captions";
-import type { CaptionPage, CaptionToken, CaptionWord } from "@/core";
-import { analyzeWordRoles } from "@/core";
+import type { CaptionPage, CaptionToken, CaptionWord, StyleId } from "@/core";
+import {
+  analyzeWordRoles,
+  estimateBlockHeightPx,
+  estimateMaxBlockHeightPx,
+} from "@/core";
+import { resolveTokenBoxes } from "./page-fit";
 
 /**
  * The settings that affect page *grouping*.
  *
  * Narrower than `CaptionStyleConfig` so callers can memoise on exactly these
- * fields. Passing the whole style config would rebuild every page on each tick
- * of the font-size slider, which changes nothing about how words are grouped.
- * `CaptionStyleConfig` satisfies this shape structurally.
+ * fields — passing the whole config would rebuild every page on a pure color
+ * edit, which changes nothing about how words are grouped. `CaptionStyleConfig`
+ * satisfies this shape structurally.
+ *
+ * Widened beyond the original `combineWithinMs`/`maxWordsPerPage` to cover
+ * everything `resolveTokenBoxes`/`estimateBlockHeightPx` need for box-fit
+ * grouping (see `buildCaptionPages`) — grouping is now style-aware, so
+ * switching template can change *where* a page breaks, not just how it looks.
  */
 export interface PageLayoutOptions {
+  styleId: StyleId;
   combineWithinMs: number;
   maxWordsPerPage: number;
+  fontSizePx: number;
+  letterSpacingPx: number;
+  wordGapPx: number;
+  lineHeight: number;
+  maxLineWidthPct: number;
+  maxBlockHeightPct: number;
+  annotationSizeRatio: number;
 }
 
 /**
@@ -69,17 +87,21 @@ const toToken = (word: CaptionWord): CaptionToken => {
 /**
  * Words → on-screen pages.
  *
- * Three inputs decide where a page starts, in priority order:
+ * Five inputs decide where a page starts, in priority order:
  *
  *  1. The word's manual `pageBreak` override, set by split/merge in the editor.
- *     The user's explicit decision always wins.
- *  2. The word-count cap. Gap analysis has no upper bound, so a fast unbroken
- *     Hindi sentence would otherwise collapse into one 15-word page that
- *     overflows the canvas.
- *  3. Automatic gap analysis.
- *
- * `never` is honoured even against the word cap — if the user explicitly merged
- * a word onto the previous page, silently splitting it again would look broken.
+ *     The user's explicit decision always wins — honoured even against a full
+ *     box, because silently overriding what the user asked for looks broken.
+ *  2. Automatic gap analysis — a natural speech pause starts a new page even
+ *     if the box still has room.
+ *  3. Box-fit: would adding this word overflow the style's fixed caption box
+ *     (`maxBlockHeightPct`)? If so, the page closes *before* this word rather
+ *     than growing the box to fit it — this is the primary cap now, in place
+ *     of a flat word count. A page can never be empty, so the very first word
+ *     added to a fresh page is always accepted even if it alone overflows.
+ *  4. `maxWordsPerPage` — kept as a hard ceiling backstop for pathological
+ *     cases (many very short words that would otherwise keep technically
+ *     fitting), no longer the primary cap.
  */
 export const buildCaptionPages = (
   words: readonly CaptionWord[],
@@ -89,10 +111,10 @@ export const buildCaptionPages = (
 
   const autoBreaks = autoBreakFlags(words, options.combineWithinMs);
   const maxWords = Math.max(1, Math.floor(options.maxWordsPerPage));
+  const maxBlockHeightPx = estimateMaxBlockHeightPx(options);
 
   const pages: CaptionPage[] = [];
   let current: CaptionToken[] = [];
-  let pageStartIndex = 0;
 
   const flush = (): void => {
     const first = current[0];
@@ -118,9 +140,22 @@ export const buildCaptionPages = (
     current = [];
   };
 
+  // Would adding `candidate` to the current page overflow its fixed box?
+  // Re-resolves the page-scoped size signal (hero index, role, emphasis —
+  // whichever the active style uses) fresh over the candidate list each
+  // time, because which word is "the big one" isn't known until the page's
+  // membership is — exactly what this function is deciding as it goes.
+  const overflowsBox = (candidate: readonly CaptionToken[]): boolean => {
+    const boxes = resolveTokenBoxes(candidate, options.styleId, options);
+    return estimateBlockHeightPx(boxes, options) > maxBlockHeightPx;
+  };
+
   words.forEach((word, index) => {
-    const atCap = current.length >= maxWords;
-    const wantsBreak = index > 0 && (autoBreaks[index] === true || atCap);
+    const candidateToken = toToken(word);
+    const atWordCap = current.length >= maxWords;
+    const overflows = current.length > 0 && overflowsBox([...current, candidateToken]);
+    const wantsBreak =
+      index > 0 && (autoBreaks[index] === true || overflows || atWordCap);
 
     const shouldBreak =
       index === 0
@@ -133,14 +168,12 @@ export const buildCaptionPages = (
 
     if (shouldBreak) {
       flush();
-      pageStartIndex = index;
     }
 
-    current.push(toToken(word));
+    current.push(candidateToken);
   });
 
   flush();
-  void pageStartIndex;
 
   return pages;
 };

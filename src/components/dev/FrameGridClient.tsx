@@ -65,10 +65,7 @@ export default function FrameGridClient({
           <div className="flex flex-wrap gap-4">
             {CAPTION_STYLE_LIST.map((definition) => {
               const config = getStyleDefaults(definition.id);
-              const pages = buildCaptionPages(SAMPLE_CAPTIONS, {
-                combineWithinMs: config.combineWithinMs,
-                maxWordsPerPage: config.maxWordsPerPage,
-              });
+              const pages = buildCaptionPages(SAMPLE_CAPTIONS, config);
 
               return (
                 <figure key={definition.id} className="space-y-1.5">

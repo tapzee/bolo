@@ -70,7 +70,7 @@ import {
   minimalLuxuryTrackingRatio,
   layeredDepthForegroundScale,
 } from "@/remotion/captions/primitives";
-import { resolveEmphasis } from "@/remotion/styles/DynamicHighlight";
+import { resolveEmphasis, DYNAMIC_HIGHLIGHT_EMPHASIS_SCALE } from "@/remotion/styles/DynamicHighlight";
 import { canvasFont, resolveFontFamily } from "./fonts";
 
 /**
@@ -290,19 +290,19 @@ const layoutLines = (
       const specialFontFamily = config.specialFontId ? resolveFontFamily(config.specialFontId) : primaryFontFamily;
 
       if (emphasis === "supporting") {
-        fontSize = config.fontSizePx * 0.4;
+        fontSize = config.fontSizePx * DYNAMIC_HIGHLIGHT_EMPHASIS_SCALE.supporting;
         ctx.font = canvasFont(400, fontSize, secondaryFontFamily);
         fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
       } else if (emphasis === "normal") {
-        fontSize = config.fontSizePx * 0.6;
+        fontSize = config.fontSizePx * DYNAMIC_HIGHLIGHT_EMPHASIS_SCALE.normal;
         ctx.font = canvasFont(600, fontSize, secondaryFontFamily);
         fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
       } else if (emphasis === "important") {
-        fontSize = config.fontSizePx * 1.1;
+        fontSize = config.fontSizePx * DYNAMIC_HIGHLIGHT_EMPHASIS_SCALE.important;
         ctx.font = canvasFont(900, fontSize, primaryFontFamily);
         fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
       } else if (emphasis === "special") {
-        fontSize = config.fontSizePx * 0.9;
+        fontSize = config.fontSizePx * DYNAMIC_HIGHLIGHT_EMPHASIS_SCALE.special;
         ctx.font = canvasFont(400, fontSize, specialFontFamily, "italic");
         fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
       }

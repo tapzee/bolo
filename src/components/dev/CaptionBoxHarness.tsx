@@ -45,10 +45,29 @@ export function CaptionBoxHarness() {
   const pages = useMemo(
     () =>
       buildCaptionPages(SAMPLE_CAPTIONS, {
+        styleId: config.styleId,
         combineWithinMs: config.combineWithinMs,
         maxWordsPerPage: config.maxWordsPerPage,
+        fontSizePx: config.fontSizePx,
+        letterSpacingPx: config.letterSpacingPx,
+        wordGapPx: config.wordGapPx,
+        lineHeight: config.lineHeight,
+        maxLineWidthPct: config.maxLineWidthPct,
+        maxBlockHeightPct: config.maxBlockHeightPct,
+        annotationSizeRatio: config.annotationSizeRatio,
       }),
-    [config.combineWithinMs, config.maxWordsPerPage],
+    [
+      config.styleId,
+      config.combineWithinMs,
+      config.maxWordsPerPage,
+      config.fontSizePx,
+      config.letterSpacingPx,
+      config.wordGapPx,
+      config.lineHeight,
+      config.maxLineWidthPct,
+      config.maxBlockHeightPct,
+      config.annotationSizeRatio,
+    ],
   );
 
   const patch = (next: Partial<CaptionStyleConfig>) =>

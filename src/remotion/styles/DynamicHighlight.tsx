@@ -45,6 +45,22 @@ export function resolveEmphasis(
   return "normal";
 }
 
+/**
+ * Font-size ratio per emphasis tier, applied against `config.fontSizePx`.
+ *
+ * Extracted as a named export (rather than left inline where each ratio was
+ * used) so `remotion/captions/page-fit.ts` can read the exact same numbers
+ * this token renderer and `draw-captions.ts` use — a box-fit page-size
+ * estimate built from different numbers than the real render would silently
+ * drift out of sync with what's actually drawn.
+ */
+export const DYNAMIC_HIGHLIGHT_EMPHASIS_SCALE: Readonly<Record<WordEmphasis, number>> = {
+  supporting: 0.4,
+  normal: 0.6,
+  important: 1.1,
+  special: 0.9,
+};
+
 export const DynamicHighlightToken: React.FC<TokenViewProps> = ({
   token,
   frame,
@@ -119,19 +135,19 @@ export const DynamicHighlightToken: React.FC<TokenViewProps> = ({
 
   if (emphasis === "supporting") {
     fontFamily = secondaryFontStack;
-    fontSize = fontSize * 0.4;
+    fontSize = fontSize * DYNAMIC_HIGHLIGHT_EMPHASIS_SCALE.supporting;
     color = "rgba(255, 255, 255, 0.75)";
     fontWeight = 400; // light/regular
     textTransform = "lowercase";
-  } 
+  }
   else if (emphasis === "normal") {
     fontFamily = secondaryFontStack;
-    fontSize = fontSize * 0.6;
+    fontSize = fontSize * DYNAMIC_HIGHLIGHT_EMPHASIS_SCALE.normal;
     fontWeight = 600; // semibold
   }
   else if (emphasis === "important") {
     fontFamily = primaryFontStack;
-    fontSize = fontSize * 1.1; // Huge
+    fontSize = fontSize * DYNAMIC_HIGHLIGHT_EMPHASIS_SCALE.important; // Huge
     color = token.color ?? config.activeColor; // Yellow accent
     textTransform = "uppercase";
     fontWeight = 900;
@@ -153,7 +169,7 @@ export const DynamicHighlightToken: React.FC<TokenViewProps> = ({
   }
   else if (emphasis === "special") {
     fontFamily = specialFontStack;
-    fontSize = fontSize * 0.9;
+    fontSize = fontSize * DYNAMIC_HIGHLIGHT_EMPHASIS_SCALE.special;
     color = "#FFFFFF";
     textTransform = "none";
     fontWeight = 400; // editorial/script usually lighter

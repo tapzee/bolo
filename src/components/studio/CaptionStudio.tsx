@@ -121,15 +121,34 @@ export function CaptionStudio() {
     setOverrides((prev) => ({ ...prev, ...next }));
   }, []);
 
-  // Memoised on the two fields that actually affect grouping, so dragging the
-  // size slider does not rebuild every page for a value grouping ignores.
+  // Memoised on the fields that actually affect grouping (page-fit is now
+  // style-aware), so a pure colour edit does not rebuild every page.
   const pages = useMemo(
     () =>
       buildCaptionPages(SAMPLE_CAPTIONS, {
+        styleId: config.styleId,
         combineWithinMs: config.combineWithinMs,
         maxWordsPerPage: config.maxWordsPerPage,
+        fontSizePx: config.fontSizePx,
+        letterSpacingPx: config.letterSpacingPx,
+        wordGapPx: config.wordGapPx,
+        lineHeight: config.lineHeight,
+        maxLineWidthPct: config.maxLineWidthPct,
+        maxBlockHeightPct: config.maxBlockHeightPct,
+        annotationSizeRatio: config.annotationSizeRatio,
       }),
-    [config.combineWithinMs, config.maxWordsPerPage],
+    [
+      config.styleId,
+      config.combineWithinMs,
+      config.maxWordsPerPage,
+      config.fontSizePx,
+      config.letterSpacingPx,
+      config.wordGapPx,
+      config.lineHeight,
+      config.maxLineWidthPct,
+      config.maxBlockHeightPct,
+      config.annotationSizeRatio,
+    ],
   );
 
   // Keeps slider drags at input framerate: the control updates immediately

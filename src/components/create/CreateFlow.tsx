@@ -157,10 +157,30 @@ export function CreateFlow() {
   const pages = useMemo(
     () =>
       buildCaptionPages(previewWords, {
+        styleId: previewConfig.styleId,
         combineWithinMs: previewConfig.combineWithinMs,
         maxWordsPerPage: previewConfig.maxWordsPerPage,
+        fontSizePx: previewConfig.fontSizePx,
+        letterSpacingPx: previewConfig.letterSpacingPx,
+        wordGapPx: previewConfig.wordGapPx,
+        lineHeight: previewConfig.lineHeight,
+        maxLineWidthPct: previewConfig.maxLineWidthPct,
+        maxBlockHeightPct: previewConfig.maxBlockHeightPct,
+        annotationSizeRatio: previewConfig.annotationSizeRatio,
       }),
-    [previewWords, previewConfig.combineWithinMs, previewConfig.maxWordsPerPage],
+    [
+      previewWords,
+      previewConfig.styleId,
+      previewConfig.combineWithinMs,
+      previewConfig.maxWordsPerPage,
+      previewConfig.fontSizePx,
+      previewConfig.letterSpacingPx,
+      previewConfig.wordGapPx,
+      previewConfig.lineHeight,
+      previewConfig.maxLineWidthPct,
+      previewConfig.maxBlockHeightPct,
+      previewConfig.annotationSizeRatio,
+    ],
   );
 
   const canvas = useMemo(() => {

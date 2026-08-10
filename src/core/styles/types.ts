@@ -171,6 +171,14 @@ export interface CaptionStyleConfig {
   horizontalPaddingPx: number;
   /** Widest a caption line may run, as a percentage of canvas width. */
   maxLineWidthPct: number;
+  /**
+   * Tallest a caption block (all wrapped lines of one page) may run, as a
+   * percentage of canvas height. This is the fixed "box" page-building fits
+   * word groups into — `buildCaptionPages` estimates rendered block height as
+   * it grows a page and closes it before this budget would be exceeded,
+   * rather than letting the box grow to whatever a flat word-count produced.
+   */
+  maxBlockHeightPct: number;
 
   /** Colour of words that are not currently being spoken. */
   baseColor: string;

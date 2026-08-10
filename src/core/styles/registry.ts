@@ -40,6 +40,7 @@ const BASE: CaptionStyleConfig = {
   horizontalOffsetPct: 0,
   horizontalPaddingPx: 96,
   maxLineWidthPct: 92,
+  maxBlockHeightPct: 30,
 
   baseColor: "#ffffff",
   activeColor: "#ffd60a",
@@ -457,6 +458,9 @@ export const CAPTION_STYLES: Readonly<
       maxWordsPerPage: 5,
       combineWithinMs: 1000,
       dropShadow: true,
+      // The critical word can punch up to ~1.6x fontSizePx — needs more
+      // vertical room than the 30% default before the box caps the page.
+      maxBlockHeightPct: 44,
     },
   ),
 
@@ -481,6 +485,9 @@ export const CAPTION_STYLES: Readonly<
       // Centered, not bottom-third — the stacked column needs equal room
       // above and below its anchor, not just what's left under it.
       placement: "center",
+      // A tall letter-stacked word needs much more vertical room than a
+      // normal wrapped line before the box caps the page.
+      maxBlockHeightPct: 55,
     },
   ),
 
