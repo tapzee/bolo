@@ -50,6 +50,7 @@ import { FlipCardToken } from "./FlipCard";
 import { RibbonSlideToken } from "./RibbonSlide";
 import { SpiralRevealToken } from "./SpiralReveal";
 import { FloatingBubbleToken } from "./FloatingBubble";
+import { DynamicTypographyToken } from "./DynamicTypography";
 
 /**
  * Style id → word renderer.
@@ -112,5 +113,6 @@ export const TOKEN_RENDERERS: Readonly<
   ribbonSlide: RibbonSlideToken,
   spiralReveal: SpiralRevealToken,
   floatingBubble: FloatingBubbleToken,
+  dynamicTypography: DynamicTypographyToken,
 };
 
