@@ -635,23 +635,6 @@ export const CAPTION_STYLES: Readonly<
     }
   ),
 
-  floatingBubble: define(
-    "floatingBubble",
-    "Floating Bubble",
-    "Words bubble up gently with an organic drifting motion.",
-    {
-      fontId: "dynapuff",
-      fontSizePx: 84,
-      uppercase: false,
-      baseColor: "#ffffff",
-      activeColor: "#ffffff",
-      accentColor: "#00e5ff",
-      strokeWidthPx: 3,
-      dropShadow: true,
-      maxWordsPerPage: 4,
-    }
-  ),
-
   dynamicTypography: define(
     "dynamicTypography",
     "Dynamic Typography",
