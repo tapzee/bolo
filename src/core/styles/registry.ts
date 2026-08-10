@@ -467,13 +467,20 @@ export const CAPTION_STYLES: Readonly<
     {
       fontId: "bebas",
       fontWeight: 400,
-      fontSizePx: 86,
+      // Smaller than most templates on purpose: a 6+ letter word stacked one
+      // character per row gets tall fast (verticalImpactColumnHeight), and
+      // the default "bottom-third" placement leaves too little room below
+      // the anchor for that column before it clips the canvas edge.
+      fontSizePx: 72,
       uppercase: true,
       baseColor: "#ffffff",
       accentColor: "#ffd60a",
       strokeWidthPx: 4,
       maxWordsPerPage: 4,
       dropShadow: true,
+      // Centered, not bottom-third — the stacked column needs equal room
+      // above and below its anchor, not just what's left under it.
+      placement: "center",
     },
   ),
 
