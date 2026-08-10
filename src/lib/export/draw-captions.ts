@@ -1757,8 +1757,9 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           const color = isAccent ? (token.color ?? config.accentColor) : (token.color ?? "#ffffff");
           ctx.globalAlpha = entrance * enter;
           ctx.translate(cx + offsetX, cy);
-          ctx.fillStyle = color;
-          ctx.fillText(text, -tokenWidth / 2, 0);
+          // Small supporting text stays clean — only the accent word keeps
+          // the template's stroke, mirroring `KineticSplitToken`'s DOM version.
+          strokeThenFill(ctx, text, -tokenWidth / 2, 0, color, isAccent ? config.strokeWidthPx : 0, config.strokeColor);
 
           ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
           break;
@@ -1790,8 +1791,9 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           ctx.globalAlpha = entrance * enter;
           ctx.translate(cx, cy);
           ctx.scale(punchScale, punchScale);
-          ctx.fillStyle = color;
-          ctx.fillText(text, -tokenWidth / 2, 0);
+          // Small buildup text stays clean — only the critical word keeps the
+          // template's stroke, mirroring `CenterPunchToken`'s DOM version.
+          strokeThenFill(ctx, text, -tokenWidth / 2, 0, color, isCritical ? config.strokeWidthPx : 0, config.strokeColor);
 
           ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
           break;
@@ -1819,8 +1821,10 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
               ctx.save();
               ctx.globalAlpha = entrance * reveal;
               ctx.translate(cx, charY + (1 - reveal) * 10 * scaleFactor);
-              ctx.fillStyle = color;
-              ctx.fillText(ch, 0, 0);
+              // The vertical keyword keeps the template's stroke on every
+              // letter, mirroring `VerticalImpactToken`'s DOM version, which
+              // never overrides `textStyle`'s stroke for this branch.
+              strokeThenFill(ctx, ch, 0, 0, color, config.strokeWidthPx, config.strokeColor);
               ctx.restore();
               charY += lineStep;
             });
@@ -1839,8 +1843,14 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           ctx.font = canvasFont(config.fontWeight, roleFontSize, vFamily);
           ctx.globalAlpha = entrance * clampedEnter;
           ctx.translate(cx, cy + (1 - clampedEnter) * 16 * scaleFactor);
-          ctx.fillStyle = isDevanagariWord ? (token.color ?? config.accentColor) : (token.color ?? "#ffffff");
-          ctx.fillText(text, -tokenWidth / 2, 0);
+          // The dominant Hindi word keeps the template's stroke; the small
+          // English connector/supporting tier stays clean — mirrors
+          // `VerticalImpactToken`'s DOM version.
+          strokeThenFill(
+            ctx, text, -tokenWidth / 2, 0,
+            isDevanagariWord ? (token.color ?? config.accentColor) : (token.color ?? "#ffffff"),
+            isDevanagariWord ? config.strokeWidthPx : 0, config.strokeColor,
+          );
 
           ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
           break;
