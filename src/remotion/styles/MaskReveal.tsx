@@ -36,7 +36,7 @@ export const MaskRevealToken = memo(function MaskRevealToken({
 
   const fontSize = (textStyle.fontSize as number) * maskRevealFontScale(role);
   const scale = isHero ? 0.82 + Math.min(1.1, pulse) * 0.18 : 1;
-  const sweepX = isHero ? (progress - 0.5) * fontSize * 1.5 : 0;
+  const sweepPct = progress * 100;
 
   return (
     <span style={{ ...tokenShellStyle, opacity: enter, transform: `scale(${scale})` }}>
@@ -45,9 +45,14 @@ export const MaskRevealToken = memo(function MaskRevealToken({
           ...textStyle,
           ...tokenGlyphStyle,
           fontSize,
-          color: token.color ?? (isHero ? config.accentColor : config.baseColor),
+          color: isHero ? "transparent" : (token.color ?? config.baseColor),
+          backgroundImage: isHero
+            ? `linear-gradient(90deg, ${config.accentColor} ${sweepPct - 15}%, #ffffff ${sweepPct}%, ${config.accentColor} ${sweepPct + 15}%)`
+            : undefined,
+          WebkitBackgroundClip: isHero ? "text" : undefined,
+          backgroundClip: isHero ? "text" : undefined,
           WebkitTextStroke: "0px transparent",
-          textShadow: isHero ? `${sweepX}px 0 18px ${config.accentColor}` : undefined,
+          textShadow: isHero ? `0 0 18px ${config.accentColor}` : undefined,
         }}
       >
         {displayText(token)}

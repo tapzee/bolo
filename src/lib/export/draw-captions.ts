@@ -1105,19 +1105,29 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
                 : Math.max(0.7, config.upcomingOpacity)
               : config.upcomingOpacity;
 
+            let heroOffsetX = 0;
+            let heroOffsetY = 0;
+            if (index < heroIndex) {
+              heroOffsetX = (widestLine - line.width) / 2;
+              heroOffsetY = config.fontSizePx * 0.15 * scaleFactor; // Push down closer to hero
+            } else if (index > heroIndex) {
+              heroOffsetX = -(widestLine - line.width) / 2;
+              heroOffsetY = -config.fontSizePx * 0.15 * scaleFactor; // Push up closer to hero
+            }
+
             ctx.globalAlpha = entrance * smallAlpha;
             const smallSize = config.fontSizePx * smallRatio;
             ctx.font = canvasFont(
               config.annotationWeight > 0 ? config.annotationWeight : 500,
               smallSize,
-              family,
+              resolveFontFamily("grandHotel"),
             );
             ctx.letterSpacing = `${smallSize * 0.02}px`;
             ctx.shadowColor = "rgba(0,0,0,0.55)";
             ctx.shadowBlur = 10 * scaleFactor;
             ctx.shadowOffsetY = 2 * scaleFactor;
 
-            ctx.translate(cx, cy + (1 - enter) * 6 * scaleFactor);
+            ctx.translate(cx + heroOffsetX, cy + (1 - enter) * 6 * scaleFactor + heroOffsetY);
             strokeThenFill(
               ctx,
               text,
@@ -2595,9 +2605,8 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           const progress = Math.min(1, elapsed / durationFrames);
           
           const scale = isHero ? 0.82 + Math.min(1.1, pulse) * 0.18 : 1;
-          const sweepX = isHero ? (progress - 0.5) * roleFontSize * 1.5 : 0;
           
-          const colour = token.color ?? (isHero ? config.accentColor : config.baseColor);
+          let colour: string | CanvasGradient = token.color ?? (isHero ? config.accentColor : config.baseColor);
 
           ctx.font = canvasFont(config.fontWeight, roleFontSize, family);
           ctx.globalAlpha = entrance * enter;
@@ -2606,13 +2615,24 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
 
           if (isHero) {
             ctx.shadowColor = config.accentColor;
-            ctx.shadowBlur = roleFontSize * 0.14;
-            ctx.shadowOffsetX = sweepX;
+            ctx.shadowBlur = roleFontSize * 0.14; // Approximate 18px relative to font
+            ctx.shadowOffsetX = 0;
+
+            const grad = ctx.createLinearGradient(-tokenWidth / 2, 0, tokenWidth / 2, 0);
+            const start = Math.max(0, progress - 0.15);
+            const end = Math.min(1, progress + 0.15);
+            
+            grad.addColorStop(0, config.accentColor);
+            if (start > 0) grad.addColorStop(start, config.accentColor);
+            grad.addColorStop(progress, "#ffffff");
+            if (end < 1) grad.addColorStop(end, config.accentColor);
+            grad.addColorStop(1, config.accentColor);
+            
+            colour = grad;
           }
 
           strokeThenFill(ctx, text, -tokenWidth / 2, 0, colour, 0, config.strokeColor);
           clearShadow(ctx);
-          ctx.shadowOffsetX = 0; // ensure it's cleared if clearShadow doesn't
           ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
           break;
         }

@@ -46,6 +46,7 @@ export const HeroStackToken = memo(function HeroStackToken({
   textStyle,
   index = 0,
   heroIndex = 0,
+  totalTokens = 1,
 }: TokenViewProps) {
   const timing = { frame, fps, fromFrame, toFrame };
   const enter = tokenEnter(timing, ENTER_BOUNCY);
@@ -68,6 +69,9 @@ export const HeroStackToken = memo(function HeroStackToken({
         ? 1
         : Math.max(0.7, config.upcomingOpacity)
       : config.upcomingOpacity;
+      
+    const isTopLine = index < heroIndex;
+    const isBottomLine = index > heroIndex;
 
     return (
       <span
@@ -76,12 +80,17 @@ export const HeroStackToken = memo(function HeroStackToken({
           opacity: smallAlpha,
           transform: `translateY(${(1 - enter) * 6}px)`,
           transition: "opacity 0.1s ease-out",
+          marginLeft: isTopLine && index === 0 ? "auto" : undefined,
+          marginRight: isBottomLine && index === totalTokens - 1 ? "auto" : undefined,
+          marginBottom: isTopLine ? "-0.4em" : undefined,
+          marginTop: isBottomLine ? "-0.4em" : undefined,
         }}
       >
         <span
           style={{
             ...textStyle,
             ...tokenGlyphStyle,
+            fontFamily: `"Grand Hotel", cursive`,
             fontSize: `${config.fontSizePx * smallRatio}px`,
             fontWeight: config.annotationWeight > 0 ? config.annotationWeight : 500,
             letterSpacing: `${config.fontSizePx * smallRatio * 0.02}px`,
