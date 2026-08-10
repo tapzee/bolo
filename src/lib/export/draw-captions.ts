@@ -2590,12 +2590,7 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           const enter = tokenEnter(timing, ENTER_SMOOTH);
           const pulse = tokenPulse(timing, ENTER_BOUNCY);
           const scale = isHero ? 0.82 + Math.min(1.1, pulse) * 0.18 : 1;
-          // Mid-grey, not white — overlay blend's neutral point is 50% grey,
-          // where the underlying footage shows through nearly unchanged;
-          // white only lightens, which reads as a glow rather than the video
-          // showing through the letterforms. Verified against a rendered
-          // frame, not assumed — see MaskReveal.tsx's doc comment.
-          const colour = token.color ?? (isHero ? "#808080" : config.baseColor);
+          const colour = token.color ?? (isHero ? config.accentColor : config.baseColor);
 
           ctx.font = canvasFont(config.fontWeight, roleFontSize, family);
           ctx.globalAlpha = entrance * enter;
@@ -2603,14 +2598,11 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           ctx.scale(scale, scale);
 
           if (isHero) {
-            ctx.shadowColor = "rgba(255,255,255,0.25)";
+            ctx.shadowColor = config.accentColor;
             ctx.shadowBlur = roleFontSize * 0.14;
-            ctx.globalCompositeOperation = "overlay";
           }
 
-          strokeThenFill(ctx, text, -tokenWidth / 2, 0, colour, isHero ? config.strokeWidthPx : 0, config.strokeColor);
-
-          ctx.globalCompositeOperation = "source-over";
+          strokeThenFill(ctx, text, -tokenWidth / 2, 0, colour, 0, config.strokeColor);
           clearShadow(ctx);
           ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
           break;

@@ -13,19 +13,7 @@ import {
 /**
  * Mask Reveal.
  *
- * The reference concept is the video showing through the glyph shapes.
- * `mix-blend-mode: overlay` on the hero word achieves that directly: the
- * blend is computed per-pixel only where the glyph is opaque, so the
- * footage's own tone and detail show through the letterforms while the area
- * around them is untouched — genuinely different from a plain scale-up, and
- * portable to the Canvas2D export as `globalCompositeOperation`.
- *
- * The fill is mid-grey (`#808080`), not white — verified against a rendered
- * frame, not assumed. Overlay blend's neutral point is 50% grey, where the
- * blend leaves the base almost unchanged (near pass-through); a white fill
- * only lightens, which reads as a plain glow over dark footage and washes
- * out to solid white over bright footage. Grey is what actually lets the
- * footage's own detail show inside the letterforms at any brightness.
+ * Glows the hero word in the accent color, without an outline.
  */
 export const MaskRevealToken = memo(function MaskRevealToken({
   token,
@@ -52,10 +40,9 @@ export const MaskRevealToken = memo(function MaskRevealToken({
           ...textStyle,
           ...tokenGlyphStyle,
           fontSize,
-          color: token.color ?? (isHero ? "#808080" : config.baseColor),
-          WebkitTextStroke: isHero ? textStyle.WebkitTextStroke : "0px transparent",
-          mixBlendMode: isHero ? "overlay" : "normal",
-          textShadow: isHero ? "0 0 18px rgba(255,255,255,0.25)" : undefined,
+          color: token.color ?? (isHero ? config.accentColor : config.baseColor),
+          WebkitTextStroke: "0px transparent",
+          textShadow: isHero ? `0 0 18px ${config.accentColor}` : undefined,
         }}
       >
         {displayText(token)}
