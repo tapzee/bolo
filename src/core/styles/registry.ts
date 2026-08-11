@@ -577,6 +577,7 @@ export const CAPTION_STYLES: Readonly<
       maxWordsPerPage: 4,
       dropShadow: true,
       emphasisScale: 1.15,
+      lineHeight: 0.9,
     }
   ),
 
@@ -593,9 +594,10 @@ export const CAPTION_STYLES: Readonly<
       activeColor: "#0a0a0b",
       accentColor: "#00e676", // Green pill
       strokeWidthPx: 3,
-      maxWordsPerPage: 5,
+      maxWordsPerPage: 4,
       combineWithinMs: 1200,
       wordGapPx: 36,
+      lineHeight: 0.9,
     }
   ),
 
@@ -613,6 +615,7 @@ export const CAPTION_STYLES: Readonly<
       strokeWidthPx: 4,
       maxWordsPerPage: 4,
       dropShadow: true,
+      lineHeight: 0.9,
     }
   ),
 
@@ -629,9 +632,10 @@ export const CAPTION_STYLES: Readonly<
       activeColor: "#ffffff",
       accentColor: "#ffd60a",
       strokeWidthPx: 3,
-      maxWordsPerPage: 6,
+      maxWordsPerPage: 4,
       placement: "bottom",
       upcomingOpacity: 0,
+      lineHeight: 0.9,
     }
   ),
 
@@ -701,6 +705,7 @@ export const CAPTION_STYLES: Readonly<
       strokeWidthPx: 5,
       maxWordsPerPage: 3,
       dropShadow: true,
+      lineHeight: 0.9,
     }
   ),
 
@@ -718,6 +723,7 @@ export const CAPTION_STYLES: Readonly<
       accentColor: "#ffd60a",
       strokeWidthPx: 4,
       maxWordsPerPage: 4,
+      lineHeight: 0.9,
     }
   ),
 
@@ -735,6 +741,7 @@ export const CAPTION_STYLES: Readonly<
       strokeWidthPx: 5, // Actually the outline width
       maxWordsPerPage: 3,
       combineWithinMs: 1000,
+      lineHeight: 0.9,
     }
   ),
 
@@ -752,6 +759,7 @@ export const CAPTION_STYLES: Readonly<
       accentColor: "#b388ff", // Purple pill
       strokeWidthPx: 0,
       maxWordsPerPage: 4,
+      lineHeight: 0.9,
     }
   ),
 
@@ -770,6 +778,7 @@ export const CAPTION_STYLES: Readonly<
       strokeWidthPx: 4,
       maxWordsPerPage: 3,
       dropShadow: true,
+      lineHeight: 0.9,
     }
   ),
 
@@ -787,6 +796,7 @@ export const CAPTION_STYLES: Readonly<
       accentColor: "#ffd60a",
       strokeWidthPx: 0,
       maxWordsPerPage: 4,
+      lineHeight: 0.9,
     }
   ),
 
@@ -806,6 +816,7 @@ export const CAPTION_STYLES: Readonly<
       maxWordsPerPage: 3,
       dropShadow: true,
       emphasisScale: 1.3, // Overshoot
+      lineHeight: 0.9,
     }
   ),
 
@@ -824,6 +835,7 @@ export const CAPTION_STYLES: Readonly<
       strokeWidthPx: 4,
       maxWordsPerPage: 3,
       dropShadow: true,
+      lineHeight: 0.9,
     }
   ),
 
@@ -845,6 +857,7 @@ export const CAPTION_STYLES: Readonly<
       // treatment leans on very large single words — the 30% default box
       // clips it too early.
       maxBlockHeightPct: 38,
+      lineHeight: 0.9,
     }
   ),
 
@@ -864,6 +877,7 @@ export const CAPTION_STYLES: Readonly<
       strokeWidthPx: 2,
       maxWordsPerPage: 4,
       dropShadow: true,
+      lineHeight: 0.9,
     }
   ),
 
@@ -881,6 +895,7 @@ export const CAPTION_STYLES: Readonly<
       strokeWidthPx: 0,
       maxWordsPerPage: 3,
       dropShadow: false,
+      lineHeight: 0.9,
     }
   ),
 
