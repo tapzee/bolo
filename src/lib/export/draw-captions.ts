@@ -3136,15 +3136,19 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           } else if (tier === "secondary" || tier === "support") {
             color = token.color ?? "#ffffff";
             enter = tokenEnter(timing, ENTER_SMOOTH);
-            const travel = slideVariant === 0 ? -25 : 25;
-            yOffset = (1 - enter) * travel * scaleFactor;
+            const travelY = slideVariant === 0 ? -25 : 25;
+            const travelX = alignVariant === 0 ? -20 : alignVariant === 2 ? 20 : 0;
+            yOffset = (1 - enter) * travelY * scaleFactor;
+            const animXOffset = (1 - enter) * travelX * scaleFactor;
             scale = 1;
-            blurPx = (1 - enter) * 4 * scaleFactor;
+            blurPx = (1 - enter) * 6 * scaleFactor;
 
             if (alignVariant === 0) {
-              alignOffsetX = - (maxWidth / 2) + (tokenWidth / 2) + (20 * scaleFactor);
+              alignOffsetX = - (maxWidth / 2) + (tokenWidth / 2) + (20 * scaleFactor) + animXOffset;
             } else if (alignVariant === 2) {
-              alignOffsetX = (maxWidth / 2) - (tokenWidth / 2) - (20 * scaleFactor);
+              alignOffsetX = (maxWidth / 2) - (tokenWidth / 2) - (20 * scaleFactor) + animXOffset;
+            } else {
+              alignOffsetX = animXOffset;
             }
           } else {
             color = token.color ?? "#ffffff";

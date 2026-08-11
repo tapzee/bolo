@@ -788,8 +788,8 @@ export const editorialStackHeroFontScale = (
 ): number => {
   if (tier === "main") return role === "critical" ? 1.2 : 1;
   if (tier === "primary") return 0.78;
-  if (tier === "secondary") return 0.62;
-  return 0.3;
+  if (tier === "secondary") return 0.75;
+  return 0.55;
 };
 
 /** Only the page's single critical word carries the restrained yellow accent — same rule as Editorial Kinetic. */

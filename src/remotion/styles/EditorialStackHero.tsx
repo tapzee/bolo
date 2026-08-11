@@ -67,19 +67,19 @@ export const EditorialStackHeroToken: React.FC<TokenViewProps> = ({
       ? primaryFamily
       : supportFamily;
 
-  const fontStyle = "normal";
-
   const hash = getHash(token.text + index);
   const alignVariant = hash % 3;
   const slideVariant = (hash + 1) % 2;
 
-  let fontWeight: number;
-  let color: string;
-  let noStroke = false;
   let enter: number;
   let scale = 1;
   let yOffset = 0;
+  let xOffset = 0;
   let blurPx = 0;
+  let fontWeight: number;
+  let color: string;
+  let noStroke = false;
+  const fontStyle = "normal";
 
   if (tier === "main") {
     fontWeight = isDevanagariWord ? 700 : 400;
@@ -105,8 +105,10 @@ export const EditorialStackHeroToken: React.FC<TokenViewProps> = ({
     color = token.color ?? "#ffffff";
     noStroke = true;
     enter = tokenEnter(timing, ENTER_SMOOTH);
-    const travel = slideVariant === 0 ? -25 : 25;
-    yOffset = (1 - enter) * travel;
+    const travelY = slideVariant === 0 ? -25 : 25;
+    const travelX = alignVariant === 0 ? -20 : alignVariant === 2 ? 20 : 0;
+    yOffset = (1 - enter) * travelY;
+    xOffset = (1 - enter) * travelX;
     scale = 1;
     blurPx = (1 - enter) * 4;
   } else {
@@ -152,7 +154,7 @@ export const EditorialStackHeroToken: React.FC<TokenViewProps> = ({
           textTransform: tier === "main" || tier === "primary" ? "uppercase" : "lowercase",
           letterSpacing: tier === "main" || tier === "primary" ? textStyle.letterSpacing : 0,
           opacity: enter,
-          transform: `translateY(${yOffset}px) scale(${scale})`,
+          transform: `translate(${xOffset}px, ${yOffset}px) scale(${scale})`,
           filter: blurPx > 0.3 ? `blur(${blurPx}px)` : undefined,
           WebkitTextStroke: noStroke ? "0px transparent" : textStyle.WebkitTextStroke,
           textShadow:
