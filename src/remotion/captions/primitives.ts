@@ -744,6 +744,58 @@ export const editorialKineticFontScale = (
 export const isEditorialKineticAccent = (role: WordRole): boolean =>
   role === "critical";
 
+/**
+ * Editorial Stack Hero — a 4-tier stacked poster layout, one word per row
+ * (same `flexBasis: 100%` trick as Editorial Kinetic, see
+ * `EditorialStackHero.tsx`). Splits Editorial Kinetic's "display" tier in
+ * two: a single hero word ("main") gets the huge yellow pop treatment, the
+ * rest of the anchor words ("primary") stay large and bold but never yellow,
+ * an italic "secondary" accent supplies contrast, and tiny "support"
+ * connectors round out the read-along line. Shared by the DOM renderer,
+ * `draw-captions.ts` and `page-fit.ts` so all three agree on which word gets
+ * which treatment.
+ */
+export type EditorialStackHeroRole = "support" | "primary" | "main" | "secondary";
+
+export const editorialStackHeroRole = (
+  role: WordRole,
+  text: string,
+): EditorialStackHeroRole => {
+  if (role === "critical" || role === "number") return "main";
+  if (role === "emphasis" || role === "special") return "secondary";
+  if (
+    role === "connector" ||
+    role === "supporting" ||
+    role === "question" ||
+    role === "cta"
+  ) {
+    return "support";
+  }
+  if (role === "keyword") {
+    return getHash(text.toLowerCase()) % 3 === 0 ? "secondary" : "primary";
+  }
+  return "support";
+};
+
+/**
+ * Font-size scale relative to `config.fontSizePx`. The page's `critical`
+ * word gets the top of the "main" range so it still reads as the single
+ * biggest thing on screen even next to a `number` sharing its tier.
+ */
+export const editorialStackHeroFontScale = (
+  role: WordRole,
+  tier: EditorialStackHeroRole,
+): number => {
+  if (tier === "main") return role === "critical" ? 1.2 : 1;
+  if (tier === "primary") return 0.78;
+  if (tier === "secondary") return 0.62;
+  return 0.3;
+};
+
+/** Only the page's single critical word carries the restrained yellow accent — same rule as Editorial Kinetic. */
+export const isEditorialStackHeroAccent = (role: WordRole): boolean =>
+  role === "critical";
+
 export const pickFrameState = <TState extends string>(
   progress: number,
   breakpoints: readonly FrameStateBreakpoint<TState>[],

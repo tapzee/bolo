@@ -132,6 +132,9 @@ import {
   floatingBubbleFontScale,
   floatingBubbleOffset,
   floatingBubbleTint,
+  editorialStackHeroRole,
+  editorialStackHeroFontScale,
+  isEditorialStackHeroAccent,
 } from "@/remotion/captions/primitives";
 import { resolveEmphasis, DYNAMIC_HIGHLIGHT_EMPHASIS_SCALE } from "@/remotion/styles/DynamicHighlight";
 import { canvasFont, resolveFontFamily } from "./fonts";
@@ -248,6 +251,13 @@ const getRenderText = (
     // CSS `text-transform`, reproduced here since Canvas has none.
     const ekRole = editorialKineticRole(token.role ?? "normal", text);
     return ekRole === "display" ? text.toUpperCase() : text.toLowerCase();
+  }
+  if (config.styleId === "editorialStackHero") {
+    // Main/primary words shout in caps, secondary/support words stay
+    // lowercase — the same case contrast `EditorialStackHeroToken` applies
+    // via CSS `text-transform`, reproduced here since Canvas has none.
+    const tier = editorialStackHeroRole(token.role ?? "normal", text);
+    return tier === "main" || tier === "primary" ? text.toUpperCase() : text.toLowerCase();
   }
   // Canvas has no `text-transform`, so casing is applied to the string
   // itself. Goes through `roleTextCase` (shared with the DOM's
@@ -582,6 +592,24 @@ const layoutLines = (
       const style = ekRole === "editorial" && !isDevanagariWord ? "italic" : "normal";
       ctx.font = canvasFont(weight, fontSize, fam, style);
       fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
+    } else if (config.styleId === "editorialStackHero") {
+      const role = token.role ?? "normal";
+      const isDevanagariWord = hasDevanagari(text);
+      const tier = editorialStackHeroRole(role, text);
+      fontSize = config.fontSizePx * editorialStackHeroFontScale(role, tier);
+      const fam = isDevanagariWord
+        ? tier === "support"
+          ? resolveFontFamily("devanagari")
+          : resolveFontFamily("notoSerifDevanagari")
+        : tier === "main" || tier === "primary"
+          ? family
+          : tier === "secondary"
+            ? resolveFontFamily(config.specialFontId ?? "playfair")
+            : resolveFontFamily(config.secondaryFontId ?? "inter");
+      const weight = tier === "main" || tier === "primary" ? config.fontWeight : tier === "secondary" ? 500 : 600;
+      const style = tier === "secondary" && !isDevanagariWord ? "italic" : "normal";
+      ctx.font = canvasFont(weight, fontSize, fam, style);
+      fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
     } else if (config.styleId === "dynamicSlideStack") {
       const role = token.role ?? "normal";
       fontSize = config.fontSizePx * dynamicSlideStackFontScale(role);
@@ -754,6 +782,15 @@ const layoutLines = (
     // Dynamic Slide Stack: every word owns its row too, mirroring the DOM's
     // `flexBasis: 100%` (see DynamicSlideStackToken).
     if (config.styleId === "dynamicSlideStack") {
+      flush();
+      lines.push({ items: [measured], width, height: rowHeight([measured]) });
+      return;
+    }
+
+    // Every Editorial Stack Hero word owns its row too, mirroring the DOM's
+    // `flexBasis: 100%` (see EditorialStackHero.tsx), matching
+    // `resolveTokenBoxes`' one-row-per-token box-fit estimate.
+    if (config.styleId === "editorialStackHero") {
       flush();
       lines.push({ items: [measured], width, height: rowHeight([measured]) });
       return;
@@ -3043,6 +3080,71 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           ctx.filter = blurPx > 0.3 ? `blur(${blurPx}px)` : "none";
           ctx.globalAlpha = entrance * enter;
           ctx.translate(cx + xOffset, cy + yOffset);
+          ctx.scale(scale, scale);
+          ctx.fillStyle = color;
+          ctx.fillText(text, -tokenWidth / 2, 0);
+          ctx.filter = "none";
+
+          ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
+          break;
+        }
+
+        case "editorialStackHero": {
+          const role = token.role ?? "normal";
+          const isDevanagariWord = hasDevanagari(token.text);
+          const tier = editorialStackHeroRole(role, token.text);
+          const isAccent = isEditorialStackHeroAccent(role);
+          const roleFontSize = config.fontSizePx * editorialStackHeroFontScale(role, tier);
+          const scaleFactor = canvasScale({ width, height });
+
+          const fam = isDevanagariWord
+            ? tier === "support"
+              ? resolveFontFamily("devanagari")
+              : resolveFontFamily("notoSerifDevanagari")
+            : tier === "main" || tier === "primary"
+              ? family
+              : tier === "secondary"
+                ? resolveFontFamily(config.specialFontId ?? "playfair")
+                : resolveFontFamily(config.secondaryFontId ?? "inter");
+          const weight = tier === "main" || tier === "primary" ? config.fontWeight : tier === "secondary" ? 500 : 600;
+          const fontStyle = tier === "secondary" && !isDevanagariWord ? "italic" : "normal";
+          ctx.font = canvasFont(weight, roleFontSize, fam, fontStyle);
+
+          let enter: number;
+          let scale = 1;
+          let yOffset = 0;
+          let blurPx = 0;
+          let color: string;
+
+          if (tier === "main") {
+            color = isAccent ? (token.color ?? config.accentColor) : (token.color ?? config.baseColor);
+            // Punch in past 100%, settle, and hold — mirrors
+            // `EditorialStackHeroToken`'s hero tier.
+            const punch = centerPunchScale(timing, ENTER_BOUNCY);
+            scale = 0.82 + punch * 0.18;
+            enter = tokenEnter(timing, ENTER_SMOOTH);
+            blurPx = (1 - enter) * 6 * scaleFactor;
+          } else if (tier === "primary") {
+            color = token.color ?? config.baseColor;
+            enter = tokenEnter(timing, ENTER_SMOOTH);
+            yOffset = (1 - enter) * 35 * scaleFactor;
+            scale = 0.97 + enter * 0.03;
+            blurPx = (1 - enter) * 6 * scaleFactor;
+          } else if (tier === "secondary") {
+            color = token.color ?? "#f5f5f0";
+            // Flowing, not bouncy, regardless of the hero word's own punch.
+            enter = tokenEnter(timing, ENTER_SUBTLE);
+            yOffset = (1 - enter) * 12 * scaleFactor;
+            scale = 0.98 + enter * 0.02;
+            blurPx = (1 - enter) * 4 * scaleFactor;
+          } else {
+            color = token.color ?? "#ffffff";
+            enter = tokenEnter(timing, ENTER_SMOOTH);
+          }
+
+          ctx.filter = blurPx > 0.3 ? `blur(${blurPx}px)` : "none";
+          ctx.globalAlpha = entrance * enter;
+          ctx.translate(cx, cy + yOffset);
           ctx.scale(scale, scale);
           ctx.fillStyle = color;
           ctx.fillText(text, -tokenWidth / 2, 0);

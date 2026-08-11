@@ -56,6 +56,9 @@ export const STYLE_IDS = [
   "spiralReveal",
   "floatingBubble",
   "dynamicTypography",
+  // Editorial Stack Hero — 4-tier stacked hero poster (support/primary/
+  // main/secondary), one word per row, restrained yellow hero accent.
+  "editorialStackHero",
 ] as const;
 
 export type StyleId = (typeof STYLE_IDS)[number];

@@ -51,6 +51,7 @@ import { RibbonSlideToken } from "./RibbonSlide";
 import { SpiralRevealToken } from "./SpiralReveal";
 import { FloatingBubbleToken } from "./FloatingBubble";
 import { DynamicTypographyToken } from "./DynamicTypography";
+import { EditorialStackHeroToken } from "./EditorialStackHero";
 
 /**
  * Style id → word renderer.
@@ -114,5 +115,6 @@ export const TOKEN_RENDERERS: Readonly<
   spiralReveal: SpiralRevealToken,
   floatingBubble: FloatingBubbleToken,
   dynamicTypography: DynamicTypographyToken,
+  editorialStackHero: EditorialStackHeroToken,
 };
 

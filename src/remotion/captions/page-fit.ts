@@ -51,6 +51,8 @@ import {
   isSpiralRevealHero,
   spiralRevealFontScale,
   floatingBubbleFontScale,
+  editorialStackHeroRole,
+  editorialStackHeroFontScale,
 } from "./primitives";
 
 /**
@@ -313,6 +315,23 @@ export const resolveTokenBoxes = (
         width: rowWidth,
         height: config.fontSizePx * dynamicSlideStackFontScale(roles[i]!) * config.lineHeight,
       }));
+    }
+
+    case "editorialStackHero": {
+      // Every word owns its row (see EditorialStackHero.tsx), same
+      // reasoning as `editorialKinetic` above.
+      const roles = analyzeWordRoles(tokens);
+      const rowWidth = estimateMaxLineWidthPx(config);
+      return tokens.map((token, i) => {
+        const tier = editorialStackHeroRole(roles[i]!, token.text);
+        return {
+          width: rowWidth,
+          height:
+            config.fontSizePx *
+            editorialStackHeroFontScale(roles[i]!, tier) *
+            config.lineHeight,
+        };
+      });
     }
 
     case "glassHighlight": {

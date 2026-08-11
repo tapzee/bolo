@@ -768,6 +768,11 @@ export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
   t("ribbon-slide-pro", "Ribbon Slide", "festive", "ribbonSlide", {}, "New"),
   t("spiral-reveal-pro", "Spiral Reveal", "trending", "spiralReveal", {}, "New"),
   t("floating-bubble-pro", "Floating Bubble", "festive", "floatingBubble", {}, "New"),
+
+  // ==========================================================================
+  // EDITORIAL STACK HERO
+  // ==========================================================================
+  t("editorial-stack-hero", "Editorial Stack Hero", "trending", "editorialStackHero", {}, "New"),
 ];
 
 export const templateById = (

@@ -654,6 +654,39 @@ export const CAPTION_STYLES: Readonly<
     }
   ),
 
+  // ==========================================================================
+  // EDITORIAL STACK HERO — 4-tier stacked poster, one word per row
+  // ==========================================================================
+
+  editorialStackHero: define(
+    "editorialStackHero",
+    "Editorial Stack Hero",
+    "Stacked poster typography: tiny sans connectors, bold condensed anchor words, one oversized yellow hero word, and an elegant italic accent — one word per line.",
+    {
+      fontId: "anton",
+      secondaryFontId: "inter",
+      specialFontId: "playfair",
+      fontWeight: 400,
+      fontSizePx: 88,
+      uppercase: false,
+      baseColor: "#ffffff",
+      activeColor: "#ffffff",
+      accentColor: "#f1d400",
+      strokeWidthPx: 0,
+      wordGapPx: 26,
+      maxWordsPerPage: 5,
+      combineWithinMs: 1000,
+      dropShadow: true,
+      placement: "center",
+      // One word per line (see EditorialStackHero.tsx) stacks up to 4 tiers
+      // tall, and the hero word alone can render up to 1.2x fontSizePx.
+      maxBlockHeightPct: 55,
+      // Tight leading is what produces the controlled overlap between
+      // stacked lines instead of evenly-spaced subtitle rows.
+      lineHeight: 0.98,
+    },
+  ),
+
   rotateReveal: define(
     "rotateReveal",
     "Rotate Reveal",
