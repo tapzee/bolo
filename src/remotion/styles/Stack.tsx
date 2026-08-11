@@ -118,9 +118,9 @@ export const StackToken: React.FC<TokenViewProps> = ({
     enter = tokenEnter(timing, ENTER_SMOOTH);
   }
 
-  // Create a staggered look by persistently offsetting non-hero words
-  const scatterY = (tier === "main" || tier === "primary") ? 0 : ((hash % 5) - 2) * 18;
-  const scatterX = (tier === "main" || tier === "primary") ? 0 : ((hash % 3) - 1) * 12;
+  // Heavy scatter for a dynamic, spaced-out poster look
+  const scatterY = (tier === "main" || tier === "primary") ? 0 : ((hash % 5) - 2) * 20;
+  const scatterX = (tier === "main" || tier === "primary") ? 0 : ((hash % 7) - 3) * 35;
   
   xOffset += scatterX;
   yOffset += scatterY;
@@ -133,8 +133,8 @@ export const StackToken: React.FC<TokenViewProps> = ({
     <span
       style={{
         ...tokenShellStyle,
-        // Only the hero word (or primary anchor) claims its own row to break lines.
-        flexBasis: tier === "main" || tier === "primary" ? "100%" : "auto",
+        // Allow all words, including main/primary, to share rows.
+        flexBasis: "auto",
         justifyContent: "center",
         marginTop: `${overlapMarginEm}em`,
       }}
@@ -152,6 +152,8 @@ export const StackToken: React.FC<TokenViewProps> = ({
           opacity: enter,
           transform: `translate(${xOffset}px, ${yOffset}px) scale(${scale})`,
           filter: blurPx > 0.3 ? `blur(${blurPx}px)` : undefined,
+          textShadow: "none",
+          WebkitTextStroke: "none",
           zIndex: 1,
         }}
       >
