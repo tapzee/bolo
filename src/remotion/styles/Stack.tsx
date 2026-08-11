@@ -68,7 +68,6 @@ export const StackToken: React.FC<TokenViewProps> = ({
       : supportFamily;
 
   const hash = getHash(token.text + index);
-  const alignVariant = hash % 3;
   const slideVariant = (hash + 1) % 2;
 
   let enter: number;
@@ -78,7 +77,6 @@ export const StackToken: React.FC<TokenViewProps> = ({
   let blurPx = 0;
   let fontWeight: number;
   let color: string;
-  let noStroke = false;
   const fontStyle = "normal";
 
   if (tier === "main") {
@@ -95,7 +93,6 @@ export const StackToken: React.FC<TokenViewProps> = ({
   } else if (tier === "primary") {
     fontWeight = isDevanagariWord ? 700 : 400;
     color = token.color ?? config.baseColor;
-    noStroke = true;
     enter = tokenEnter(timing, ENTER_SMOOTH);
     yOffset = (1 - enter) * 35;
     scale = 0.97 + enter * 0.03;
@@ -103,18 +100,21 @@ export const StackToken: React.FC<TokenViewProps> = ({
   } else if (tier === "secondary" || tier === "support") {
     fontWeight = 900;
     color = token.color ?? "#ffffff";
-    noStroke = true;
     enter = tokenEnter(timing, ENTER_SMOOTH);
     const travelY = slideVariant === 0 ? -25 : 25;
-    const travelX = alignVariant === 0 ? -20 : alignVariant === 2 ? 20 : 0;
+    
+    // Continuous pan from left to right over the lifetime of the word
+    const duration = toFrame - fromFrame;
+    const progress = Math.max(0, Math.min(1, (frame - fromFrame) / duration));
+    const panOffset = -15 + (progress * 30); // starts slightly left, moves slightly right
+    
     yOffset = (1 - enter) * travelY;
-    xOffset = (1 - enter) * travelX;
+    xOffset = panOffset;
     scale = 1;
     blurPx = (1 - enter) * 4;
   } else {
     fontWeight = 600;
     color = token.color ?? "#ffffff";
-    noStroke = true;
     enter = tokenEnter(timing, ENTER_SMOOTH);
   }
 
@@ -145,11 +145,6 @@ export const StackToken: React.FC<TokenViewProps> = ({
           opacity: enter,
           transform: `translate(${xOffset}px, ${yOffset}px) scale(${scale})`,
           filter: blurPx > 0.3 ? `blur(${blurPx}px)` : undefined,
-          WebkitTextStroke: noStroke ? "0px transparent" : textStyle.WebkitTextStroke,
-          textShadow:
-            tier === "main"
-              ? "0 6px 20px rgba(0,0,0,0.65)"
-              : "0 2px 10px rgba(0,0,0,0.6)",
           zIndex: 1,
         }}
       >

@@ -3194,7 +3194,6 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           let alignOffsetX = 0;
 
           const hash = getHash(token.text + index);
-          const alignVariant = hash % 3;
           const slideVariant = (hash + 1) % 2;
 
           if (tier === "main") {
@@ -3213,9 +3212,14 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
             color = token.color ?? "#ffffff";
             enter = tokenEnter(timing, ENTER_SMOOTH);
             const travelY = slideVariant === 0 ? -25 : 25;
-            const travelX = alignVariant === 0 ? -20 : alignVariant === 2 ? 20 : 0;
+            
+            // Continuous pan from left to right over the lifetime of the word
+            const duration = timing.toFrame - timing.fromFrame;
+            const progress = Math.max(0, Math.min(1, (timing.frame - timing.fromFrame) / duration));
+            const panOffset = -15 + (progress * 30);
+            
             yOffset = (1 - enter) * travelY * scaleFactor;
-            const animXOffset = (1 - enter) * travelX * scaleFactor;
+            const animXOffset = panOffset * scaleFactor;
             scale = 1;
             blurPx = (1 - enter) * 6 * scaleFactor;
             
