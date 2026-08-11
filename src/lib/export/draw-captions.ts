@@ -3103,11 +3103,9 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
               : resolveFontFamily("notoSerifDevanagari")
             : tier === "main" || tier === "primary"
               ? family
-              : tier === "secondary"
-                ? resolveFontFamily(config.specialFontId ?? "playfair")
-                : resolveFontFamily(config.secondaryFontId ?? "inter");
-          const weight = tier === "main" || tier === "primary" ? config.fontWeight : tier === "secondary" ? 500 : 600;
-          const fontStyle = tier === "secondary" && !isDevanagariWord ? "italic" : "normal";
+              : resolveFontFamily(config.secondaryFontId ?? "montserrat");
+          const weight = tier === "main" || tier === "primary" ? config.fontWeight : 900;
+          const fontStyle = "normal";
           ctx.font = canvasFont(weight, roleFontSize, fam, fontStyle);
 
           let enter: number;
@@ -3115,6 +3113,11 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           let yOffset = 0;
           let blurPx = 0;
           let color: string;
+          let alignOffsetX = 0;
+
+          const hash = getHash(token.text + index);
+          const alignVariant = hash % 3;
+          const slideVariant = (hash + 1) % 2;
 
           if (tier === "main") {
             color = isAccent ? (token.color ?? config.accentColor) : (token.color ?? config.baseColor);
@@ -3130,13 +3133,19 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
             yOffset = (1 - enter) * 35 * scaleFactor;
             scale = 0.97 + enter * 0.03;
             blurPx = (1 - enter) * 6 * scaleFactor;
-          } else if (tier === "secondary") {
-            color = token.color ?? "#f5f5f0";
-            // Flowing, not bouncy, regardless of the hero word's own punch.
-            enter = tokenEnter(timing, ENTER_SUBTLE);
-            yOffset = (1 - enter) * 12 * scaleFactor;
-            scale = 0.98 + enter * 0.02;
+          } else if (tier === "secondary" || tier === "support") {
+            color = token.color ?? "#ffffff";
+            enter = tokenEnter(timing, ENTER_SMOOTH);
+            const travel = slideVariant === 0 ? -25 : 25;
+            yOffset = (1 - enter) * travel * scaleFactor;
+            scale = 1;
             blurPx = (1 - enter) * 4 * scaleFactor;
+
+            if (alignVariant === 0) {
+              alignOffsetX = - (maxWidth / 2) + (tokenWidth / 2) + (20 * scaleFactor);
+            } else if (alignVariant === 2) {
+              alignOffsetX = (maxWidth / 2) - (tokenWidth / 2) - (20 * scaleFactor);
+            }
           } else {
             color = token.color ?? "#ffffff";
             enter = tokenEnter(timing, ENTER_SMOOTH);
@@ -3144,7 +3153,7 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
 
           ctx.filter = blurPx > 0.3 ? `blur(${blurPx}px)` : "none";
           ctx.globalAlpha = entrance * enter;
-          ctx.translate(cx, cy + yOffset);
+          ctx.translate(cx + alignOffsetX, cy + yOffset);
           ctx.scale(scale, scale);
           ctx.fillStyle = color;
           ctx.fillText(text, -tokenWidth / 2, 0);
