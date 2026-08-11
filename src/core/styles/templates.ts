@@ -773,6 +773,7 @@ export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
   // EDITORIAL STACK HERO
   // ==========================================================================
   t("editorial-stack-hero", "Editorial Stack Hero", "trending", "editorialStackHero", {}, "New"),
+  t("stack", "Stack", "trending", "stack", {}, "New"),
 ];
 
 export const templateById = (
