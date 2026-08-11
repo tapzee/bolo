@@ -52,6 +52,7 @@ import { SpiralRevealToken } from "./SpiralReveal";
 import { FloatingBubbleToken } from "./FloatingBubble";
 import { DynamicTypographyToken } from "./DynamicTypography";
 import { EditorialStackHeroToken } from "./EditorialStackHero";
+import { StackToken } from "./Stack";
 
 /**
  * Style id → word renderer.
@@ -116,5 +117,6 @@ export const TOKEN_RENDERERS: Readonly<
   floatingBubble: FloatingBubbleToken,
   dynamicTypography: DynamicTypographyToken,
   editorialStackHero: EditorialStackHeroToken,
+  stack: StackToken,
 };
 

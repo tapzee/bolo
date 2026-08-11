@@ -691,6 +691,31 @@ export const CAPTION_STYLES: Readonly<
     },
   ),
 
+  stack: define(
+    "stack",
+    "Stack",
+    "Stacked typography with grouped lines instead of one word per line.",
+    {
+      fontId: "anton",
+      secondaryFontId: "inter",
+      specialFontId: "playfair",
+      fontWeight: 400,
+      fontSizePx: 88,
+      uppercase: false,
+      baseColor: "#ffffff",
+      activeColor: "#ffffff",
+      accentColor: "#f1d400",
+      strokeWidthPx: 0,
+      wordGapPx: 26,
+      maxWordsPerPage: 8,
+      combineWithinMs: 1000,
+      dropShadow: true,
+      placement: "center",
+      maxBlockHeightPct: 55,
+      lineHeight: 0.98,
+    },
+  ),
+
   rotateReveal: define(
     "rotateReveal",
     "Rotate Reveal",

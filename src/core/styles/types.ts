@@ -59,6 +59,7 @@ export const STYLE_IDS = [
   // Editorial Stack Hero — 4-tier stacked hero poster (support/primary/
   // main/secondary), one word per row, restrained yellow hero accent.
   "editorialStackHero",
+  "stack",
 ] as const;
 
 export type StyleId = (typeof STYLE_IDS)[number];

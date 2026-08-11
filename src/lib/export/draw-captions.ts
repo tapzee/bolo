@@ -3167,6 +3167,77 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           break;
         }
 
+        case "stack": {
+          const role = token.role ?? "normal";
+          const isDevanagariWord = hasDevanagari(token.text);
+          const tier = editorialStackHeroRole(role, token.text);
+          const isAccent = isEditorialStackHeroAccent(role);
+          const roleFontSize = config.fontSizePx * editorialStackHeroFontScale(role, tier);
+          const scaleFactor = canvasScale({ width, height });
+
+          const fam = isDevanagariWord
+            ? tier === "support"
+              ? resolveFontFamily("devanagari")
+              : resolveFontFamily("notoSerifDevanagari")
+            : tier === "main" || tier === "primary"
+              ? family
+              : resolveFontFamily(config.secondaryFontId ?? "montserrat");
+          const weight = tier === "main" || tier === "primary" ? config.fontWeight : 900;
+          const fontStyle = "normal";
+          ctx.font = canvasFont(weight, roleFontSize, fam, fontStyle);
+
+          let enter: number;
+          let scale = 1;
+          let yOffset = 0;
+          let blurPx = 0;
+          let color: string;
+          let alignOffsetX = 0;
+
+          const hash = getHash(token.text + index);
+          const alignVariant = hash % 3;
+          const slideVariant = (hash + 1) % 2;
+
+          if (tier === "main") {
+            color = isAccent ? (token.color ?? config.accentColor) : (token.color ?? config.baseColor);
+            const punch = centerPunchScale(timing, ENTER_BOUNCY);
+            scale = 0.82 + punch * 0.18;
+            enter = tokenEnter(timing, ENTER_SMOOTH);
+            blurPx = (1 - enter) * 6 * scaleFactor;
+          } else if (tier === "primary") {
+            color = token.color ?? config.baseColor;
+            enter = tokenEnter(timing, ENTER_SMOOTH);
+            yOffset = (1 - enter) * 35 * scaleFactor;
+            scale = 0.97 + enter * 0.03;
+            blurPx = (1 - enter) * 6 * scaleFactor;
+          } else if (tier === "secondary" || tier === "support") {
+            color = token.color ?? "#ffffff";
+            enter = tokenEnter(timing, ENTER_SMOOTH);
+            const travelY = slideVariant === 0 ? -25 : 25;
+            const travelX = alignVariant === 0 ? -20 : alignVariant === 2 ? 20 : 0;
+            yOffset = (1 - enter) * travelY * scaleFactor;
+            const animXOffset = (1 - enter) * travelX * scaleFactor;
+            scale = 1;
+            blurPx = (1 - enter) * 6 * scaleFactor;
+            
+            // Only animation offset, no physical layout shift since DOM flows inline
+            alignOffsetX = animXOffset;
+          } else {
+            color = token.color ?? "#ffffff";
+            enter = tokenEnter(timing, ENTER_SMOOTH);
+          }
+
+          ctx.filter = blurPx > 0.3 ? `blur(${blurPx}px)` : "none";
+          ctx.globalAlpha = entrance * enter;
+          ctx.translate(cx + alignOffsetX, cy + yOffset);
+          ctx.scale(scale, scale);
+          ctx.fillStyle = color;
+          ctx.fillText(text, -tokenWidth / 2, 0);
+          ctx.filter = "none";
+
+          ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
+          break;
+        }
+
         case "dynamicSlideStack": {
           const role = token.role ?? "normal";
           const isHero = isDynamicSlideStackHero(role);
