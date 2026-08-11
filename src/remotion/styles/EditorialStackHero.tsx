@@ -6,6 +6,7 @@ import {
   editorialStackHeroRole,
   editorialStackHeroFontScale,
   isEditorialStackHeroAccent,
+  getHash,
 } from "../captions/primitives";
 import { FONT_FAMILY } from "../fonts";
 import type { WordRole } from "@/core";
@@ -13,7 +14,6 @@ import { hasDevanagari } from "@/core";
 import {
   ENTER_BOUNCY,
   ENTER_SMOOTH,
-  ENTER_SUBTLE,
   centerPunchScale,
   tokenEnter,
 } from "../captions/animation";
@@ -56,8 +56,7 @@ export const EditorialStackHeroToken: React.FC<TokenViewProps> = ({
     (textStyle.fontSize as number) * editorialStackHeroFontScale(role, tier);
 
   const primaryFamily = FONT_FAMILY[config.fontId];
-  const supportFamily = FONT_FAMILY[config.secondaryFontId ?? "inter"];
-  const secondaryFamily = FONT_FAMILY[config.specialFontId ?? "playfair"];
+  const supportFamily = FONT_FAMILY[config.secondaryFontId ?? "montserrat"];
 
   const fontFamily = isDevanagariWord
     ? tier === "support"
@@ -65,12 +64,13 @@ export const EditorialStackHeroToken: React.FC<TokenViewProps> = ({
       : FONT_FAMILY.notoSerifDevanagari
     : tier === "main" || tier === "primary"
       ? primaryFamily
-      : tier === "secondary"
-        ? secondaryFamily
-        : supportFamily;
+      : supportFamily;
 
-  const fontStyle: "normal" | "italic" =
-    tier === "secondary" && !isDevanagariWord ? "italic" : "normal";
+  const fontStyle = "normal";
+
+  const hash = getHash(token.text + index);
+  const alignVariant = hash % 3;
+  const slideVariant = (hash + 1) % 2;
 
   let fontWeight: number;
   let color: string;
@@ -99,15 +99,14 @@ export const EditorialStackHeroToken: React.FC<TokenViewProps> = ({
     yOffset = (1 - enter) * 35;
     scale = 0.97 + enter * 0.03;
     blurPx = (1 - enter) * 6;
-  } else if (tier === "secondary") {
-    fontWeight = isDevanagariWord ? 600 : 500;
-    color = token.color ?? "#f5f5f0";
+  } else if (tier === "secondary" || tier === "support") {
+    fontWeight = 900;
+    color = token.color ?? "#ffffff";
     noStroke = true;
-    // Flowing, not bouncy — an editorial accent stays elegant regardless of
-    // how punchy the hero word's own entrance is.
-    enter = tokenEnter(timing, ENTER_SUBTLE);
-    yOffset = (1 - enter) * 12;
-    scale = 0.98 + enter * 0.02;
+    enter = tokenEnter(timing, ENTER_SMOOTH);
+    const travel = slideVariant === 0 ? -25 : 25;
+    yOffset = (1 - enter) * travel;
+    scale = 1;
     blurPx = (1 - enter) * 4;
   } else {
     fontWeight = 600;
@@ -120,7 +119,16 @@ export const EditorialStackHeroToken: React.FC<TokenViewProps> = ({
   // than a flat line-height would, without independently centering any line
   // — the whole page still shares one visual centre.
   const overlapMarginEm =
-    tier === "main" ? -0.08 : tier === "primary" ? -0.06 : tier === "secondary" ? -0.1 : -0.06;
+    tier === "main" ? -0.15 : tier === "primary" ? -0.12 : tier === "secondary" ? -0.18 : -0.12;
+
+  const justifyContent =
+    tier === "main" || tier === "primary"
+      ? "center"
+      : alignVariant === 0
+        ? "flex-start"
+        : alignVariant === 1
+          ? "center"
+          : "flex-end";
 
   return (
     <span
@@ -128,7 +136,7 @@ export const EditorialStackHeroToken: React.FC<TokenViewProps> = ({
         ...tokenShellStyle,
         // Owns its row — this is what produces the vertical stack.
         flexBasis: "100%",
-        justifyContent: "center",
+        justifyContent,
         marginTop: `${overlapMarginEm}em`,
       }}
     >
