@@ -45,6 +45,7 @@ export const EditorialStackHeroToken: React.FC<TokenViewProps> = ({
   toFrame,
   config,
   textStyle,
+  index = 0,
 }) => {
   const role: WordRole = token.role ?? "normal";
   const isDevanagariWord = hasDevanagari(token.text);
