@@ -118,6 +118,13 @@ export const StackToken: React.FC<TokenViewProps> = ({
     enter = tokenEnter(timing, ENTER_SMOOTH);
   }
 
+  // Create a staggered look by persistently offsetting non-hero words
+  const scatterY = (tier === "main" || tier === "primary") ? 0 : ((hash % 5) - 2) * 18;
+  const scatterX = (tier === "main" || tier === "primary") ? 0 : ((hash % 3) - 1) * 12;
+  
+  xOffset += scatterX;
+  yOffset += scatterY;
+
   // — the whole page still shares one visual centre.
   const overlapMarginEm =
     tier === "main" ? -0.15 : tier === "primary" ? -0.12 : tier === "secondary" ? -0.18 : -0.12;

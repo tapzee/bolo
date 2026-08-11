@@ -3230,6 +3230,13 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
             enter = tokenEnter(timing, ENTER_SMOOTH);
           }
 
+          // Create a staggered look by persistently offsetting non-hero words
+          const scatterY = (tier === "main" || tier === "primary") ? 0 : ((hash % 5) - 2) * 18 * scaleFactor;
+          const scatterX = (tier === "main" || tier === "primary") ? 0 : ((hash % 3) - 1) * 12 * scaleFactor;
+          
+          yOffset += scatterY;
+          alignOffsetX += scatterX;
+
           ctx.filter = blurPx > 0.3 ? `blur(${blurPx}px)` : "none";
           ctx.globalAlpha = entrance * enter;
           ctx.translate(cx + alignOffsetX, cy + yOffset);
