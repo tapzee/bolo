@@ -1,14 +1,12 @@
 import React from "react";
 import type { TokenViewProps } from "../captions/primitives";
 import {
-  FOCUS_ACTIVE_LIFT_RATIO,
   displayText,
   focusFontScale,
   focusFontWeight,
   focusTier,
   focusTierIsUpper,
   focusWordOpacity,
-  focusWordScale,
   haloTextShadow,
   isFocusAccent,
   isFocusScript,
@@ -68,7 +66,7 @@ export const FocusToken: React.FC<TokenViewProps> = ({
 
   const { started, ended } = focusEnvelope({ frame, fps, fromFrame, toFrame });
   const pulse = tokenPulse({ frame, fps, fromFrame, toFrame }, ENTER_BOUNCY);
-  const direction = dynamicSlideStackDirection(token.text, index);
+  const direction = dynamicSlideStackDirection(token.text, fromFrame);
 
   const fontSize = (textStyle.fontSize as number) * focusFontScale(tier);
   const opacity = focusWordOpacity(started, ended, config.upcomingOpacity);
