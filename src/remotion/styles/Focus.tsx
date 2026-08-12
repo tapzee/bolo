@@ -15,6 +15,7 @@ import {
   premiumStrokePx,
   tokenGlyphStyle,
   tokenShellStyle,
+  dynamicSlideStackDirection,
 } from "../captions/primitives";
 import { FONT_FAMILY } from "../fonts";
 import type { WordRole } from "@/core";
@@ -67,11 +68,16 @@ export const FocusToken: React.FC<TokenViewProps> = ({
 
   const { started, ended } = focusEnvelope({ frame, fps, fromFrame, toFrame });
   const pulse = tokenPulse({ frame, fps, fromFrame, toFrame }, ENTER_BOUNCY);
+  const direction = dynamicSlideStackDirection(token.text, index);
 
   const fontSize = (textStyle.fontSize as number) * focusFontScale(tier);
   const opacity = focusWordOpacity(started, ended, config.upcomingOpacity);
+  
   const scale = 1 + Math.max(0, pulse * 0.15);
-  const lift = -Math.max(0, pulse) * fontSize * 0.15;
+  const travel = pulse * fontSize * 0.15;
+  const xOffset = direction === "left" ? -travel : direction === "right" ? travel : 0;
+  const yOffset = direction === "up" ? -travel : direction === "down" ? travel : 0;
+  
   const blurPx = (1 - started) * 2.5 + ended * 2.5;
 
   const colour = isFocusAccent(role)
@@ -101,7 +107,7 @@ export const FocusToken: React.FC<TokenViewProps> = ({
           color: colour,
           textTransform: focusTierIsUpper(tier) ? "uppercase" : "lowercase",
           opacity,
-          transform: `translateY(${lift}px) scale(${scale})`,
+          transform: `translate(${xOffset}px, ${yOffset}px) scale(${scale})`,
           filter: blurPx > 0.1 ? `blur(${blurPx}px)` : undefined,
           // The two-part readability guarantee this template uses in place of
           // a conventional outline — see `PREMIUM_HALO` / `premiumStrokePx`.
