@@ -1120,8 +1120,31 @@ export const haloTextShadow = (fontSizePx: number): string =>
  * estimator (`page-fit.ts`'s default branch) be exact rather than approximate,
  * and it is the whole reason this template reads as calm.
  */
+export type FocusTier = "support" | "body" | "hero" | "script";
+
+export const focusTier = (role: WordRole): FocusTier => {
+  if (role === "critical" || role === "number") return "hero";
+  if (role === "emphasis" || role === "special" || role === "question") return "script";
+  if (role === "keyword" || role === "cta") return "body";
+  return "support";
+};
+
 export const isFocusAccent = (role: WordRole): boolean =>
-  role === "critical" || role === "number";
+  focusTier(role) === "hero";
+
+export const isFocusScript = (role: WordRole): boolean =>
+  focusTier(role) === "script";
+
+export const focusFontScale = (tier: FocusTier): number =>
+  tier === "hero" ? 1 : tier === "script" ? 0.62 : tier === "body" ? 0.5 : 0.38;
+
+export const focusTierIsUpper = (tier: FocusTier): boolean => tier === "hero";
+
+export const focusFontWeight = (
+  tier: FocusTier,
+  config: Pick<CaptionStyleConfig, "fontWeight">,
+): number =>
+  tier === "hero" ? config.fontWeight : tier === "body" ? 800 : tier === "script" ? 700 : 650;
 
 /** Opacity a word falls back to once it has been spoken — still readable, clearly past. */
 export const FOCUS_SPOKEN_OPACITY = 0.72;
