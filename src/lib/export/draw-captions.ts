@@ -3390,15 +3390,19 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
 
           const { started, ended } = focusEnvelope(timing);
           const pulse = tokenPulse(timing, ENTER_BOUNCY);
+          const direction = dynamicSlideStackDirection(token.text, index);
           
           const scale = 1 + Math.max(0, pulse * 0.15);
-          const lift = -Math.max(0, pulse) * roleFontSize * 0.15;
+          const travel = pulse * roleFontSize * 0.15;
+          const xOffset = direction === "left" ? -travel : direction === "right" ? travel : 0;
+          const yOffset = direction === "up" ? -travel : direction === "down" ? travel : 0;
+          
           const scaleFactor = canvasScale({ width, height });
           const blurPx = ((1 - started) * 2.5 + ended * 2.5) * scaleFactor;
 
           ctx.globalAlpha =
             entrance * focusWordOpacity(started, ended, config.upcomingOpacity);
-          ctx.translate(cx, cy + lift);
+          ctx.translate(cx + xOffset, cy + yOffset);
           ctx.scale(scale, scale);
           if (blurPx > 0.1) {
             ctx.filter = `blur(${blurPx}px)`;
