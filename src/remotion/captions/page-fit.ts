@@ -55,6 +55,8 @@ import {
   editorialStackHeroFontScale,
   stackTier,
   stackFontScale,
+  focusTier,
+  focusFontScale,
 } from "./primitives";
 
 /**
@@ -349,6 +351,16 @@ export const resolveTokenBoxes = (
         height:
           config.fontSizePx * stackFontScale(stackTier(roles[i]!, token.text)) * config.lineHeight,
       }));
+    }
+
+    case "focus": {
+      const roles = analyzeWordRoles(tokens);
+      const rowWidth = estimateMaxLineWidthPx(config);
+      return tokens.map((token, i) => {
+        const tier = focusTier(roles[i]!);
+        const box = toBox(token.text, config.fontSizePx * focusFontScale(tier));
+        return tier === "hero" ? { ...box, width: rowWidth } : box;
+      });
     }
 
     case "glassHighlight": {
