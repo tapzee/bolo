@@ -149,8 +149,6 @@ import {
   focusTier,
   focusTierIsUpper,
   focusWordOpacity,
-  focusWordScale,
-  FOCUS_ACTIVE_LIFT_RATIO,
   PREMIUM_HALO,
   premiumStrokePx,
 } from "@/remotion/captions/primitives";
@@ -3390,7 +3388,7 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
 
           const { started, ended } = focusEnvelope(timing);
           const pulse = tokenPulse(timing, ENTER_BOUNCY);
-          const direction = dynamicSlideStackDirection(token.text, index);
+          const direction = dynamicSlideStackDirection(token.text, timing.fromFrame);
           
           const scale = 1 + Math.max(0, pulse * 0.15);
           const travel = pulse * roleFontSize * 0.15;
