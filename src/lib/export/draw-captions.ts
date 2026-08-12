@@ -143,6 +143,11 @@ import {
   stackTierIsUpper,
   isStackAccentColour,
   isFocusAccent,
+  isFocusScript,
+  focusFontScale,
+  focusFontWeight,
+  focusTier,
+  focusTierIsUpper,
   focusWordOpacity,
   focusWordScale,
   FOCUS_ACTIVE_LIFT_RATIO,
@@ -274,10 +279,9 @@ const getRenderText = (
       : text.toLowerCase();
   }
   if (config.styleId === "focus") {
-    // Uniform by design: every word takes the template's own case. Falling
-    // through to `roleTextCase` below would shout the keyword and whisper the
-    // connectors, which is the opposite of what this template is for.
-    return applyTextCase(text, resolveTextCase(config));
+    return focusTierIsUpper(focusTier(token.role ?? "normal"))
+      ? text.toUpperCase()
+      : text.toLowerCase();
   }
   if (config.styleId === "editorialStackHero") {
     // Main/primary words shout in caps, secondary/support words stay
@@ -663,15 +667,21 @@ const layoutLines = (
       // no Devanagari and the Noto fallback has no italic), matching
       // `FocusToken`.
       const role = token.role ?? "normal";
-      if (isFocusAccent(role) && !hasDevanagari(text)) {
-        ctx.font = canvasFont(
-          600,
-          config.fontSizePx,
-          resolveFontFamily(config.specialFontId ?? "playfair"),
-          "italic",
-        );
-        fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
-      }
+      const tier = focusTier(role);
+      const isScript = isFocusScript(role) && !hasDevanagari(text);
+      fontSize = config.fontSizePx * focusFontScale(tier);
+      const fam = isScript
+        ? resolveFontFamily(config.specialFontId ?? "playfair")
+        : tier === "support" || tier === "body"
+          ? resolveFontFamily(config.secondaryFontId ?? "instrumentSans")
+          : family;
+      ctx.font = canvasFont(
+        focusFontWeight(tier, config),
+        fontSize,
+        fam,
+        isScript ? "italic" : "normal",
+      );
+      fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
     } else if (config.styleId === "dynamicSlideStack") {
       const role = token.role ?? "normal";
       fontSize = config.fontSizePx * dynamicSlideStackFontScale(role);
@@ -817,6 +827,12 @@ const layoutLines = (
     // close whatever was accumulating, emit the hero alone, and let the
     // remaining words start a fresh row beneath it.
     if ((config.styleId === "hero" || config.styleId === "heroMixed" || config.styleId === "maskReveal") && index === heroIndex) {
+      flush();
+      lines.push({ items: [measured], width, height: rowHeight([measured]) });
+      return;
+    }
+
+    if (config.styleId === "focus" && focusTier(token.role ?? "normal") === "hero") {
       flush();
       lines.push({ items: [measured], width, height: rowHeight([measured]) });
       return;
@@ -3356,17 +3372,21 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           // `upcomingOpacity`, and one accent word per page carries the italic
           // serif. Nothing here changes a word's measured box.
           const role = token.role ?? "normal";
-          const isDevanagariWord = hasDevanagari(token.text);
-          const isAccentFace = isFocusAccent(role) && !isDevanagariWord;
+          const tier = focusTier(role);
+          const isScript = isFocusScript(role) && !hasDevanagari(token.text);
+          const roleFontSize = config.fontSizePx * focusFontScale(tier);
+          const fam = isScript
+            ? resolveFontFamily(config.specialFontId ?? "playfair")
+            : tier === "support" || tier === "body"
+              ? resolveFontFamily(config.secondaryFontId ?? "instrumentSans")
+              : family;
 
-          if (isAccentFace) {
-            ctx.font = canvasFont(
-              600,
-              config.fontSizePx,
-              resolveFontFamily(config.specialFontId ?? "playfair"),
-              "italic",
-            );
-          }
+          ctx.font = canvasFont(
+            focusFontWeight(tier, config),
+            roleFontSize,
+            fam,
+            isScript ? "italic" : "normal",
+          );
 
           const { started, ended } = focusEnvelope(timing);
           const scale = focusWordScale(started, ended);
@@ -3374,7 +3394,7 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           // `drawCaptions`), so this must NOT be multiplied by `canvasScale`
           // again — unlike the hard-coded reference-px travels elsewhere in
           // this switch.
-          const lift = -(started - ended) * config.fontSizePx * FOCUS_ACTIVE_LIFT_RATIO;
+          const lift = -(started - ended) * roleFontSize * FOCUS_ACTIVE_LIFT_RATIO;
 
           ctx.globalAlpha =
             entrance * focusWordOpacity(started, ended, config.upcomingOpacity);
@@ -3388,12 +3408,12 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
             isFocusAccent(role)
               ? (token.color ?? config.accentColor)
               : (token.color ?? config.baseColor),
-            config.fontSizePx,
-            premiumStrokePx(config.fontSizePx, config),
+            roleFontSize,
+            premiumStrokePx(roleFontSize, config),
             config.strokeColor,
           );
 
-          if (isAccentFace) ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
+          ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
           break;
         }
 
