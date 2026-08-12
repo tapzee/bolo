@@ -312,6 +312,24 @@ export const CAPTION_STYLES: Readonly<
     },
   ),
 
+  designWalla: define(
+    "designWalla",
+    "Design Walla",
+    "Mixed fonts and sizes, directional animations.",
+    {
+      fontId: "inter",
+      fontWeight: 600,
+      fontSizePx: 95,
+      uppercase: false,
+      baseColor: "#ffffff",
+      activeColor: "#ffffff",
+      accentColor: "#ffe600",
+      strokeWidthPx: 3,
+      dropShadow: true,
+      maxWordsPerPage: 5,
+    },
+  ),
+
   dynamicHighlight: define(
     "dynamicHighlight",
     "Dynamic Highlight",

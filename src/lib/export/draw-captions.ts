@@ -223,10 +223,15 @@ const getRenderText = (
   const text = token.text.trim();
   if (config.styleId === "splash") {
     const role = getSplashWordRole(text, index, totalTokens);
-    if (role === "accent" || role === "base") {
+    if (role === "accent") {
       return text.toUpperCase();
     }
     return text;
+  }
+  if (config.styleId === "designWalla") {
+    const role = getSplashWordRole(text, index, totalTokens);
+    if (role === "accent") return text.toUpperCase();
+    return applyTextCase(text, resolveTextCase(config));
   }
   if (config.styleId === "hero") {
     // The headline is forced upper, the supporting text forced lower —
@@ -680,6 +685,28 @@ const layoutLines = (
         isScript ? "italic" : "normal",
       );
       fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
+    } else if (config.styleId === "designWalla") {
+      const role = getSplashWordRole(text, index, page.tokens.length);
+      const isAccent = role === "accent";
+      const isScript = role === "script";
+
+      let roleFamily = family;
+      if (isAccent) {
+        fontSize = config.fontSizePx * 1.15;
+        if (config.secondaryFontId) roleFamily = resolveFontFamily(config.secondaryFontId);
+        ctx.font = canvasFont(Math.max(800, config.fontWeight), fontSize, roleFamily);
+      } else if (isScript) {
+        fontSize = config.fontSizePx * 1.05;
+        const specialFont = config.specialFontId ?? "playfair";
+        if (!family.toLowerCase().includes(specialFont) && !family.toLowerCase().includes("caveat")) {
+          roleFamily = resolveFontFamily(specialFont);
+        }
+        ctx.font = canvasFont(config.fontWeight, fontSize, roleFamily, "italic");
+      } else {
+        fontSize = config.fontSizePx;
+        ctx.font = canvasFont(config.fontWeight, fontSize, family);
+      }
+      fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
     } else if (config.styleId === "dynamicSlideStack") {
       const role = token.role ?? "normal";
       fontSize = config.fontSizePx * dynamicSlideStackFontScale(role);
@@ -855,9 +882,9 @@ const layoutLines = (
       return;
     }
 
-    // Dynamic Slide Stack: every word owns its row too, mirroring the DOM's
-    // `flexBasis: 100%` (see DynamicSlideStackToken).
-    if (config.styleId === "dynamicSlideStack") {
+    // Dynamic Slide Stack & Design Walla: every word owns its row too, mirroring the DOM's
+    // `flexBasis: 100%` (see DynamicSlideStackToken / DesignWallaToken).
+    if (config.styleId === "dynamicSlideStack" || config.styleId === "designWalla") {
       flush();
       lines.push({ items: [measured], width, height: rowHeight([measured]) });
       return;
@@ -3355,6 +3382,47 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           }
 
           ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
+          break;
+        }
+
+        case "designWalla": {
+          const role = getSplashWordRole(token.text, index, page.tokens.length);
+          const isAccent = role === "accent";
+          const isScript = role === "script";
+
+          const direction = dynamicSlideStackDirection(token.text, index);
+          
+          let roleFontSize = config.fontSizePx;
+          let roleFamily = family;
+          let roleWeight = config.fontWeight;
+
+          if (isAccent) {
+            roleFontSize *= 1.15;
+            roleWeight = Math.max(800, config.fontWeight);
+            if (config.secondaryFontId) roleFamily = resolveFontFamily(config.secondaryFontId);
+          } else if (isScript) {
+            roleFontSize *= 1.05;
+            const specialFont = config.specialFontId ?? "playfair";
+            if (!family.toLowerCase().includes(specialFont) && !family.toLowerCase().includes("caveat")) {
+              roleFamily = resolveFontFamily(specialFont);
+            }
+          }
+          
+          const scaleFactor = canvasScale({ width, height });
+
+          const enter = tokenEnter({ frame, fps, fromFrame: timing.fromFrame }, isAccent ? ENTER_BOUNCY : ENTER_SMOOTH);
+          const travel = (1 - enter) * (isAccent ? 60 : 40) * scaleFactor;
+          const xOffset = direction === "left" ? -travel : direction === "right" ? travel : 0;
+          const yOffset = direction === "up" ? -travel : direction === "down" ? travel : 0;
+          const blurPx = (1 - enter) * (isAccent ? 5 : 3) * scaleFactor;
+          const color = token.color ?? (isAccent ? config.accentColor : config.baseColor);
+
+          ctx.font = canvasFont(roleWeight, roleFontSize, roleFamily, isScript ? "italic" : "normal");
+          ctx.globalAlpha = entrance * enter;
+          ctx.filter = blurPx > 0.3 ? `blur(${blurPx}px)` : "none";
+          ctx.translate(cx + xOffset, cy + yOffset);
+          strokeThenFill(ctx, text, -tokenWidth / 2, 0, color, isAccent ? config.strokeWidthPx : 0, config.strokeColor);
+          ctx.filter = "none";
           break;
         }
 

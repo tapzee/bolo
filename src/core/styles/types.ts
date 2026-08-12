@@ -9,6 +9,7 @@ export const STYLE_IDS = [
   "hero",
   "dynamic",
   "heroMixed",
+  "designWalla",
   "dynamicHighlight",
   "editorialOverlay",
   "kinetic",

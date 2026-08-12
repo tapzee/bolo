@@ -77,10 +77,11 @@ export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
     baseColor: "#ffffff", accentColor: "#f97316", textCase: "lower"
   }, "New"),
 
-  t("kold-cinematic", "Kold Cinematic", "premium", "focus", {
-    fontId: "playfair", fontSizePx: 85, fontWeight: 600, textCase: "none",
-    baseColor: "#f3f4f6", activeColor: "#ffffff", accentColor: "#ffffff",
-    strokeWidthPx: 0, dropShadow: true, upcomingOpacity: 0.65, specialFontId: "playfair"
+  t("design-walla", "Design Walla", "premium", "designWalla", {
+    fontId: "inter", fontSizePx: 95, fontWeight: 600, textCase: "none",
+    baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#ffe600",
+    strokeWidthPx: 3, dropShadow: true,
+    specialFontId: "caveat", secondaryFontId: "montserrat"
   }, "Hot"),
 
   // ---- Trending ----------------------------------------------------------
