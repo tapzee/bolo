@@ -749,14 +749,15 @@ export const CAPTION_STYLES: Readonly<
   focus: define(
     "focus",
     "Focus",
-    "Minimal and premium: one clean centred block, the spoken word lifts and brightens while the rest dims, and the sentence's key word carries an italic serif accent.",
+    "Premium top caption: small context, one oversized headline word, and a script accent with smooth lift-and-settle karaoke motion.",
     {
-      fontId: "montserrat",
+      fontId: "anton",
       // The only second face on the page — carried by one word per page at
       // most. See `isFocusAccent`.
-      specialFontId: "playfair",
-      fontWeight: 800,
-      fontSizePx: 74,
+      secondaryFontId: "poppins",
+      specialFontId: "caveat",
+      fontWeight: 400,
+      fontSizePx: 122,
       uppercase: false,
       textCase: "none",
       letterSpacingPx: -1,
@@ -779,18 +780,18 @@ export const CAPTION_STYLES: Readonly<
       strokeWidthPx: 0,
       strokeRatio: 0.025,
       dropShadow: false,
-      wordGapPx: 22,
-      maxWordsPerPage: 6,
+      wordGapPx: 18,
+      maxWordsPerPage: 5,
       // Three rows is the shape this template is tuned for; most pages land on
       // two and the cap keeps the tall ones from becoming a paragraph.
       linesPerPage: 3,
-      combineWithinMs: 1400,
-      holdMs: 320,
+      combineWithinMs: 1500,
+      holdMs: 280,
       placement: "top",
-      verticalOffsetPct: 6,
-      maxLineWidthPct: 84,
-      maxBlockHeightPct: 34,
-      lineHeight: 1.12,
+      verticalOffsetPct: 8,
+      maxLineWidthPct: 86,
+      maxBlockHeightPct: 42,
+      lineHeight: 0.9,
     },
   ),
 
