@@ -54,7 +54,7 @@ entry in `TOKEN_RENDERERS`, **and** a `case` in `draw-captions.ts`. Adding a new
 | Agent | Files | Note |
 |---|---|---|
 | **Gemini** | `src/components/create/**` — CreateFlow layout | Owns it. Claude will not edit these. |
-| **Claude** | `src/components/editor/**`, `src/lib/**`, `src/core/**`, `src/remotion/**`, `src/app/**` (pages), `scripts/**` | |
+| **Claude** | `src/components/editor/**`, `src/lib/**`, `src/core/**`, `src/remotion/**`, `src/app/**` (pages), `scripts/**` | Premium caption templates in renderer/export parity path. |
 
 Agreed with the user on 2 Aug. If you need a change in the other agent's area,
 note it here rather than editing across the line.
