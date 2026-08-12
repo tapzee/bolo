@@ -3389,12 +3389,10 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           );
 
           const { started, ended } = focusEnvelope(timing);
-          const scale = focusWordScale(started, ended);
-          // `config` is already scaled to the output canvas (see the top of
-          // `drawCaptions`), so this must NOT be multiplied by `canvasScale`
-          // again — unlike the hard-coded reference-px travels elsewhere in
-          // this switch.
-          const lift = -(started - ended) * roleFontSize * FOCUS_ACTIVE_LIFT_RATIO;
+          const pulse = tokenPulse(timing, ENTER_BOUNCY);
+          
+          const scale = 1 + Math.max(0, pulse * 0.15);
+          const lift = -Math.max(0, pulse) * roleFontSize * 0.15;
           const scaleFactor = canvasScale({ width, height });
           const blurPx = ((1 - started) * 2.5 + ended * 2.5) * scaleFactor;
 
