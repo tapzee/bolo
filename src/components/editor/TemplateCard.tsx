@@ -31,6 +31,16 @@ export const TemplateCard = memo(function TemplateCard({
   const isHero = template.engine === "hero";
   const isStack = template.engine === "stack";
   const isFocus = template.engine === "focus";
+  const isSplitText = template.engine === "splitText";
+  const isLiquidFlow = template.engine === "liquidFlow";
+  const isLightSweep = template.engine === "lightSweep";
+  const isPaperCut = template.engine === "paperCut";
+  const isFlipCard = template.engine === "flipCard";
+  const isRibbonSlide = template.engine === "ribbonSlide";
+  const isSpiralReveal = template.engine === "spiralReveal";
+  const isFloatingBubble = template.engine === "floatingBubble";
+  const isEditorialStackHero = template.engine === "editorialStackHero";
+
   // Templates that deliberately carry no outline (the premium pair, and the
   // editorial engines) must not be previewed with one — the card is the only
   // thing a user sees before applying, so a stroke here promises a look the
@@ -312,6 +322,32 @@ export const TemplateCard = memo(function TemplateCard({
             >
               premium
             </span>
+          </div>
+        ) : isSplitText ? (
+          <div className="flex flex-col items-center leading-none">
+            <span style={{ fontSize: previewSize, color: config.activeColor, clipPath: "polygon(0 0, 100% 0, 100% 50%, 0 50%)", marginBottom: "-0.5em", fontWeight: config.fontWeight, fontFamily: FONT_FAMILY[config.fontId] }}>बोलो</span>
+            <span style={{ fontSize: previewSize, color: config.baseColor, clipPath: "polygon(0 50%, 100% 50%, 100% 100%, 0 100%)", transform: "translateX(4px)", fontWeight: config.fontWeight, fontFamily: FONT_FAMILY[config.fontId] }}>बोलो</span>
+          </div>
+        ) : isLiquidFlow ? (
+          <span style={{ fontSize: previewSize, color: config.activeColor, fontFamily: FONT_FAMILY[config.fontId], fontWeight: config.fontWeight, filter: "drop-shadow(0 2px 2px rgba(0,255,255,0.5)) drop-shadow(0 -2px 2px rgba(255,0,255,0.5))" }}>बोलो Bolo</span>
+        ) : isLightSweep ? (
+          <span style={{ fontSize: previewSize, fontWeight: config.fontWeight, fontFamily: FONT_FAMILY[config.fontId], background: `linear-gradient(90deg, ${config.baseColor} 0%, #fff 50%, ${config.baseColor} 100%)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>बोलो Bolo</span>
+        ) : isPaperCut ? (
+          <span style={{ fontSize: previewSize, color: config.activeColor, fontFamily: FONT_FAMILY[config.fontId], fontWeight: config.fontWeight, textShadow: "2px 2px 0px #000, -1px -1px 0px #fff", transform: "rotate(-2deg)" }}>बोलो Bolo</span>
+        ) : isFlipCard ? (
+          <div style={{ perspective: "100px" }}>
+            <span style={{ fontSize: previewSize, color: config.activeColor, fontFamily: FONT_FAMILY[config.fontId], fontWeight: config.fontWeight, transform: "rotateX(20deg)", display: "inline-block" }}>बोलो Bolo</span>
+          </div>
+        ) : isRibbonSlide ? (
+          <span style={{ fontSize: previewSize, color: config.activeColor, fontFamily: FONT_FAMILY[config.fontId], fontWeight: config.fontWeight, backgroundColor: config.accentColor || "#ff007f", padding: "2px 8px", clipPath: "polygon(10% 0, 100% 0, 90% 100%, 0% 100%)" }}>बोलो Bolo</span>
+        ) : isSpiralReveal ? (
+          <span style={{ fontSize: previewSize, color: config.activeColor, fontFamily: FONT_FAMILY[config.fontId], fontWeight: config.fontWeight, transform: "rotate(-10deg) scale(0.9)", display: "inline-block" }}>बोलो Bolo</span>
+        ) : isFloatingBubble ? (
+          <span style={{ fontSize: previewSize, color: config.activeColor, fontFamily: FONT_FAMILY[config.fontId], fontWeight: config.fontWeight, backgroundColor: "rgba(255,255,255,0.1)", border: `1px solid ${config.accentColor || "#fff"}`, borderRadius: "50%", padding: "4px 12px" }}>Bolo</span>
+        ) : isEditorialStackHero ? (
+          <div className="flex w-full flex-col items-center justify-center leading-none">
+            <span style={{ fontSize: previewSize * 0.4, color: config.baseColor, fontFamily: FONT_FAMILY.inter, textTransform: "uppercase", letterSpacing: "0.1em" }}>THE NEW</span>
+            <span style={{ fontSize: previewSize * 1.2, color: config.activeColor, fontFamily: FONT_FAMILY.playfair, fontStyle: "italic", fontWeight: 700 }}>Bolo</span>
           </div>
         ) : (
           <span
