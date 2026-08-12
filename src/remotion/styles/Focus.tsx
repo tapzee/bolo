@@ -19,7 +19,7 @@ import {
 import { FONT_FAMILY } from "../fonts";
 import type { WordRole } from "@/core";
 import { hasDevanagari } from "@/core";
-import { focusEnvelope } from "../captions/animation";
+import { focusEnvelope, tokenPulse, ENTER_BOUNCY } from "../captions/animation";
 
 /**
  * Focus — the minimal premium caption.
@@ -66,11 +66,12 @@ export const FocusToken: React.FC<TokenViewProps> = ({
   const isScript = isFocusScript(role) && !isDevanagariWord;
 
   const { started, ended } = focusEnvelope({ frame, fps, fromFrame, toFrame });
+  const pulse = tokenPulse({ frame, fps, fromFrame, toFrame }, ENTER_BOUNCY);
 
   const fontSize = (textStyle.fontSize as number) * focusFontScale(tier);
   const opacity = focusWordOpacity(started, ended, config.upcomingOpacity);
-  const scale = focusWordScale(started, ended);
-  const lift = -(started - ended) * fontSize * FOCUS_ACTIVE_LIFT_RATIO;
+  const scale = 1 + Math.max(0, pulse * 0.15);
+  const lift = -Math.max(0, pulse) * fontSize * 0.15;
   const blurPx = (1 - started) * 2.5 + ended * 2.5;
 
   const colour = isFocusAccent(role)
