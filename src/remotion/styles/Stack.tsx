@@ -1,41 +1,60 @@
 import React from "react";
 import type { TokenViewProps } from "../captions/primitives";
 import {
-  tokenShellStyle,
   displayText,
-  editorialStackHeroRole,
-  editorialStackHeroFontScale,
-  isEditorialStackHeroAccent,
-  getHash,
+  haloTextShadow,
+  isStackAccentColour,
+  premiumStrokePx,
+  stackFontScale,
+  stackRowAlign,
+  stackRowOffsetPx,
+  stackTier,
+  stackTierIsUpper,
+  tokenShellStyle,
 } from "../captions/primitives";
 import { FONT_FAMILY } from "../fonts";
 import type { WordRole } from "@/core";
 import { hasDevanagari } from "@/core";
 import {
-  ENTER_BOUNCY,
   ENTER_SMOOTH,
+  ENTER_SUBTLE,
   centerPunchScale,
   tokenEnter,
 } from "../captions/animation";
 
 /**
- * Editorial Stack Hero — a 4-tier stacked poster: tiny sans support words,
- * bold condensed primary anchors, one oversized yellow hero word, and an
- * elegant italic secondary accent, each tier on its own row.
+ * Stack — the editorial poster caption.
  *
- * Splits Editorial Kinetic's "display" tier into two (see
- * `editorialStackHeroRole`'s doc comment): only the page's single critical
- * word gets the pop-in hero treatment, everything else that would have been
- * "display" stays a calmer slide-up anchor.
+ * Three rows, one word per row, four typographic tiers on the page at once:
+ * a tiny lowercase sans support word, a bold condensed anchor, one oversized
+ * headline word in the accent colour, and an italic serif accent. The headline
+ * holds the centre line and the smaller rows are tucked alternately left and
+ * right of it (`stackRowOffsetPx`), which is what gives the block its offset,
+ * magazine-page rhythm.
  *
- * `flexBasis: 100%` gives every word its own row, same mechanism as
- * `EditorialKinetic.tsx` — deliberately not driven by fixed per-role Y
- * offsets, which would assume a fixed word count per page and break the
- * moment a page has more or fewer than four words.
+ * Each tier also enters differently — the headline blurs and punches in, the
+ * anchor rises, the italic accent slides in from the edge it sits against, and
+ * support words fade up a few pixels — so one page carries several motions
+ * without any of them being random.
  *
- * Mirrored in `lib/export/draw-captions.ts` under `case "editorialStackHero"`
- * and in `remotion/captions/page-fit.ts`'s box-fit estimate. All three must
- * change together.
+ * WHAT THIS TEMPLATE DELIBERATELY DOES NOT DO, having been rebuilt from a
+ * version that did:
+ *
+ * - **No hashed scatter.** Words are not pushed to random x/y offsets. Scatter
+ *   moved glyphs outside the measured caption block, so the editor's transform
+ *   box no longer contained its own text.
+ * - **No continuous pan.** A word that keeps drifting for as long as it is on
+ *   screen never settles, and reads as drift rather than design.
+ * - **No negative row margins.** Tight leading comes from `lineHeight`, which
+ *   *both* renderers derive row height and row gap from. A DOM-only negative
+ *   margin has no Canvas2D equivalent, so it silently exports differently.
+ *
+ * `flexBasis: 100%` gives every word its own row. Every row is centred; the
+ * left/right rhythm is applied on top as a transform, so no part of this
+ * layout depends on how wide the browser happened to make the block.
+ *
+ * Mirrored in `lib/export/draw-captions.ts` under `case "stack"` and in
+ * `remotion/captions/page-fit.ts`. All three must change together.
  */
 export const StackToken: React.FC<TokenViewProps> = ({
   token,
@@ -49,94 +68,70 @@ export const StackToken: React.FC<TokenViewProps> = ({
 }) => {
   const role: WordRole = token.role ?? "normal";
   const isDevanagariWord = hasDevanagari(token.text);
-  const tier = editorialStackHeroRole(role, token.text);
-  const isAccent = isEditorialStackHeroAccent(role);
+  const tier = stackTier(role, token.text);
+  const align = stackRowAlign(tier, index);
   const timing = { frame, fps, fromFrame, toFrame };
+  // Where this row rests, left/right of the page's centre line. A transform,
+  // not a justification, so it is identical in both renderers and can never
+  // affect wrapping — see `stackRowOffsetPx`.
+  const tuckX = stackRowOffsetPx(tier, index, textStyle.fontSize as number);
 
-  const fontSize =
-    (textStyle.fontSize as number) * editorialStackHeroFontScale(role, tier);
+  const fontSize = (textStyle.fontSize as number) * stackFontScale(tier);
 
-  const primaryFamily = FONT_FAMILY[config.fontId];
-  const supportFamily = FONT_FAMILY[config.secondaryFontId ?? "montserrat"];
-
+  // Devanagari has no italic and no condensed display face here, so the
+  // serif/sans split is carried by Noto Serif vs Noto Sans instead — the same
+  // decision the export makes, so a Hindi word never draws in a different face
+  // than it measured in.
   const fontFamily = isDevanagariWord
     ? tier === "support"
       ? FONT_FAMILY.devanagari
       : FONT_FAMILY.notoSerifDevanagari
-    : tier === "main" || tier === "primary"
-      ? primaryFamily
-      : supportFamily;
+    : tier === "hero" || tier === "primary"
+      ? FONT_FAMILY[config.fontId]
+      : tier === "accent"
+        ? FONT_FAMILY[config.specialFontId ?? "playfair"]
+        : FONT_FAMILY[config.secondaryFontId ?? "inter"];
 
-  const hash = getHash(token.text + index);
-  const slideVariant = (hash + 1) % 2;
+  const fontWeight =
+    tier === "hero" || tier === "primary"
+      ? config.fontWeight
+      : tier === "accent"
+        ? 500
+        : 600;
 
-  let enter: number;
+  const enter = tokenEnter(timing, ENTER_SMOOTH);
+
   let scale = 1;
-  let yOffset = 0;
   let xOffset = 0;
+  let yOffset = 0;
   let blurPx = 0;
-  let fontWeight: number;
-  let color: string;
-  const fontStyle = "normal";
 
-  if (tier === "main") {
-    fontWeight = isDevanagariWord ? 700 : 400;
-    color = isAccent
-      ? (token.color ?? config.accentColor)
-      : (token.color ?? config.baseColor);
-    // Punch in past 100%, settle, and hold — see `centerPunchScale`'s own
-    // doc comment for why this is a bare spring rather than `tokenPulse`.
-    const punch = centerPunchScale(timing, ENTER_BOUNCY);
-    scale = 0.82 + punch * 0.18;
-    enter = tokenEnter(timing, ENTER_SMOOTH);
-    blurPx = (1 - enter) * 6;
+  if (tier === "hero") {
+    // Punches past 100%, settles and *holds* — a bare unclamped spring rather
+    // than `tokenPulse`, so the headline does not shrink back when its speech
+    // window ends. See `centerPunchScale`'s own doc comment.
+    scale = 0.9 + centerPunchScale(timing, ENTER_SUBTLE) * 0.1;
+    blurPx = (1 - enter) * 7;
   } else if (tier === "primary") {
-    fontWeight = isDevanagariWord ? 700 : 400;
-    color = token.color ?? config.baseColor;
-    enter = tokenEnter(timing, ENTER_SMOOTH);
-    yOffset = (1 - enter) * 35;
-    scale = 0.97 + enter * 0.03;
-    blurPx = (1 - enter) * 6;
-  } else if (tier === "secondary" || tier === "support") {
-    fontWeight = 900;
-    color = token.color ?? "#ffffff";
-    enter = tokenEnter(timing, ENTER_SMOOTH);
-    const travelY = slideVariant === 0 ? -25 : 25;
-    
-    // Continuous pan from left to right over the lifetime of the word
-    const duration = toFrame - fromFrame;
-    const progress = Math.max(0, Math.min(1, (frame - fromFrame) / duration));
-    const panOffset = -15 + (progress * 30); // starts slightly left, moves slightly right
-    
-    yOffset = (1 - enter) * travelY;
-    xOffset = panOffset;
-    scale = 1;
+    yOffset = (1 - enter) * 22;
+    scale = 0.98 + enter * 0.02;
+    blurPx = (1 - enter) * 5;
+  } else if (tier === "accent") {
+    // Slides in from whichever edge it settles against, so the motion agrees
+    // with the composition instead of cutting across it.
+    xOffset = (1 - enter) * (align === "right" ? 26 : -26);
     blurPx = (1 - enter) * 4;
   } else {
-    fontWeight = 600;
-    color = token.color ?? "#ffffff";
-    enter = tokenEnter(timing, ENTER_SMOOTH);
+    yOffset = (1 - enter) * 12;
   }
-
-  // Heavy scatter for a dynamic, spaced-out poster look
-  const scatterY = (tier === "main" || tier === "primary") ? 0 : ((hash % 5) - 2) * 20;
-  const scatterX = (tier === "main" || tier === "primary") ? 0 : ((hash % 7) - 3) * 35;
-  
-  xOffset += scatterX;
-  yOffset += scatterY;
-
-  // — the whole page still shares one visual centre.
-  const overlapMarginEm =
-    tier === "main" ? -0.15 : tier === "primary" ? -0.12 : tier === "secondary" ? -0.18 : -0.12;
 
   return (
     <span
       style={{
         ...tokenShellStyle,
-        // Allow all words, including main/primary, to share rows.
-        flexBasis: "auto",
+        // Owns its row — this is what produces the vertical stack.
+        flexBasis: "100%",
         justifyContent: "center",
-        marginTop: `${overlapMarginEm}em`,
       }}
     >
       <span
@@ -145,15 +140,20 @@ export const StackToken: React.FC<TokenViewProps> = ({
           fontFamily,
           fontSize,
           fontWeight,
-          fontStyle,
-          color,
-          textTransform: tier === "main" || tier === "primary" ? "uppercase" : "lowercase",
-          letterSpacing: tier === "main" || tier === "primary" ? textStyle.letterSpacing : 0,
+          fontStyle: tier === "accent" && !isDevanagariWord ? "italic" : "normal",
+          color: isStackAccentColour(tier)
+            ? (token.color ?? config.accentColor)
+            : (token.color ?? config.baseColor),
+          textTransform: stackTierIsUpper(tier) ? "uppercase" : "lowercase",
           opacity: enter,
-          transform: `translate(${xOffset}px, ${yOffset}px) scale(${scale})`,
+          transform: `translate(${tuckX + xOffset}px, ${yOffset}px) scale(${scale})`,
           filter: blurPx > 0.3 ? `blur(${blurPx}px)` : undefined,
-          textShadow: "none",
-          WebkitTextStroke: "none",
+          // The two-part readability guarantee this template uses in place of
+          // a conventional outline — see `PREMIUM_HALO` / `premiumStrokePx`.
+          // Sized off this word's own tier, so the hairline stays a hairline
+          // behind a 49px support word and behind a 116px headline alike.
+          textShadow: haloTextShadow(fontSize),
+          WebkitTextStroke: `${premiumStrokePx(fontSize, config)}px ${config.strokeColor}`,
           zIndex: 1,
         }}
       >

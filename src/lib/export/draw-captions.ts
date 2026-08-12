@@ -37,6 +37,7 @@ import {
   layeredDepthDrift,
   maskRevealY,
   glitchBurst,
+  focusEnvelope,
 } from "@/remotion/captions/animation";
 import {
   HERO_SMALL_RATIO,
@@ -135,6 +136,18 @@ import {
   editorialStackHeroRole,
   editorialStackHeroFontScale,
   isEditorialStackHeroAccent,
+  stackTier,
+  stackFontScale,
+  stackRowAlign,
+  stackRowOffsetPx,
+  stackTierIsUpper,
+  isStackAccentColour,
+  isFocusAccent,
+  focusWordOpacity,
+  focusWordScale,
+  FOCUS_ACTIVE_LIFT_RATIO,
+  PREMIUM_HALO,
+  premiumStrokePx,
 } from "@/remotion/captions/primitives";
 import { resolveEmphasis, DYNAMIC_HIGHLIGHT_EMPHASIS_SCALE } from "@/remotion/styles/DynamicHighlight";
 import { canvasFont, resolveFontFamily } from "./fonts";
@@ -251,6 +264,20 @@ const getRenderText = (
     // CSS `text-transform`, reproduced here since Canvas has none.
     const ekRole = editorialKineticRole(token.role ?? "normal", text);
     return ekRole === "display" ? text.toUpperCase() : text.toLowerCase();
+  }
+  if (config.styleId === "stack") {
+    // Headline and anchor rows shout in caps, the italic accent and the tiny
+    // support words stay lowercase — the same contrast `StackToken` applies
+    // via CSS `text-transform`, reproduced here since Canvas has none.
+    return stackTierIsUpper(stackTier(token.role ?? "normal", text))
+      ? text.toUpperCase()
+      : text.toLowerCase();
+  }
+  if (config.styleId === "focus") {
+    // Uniform by design: every word takes the template's own case. Falling
+    // through to `roleTextCase` below would shout the keyword and whisper the
+    // connectors, which is the opposite of what this template is for.
+    return applyTextCase(text, resolveTextCase(config));
   }
   if (config.styleId === "editorialStackHero") {
     // Main/primary words shout in caps, secondary/support words stay
@@ -610,6 +637,41 @@ const layoutLines = (
       const style = tier === "secondary" && !isDevanagariWord ? "italic" : "normal";
       ctx.font = canvasFont(weight, fontSize, fam, style);
       fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
+    } else if (config.styleId === "stack") {
+      const role = token.role ?? "normal";
+      const isDevanagariWord = hasDevanagari(text);
+      const tier = stackTier(role, text);
+      fontSize = config.fontSizePx * stackFontScale(tier);
+      const fam = isDevanagariWord
+        ? tier === "support"
+          ? resolveFontFamily("devanagari")
+          : resolveFontFamily("notoSerifDevanagari")
+        : tier === "hero" || tier === "primary"
+          ? family
+          : tier === "accent"
+            ? resolveFontFamily(config.specialFontId ?? "playfair")
+            : resolveFontFamily(config.secondaryFontId ?? "inter");
+      const weight =
+        tier === "hero" || tier === "primary" ? config.fontWeight : tier === "accent" ? 500 : 600;
+      const style = tier === "accent" && !isDevanagariWord ? "italic" : "normal";
+      ctx.font = canvasFont(weight, fontSize, fam, style);
+      fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
+    } else if (config.styleId === "focus") {
+      // Uniform size — only the accent word's face changes, and it still has
+      // to be *measured* in that face or the row wraps against a width the
+      // draw pass never uses. Devanagari keeps the primary face (Playfair has
+      // no Devanagari and the Noto fallback has no italic), matching
+      // `FocusToken`.
+      const role = token.role ?? "normal";
+      if (isFocusAccent(role) && !hasDevanagari(text)) {
+        ctx.font = canvasFont(
+          600,
+          config.fontSizePx,
+          resolveFontFamily(config.specialFontId ?? "playfair"),
+          "italic",
+        );
+        fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
+      }
     } else if (config.styleId === "dynamicSlideStack") {
       const role = token.role ?? "normal";
       fontSize = config.fontSizePx * dynamicSlideStackFontScale(role);
@@ -796,6 +858,15 @@ const layoutLines = (
       return;
     }
 
+    // Stack: one word per row too (see Stack.tsx's `flexBasis: 100%`), which
+    // is what makes the three-row poster shape hold no matter how short the
+    // words are. Matches `resolveTokenBoxes`' one-row-per-token estimate.
+    if (config.styleId === "stack") {
+      flush();
+      lines.push({ items: [measured], width, height: rowHeight([measured]) });
+      return;
+    }
+
     const withGap =
       current.length === 0 ? width : currentWidth + config.wordGapPx + width;
 
@@ -846,6 +917,42 @@ const strokeThenFill = (
 const clearShadow = (ctx: Ctx): void => {
   ctx.shadowBlur = 0;
   ctx.shadowColor = "transparent";
+};
+
+/**
+ * Canvas2D twin of the DOM's two-layer `text-shadow` (see `PREMIUM_HALO`).
+ *
+ * A `text-shadow` list paints every layer behind the glyph and then the glyph
+ * on top; Canvas has no shadow list, so each layer is its own `fillText` pass
+ * and a final unshadowed pass lays the crisp glyph over them. Same layers in
+ * the same order, so `focus` and `stack` separate from footage identically in
+ * the preview and in the exported file.
+ *
+ * Runs inside the per-token `ctx.save()`/`restore()`, so it does not have to
+ * put the shadow state back itself.
+ */
+const fillWithHalo = (
+  ctx: Ctx,
+  text: string,
+  x: number,
+  y: number,
+  fill: string,
+  fontSizePx: number,
+  strokeWidth: number,
+  strokeColor: string,
+): void => {
+  ctx.fillStyle = fill;
+  for (const layer of PREMIUM_HALO) {
+    ctx.shadowColor = layer.color;
+    ctx.shadowBlur = layer.blurRatio * fontSizePx;
+    ctx.shadowOffsetY = layer.offsetYRatio * fontSizePx;
+    ctx.fillText(text, x, y);
+  }
+  clearShadow(ctx);
+  ctx.shadowOffsetY = 0;
+  // Crisp pass last, over the halo. `strokeThenFill` keeps the hairline
+  // outward-only, which is what stops it eating Devanagari matras.
+  strokeThenFill(ctx, text, x, y, fill, strokeWidth, strokeColor);
 };
 
 export interface DrawCaptionsOptions {
@@ -3168,84 +3275,125 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
         }
 
         case "stack": {
+          // Mirrors `StackToken`. Read that component's doc comment first —
+          // it records what this template deliberately does *not* do, and why.
           const role = token.role ?? "normal";
           const isDevanagariWord = hasDevanagari(token.text);
-          const tier = editorialStackHeroRole(role, token.text);
-          const isAccent = isEditorialStackHeroAccent(role);
-          const roleFontSize = config.fontSizePx * editorialStackHeroFontScale(role, tier);
+          const tier = stackTier(role, token.text);
+          const align = stackRowAlign(tier, index);
+          const roleFontSize = config.fontSizePx * stackFontScale(tier);
           const scaleFactor = canvasScale({ width, height });
 
           const fam = isDevanagariWord
             ? tier === "support"
               ? resolveFontFamily("devanagari")
               : resolveFontFamily("notoSerifDevanagari")
-            : tier === "main" || tier === "primary"
+            : tier === "hero" || tier === "primary"
               ? family
-              : resolveFontFamily(config.secondaryFontId ?? "montserrat");
-          const weight = tier === "main" || tier === "primary" ? config.fontWeight : 900;
-          const fontStyle = "normal";
+              : tier === "accent"
+                ? resolveFontFamily(config.specialFontId ?? "playfair")
+                : resolveFontFamily(config.secondaryFontId ?? "inter");
+          const weight =
+            tier === "hero" || tier === "primary"
+              ? config.fontWeight
+              : tier === "accent"
+                ? 500
+                : 600;
+          const fontStyle = tier === "accent" && !isDevanagariWord ? "italic" : "normal";
           ctx.font = canvasFont(weight, roleFontSize, fam, fontStyle);
 
-          let enter: number;
+          const enter = tokenEnter(timing, ENTER_SMOOTH);
+
           let scale = 1;
+          let animXOffset = 0;
           let yOffset = 0;
           let blurPx = 0;
-          let color: string;
-          let alignOffsetX = 0;
 
-          const hash = getHash(token.text + index);
-          const slideVariant = (hash + 1) % 2;
-
-          if (tier === "main") {
-            color = isAccent ? (token.color ?? config.accentColor) : (token.color ?? config.baseColor);
-            const punch = centerPunchScale(timing, ENTER_BOUNCY);
-            scale = 0.82 + punch * 0.18;
-            enter = tokenEnter(timing, ENTER_SMOOTH);
-            blurPx = (1 - enter) * 6 * scaleFactor;
+          if (tier === "hero") {
+            scale = 0.9 + centerPunchScale(timing, ENTER_SUBTLE) * 0.1;
+            blurPx = (1 - enter) * 7 * scaleFactor;
           } else if (tier === "primary") {
-            color = token.color ?? config.baseColor;
-            enter = tokenEnter(timing, ENTER_SMOOTH);
-            yOffset = (1 - enter) * 35 * scaleFactor;
-            scale = 0.97 + enter * 0.03;
-            blurPx = (1 - enter) * 6 * scaleFactor;
-          } else if (tier === "secondary" || tier === "support") {
-            color = token.color ?? "#ffffff";
-            enter = tokenEnter(timing, ENTER_SMOOTH);
-            const travelY = slideVariant === 0 ? -25 : 25;
-            
-            // Continuous pan from left to right over the lifetime of the word
-            const duration = timing.toFrame - timing.fromFrame;
-            const progress = Math.max(0, Math.min(1, (timing.frame - timing.fromFrame) / duration));
-            const panOffset = -15 + (progress * 30);
-            
-            yOffset = (1 - enter) * travelY * scaleFactor;
-            const animXOffset = panOffset * scaleFactor;
-            scale = 1;
-            blurPx = (1 - enter) * 6 * scaleFactor;
-            
-            // Only animation offset, no physical layout shift since DOM flows inline
-            alignOffsetX = animXOffset;
+            yOffset = (1 - enter) * 22 * scaleFactor;
+            scale = 0.98 + enter * 0.02;
+            blurPx = (1 - enter) * 5 * scaleFactor;
+          } else if (tier === "accent") {
+            animXOffset = (1 - enter) * (align === "right" ? 26 : -26) * scaleFactor;
+            blurPx = (1 - enter) * 4 * scaleFactor;
           } else {
-            color = token.color ?? "#ffffff";
-            enter = tokenEnter(timing, ENTER_SMOOTH);
+            yOffset = (1 - enter) * 12 * scaleFactor;
           }
 
-          // Create a staggered look by persistently offsetting non-hero words
-          const scatterY = (tier === "main" || tier === "primary") ? 0 : ((hash % 5) - 2) * 20 * scaleFactor;
-          const scatterX = (tier === "main" || tier === "primary") ? 0 : ((hash % 7) - 3) * 35 * scaleFactor;
-          
-          yOffset += scatterY;
-          alignOffsetX += scatterX;
+          // The same constant the DOM applies as a transform — see
+          // `stackRowOffsetPx` for why the row rhythm is a shared offset
+          // rather than an alignment against a measured block width.
+          const edgeOffsetX = stackRowOffsetPx(tier, index, config.fontSizePx);
 
           ctx.filter = blurPx > 0.3 ? `blur(${blurPx}px)` : "none";
           ctx.globalAlpha = entrance * enter;
-          ctx.translate(cx + alignOffsetX, cy + yOffset);
+          ctx.translate(cx + edgeOffsetX + animXOffset, cy + yOffset);
           ctx.scale(scale, scale);
-          ctx.fillStyle = color;
-          ctx.fillText(text, -tokenWidth / 2, 0);
+          fillWithHalo(
+            ctx,
+            text,
+            -tokenWidth / 2,
+            0,
+            isStackAccentColour(tier)
+              ? (token.color ?? config.accentColor)
+              : (token.color ?? config.baseColor),
+            roleFontSize,
+            premiumStrokePx(roleFontSize, config),
+            config.strokeColor,
+          );
           ctx.filter = "none";
 
           ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
+          break;
+        }
+
+        case "focus": {
+          // Mirrors `FocusToken`: uniform size and weight, the spoken word
+          // lifts/scales/brightens, everything else holds at
+          // `upcomingOpacity`, and one accent word per page carries the italic
+          // serif. Nothing here changes a word's measured box.
+          const role = token.role ?? "normal";
+          const isDevanagariWord = hasDevanagari(token.text);
+          const isAccentFace = isFocusAccent(role) && !isDevanagariWord;
+
+          if (isAccentFace) {
+            ctx.font = canvasFont(
+              600,
+              config.fontSizePx,
+              resolveFontFamily(config.specialFontId ?? "playfair"),
+              "italic",
+            );
+          }
+
+          const { started, ended } = focusEnvelope(timing);
+          const scale = focusWordScale(started, ended);
+          // `config` is already scaled to the output canvas (see the top of
+          // `drawCaptions`), so this must NOT be multiplied by `canvasScale`
+          // again — unlike the hard-coded reference-px travels elsewhere in
+          // this switch.
+          const lift = -(started - ended) * config.fontSizePx * FOCUS_ACTIVE_LIFT_RATIO;
+
+          ctx.globalAlpha =
+            entrance * focusWordOpacity(started, ended, config.upcomingOpacity);
+          ctx.translate(cx, cy + lift);
+          ctx.scale(scale, scale);
+          fillWithHalo(
+            ctx,
+            text,
+            -tokenWidth / 2,
+            0,
+            isFocusAccent(role)
+              ? (token.color ?? config.accentColor)
+              : (token.color ?? config.baseColor),
+            config.fontSizePx,
+            premiumStrokePx(config.fontSizePx, config),
+            config.strokeColor,
+          );
+
+          if (isAccentFace) ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
           break;
         }
 

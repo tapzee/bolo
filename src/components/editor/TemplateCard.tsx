@@ -29,6 +29,14 @@ export const TemplateCard = memo(function TemplateCard({
   const isSplash = template.engine === "splash";
   const isDual = template.engine === "dual";
   const isHero = template.engine === "hero";
+  const isStack = template.engine === "stack";
+  const isFocus = template.engine === "focus";
+  // Templates that deliberately carry no outline (the premium pair, and the
+  // editorial engines) must not be previewed with one — the card is the only
+  // thing a user sees before applying, so a stroke here promises a look the
+  // template does not have.
+  const previewStroke =
+    config.strokeWidthPx > 0 ? `${Math.max(1, previewSize * 0.085)}px ${config.strokeColor}` : undefined;
 
   return (
     <button
@@ -219,6 +227,92 @@ export const TemplateCard = memo(function TemplateCard({
               बोलो BOLO
             </span>
           </div>
+        ) : isStack ? (
+          /* Three rows, alternating edges, one accent word — the real shape of
+             the template rather than a single sample word. */
+          <div className="flex w-full flex-col items-center justify-center leading-none">
+            <div className="flex flex-col" style={{ gap: previewSize * 0.08 }}>
+              <span
+                style={{
+                  alignSelf: "flex-start",
+                  fontFamily: FONT_FAMILY[config.secondaryFontId ?? "inter"],
+                  fontWeight: 600,
+                  fontSize: previewSize * 0.38,
+                  color: config.baseColor,
+                  textShadow: "0 2px 8px rgba(0,0,0,0.6)",
+                }}
+              >
+                बोलो
+              </span>
+              <span
+                style={{
+                  fontFamily: FONT_FAMILY[config.fontId],
+                  fontWeight: config.fontWeight,
+                  fontSize: previewSize * 1.15,
+                  letterSpacing: config.letterSpacingPx * 0.15,
+                  textTransform: "uppercase",
+                  color: config.accentColor,
+                  textShadow: "0 4px 16px rgba(0,0,0,0.7)",
+                }}
+              >
+                BOLO
+              </span>
+              <span
+                style={{
+                  alignSelf: "flex-end",
+                  fontFamily: FONT_FAMILY[config.specialFontId ?? "playfair"],
+                  fontStyle: "italic",
+                  fontWeight: 500,
+                  fontSize: previewSize * 0.5,
+                  color: config.baseColor,
+                  textShadow: "0 2px 8px rgba(0,0,0,0.6)",
+                }}
+              >
+                bolo
+              </span>
+            </div>
+          </div>
+        ) : isFocus ? (
+          /* Dimmed line, one spoken word bright, one italic serif accent. */
+          <div className="flex items-baseline gap-1.5 whitespace-nowrap">
+            <span
+              style={{
+                fontFamily: FONT_FAMILY[config.fontId],
+                fontWeight: config.fontWeight,
+                fontSize: previewSize,
+                letterSpacing: config.letterSpacingPx * 0.15,
+                color: config.baseColor,
+                opacity: config.upcomingOpacity,
+                textShadow: "0 2px 8px rgba(0,0,0,0.6)",
+              }}
+            >
+              बोलो
+            </span>
+            <span
+              style={{
+                fontFamily: FONT_FAMILY[config.fontId],
+                fontWeight: config.fontWeight,
+                fontSize: previewSize,
+                letterSpacing: config.letterSpacingPx * 0.15,
+                color: config.baseColor,
+                textShadow: "0 3px 12px rgba(0,0,0,0.7)",
+              }}
+            >
+              Bolo
+            </span>
+            <span
+              style={{
+                fontFamily: FONT_FAMILY[config.specialFontId ?? "playfair"],
+                fontStyle: "italic",
+                fontWeight: 600,
+                fontSize: previewSize,
+                color: config.accentColor,
+                textShadow: "0 3px 12px rgba(0,0,0,0.7)",
+              }}
+            >
+              premium
+            </span>
+          </div>
         ) : (
           <span
             style={{
@@ -228,7 +322,7 @@ export const TemplateCard = memo(function TemplateCard({
               letterSpacing: config.letterSpacingPx * 0.15,
               textTransform: config.uppercase ? "uppercase" : "none",
               color: isBox ? config.activeColor : config.activeColor,
-              WebkitTextStroke: `${Math.max(1, previewSize * 0.085)}px ${config.strokeColor}`,
+              WebkitTextStroke: previewStroke,
               paintOrder: "stroke fill",
               backgroundColor: isBox ? config.accentColor : "transparent",
               padding: isBox

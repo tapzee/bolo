@@ -694,26 +694,103 @@ export const CAPTION_STYLES: Readonly<
   stack: define(
     "stack",
     "Stack",
-    "Stacked typography with grouped lines instead of one word per line.",
+    "Editorial poster typography: a tiny sans support word, an italic serif accent and one oversized headline word — exactly three rows, alternating alignment, a single accent colour.",
     {
       fontId: "anton",
       secondaryFontId: "inter",
       specialFontId: "playfair",
       fontWeight: 400,
-      fontSizePx: 88,
+      // Large on purpose: only one word per page renders at this size, and the
+      // other two rows sit at roughly half and a third of it, so the whole
+      // block is no taller than a conventional two-line caption.
+      fontSizePx: 116,
       uppercase: false,
+      textCase: "none",
+      letterSpacingPx: -1,
       baseColor: "#ffffff",
       activeColor: "#ffffff",
-      accentColor: "#f1d400",
+      accentColor: "#ffd400",
+      // No conventional outline — at this size a real stroke reads as a cheap
+      // sticker. Separation comes from the two-layer halo each word paints
+      // (`PREMIUM_HALO`) plus a hairline sized off each tier
+      // (`premiumStrokePx`). The block-level drop shadow is off because it
+      // would stack a third shadow in the preview that the export never draws.
       strokeWidthPx: 0,
-      wordGapPx: 26,
-      maxWordsPerPage: 4,
-      linesPerPage: 3,
-      combineWithinMs: 1000,
+      strokeRatio: 0.025,
       dropShadow: false,
-      placement: "center",
-      maxBlockHeightPct: 55,
-      lineHeight: 0.98,
+      wordGapPx: 24,
+      // Three words, one per row, three rows. Both caps are set because they
+      // guard different failure modes: the word cap keeps the *pace* right for
+      // speech, the line cap keeps the *shape* right no matter how the words
+      // wrap.
+      maxWordsPerPage: 3,
+      linesPerPage: 3,
+      // Wide enough that ordinary speech fills all three rows. At the 900ms
+      // this started on, natural pauses closed pages after one or two words
+      // and a template whose whole identity is a three-row poster spent much
+      // of its time showing a single word stranded mid-screen.
+      combineWithinMs: 1500,
+      holdMs: 260,
+      // Upper third, as asked — high enough to sit clear of a Reels caption
+      // and the action rail, low enough not to crowd the status bar.
+      placement: "top",
+      verticalOffsetPct: 12,
+      maxLineWidthPct: 88,
+      maxBlockHeightPct: 45,
+      // Tight leading is what makes the three rows read as one composition
+      // rather than three subtitle lines. Set through `lineHeight` (which both
+      // renderers derive row height and row gap from) rather than as a DOM
+      // negative margin — a margin the Canvas2D export has no equivalent for
+      // is exactly how a preview and an export drift apart.
+      lineHeight: 0.86,
+    },
+  ),
+
+  focus: define(
+    "focus",
+    "Focus",
+    "Minimal and premium: one clean centred block, the spoken word lifts and brightens while the rest dims, and the sentence's key word carries an italic serif accent.",
+    {
+      fontId: "montserrat",
+      // The only second face on the page — carried by one word per page at
+      // most. See `isFocusAccent`.
+      specialFontId: "playfair",
+      fontWeight: 800,
+      fontSizePx: 74,
+      uppercase: false,
+      textCase: "none",
+      letterSpacingPx: -1,
+      baseColor: "#ffffff",
+      activeColor: "#ffffff",
+      accentColor: "#ffd400",
+      /**
+       * The dim the whole read rests on: unspoken words sit here, the spoken
+       * word rises to 1, spoken words settle at `FOCUS_SPOKEN_OPACITY`.
+       *
+       * Not lower, however good a deep dim looks on dark footage. Opacity
+       * fades a word's halo along with the word, so on the `bright` backdrop
+       * (checked on `/dev/export-frames`) anything near 0.35 left the
+       * not-yet-spoken half of the line effectively invisible — and those
+       * words are the ones the viewer reads ahead into.
+       */
+      upcomingOpacity: 0.55,
+      // Same reasoning as `stack` above: no outline, no block shadow, a
+      // per-word `PREMIUM_HALO` plus a `premiumStrokePx` hairline instead.
+      strokeWidthPx: 0,
+      strokeRatio: 0.025,
+      dropShadow: false,
+      wordGapPx: 22,
+      maxWordsPerPage: 6,
+      // Three rows is the shape this template is tuned for; most pages land on
+      // two and the cap keeps the tall ones from becoming a paragraph.
+      linesPerPage: 3,
+      combineWithinMs: 1400,
+      holdMs: 320,
+      placement: "top",
+      verticalOffsetPct: 6,
+      maxLineWidthPct: 84,
+      maxBlockHeightPct: 34,
+      lineHeight: 1.12,
     },
   ),
 

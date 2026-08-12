@@ -69,6 +69,24 @@ export const CaptionOverlay = memo(function CaptionOverlay({
       // same relative position at any resolution or aspect ratio.
       left: `${x * 100}%`,
       top: `${anchor * 100}%`,
+      /**
+       * Without this the caption wrapped at *half* the width it exports at.
+       *
+       * An absolutely positioned box with `left` and no `right`/`width`
+       * shrink-to-fits into the space that remains to its right — at the
+       * default `left: 50%` that is 540px of a 1080px canvas, so the block's
+       * `maxLineWidthPct` (84–92% here) could never be reached and the preview
+       * broke lines the Canvas2D export never breaks. `max-content` sizing is
+       * defined to ignore the available space, which hands the inner block its
+       * own `maxWidth` as the only cap — the same number `layoutLines` wraps
+       * against in `draw-captions.ts` and `estimateMaxLineWidthPx` builds
+       * pages against.
+       *
+       * Verified on `/dev/export-frames`, which draws both renderers at the
+       * same playhead: before this, `clean` and `bold-yellow` wrapped to three
+       * and two rows in the preview against two and one in the export.
+       */
+      width: "max-content",
       // Static transform, applied once — this is layout, not animation.
       transform: "translate(-50%, -50%)",
       display: "flex",

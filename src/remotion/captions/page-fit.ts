@@ -53,6 +53,8 @@ import {
   floatingBubbleFontScale,
   editorialStackHeroRole,
   editorialStackHeroFontScale,
+  stackTier,
+  stackFontScale,
 } from "./primitives";
 
 /**
@@ -334,6 +336,21 @@ export const resolveTokenBoxes = (
       });
     }
 
+    case "stack": {
+      // One word per row (see Stack.tsx's `flexBasis: 100%`), so reporting the
+      // full line-wrap width as each token's width makes the greedy-wrap
+      // simulation in `estimateBlockHeightPx` close a row after every word —
+      // which is what the real layout does, and what makes `linesPerPage: 3`
+      // mean "three words" here.
+      const roles = analyzeWordRoles(tokens);
+      const rowWidth = estimateMaxLineWidthPx(config);
+      return tokens.map((token, i) => ({
+        width: rowWidth,
+        height:
+          config.fontSizePx * stackFontScale(stackTier(roles[i]!, token.text)) * config.lineHeight,
+      }));
+    }
+
     case "glassHighlight": {
       const roles = analyzeWordRoles(tokens);
       return tokens.map((token, i) => toBox(token.text, config.fontSizePx * glassHighlightFontScale(roles[i]!)));
@@ -391,8 +408,8 @@ export const resolveTokenBoxes = (
 
     default:
       // Flat styles (bold-yellow, pop, box, glow, clean, kinetic, dynamic,
-      // typewriter, glitch, and any future style that doesn't vary size per
-      // word): the active word's "boost" is a CSS/canvas transform, which
+      // typewriter, glitch, focus, and any future style that doesn't vary size
+      // per word): the active word's "boost" is a CSS/canvas transform, which
       // never affects layout — so every word genuinely renders at
       // `config.fontSizePx`, and this isn't an approximation for these
       // styles, it's exact.

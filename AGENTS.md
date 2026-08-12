@@ -382,6 +382,62 @@ controls for one choice is a smell. The clean version drops "Hinglish" from
 (Hindi / English / Auto) with script as its own axis. That removes a button from
 Gemini's layout, so it was left alone.
 
+### Two premium templates + a preview/export wrap bug — 12 Aug
+
+The catalogue's headline pair. Built to one rule set, written down at the top of
+`remotion/captions/primitives.ts`: nothing random, only transforms move, every
+motion settles.
+
+- **`focus`** (new engine) — minimal centred karaoke block, up to three wrapped
+  rows, top placement. Uniform size and weight; the spoken word lifts, scales
+  ~7% and brightens while the rest hold at `upcomingOpacity`. One word per page
+  (`isFocusAccent`) takes an italic Playfair accent. Because size is uniform,
+  `page-fit.ts`'s default branch is *exact* for it, not an estimate.
+- **`stack`** (rewritten) — strict three-row editorial poster, one word per row,
+  four tiers (tiny sans support / bold condensed anchor / oversized accent-colour
+  headline / italic serif accent), each with its own entrance.
+
+`stack` was rebuilt rather than tuned, and the three things removed are worth
+not reintroducing: hashed per-word scatter (it moved glyphs outside the measured
+caption block, so the editor's transform box no longer contained its own text),
+a continuous left-to-right pan (motion that never settles), and DOM-only
+negative row margins (no Canvas2D equivalent, so they exported differently).
+Row rhythm is now `stackRowOffsetPx` — a shared constant applied as a transform,
+deliberately *not* an alignment against the block's measured width, which the
+two renderers derive differently.
+
+Neither uses a conventional outline. Readability is `PREMIUM_HALO` (a two-layer
+shadow, one `fillText` pass per layer in Canvas) plus a `premiumStrokePx`
+hairline at `strokeRatio: 0.025`. Both were checked against `bright` and `busy`.
+
+**A pre-existing preview/export divergence turned up and is fixed:**
+`CaptionOverlay`'s anchor is absolutely positioned at `left: 50%` with no width,
+so it shrink-to-fit into the 540px remaining to its right — **every** style
+wrapped at half the width it exports at, and half the width `page-fit.ts` builds
+pages against. `width: max-content` on the anchor lifts that cap. Previews of
+existing templates will now wrap later than before; that is the export's
+behaviour, not new behaviour.
+
+**Still open, same class, not fixed here:** `getRenderText` in
+`draw-captions.ts` falls through to `roleTextCase` for styles whose DOM token
+applies no per-role casing — so `clean` exports "INCOME … DOUBLE … STEP" where
+the preview shows "income … double … step". Visible on the parity grid below.
+
+### `/dev/export-frames` — 12 Aug
+
+DOM preview and Canvas2D export, same style, same playhead, side by side —
+`/dev/frames` only ever showed the DOM half, which is why divergences like the
+one above survived. Gated by `ENABLE_DEV_ROUTES=1` like the rest of `/dev`.
+
+```
+/dev/export-frames?styles=focus,stack&backdrop=busy&t=2700,5200&w=320
+```
+
+Omitting `styles` compares the whole catalogue and is slow — pass what you
+changed. This is not a substitute for `scripts/e2e-editor.mjs`'s exported-pixel
+proof (still broken on the `RequireAuth` gate): it exercises `drawCaptions`, not
+the encoder.
+
 ### Known gap — the ₹9 single export
 
 `PLANS` in `legal-content.tsx` no longer lists it. It is a *count* of

@@ -20,6 +20,7 @@ import { getStyleDefaults } from "./registry";
 export type TemplateTag = "Popular" | "Viral" | "Trending" | "New" | "Hot";
 
 export type TemplateCategory =
+  | "premium"
   | "trending"
   | "bold"
   | "clean"
@@ -40,6 +41,7 @@ export const TEMPLATE_CATEGORIES: readonly {
   id: TemplateCategory;
   label: string;
 }[] = [
+  { id: "premium", label: "Premium" },
   { id: "trending", label: "Trending" },
   { id: "bold", label: "Bold" },
   { id: "highlight", label: "Highlight" },
@@ -63,6 +65,14 @@ const t = (
  * outline is applied.
  */
 export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
+  // ---- Premium -----------------------------------------------------------
+  // The two templates the catalogue is meant to open on. Both carry no
+  // overrides on purpose: their engine defaults in `registry.ts` *are* the
+  // design, tuned as a whole (size, leading, placement, pace and colour
+  // together), so a template-level override here would quietly detune them.
+  t("focus", "Focus", "premium", "focus", {}, "New"),
+  t("stack", "Stack", "premium", "stack", {}, "New"),
+
   // ---- Trending ----------------------------------------------------------
   t("hero-mixed-pro", "Hero Mixed Pro", "trending", "heroMixed", {
     fontId: "montserrat", fontSizePx: 118, textCase: "upper",

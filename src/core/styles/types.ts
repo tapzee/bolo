@@ -59,7 +59,11 @@ export const STYLE_IDS = [
   // Editorial Stack Hero — 4-tier stacked hero poster (support/primary/
   // main/secondary), one word per row, restrained yellow hero accent.
   "editorialStackHero",
+  // The two premium templates — a minimal centred karaoke block and a strict
+  // three-row editorial poster. See the header block in
+  // `remotion/captions/primitives.ts` for the rules both are built on.
   "stack",
+  "focus",
 ] as const;
 
 export type StyleId = (typeof STYLE_IDS)[number];

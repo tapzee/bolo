@@ -53,6 +53,7 @@ import { FloatingBubbleToken } from "./FloatingBubble";
 import { DynamicTypographyToken } from "./DynamicTypography";
 import { EditorialStackHeroToken } from "./EditorialStackHero";
 import { StackToken } from "./Stack";
+import { FocusToken } from "./Focus";
 
 /**
  * Style id → word renderer.
@@ -118,5 +119,6 @@ export const TOKEN_RENDERERS: Readonly<
   dynamicTypography: DynamicTypographyToken,
   editorialStackHero: EditorialStackHeroToken,
   stack: StackToken,
+  focus: FocusToken,
 };
 

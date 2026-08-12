@@ -1026,3 +1026,222 @@ export const floatingBubbleOffset = (
 export const FLOATING_BUBBLE_TINTS = ["#7c4dff", "#00b8d4", "#ff6ec7", "#ffb74d"] as const;
 export const floatingBubbleTint = (text: string): string =>
   FLOATING_BUBBLE_TINTS[getHash(text.toLowerCase()) % FLOATING_BUBBLE_TINTS.length]!;
+
+/**
+ * ===========================================================================
+ * THE TWO PREMIUM TEMPLATES — `focus` and `stack`
+ * ===========================================================================
+ *
+ * Both are built on the same three rules, which are what separate a template
+ * that reads as After Effects work from one that reads as a caption plugin:
+ *
+ * 1. **Nothing random.** Every size, colour, font and alignment decision below
+ *    is a pure function of the word's *role* (or its row index), never of a
+ *    hash roll or a per-frame clock. The composition is designed, so the same
+ *    sentence always lands the same way and the eye reads a deliberate layout
+ *    rather than scattered text.
+ * 2. **Only transforms move.** Nothing that animates is allowed to change a
+ *    word's layout box — scale, translate, opacity and blur only. A word can
+ *    therefore never shove its neighbours mid-animation, which is the jitter
+ *    that makes home-made captions look home-made.
+ * 3. **Every motion settles.** Each word plays exactly one entrance and then
+ *    holds. No continuous pan, no ambient drift, no second wobble.
+ */
+
+/**
+ * The readability guarantee for the two premium templates, in place of a
+ * stroke.
+ *
+ * Both templates set `strokeWidthPx: 0` — at 74–116px an outline reads as a
+ * sticker, not as typography, and it is the first thing that makes a caption
+ * look cheap. But white text still has to survive white footage: measured on
+ * `/dev/export-frames?backdrop=bright`, unhaloed white words on the bright
+ * backdrop were close to invisible.
+ *
+ * So separation comes from two stacked shadows instead: a tight dark halo that
+ * hugs the letterforms and does the actual contrast work, and a wider, softer
+ * drop that gives the block depth. Ratios of font size, not fixed pixels, so
+ * they hold at every size the user can drag to and at every export resolution.
+ *
+ * The DOM renders these as a two-layer `text-shadow`; `draw-captions.ts` paints
+ * one `fillText` pass per layer and then a crisp pass on top. Same layers, same
+ * order, so the two renderers separate text from footage identically.
+ */
+export interface CaptionHaloLayer {
+  /** Blur radius, as a fraction of the word's own font size. */
+  blurRatio: number;
+  /** Downward offset, as a fraction of font size. */
+  offsetYRatio: number;
+  color: string;
+}
+
+export const PREMIUM_HALO: readonly CaptionHaloLayer[] = [
+  { blurRatio: 0.14, offsetYRatio: 0, color: "rgba(0,0,0,0.65)" },
+  { blurRatio: 0.3, offsetYRatio: 0.07, color: "rgba(0,0,0,0.45)" },
+];
+
+/**
+ * The hairline that backs the halo up on genuinely hostile footage.
+ *
+ * The halo alone carries most backdrops, but the `busy` backdrop — hard
+ * black-and-white diagonals, the worst case this repo tests against — still
+ * ate the dimmed half of a Focus line, and a caption a viewer cannot read
+ * ahead into is a broken caption however good it looks on a gradient.
+ *
+ * Taken as a fraction of *each word's own* size rather than a flat pixel
+ * value, via the `strokeRatio` field the repo already uses for exactly this:
+ * at `0.025` that is ~1.2px behind Stack's small support words and ~2.9px
+ * behind its headline, which reads as edge definition. The 8.5% the stroked
+ * templates use would read as an outline, which is the look these two exist
+ * to avoid.
+ *
+ * `strokeWidthPx` still wins when larger, so a user who wants a real outline
+ * can still dial one in from the editor.
+ */
+export const premiumStrokePx = (
+  fontSizePx: number,
+  config: Pick<CaptionStyleConfig, "strokeWidthPx" | "strokeRatio">,
+): number => Math.max(config.strokeWidthPx, fontSizePx * config.strokeRatio);
+
+export const haloTextShadow = (fontSizePx: number): string =>
+  PREMIUM_HALO.map(
+    (layer) =>
+      `0 ${layer.offsetYRatio * fontSizePx}px ${layer.blurRatio * fontSizePx}px ${layer.color}`,
+  ).join(", ");
+
+/**
+ * Focus — the minimal one. One clean centred block, uniform size and weight,
+ * up to three wrapped rows. The spoken word lifts and brightens while the rest
+ * of the page sits dimmed, and the sentence's single most salient word carries
+ * an italic serif accent so the page still has a focal point before it is
+ * spoken. Two faces, one accent colour, nothing else.
+ *
+ * Deliberately *not* size-varying: uniform sizing is what lets the page-fit
+ * estimator (`page-fit.ts`'s default branch) be exact rather than approximate,
+ * and it is the whole reason this template reads as calm.
+ */
+export const isFocusAccent = (role: WordRole): boolean =>
+  role === "critical" || role === "number";
+
+/** Opacity a word falls back to once it has been spoken — still readable, clearly past. */
+export const FOCUS_SPOKEN_OPACITY = 0.72;
+
+/** How much the spoken word grows. Pure transform, so it never reflows the row. */
+export const FOCUS_ACTIVE_SCALE = 0.07;
+
+/** How far the spoken word lifts, as a fraction of its own font size. */
+export const FOCUS_ACTIVE_LIFT_RATIO = 0.035;
+
+/**
+ * Upcoming → active → spoken, as one continuous curve.
+ *
+ * `started` and `ended` are the two spring envelopes (see `focusEnvelope` in
+ * `animation.ts`); this maps them onto opacity so a word ramps from
+ * `upcomingOpacity` up to 1 as it is spoken and settles back to
+ * `FOCUS_SPOKEN_OPACITY` after. Shared by both renderers so the karaoke read
+ * is frame-identical in the preview and the exported file.
+ */
+export const focusWordOpacity = (
+  started: number,
+  ended: number,
+  upcomingOpacity: number,
+): number =>
+  upcomingOpacity +
+  started * (1 - upcomingOpacity) -
+  ended * (1 - FOCUS_SPOKEN_OPACITY);
+
+export const focusWordScale = (started: number, ended: number): number =>
+  1 + (started - ended) * FOCUS_ACTIVE_SCALE;
+
+/**
+ * Stack — the editorial one. Three rows, one word per row, four typographic
+ * tiers: a tiny sans support word, a bold condensed anchor, one oversized
+ * headline word in the accent colour, and an italic serif accent for contrast.
+ *
+ * Same role taxonomy as Editorial Stack Hero, under its own names and its own
+ * scale/alignment rules — this template is tuned as a strict three-row poster
+ * (`linesPerPage: 3`, `maxWordsPerPage: 3`), not a stack of however many words
+ * a page happens to hold.
+ */
+export type StackTier = "support" | "primary" | "hero" | "accent";
+
+export const stackTier = (role: WordRole, text: string): StackTier => {
+  if (role === "critical" || role === "number") return "hero";
+  if (role === "emphasis" || role === "special") return "accent";
+  if (
+    role === "connector" ||
+    role === "supporting" ||
+    role === "question" ||
+    role === "cta"
+  ) {
+    return "support";
+  }
+  // Open-class words split roughly 2:1 toward the bold anchor tier, so a page
+  // reads as several anchors around one italic accent rather than alternating.
+  // Hashed off the word itself (not its position) so a word always dresses the
+  // same way wherever it recurs, and preview and export never disagree.
+  if (role === "keyword") {
+    return getHash(text.toLowerCase()) % 3 === 0 ? "accent" : "primary";
+  }
+  return "support";
+};
+
+/**
+ * Font size per tier, relative to `fontSizePx`.
+ *
+ * The gap between the headline and everything else is the entire look. At a
+ * 116px headline this puts support text at ~44px — decisive enough that the
+ * page reads as "a poster with a caption in it" rather than "text in two
+ * sizes", which is the failure mode of every mediocre stacked template.
+ */
+export const stackFontScale = (tier: StackTier): number =>
+  tier === "hero" ? 1 : tier === "primary" ? 0.58 : tier === "accent" ? 0.5 : 0.42;
+
+/**
+ * Which way a row is tucked off the page's centre line.
+ *
+ * The headline always centres — it is the anchor the composition hangs off —
+ * and the smaller rows alternate left and right of it, which is what produces
+ * the offset, magazine-page rhythm. Keyed on the row's index rather than a
+ * hash so the alternation is designed rather than noise, and so both renderers
+ * place a given row identically.
+ */
+export const stackRowAlign = (
+  tier: StackTier,
+  index: number,
+): "left" | "center" | "right" =>
+  tier === "hero" ? "center" : index % 2 === 0 ? "left" : "right";
+
+/**
+ * How far a tucked row sits from centre, as a fraction of the page's headline
+ * size.
+ *
+ * Deliberately derived from `fontSizePx` — a number both renderers already
+ * hold — rather than from the block's own width.
+ *
+ * The width route is the obvious one and it does not survive contact with the
+ * two renderers: the DOM's caption block is shrink-to-fit, so "align to the
+ * block's edge" means the width of whatever the browser laid out, while
+ * `draw-captions.ts` would have to guess that same number from its measured
+ * lines. They disagree the moment a page's words sum wider than one row.
+ * Offsetting by a shared constant instead is exact on both sides, and being a
+ * transform it also cannot affect line wrapping.
+ */
+export const STACK_ROW_TUCK_RATIO = 0.8;
+
+export const stackRowOffsetPx = (
+  tier: StackTier,
+  index: number,
+  fontSizePx: number,
+): number => {
+  const align = stackRowAlign(tier, index);
+  if (align === "center") return 0;
+  return (align === "left" ? -1 : 1) * fontSizePx * STACK_ROW_TUCK_RATIO;
+};
+
+/** Only the page's one headline word carries the accent colour. */
+export const isStackAccentColour = (tier: StackTier): boolean => tier === "hero";
+
+/** Caps shout, small text whispers — the case contrast is part of the tier system. */
+export const stackTierIsUpper = (tier: StackTier): boolean =>
+  tier === "hero" || tier === "primary";

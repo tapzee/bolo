@@ -214,6 +214,31 @@ export const glitchBurst = (
   return phase < 2 ? 1 : 0;
 };
 
+/**
+ * Focus's two-ended envelope: how far into its onset a word is, and how far
+ * past its end.
+ *
+ * Returned as a pair rather than pre-mixed into one number because the two
+ * drive different properties at different depths (`focusWordOpacity` ramps
+ * `upcomingOpacity → 1 → 0.72`, `focusWordScale` peaks and returns to rest),
+ * and both renderers must derive them from the identical springs. `ended` uses
+ * the non-bouncy `EXIT_SETTLE` so a word releases without a second wobble.
+ */
+export interface FocusEnvelope {
+  /** 0 before the word is spoken, ramping to 1 at its onset. */
+  started: number;
+  /** 0 until the word ends, ramping to 1 after. */
+  ended: number;
+}
+
+export const focusEnvelope = (
+  { frame, fps, fromFrame, toFrame }: TokenAnimationInput,
+  enterConfig: Partial<SpringConfig> = ENTER_SMOOTH,
+): FocusEnvelope => ({
+  started: clamp01(spring({ frame: frame - fromFrame, fps, config: enterConfig })),
+  ended: clamp01(spring({ frame: frame - toFrame, fps, config: EXIT_SETTLE })),
+});
+
 /** Page-level entrance. Deliberately short — captions must not lag the audio. */
 export const pageEntrance = (
   frame: number,
