@@ -3,10 +3,15 @@ import type { TokenViewProps } from "../captions/primitives";
 import {
   FOCUS_ACTIVE_LIFT_RATIO,
   displayText,
+  focusFontScale,
+  focusFontWeight,
+  focusTier,
+  focusTierIsUpper,
   focusWordOpacity,
   focusWordScale,
   haloTextShadow,
   isFocusAccent,
+  isFocusScript,
   premiumStrokePx,
   tokenGlyphStyle,
   tokenShellStyle,
@@ -49,16 +54,17 @@ export const FocusToken: React.FC<TokenViewProps> = ({
   textStyle,
 }) => {
   const role: WordRole = token.role ?? "normal";
+  const tier = focusTier(role);
   const isDevanagariWord = hasDevanagari(token.text);
   // Playfair carries no Devanagari, and the Noto fallback has no italic — a
   // Hindi accent word would silently render as plain upright Noto while the
   // export drew something else. Devanagari accent words keep the primary face
   // and are marked by colour alone.
-  const isAccent = isFocusAccent(role) && !isDevanagariWord;
+  const isScript = isFocusScript(role) && !isDevanagariWord;
 
   const { started, ended } = focusEnvelope({ frame, fps, fromFrame, toFrame });
 
-  const fontSize = textStyle.fontSize as number;
+  const fontSize = (textStyle.fontSize as number) * focusFontScale(tier);
   const opacity = focusWordOpacity(started, ended, config.upcomingOpacity);
   const scale = focusWordScale(started, ended);
   const lift = -(started - ended) * fontSize * FOCUS_ACTIVE_LIFT_RATIO;
@@ -68,17 +74,27 @@ export const FocusToken: React.FC<TokenViewProps> = ({
     : (token.color ?? config.baseColor);
 
   return (
-    <span style={tokenShellStyle}>
+    <span
+      style={{
+        ...tokenShellStyle,
+        flexBasis: tier === "hero" ? "100%" : undefined,
+        justifyContent: "center",
+      }}
+    >
       <span
         style={{
           ...textStyle,
           ...tokenGlyphStyle,
-          fontFamily: isAccent
+          fontFamily: isScript
             ? FONT_FAMILY[config.specialFontId ?? "playfair"]
+            : tier === "support" || tier === "body"
+              ? FONT_FAMILY[config.secondaryFontId ?? "instrumentSans"]
             : FONT_FAMILY[config.fontId],
-          fontStyle: isAccent ? "italic" : "normal",
-          fontWeight: isAccent ? 600 : config.fontWeight,
+          fontSize,
+          fontStyle: isScript ? "italic" : "normal",
+          fontWeight: focusFontWeight(tier, config),
           color: colour,
+          textTransform: focusTierIsUpper(tier) ? "uppercase" : "lowercase",
           opacity,
           transform: `translateY(${lift}px) scale(${scale})`,
           // The two-part readability guarantee this template uses in place of
