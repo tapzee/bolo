@@ -3277,7 +3277,7 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           ctx.globalAlpha *= opacity;
 
           const color = (isAccent || isHero) ? config.accentColor : config.baseColor;
-          const text = applyTextCase(token.text, roleCaseTransform(role, config));
+          const text = applyTextCase(token.text, (roleCaseTransform(role, config) as "none" | "upper" | "lower") ?? config.textCase);
 
           if (isAnchor) {
             ctx.lineWidth = 4;
