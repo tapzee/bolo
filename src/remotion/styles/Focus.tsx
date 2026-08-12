@@ -59,6 +59,9 @@ export const FocusToken: React.FC<TokenViewProps> = ({
   // Playfair carries no Devanagari, and the Noto fallback has no italic — a
   // Hindi accent word would silently render as plain upright Noto while the
   // export drew something else. Devanagari accent words keep the primary face
+  // Playfair carries no Devanagari, and the Noto fallback has no italic — a
+  // Hindi accent word would silently render as plain upright Noto while the
+  // export drew something else. Devanagari accent words keep the primary face
   // and are marked by colour alone.
   const isScript = isFocusScript(role) && !isDevanagariWord;
 
@@ -68,6 +71,7 @@ export const FocusToken: React.FC<TokenViewProps> = ({
   const opacity = focusWordOpacity(started, ended, config.upcomingOpacity);
   const scale = focusWordScale(started, ended);
   const lift = -(started - ended) * fontSize * FOCUS_ACTIVE_LIFT_RATIO;
+  const blurPx = (1 - started) * 2.5 + ended * 2.5;
 
   const colour = isFocusAccent(role)
     ? (token.color ?? config.accentColor)
@@ -97,6 +101,7 @@ export const FocusToken: React.FC<TokenViewProps> = ({
           textTransform: focusTierIsUpper(tier) ? "uppercase" : "lowercase",
           opacity,
           transform: `translateY(${lift}px) scale(${scale})`,
+          filter: blurPx > 0.1 ? `blur(${blurPx}px)` : undefined,
           // The two-part readability guarantee this template uses in place of
           // a conventional outline — see `PREMIUM_HALO` / `premiumStrokePx`.
           textShadow: haloTextShadow(fontSize),
