@@ -3395,11 +3395,16 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           // again — unlike the hard-coded reference-px travels elsewhere in
           // this switch.
           const lift = -(started - ended) * roleFontSize * FOCUS_ACTIVE_LIFT_RATIO;
+          const scaleFactor = canvasScale({ width, height });
+          const blurPx = ((1 - started) * 2.5 + ended * 2.5) * scaleFactor;
 
           ctx.globalAlpha =
             entrance * focusWordOpacity(started, ended, config.upcomingOpacity);
           ctx.translate(cx, cy + lift);
           ctx.scale(scale, scale);
+          if (blurPx > 0.1) {
+            ctx.filter = `blur(${blurPx}px)`;
+          }
           fillWithHalo(
             ctx,
             text,
@@ -3412,6 +3417,9 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
             premiumStrokePx(roleFontSize, config),
             config.strokeColor,
           );
+          if (blurPx > 0.1) {
+            ctx.filter = "none";
+          }
 
           ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
           break;
