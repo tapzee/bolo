@@ -602,7 +602,7 @@ export function CreateFlow() {
           transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
           className="order-2 min-w-0 xl:order-1"
         >
-          <div className="rounded-2xl border bg-card/70 shadow-sm p-4 xl:sticky xl:top-20 space-y-3">
+          <div className="rounded-2xl border bg-card/70 shadow-sm p-4 space-y-3">
             <div className="flex items-center justify-between border-b pb-2.5 border-border/50">
               <h2 className="text-xs font-bold tracking-wide text-foreground uppercase flex items-center gap-1.5">
                 <Edit3 className="size-3.5 text-brand" />
@@ -617,7 +617,7 @@ export function CreateFlow() {
               Click any word below to jump to its timestamp or edit its exact spelling, line break, and highlight color.
             </p>
 
-            <div className="max-h-[calc(100vh-14rem)] space-y-2 overflow-y-auto pr-1">
+            <div className="space-y-2 pr-1">
               <CaptionLines
                 pages={pages}
                 words={editor.words}
@@ -638,7 +638,7 @@ export function CreateFlow() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-          className="order-1 flex min-w-0 flex-col items-center gap-5 xl:order-2"
+          className="order-1 flex min-w-0 flex-col items-center gap-5 xl:order-2 xl:sticky xl:top-20 xl:self-start"
           style={{ ["--stage-h" as string]: "min(52vh, 520px)" }}
         >
           <div className="w-full flex items-center justify-between">
@@ -731,7 +731,7 @@ export function CreateFlow() {
           initial={{ opacity: 0, x: 12 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.35, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
-          className="order-3 min-w-0 space-y-4 xl:sticky xl:top-20 xl:self-start"
+          className="order-3 min-w-0 space-y-4"
         >
           <div className="rounded-2xl border bg-card/80 p-4 shadow-sm space-y-5">
             
