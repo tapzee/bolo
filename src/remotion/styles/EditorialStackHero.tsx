@@ -12,9 +12,7 @@ import { FONT_FAMILY } from "../fonts";
 import type { WordRole } from "@/core";
 import { hasDevanagari } from "@/core";
 import {
-  ENTER_BOUNCY,
   ENTER_SMOOTH,
-  centerPunchScale,
   tokenEnter,
 } from "../captions/animation";
 
@@ -72,7 +70,6 @@ export const EditorialStackHeroToken: React.FC<TokenViewProps> = ({
   const slideVariant = (hash + 1) % 2;
 
   let enter: number;
-  let scale = 1;
   let yOffset = 0;
   let xOffset = 0;
   let blurPx = 0;
@@ -86,10 +83,6 @@ export const EditorialStackHeroToken: React.FC<TokenViewProps> = ({
     color = isAccent
       ? (token.color ?? config.accentColor)
       : (token.color ?? config.baseColor);
-    // Punch in past 100%, settle, and hold — see `centerPunchScale`'s own
-    // doc comment for why this is a bare spring rather than `tokenPulse`.
-    const punch = centerPunchScale(timing, ENTER_BOUNCY);
-    scale = 0.82 + punch * 0.18;
     enter = tokenEnter(timing, ENTER_SMOOTH);
     blurPx = (1 - enter) * 6;
   } else if (tier === "primary") {
@@ -98,7 +91,6 @@ export const EditorialStackHeroToken: React.FC<TokenViewProps> = ({
     noStroke = true;
     enter = tokenEnter(timing, ENTER_SMOOTH);
     yOffset = (1 - enter) * 35;
-    scale = 0.97 + enter * 0.03;
     blurPx = (1 - enter) * 6;
   } else if (tier === "secondary" || tier === "support") {
     fontWeight = 900;
@@ -109,7 +101,6 @@ export const EditorialStackHeroToken: React.FC<TokenViewProps> = ({
     const travelX = alignVariant === 0 ? -20 : alignVariant === 2 ? 20 : 0;
     yOffset = (1 - enter) * travelY;
     xOffset = (1 - enter) * travelX;
-    scale = 1;
     blurPx = (1 - enter) * 4;
   } else {
     fontWeight = 600;
@@ -154,7 +145,7 @@ export const EditorialStackHeroToken: React.FC<TokenViewProps> = ({
           textTransform: tier === "main" || tier === "primary" ? "uppercase" : "lowercase",
           letterSpacing: tier === "main" || tier === "primary" ? textStyle.letterSpacing : 0,
           opacity: enter,
-          transform: `translate(${xOffset}px, ${yOffset}px) scale(${scale})`,
+          transform: `translate(${xOffset}px, ${yOffset}px)`,
           filter: blurPx > 0.3 ? `blur(${blurPx}px)` : undefined,
           WebkitTextStroke: noStroke ? "0px transparent" : textStyle.WebkitTextStroke,
           textShadow:

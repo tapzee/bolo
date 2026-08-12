@@ -4,7 +4,6 @@ import {
   ENTER_BOUNCY,
   ENTER_SMOOTH,
   tokenEnter,
-  tokenPulse,
 } from "../captions/animation";
 import {
   displayText,
@@ -39,12 +38,9 @@ export const PopScaleToken = memo(function PopScaleToken({
   const isHero = isPopScaleHero(role);
 
   const enter = tokenEnter(timing, isHero ? ENTER_BOUNCY : ENTER_SMOOTH);
-  const pulse = tokenPulse(timing, ENTER_BOUNCY);
 
   const color = token.color ?? (isHero ? config.accentColor : config.baseColor);
   const fontSize = (textStyle.fontSize as number) * popScaleFontScale(role);
-  // Overshoots to ~1.12x then settles — clamped so the punch never turns cartoonish.
-  const heroScale = Math.min(1.12, 0.7 + pulse * 0.42);
   const yOffset = isHero ? 0 : (1 - enter) * 14;
   const blurPx = isHero ? (1 - Math.min(1, enter * 1.4)) * 6 : 0;
 
@@ -53,7 +49,7 @@ export const PopScaleToken = memo(function PopScaleToken({
       style={{
         ...tokenShellStyle,
         opacity: enter,
-        transform: `translateY(${yOffset}px) scale(${isHero ? heroScale : 1})`,
+        transform: `translateY(${yOffset}px)`,
         filter: blurPx > 0.3 ? `blur(${blurPx}px)` : undefined,
       }}
     >

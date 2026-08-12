@@ -47,17 +47,13 @@ export const DynamicToken = memo(function DynamicToken({
   const highlight = tokenHighlight({ frame, fps, fromFrame, toFrame }, ENTER_SMOOTH);
 
   const animType = i % 3;
-  let scale = 1;
   let rotate = 0;
-  
+
   if (animType === 0) {
-    scale = 1 + pulseBouncy * 0.35;
     rotate = pulseBouncy * -2.5;
   } else if (animType === 1) {
-    scale = 1 + pulseSmooth * 0.25;
     rotate = pulseSmooth * 3.5;
   } else {
-    scale = 1 + pulseBouncy * 0.45;
     rotate = pulseBouncy * -1.5;
   }
 
@@ -78,7 +74,7 @@ export const DynamicToken = memo(function DynamicToken({
     <span
       style={{
         ...tokenShellStyle,
-        transform: `scale(${scale * config.emphasisScale}) rotate(${rotate}deg)`,
+        transform: `rotate(${rotate}deg)`,
       }}
     >
       <span style={{ ...textStyle, ...tokenGlyphStyle, fontFamily, color }}>

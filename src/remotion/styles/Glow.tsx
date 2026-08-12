@@ -64,7 +64,6 @@ export const GlowToken = memo(function GlowToken({
       style={{
         ...tokenShellStyle,
         opacity: alpha,
-        transform: `scale(${1 + highlight * 0.22 * config.emphasisScale})`,
         transition: "opacity 0.08s ease-out",
       }}
     >

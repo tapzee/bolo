@@ -4,11 +4,9 @@ import { tokenShellStyle } from "../captions/primitives";
 import { FONT_FAMILY } from "../fonts";
 import { CaptionToken, WordEmphasis } from "@/core";
 import {
-  ENTER_BOUNCY,
   ENTER_SMOOTH,
   ENTER_SUBTLE,
   tokenEnter,
-  tokenPulse,
 } from "../captions/animation";
 
 /**
@@ -87,9 +85,7 @@ export const DynamicHighlightToken: React.FC<TokenViewProps> = ({
   // ---------------------------------------------------------------------------
   const enterSmooth = tokenEnter(timing, ENTER_SMOOTH);
   const enterSubtle = tokenEnter(timing, ENTER_SUBTLE);
-  const pulse = tokenPulse(timing, ENTER_BOUNCY);
 
-  let scale = 1;
   let opacity = 1;
   let yOffset = 0;
   let blurPx = 0;
@@ -97,22 +93,20 @@ export const DynamicHighlightToken: React.FC<TokenViewProps> = ({
   if (emphasis === "important") {
     // A slide-and-focus entrance instead of the bouncy pop every other role
     // still uses: the header rises into place while resolving out of a soft
-    // blur, rather than overshooting a scale spring. It reads calmer and
-    // more like a title card, which suits a word that then holds the frame
-    // for the rest of the page instead of springing back to rest.
+    // blur. It reads calmer and more like a title card, which suits a word
+    // that then holds the frame for the rest of the page instead of
+    // springing back to rest.
     yOffset = (1 - enterSmooth) * 22;
     blurPx = (1 - enterSmooth) * 7;
-    scale = 1 + pulse * 0.04;
     opacity = enterSmooth;
   }
   else if (emphasis === "supporting") {
     // Smooth fade up
     yOffset = (1 - enterSmooth) * 15;
     opacity = enterSmooth;
-  } 
+  }
   else if (emphasis === "special") {
-    // Elegant reveal (slower, slight scale up)
-    scale = 0.95 + enterSubtle * 0.05;
+    // Elegant reveal (slower)
     yOffset = (1 - enterSubtle) * 8;
     opacity = enterSubtle;
   }
@@ -189,7 +183,7 @@ export const DynamicHighlightToken: React.FC<TokenViewProps> = ({
     fontWeight,
     fontStyle,
     zIndex: 1,
-    transform: `scale(${scale}) translateY(${yOffset}px)`,
+    transform: `translateY(${yOffset}px)`,
     opacity,
     textShadow,
     filter: blurPx > 0.05 ? `blur(${blurPx}px)` : undefined,

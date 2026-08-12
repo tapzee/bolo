@@ -66,7 +66,7 @@ export const SpiralRevealToken = memo(function SpiralRevealToken({
         width: size,
         height: size,
         opacity: enter,
-        transform: `rotate(${rotateDeg}deg) scale(${0.9 + enter * 0.1})`,
+        transform: `rotate(${rotateDeg}deg)`,
       }}
     >
       <svg

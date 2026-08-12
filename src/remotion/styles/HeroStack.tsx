@@ -5,7 +5,6 @@ import {
   ENTER_SMOOTH,
   tokenEnter,
   tokenHighlight,
-  tokenPulse,
 } from "../captions/animation";
 import {
   HERO_SMALL_RATIO,
@@ -51,7 +50,6 @@ export const HeroStackToken = memo(function HeroStackToken({
   const timing = { frame, fps, fromFrame, toFrame };
   const enter = tokenEnter(timing, ENTER_BOUNCY);
   const highlight = tokenHighlight(timing, ENTER_SMOOTH);
-  const pulse = tokenPulse(timing, ENTER_BOUNCY);
 
   const text = displayText(token);
   const isHero = index === heroIndex;
@@ -126,7 +124,6 @@ export const HeroStackToken = memo(function HeroStackToken({
     [token.color ?? config.baseColor, token.color ?? config.accentColor],
   );
 
-  const scale = 1 + pulse * 0.16 * config.emphasisScale + highlight * 0.04;
   const lift = (1 - enter) * 14;
 
   return (
@@ -147,7 +144,7 @@ export const HeroStackToken = memo(function HeroStackToken({
           fontSize: `${config.fontSizePx}px`,
           color: heroColor,
           textTransform: "uppercase",
-          transform: `translateY(${-lift}px) scale(${scale})`,
+          transform: `translateY(${-lift}px)`,
           textShadow:
             highlight > 0.01
               ? "0 8px 32px rgba(0,0,0,0.72), 0 2px 10px rgba(0,0,0,0.85)"

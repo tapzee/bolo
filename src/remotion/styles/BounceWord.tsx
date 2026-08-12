@@ -1,6 +1,6 @@
 import { memo } from "react";
 import type { WordRole } from "@/core";
-import { centerPunchScale, ENTER_BOUNCY, ENTER_SMOOTH, maskRevealX, tokenEnter } from "../captions/animation";
+import { ENTER_SMOOTH, maskRevealX, tokenEnter } from "../captions/animation";
 import {
   bounceWordFontScale,
   displayText,
@@ -12,15 +12,13 @@ import {
 } from "../captions/primitives";
 
 /**
- * Bounce Word — words land one-by-one with a tight spring overshoot (not a
- * floaty cartoon bounce). The page's keyword(s) additionally get a rounded
- * pill that grows in behind them.
+ * Bounce Word — words land one-by-one with a lift, no scale. The page's
+ * keyword(s) additionally get a rounded pill that grows in behind them.
  *
  * Opacity and the pill's growth are driven by `tokenEnter`/`maskRevealX`
  * (rise once, hold), not `tokenPulse` — `tokenPulse` shares `tokenHighlight`'s
  * fall-off after the word's speaking window ends, which faded already-spoken
- * words to near-invisible instead of leaving them readable. Only the scale
- * overshoot itself uses the unclamped, non-decaying `centerPunchScale`.
+ * words to near-invisible instead of leaving them readable.
  */
 export const BounceWordToken = memo(function BounceWordToken({
   token,
@@ -33,19 +31,17 @@ export const BounceWordToken = memo(function BounceWordToken({
   const role: WordRole = token.role ?? "normal";
   const isAccent = isBounceWordAccent(role);
   const enter = tokenEnter({ frame, fps, fromFrame }, ENTER_SMOOTH);
-  const punch = centerPunchScale({ frame, fps, fromFrame }, ENTER_BOUNCY);
   const pillGrow = maskRevealX({ frame, fps, fromFrame }, ENTER_SMOOTH);
 
   const fontSize = (textStyle.fontSize as number) * bounceWordFontScale(role);
   const yOffset = (1 - enter) * 26;
-  const scale = 0.75 + Math.min(1.18, punch) * 0.25;
 
   return (
     <span
       style={{
         ...tokenShellStyle,
         opacity: enter,
-        transform: `translateY(${yOffset}px) scale(${scale})`,
+        transform: `translateY(${yOffset}px)`,
       }}
     >
       {isAccent && (

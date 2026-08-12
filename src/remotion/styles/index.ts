@@ -54,6 +54,7 @@ import { DynamicTypographyToken } from "./DynamicTypography";
 import { EditorialStackHeroToken } from "./EditorialStackHero";
 import { StackToken } from "./Stack";
 import { FocusToken } from "./Focus";
+import { PopWordToken } from "./PopWord";
 
 /**
  * Style id → word renderer.
@@ -120,5 +121,6 @@ export const TOKEN_RENDERERS: Readonly<
   editorialStackHero: EditorialStackHeroToken,
   stack: StackToken,
   focus: FocusToken,
+  popWord: PopWordToken,
 };
 

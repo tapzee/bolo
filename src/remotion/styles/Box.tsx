@@ -5,12 +5,7 @@ import {
   BOX_PAD_Y_RATIO,
   BOX_RADIUS_RATIO,
 } from "@/core";
-import {
-  ENTER_SMOOTH,
-  ENTER_SUBTLE,
-  tokenHighlight,
-  tokenPulse,
-} from "../captions/animation";
+import { ENTER_SMOOTH, tokenHighlight } from "../captions/animation";
 import {
   displayText,
   tokenBackdropStyle,
@@ -41,9 +36,6 @@ export const BoxToken = memo(function BoxToken({
 }: TokenViewProps) {
   const timing = { frame, fps, fromFrame, toFrame };
   const highlight = tokenHighlight(timing, ENTER_SMOOTH);
-  // Unclamped so the block overshoots slightly on the way in; floored at 0 so a
-  // negative spring value can never flip it inside-out.
-  const grow = Math.max(0, tokenPulse(timing, ENTER_SUBTLE));
 
   const padX = config.fontSizePx * BOX_PAD_X_RATIO;
   const padY = config.fontSizePx * BOX_PAD_Y_RATIO;
@@ -71,7 +63,6 @@ export const BoxToken = memo(function BoxToken({
           background: blockColor,
           borderRadius: config.fontSizePx * BOX_RADIUS_RATIO,
           opacity: highlight,
-          transform: `scale(${grow})`,
         }}
       />
       <span style={{ ...textStyle, ...tokenGlyphStyle, color }}>

@@ -1272,6 +1272,23 @@ export const CAPTION_STYLES: Readonly<
       dropShadow: false,
     },
   ),
+
+  popWord: define(
+    "popWord",
+    "Pop Word",
+    "Bouncy word-by-word reveal with role-based outlines and glowing highlights.",
+    {
+      fontId: "inter",
+      fontWeight: 900,
+      fontSizePx: 100,
+      uppercase: false,
+      baseColor: "#ffffff",
+      accentColor: "#f97316",
+      strokeWidthPx: 0,
+      maxWordsPerPage: 5,
+      dropShadow: false,
+    },
+  ),
 };
 
 export const CAPTION_STYLE_LIST: readonly CaptionStyleDefinition[] =

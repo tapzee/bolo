@@ -41,14 +41,12 @@ export const BlurFocusToken = memo(function BlurFocusToken({
     : (token.color ?? config.baseColor);
 
   const blurPx = isAccent ? (1 - enter) * 22 : (1 - enter) * 4;
-  const scale = isAccent ? 1.08 - enter * 0.08 : 1;
 
   return (
     <span
       style={{
         ...tokenShellStyle,
         opacity: enter,
-        transform: `scale(${scale})`,
         filter: blurPx > 0.3 ? `blur(${blurPx}px)` : undefined,
       }}
     >

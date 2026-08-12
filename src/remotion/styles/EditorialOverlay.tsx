@@ -4,7 +4,6 @@ import {
   ENTER_SMOOTH,
   tokenEnter,
   tokenHighlight,
-  tokenPulse,
 } from "../captions/animation";
 import {
   displayText,
@@ -29,7 +28,6 @@ export const EditorialOverlayToken = memo(function EditorialOverlayToken({
   const enter = tokenEnter(timing, ENTER_SMOOTH);
   const enterBouncy = tokenEnter(timing, ENTER_BOUNCY);
   const highlight = tokenHighlight(timing, ENTER_SMOOTH);
-  const pulse = tokenPulse(timing, ENTER_BOUNCY);
 
   const text = displayText(token);
   const isHero = index === heroIndex;
@@ -81,7 +79,6 @@ export const EditorialOverlayToken = memo(function EditorialOverlayToken({
   }
 
   // HERO WORD (Editorial backdrop)
-  const scale = 0.92 + enterBouncy * 0.08 + pulse * 0.03;
   const color = token.color ?? config.activeColor; // Crimson red #C83232
 
   return (
@@ -100,7 +97,7 @@ export const EditorialOverlayToken = memo(function EditorialOverlayToken({
         style={{
           ...textStyle,
           ...tokenGlyphStyle,
-          transform: `translateX(${(1 - enterBouncy) * 20}px) scale(${scale})`, // slight horizontal slide
+          transform: `translateX(${(1 - enterBouncy) * 20}px)`, // slight horizontal slide
           transformOrigin: "center center",
           color,
           fontFamily: primaryFontFamily,

@@ -11,9 +11,9 @@ import {
 /**
  * Bold Yellow — white text, spoken word snaps to yellow.
  *
- * The workhorse preset. Movement is kept deliberately small (7% scale, 8px
- * lift) so the colour change carries the emphasis; anything larger competes
- * with the Pop preset and starts to feel cheap on talking-head footage.
+ * The workhorse preset. Movement is kept deliberately small (8px lift) so
+ * the colour change carries the emphasis; anything larger competes with the
+ * Pop preset and starts to feel cheap on talking-head footage.
  */
 export const BoldYellowToken = memo(function BoldYellowToken({
   token,
@@ -44,11 +44,7 @@ export const BoldYellowToken = memo(function BoldYellowToken({
     <span
       style={{
         ...tokenShellStyle,
-        // `emphasisScale` multiplies the *delta*, not the whole scale — at 1x a
-        // resting word must still be exactly 1.0, or every caption would grow.
-        transform: `translateY(${-highlight * 8 * config.emphasisScale}px) scale(${
-          1 + highlight * 0.07 * config.emphasisScale
-        })`,
+        transform: `translateY(${-highlight * 8 * config.emphasisScale}px)`,
       }}
     >
       <span style={{ ...textStyle, ...tokenGlyphStyle, color }}>

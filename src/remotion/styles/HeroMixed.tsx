@@ -4,7 +4,6 @@ import {
   ENTER_SMOOTH,
   tokenEnter,
   tokenHighlight,
-  tokenPulse,
 } from "../captions/animation";
 import {
   HERO_SMALL_RATIO,
@@ -49,7 +48,6 @@ export const HeroMixedToken = memo(function HeroMixedToken({
   const timing = { frame, fps, fromFrame, toFrame };
   const enter = tokenEnter(timing, ENTER_BOUNCY);
   const highlight = tokenHighlight(timing, ENTER_SMOOTH);
-  const pulse = tokenPulse(timing, ENTER_BOUNCY);
 
   const text = displayText(token);
   const isHero = index === heroIndex;
@@ -60,7 +58,6 @@ export const HeroMixedToken = memo(function HeroMixedToken({
       // The backdrop. Removed from flow (`position: absolute`, centered on
       // the anchor box) exactly like EditorialOverlay's hero, so the bold
       // overlay words below aren't pushed around by a word this large.
-      const scale = 0.94 + pulse * 0.04;
       return (
         <span
           style={{
@@ -85,7 +82,6 @@ export const HeroMixedToken = memo(function HeroMixedToken({
               WebkitTextStroke: "none",
               whiteSpace: "nowrap",
               opacity: 0.82 * enter,
-              transform: `scale(${scale})`,
               filter: [
                 `blur(${(1 - enter) * 10}px)`,
                 config.dropShadow
@@ -236,8 +232,6 @@ export const HeroMixedToken = memo(function HeroMixedToken({
   }
 
   // HERO WORD
-  const scale = 1 + pulse * 0.2 * config.emphasisScale + highlight * 0.05;
-
   // Base font follows the template's own choice (`textStyle.fontFamily`),
   // not a hardcoded face — the canvas export already does this, so hardcoding
   // Montserrat here silently disagreed with the export for any template that
@@ -285,7 +279,7 @@ export const HeroMixedToken = memo(function HeroMixedToken({
         style={{
           ...textStyle,
           ...tokenGlyphStyle,
-          transform: `translateY(${(1 - enter) * -10}px) scale(${scale})`,
+          transform: `translateY(${(1 - enter) * -10}px)`,
           transformOrigin: "center bottom",
           color,
           fontFamily,

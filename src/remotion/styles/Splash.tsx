@@ -60,7 +60,6 @@ export const SplashToken = memo(function SplashToken({
   }
 
   // Active word animation: energetic bouncy snap & tilt
-  const scale = (role === "accent" ? 1.08 : 1.0) * (1 + pulse * 0.22 + highlight * 0.08);
   const translateY = (1 - enter) * 12 - highlight * 4;
   const rotate = role === "accent" ? (pulse * -2.5) : role === "script" ? -2 : 0;
 
@@ -79,7 +78,7 @@ export const SplashToken = memo(function SplashToken({
       style={{
         ...tokenShellStyle,
         opacity: alpha,
-        transform: `translateY(${translateY}px) rotate(${rotate}deg) scale(${scale})`,
+        transform: `translateY(${translateY}px) rotate(${rotate}deg)`,
         transition: "opacity 0.08s ease-out",
       }}
     >

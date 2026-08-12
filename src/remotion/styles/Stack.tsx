@@ -17,8 +17,6 @@ import type { WordRole } from "@/core";
 import { hasDevanagari } from "@/core";
 import {
   ENTER_SMOOTH,
-  ENTER_SUBTLE,
-  centerPunchScale,
   tokenEnter,
 } from "../captions/animation";
 
@@ -101,20 +99,14 @@ export const StackToken: React.FC<TokenViewProps> = ({
 
   const enter = tokenEnter(timing, ENTER_SMOOTH);
 
-  let scale = 1;
   let xOffset = 0;
   let yOffset = 0;
   let blurPx = 0;
 
   if (tier === "hero") {
-    // Punches past 100%, settles and *holds* — a bare unclamped spring rather
-    // than `tokenPulse`, so the headline does not shrink back when its speech
-    // window ends. See `centerPunchScale`'s own doc comment.
-    scale = 0.9 + centerPunchScale(timing, ENTER_SUBTLE) * 0.1;
     blurPx = (1 - enter) * 7;
   } else if (tier === "primary") {
     yOffset = (1 - enter) * 22;
-    scale = 0.98 + enter * 0.02;
     blurPx = (1 - enter) * 5;
   } else if (tier === "accent") {
     // Slides in from whichever edge it settles against, so the motion agrees
@@ -146,7 +138,7 @@ export const StackToken: React.FC<TokenViewProps> = ({
             : (token.color ?? config.baseColor),
           textTransform: stackTierIsUpper(tier) ? "uppercase" : "lowercase",
           opacity: enter,
-          transform: `translate(${tuckX + xOffset}px, ${yOffset}px) scale(${scale})`,
+          transform: `translate(${tuckX + xOffset}px, ${yOffset}px)`,
           filter: blurPx > 0.3 ? `blur(${blurPx}px)` : undefined,
           // The two-part readability guarantee this template uses in place of
           // a conventional outline — see `PREMIUM_HALO` / `premiumStrokePx`.

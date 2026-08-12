@@ -1,6 +1,6 @@
 import { memo } from "react";
 import type { WordRole } from "@/core";
-import { ENTER_BOUNCY, tokenEnter, tokenPulse } from "../captions/animation";
+import { ENTER_BOUNCY, tokenEnter } from "../captions/animation";
 import {
   displayText,
   floatingBubbleFontScale,
@@ -26,17 +26,14 @@ export const FloatingBubbleToken = memo(function FloatingBubbleToken({
   frame,
   fps,
   fromFrame,
-  toFrame,
   config,
   textStyle,
   index = 0,
 }: TokenViewProps) {
   const role: WordRole = token.role ?? "normal";
   const enter = tokenEnter({ frame, fps, fromFrame }, ENTER_BOUNCY);
-  const pulse = tokenPulse({ frame, fps, fromFrame, toFrame }, ENTER_BOUNCY);
   const fontSize = (textStyle.fontSize as number) * floatingBubbleFontScale(role);
   const drift = floatingBubbleOffset(token.text, index, frame, fps);
-  const settleScale = 0.7 + Math.min(1.1, pulse) * 0.3;
   const tint = floatingBubbleTint(token.text);
   const color = token.color ?? "#ffffff";
 
@@ -45,7 +42,7 @@ export const FloatingBubbleToken = memo(function FloatingBubbleToken({
       style={{
         ...tokenShellStyle,
         opacity: enter,
-        transform: `translate(${drift.x}px, ${drift.y - (1 - enter) * 24}px) scale(${settleScale})`,
+        transform: `translate(${drift.x}px, ${drift.y - (1 - enter) * 24}px)`,
       }}
     >
       <span

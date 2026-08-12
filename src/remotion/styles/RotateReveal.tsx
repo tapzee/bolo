@@ -36,7 +36,6 @@ export const RotateRevealToken = memo(function RotateRevealToken({
   const fontSize = (textStyle.fontSize as number) * rotateRevealFontScale(role);
   const swing = index % 2 === 0 ? -8 : 8;
   const rotation = (1 - enter) * swing;
-  const scale = 0.9 + enter * 0.1;
   const color = interpolateColors(highlight, [0, 1], [token.color ?? config.baseColor, token.color ?? config.activeColor]);
 
   return (
@@ -44,7 +43,7 @@ export const RotateRevealToken = memo(function RotateRevealToken({
       style={{
         ...tokenShellStyle,
         opacity: enter,
-        transform: `rotate(${rotation}deg) scale(${scale})`,
+        transform: `rotate(${rotation}deg)`,
       }}
     >
       {isAccent && (

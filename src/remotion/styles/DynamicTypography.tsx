@@ -46,18 +46,15 @@ export const DynamicTypographyToken = memo(function DynamicTypographyToken({
   }
 
   // Animation values: popIn
-  // 0% -> scale(0.5) translateY(20px)
-  // 60% -> scale(1.1) translateY(-5px)
-  // 100% -> scale(1) translateY(0)
-  
-  let scale = 1;
+  // 0% -> translateY(20px)
+  // 60% -> translateY(-5px)
+  // 100% -> translateY(0)
+
   let translateY = 0;
-  
+
   if (enter < 0.6) {
-    scale = interpolate(enter, [0, 0.6], [0.5, 1.1]);
     translateY = interpolate(enter, [0, 0.6], [20, -5]);
   } else {
-    scale = interpolate(enter, [0.6, 1], [1.1, 1]);
     translateY = interpolate(enter, [0.6, 1], [-5, 0]);
   }
 
@@ -114,7 +111,7 @@ export const DynamicTypographyToken = memo(function DynamicTypographyToken({
           color,
           letterSpacing: `${letterSpacing}px`,
           textShadow,
-          transform: `scale(${scale}) translateY(${translateY}px)`,
+          transform: `translateY(${translateY}px)`,
           opacity: enter,
           paddingLeft: "0.15em",
           paddingRight: "0.15em",

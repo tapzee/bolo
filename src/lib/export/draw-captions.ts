@@ -31,7 +31,6 @@ import {
   tokenPulse,
   pageEntrance,
   maskRevealX,
-  centerPunchScale,
   splitEntrance,
   letterStagger,
   layeredDepthDrift,
@@ -1074,21 +1073,18 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
     };
 
     const enterBouncy = tokenEnter(timing, ENTER_BOUNCY);
-    const pulse = tokenPulse(timing, ENTER_BOUNCY);
-    
-    const scale = 0.92 + enterBouncy * 0.08 + pulse * 0.03;
+
     const color = heroToken.color ?? config.activeColor;
-    
+
     ctx.save();
     ctx.font = canvasFont(config.fontWeight || 500, config.fontSizePx * 2.2, family);
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    
+
     const scaleFactor = canvasScale({ width, height });
     ctx.translate(anchorX, anchorY);
     ctx.translate((1 - enterBouncy) * 20 * scaleFactor, 0);
-    ctx.scale(scale, scale);
-    
+
     ctx.globalAlpha = entrance * enterBouncy;
     
     if (config.dropShadow) {
@@ -1122,9 +1118,7 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
 
     const enterBouncy = tokenEnter(timing, ENTER_BOUNCY);
     const highlight = tokenHighlight(timing, ENTER_SMOOTH);
-    const pulse = tokenPulse(timing, ENTER_BOUNCY);
 
-    const scale = 0.94 + pulse * 0.04;
     const color = highlight > 0.01 ? config.activeColor : config.baseColor;
     const scaleFactor = canvasScale({ width, height });
     const backdropSize = config.fontSizePx * 2.1;
@@ -1136,7 +1130,6 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
     ctx.letterSpacing = `${backdropSize * -0.02}px`;
 
     ctx.translate(anchorX, anchorY);
-    ctx.scale(scale, scale);
 
     ctx.globalAlpha = entrance * 0.82 * enterBouncy;
 
@@ -1208,9 +1201,7 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
 
           const lift =
             highlight * 8 * config.emphasisScale * canvasScale({ width, height });
-          const boost = 1 + highlight * 0.07 * config.emphasisScale;
           ctx.translate(cx, cy - lift);
-          ctx.scale(boost, boost);
           strokeThenFill(
             ctx,
             text,
@@ -1234,8 +1225,6 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
 
           ctx.translate(cx, cy);
           ctx.rotate((pulse * -1.2 * Math.PI) / 180);
-          const popScale = 1 + pulse * 0.3 * config.emphasisScale;
-          ctx.scale(popScale, popScale);
           strokeThenFill(
             ctx,
             text,
@@ -1250,14 +1239,13 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
 
         case "box": {
           const highlight = tokenHighlight(timing, ENTER_SMOOTH);
-          const grow = Math.max(0, tokenPulse(timing, ENTER_SUBTLE));
           const colour = interpolateColors(
             highlight,
             [0, 1],
             [config.baseColor, config.activeColor],
           );
 
-          if (highlight > 0.01 && grow > 0) {
+          if (highlight > 0.01) {
             const padX = config.fontSizePx * BOX_PAD_X_RATIO;
             const padY = config.fontSizePx * BOX_PAD_Y_RATIO;
             const boxW = tokenWidth + padX * 2;
@@ -1266,7 +1254,6 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
             ctx.save();
             ctx.globalAlpha = entrance * highlight;
             ctx.translate(cx, cy);
-            ctx.scale(grow, grow);
             ctx.fillStyle = token.color ?? config.accentColor;
             ctx.beginPath();
             ctx.roundRect(
@@ -1306,8 +1293,6 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           ctx.globalAlpha = entrance * alpha;
 
           ctx.translate(cx, cy);
-          const glowScale = 1 + highlight * 0.22 * config.emphasisScale;
-          ctx.scale(glowScale, glowScale);
 
           if (highlight > 0.01) {
             ctx.shadowColor = "#ffffff";
@@ -1391,7 +1376,6 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
 
           ctx.font = canvasFont(roleWeight, roleFontSize, roleFontFamily, roleStyle);
 
-          const scale = (role === "accent" ? 1.08 : 1.0) * (1 + pulse * 0.22 + highlight * 0.08);
           const translateY = (1 - enter) * 12 * canvasScale({ width, height }) - highlight * 4 * canvasScale({ width, height });
           const rotateDeg = role === "accent" ? (pulse * -2.5) : role === "script" ? -2 : 0;
 
@@ -1405,7 +1389,6 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           if (rotateDeg !== 0) {
             ctx.rotate((rotateDeg * Math.PI) / 180);
           }
-          ctx.scale(scale, scale);
 
           if (highlight > 0.01) {
             ctx.shadowColor = "rgba(0, 0, 0, 0.75)";
@@ -1435,7 +1418,6 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           // `layoutLines`; this only has to draw a word at the right size.
           const enter = tokenEnter(timing, ENTER_BOUNCY);
           const highlight = tokenHighlight(timing, ENTER_SMOOTH);
-          const pulse = tokenPulse(timing, ENTER_BOUNCY);
           const isSpoken = timing.fromFrame <= frame;
           const scaleFactor = canvasScale({ width, height });
 
@@ -1516,8 +1498,6 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
             token.color ?? config.accentColor,
           ]);
 
-          const heroScale =
-            1 + pulse * 0.16 * config.emphasisScale + highlight * 0.04;
           const heroLift = (1 - enter) * 14 * scaleFactor;
 
           ctx.shadowColor = "rgba(0,0,0,0.72)";
@@ -1525,7 +1505,6 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           ctx.shadowOffsetY = (highlight > 0.01 ? 8 : 4) * scaleFactor;
 
           ctx.translate(cx, cy - heroLift);
-          ctx.scale(heroScale, heroScale);
           strokeThenFill(
             ctx,
             text,
@@ -1545,7 +1524,6 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           const isHero = index === heroIndex;
           const enter = tokenEnter(timing, ENTER_BOUNCY);
           const highlight = tokenHighlight(timing, ENTER_SMOOTH);
-          const pulse = tokenPulse(timing, ENTER_BOUNCY);
 
           if (heroMixedBackdrop) {
             // Poster scene: the hero never reaches this switch — it was
@@ -1660,9 +1638,7 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           }
 
           // Hero Word
-          const scale = 1 + pulse * 0.2 * config.emphasisScale + highlight * 0.05;
           ctx.translate(cx, cy + (1 - enter) * -10);
-          ctx.scale(scale, scale);
 
           let colour = interpolateColors(
             highlight,
@@ -1723,15 +1699,12 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
         case "dynamicTypography": {
           const enter = tokenEnter(timing, ENTER_BOUNCY);
           const isSpoken = timing.fromFrame <= frame;
-          
-          let scale = 1;
+
           let translateY = 0;
           if (enter < 0.6) {
-             scale = 0.5 + (enter / 0.6) * 0.6;
              translateY = 20 - (enter / 0.6) * 25;
           } else {
              const t = (enter - 0.6) / 0.4;
-             scale = 1.1 - t * 0.1;
              translateY = -5 + t * 5;
           }
           
@@ -1777,8 +1750,7 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           ctx.globalAlpha = entrance * (isSpoken ? 1 : Math.max(0, config.upcomingOpacity)) * enter;
 
           ctx.translate(cx, cy + translateY);
-          ctx.scale(scale, scale);
-          
+
           ctx.font = canvasFont(weight, fontSizeStr, displayFont, style);
 
           ctx.shadowColor = "rgba(0, 0, 0, 0.8)";
@@ -1803,30 +1775,26 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           const emphasis = resolveEmphasis(token, index, heroIndex, specialIndex);
           const enterSmooth = tokenEnter(timing, ENTER_SMOOTH);
           const enterSubtle = tokenEnter(timing, ENTER_SUBTLE);
-          const pulse = tokenPulse(timing, ENTER_BOUNCY);
 
           const primaryFontFamily = family;
           const secondaryFontFamily = config.secondaryFontId ? resolveFontFamily(config.secondaryFontId) : primaryFontFamily;
           const specialFontFamily = config.specialFontId ? resolveFontFamily(config.specialFontId) : primaryFontFamily;
 
-          let scale = 1;
           let alpha = 1;
           let yOffset = 0;
           let blurPx = 0;
 
           if (emphasis === "important") {
-            // Mirrors DynamicHighlight.tsx: a slide-and-focus entrance
-            // instead of a bouncy scale pop. `yOffset` is scaled by the
-            // shared `ctx.translate` call below, like every other role here.
+            // Mirrors DynamicHighlight.tsx: a slide-and-focus entrance.
+            // `yOffset` is scaled by the shared `ctx.translate` call below,
+            // like every other role here.
             yOffset = (1 - enterSmooth) * 22;
             blurPx = (1 - enterSmooth) * 7 * canvasScale({ width, height });
-            scale = 1 + pulse * 0.04;
             alpha = enterSmooth;
           } else if (emphasis === "supporting") {
             yOffset = (1 - enterSmooth) * 15;
             alpha = enterSmooth;
           } else if (emphasis === "special") {
-            scale = 0.95 + enterSubtle * 0.05;
             yOffset = (1 - enterSubtle) * 8;
             alpha = enterSubtle;
           } else {
@@ -1835,7 +1803,6 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
 
           ctx.globalAlpha = entrance * alpha;
           ctx.translate(cx, cy + yOffset * canvasScale({ width, height }));
-          ctx.scale(scale, scale);
 
           let roleFontFamily = primaryFontFamily;
           let roleFontSize = config.fontSizePx;
@@ -1995,9 +1962,6 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           ]);
 
           const shouldAnimate = isImpactWord || isSingleWord;
-          const popScale = shouldAnimate
-            ? 1 + pulse * 0.28 * config.emphasisScale
-            : 1 + pulse * 0.08 * config.emphasisScale;
           const popRotate = shouldAnimate ? pulse * -1.5 : 0;
           const liftY = (1 - enter) * 10 * canvasScale({ width, height });
 
@@ -2030,7 +1994,6 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           ctx.letterSpacing = `${config.letterSpacingPx}px`;
           ctx.translate(cx, cy + entranceOffset - liftY);
           ctx.rotate((popRotate * Math.PI) / 180);
-          ctx.scale(popScale, popScale);
 
           if (highlight > 0.01) {
             ctx.shadowColor = "rgba(0,0,0,0.7)";
@@ -2054,7 +2017,6 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           // stroke) on the accent-hashed third.
           const enter = tokenEnter(timing, ENTER_SMOOTH);
           const highlight = tokenHighlight(timing, ENTER_SMOOTH);
-          const pulse = tokenPulse(timing, ENTER_BOUNCY);
           const scaleFactor = canvasScale({ width, height });
           const isSpoken = timing.fromFrame <= frame;
 
@@ -2066,7 +2028,6 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
 
           let dx = 0;
           let dy = 0;
-          let wordScale = 1;
           let blurPx = 0;
 
           switch (variant) {
@@ -2087,15 +2048,12 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
               blurPx = arrive * 9;
               break;
             case "blurPop":
-              wordScale = 0.72 + settle * 0.28;
               blurPx = arrive * 14;
               break;
             case "blurOut":
-              wordScale = 1.4 - settle * 0.4;
               blurPx = arrive * 14;
               break;
           }
-          wordScale += pulse * 0.05;
 
           const colour = interpolateColors(
             highlight,
@@ -2112,7 +2070,6 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
               : config.upcomingOpacity);
 
           ctx.translate(cx + dx * scaleFactor, cy + dy * scaleFactor);
-          ctx.scale(wordScale, wordScale);
           if (blurPx > 0.05) ctx.filter = `blur(${blurPx * scaleFactor}px)`;
 
           if (config.dropShadow) {
@@ -2268,14 +2225,8 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
 
           let alpha: number;
           let translateY = 0;
-          let wordScale = 1;
 
           if (isKeyword) {
-            // See `centerPunchScale`'s doc comment: unclamped enter-only
-            // spring, so the punch settles at rest and holds — mirrors
-            // `MixedWeightToken`'s DOM version exactly.
-            const punch = centerPunchScale(timing, ENTER_BOUNCY);
-            wordScale = 0.75 + punch * 0.25;
             alpha = tokenEnter(timing, ENTER_SMOOTH);
           } else if (isDevanagariWord) {
             const enter = tokenEnter(timing, ENTER_BOUNCY);
@@ -2287,7 +2238,6 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
 
           ctx.globalAlpha = entrance * alpha;
           ctx.translate(cx, cy + translateY);
-          ctx.scale(wordScale, wordScale);
           ctx.fillStyle = token.color ?? (isKeyword ? config.accentColor : config.baseColor);
           ctx.fillText(text, -tokenWidth / 2, 0);
 
@@ -2333,18 +2283,9 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           const roleFontSize = config.fontSizePx * centerPunchFontScale(role, state);
           ctx.font = canvasFont(isCritical ? 900 : 500, roleFontSize, family);
 
-          let punchScale = 1;
-          if (isCritical && state !== "buildup") {
-            // See `centerPunchScale`'s doc comment for why this is a bare
-            // enter-only spring rather than `tokenPulse`.
-            const punch = centerPunchScale(timing, ENTER_BOUNCY);
-            punchScale = state === "punch" ? 0.7 + punch * 0.3 : 1 + punch * 0.02;
-          }
-
           const color = isCritical ? (token.color ?? config.accentColor) : (token.color ?? "#ffffff");
           ctx.globalAlpha = entrance * enter;
           ctx.translate(cx, cy);
-          ctx.scale(punchScale, punchScale);
           // Small buildup text stays clean — only the critical word keeps the
           // template's stroke, mirroring `CenterPunchToken`'s DOM version.
           strokeThenFill(ctx, text, -tokenWidth / 2, 0, color, isCritical ? config.strokeWidthPx : 0, config.strokeColor);
@@ -2437,7 +2378,6 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           const enter = tokenEnter(timing, ENTER_SMOOTH);
           const yOffset = (isBigTier ? (1 - enter) * 22 : (1 - enter) * 8) * scaleFactor;
           const blurPx = isBigTier ? (1 - enter) * 7 * scaleFactor : 0;
-          const scale = isBigTier ? 0.96 + enter * 0.04 : 1;
           const color = isCritical
             ? (token.color ?? config.accentColor)
             : isBigTier
@@ -2447,7 +2387,6 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           ctx.filter = blurPx > 0.3 ? `blur(${blurPx}px)` : "none";
           ctx.globalAlpha = entrance * enter;
           ctx.translate(cx, cy + yOffset);
-          ctx.scale(scale, scale);
           ctx.fillStyle = color;
           ctx.fillText(text, -tokenWidth / 2, 0);
           ctx.filter = "none";
@@ -2615,17 +2554,13 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           const isHero = isPopScaleHero(role);
           const roleFontSize = config.fontSizePx * popScaleFontScale(role);
           const enter = tokenEnter(timing, isHero ? ENTER_BOUNCY : ENTER_SMOOTH);
-          const pulse = tokenPulse(timing, ENTER_BOUNCY);
           const colour = token.color ?? (isHero ? config.accentColor : config.baseColor);
-          // Overshoots to ~1.12x then settles — clamped so the punch never turns cartoonish.
-          const heroScale = Math.min(1.12, 0.7 + pulse * 0.42);
           const yOffset = isHero ? 0 : (1 - enter) * 14;
           const blurPx = isHero ? (1 - Math.min(1, enter * 1.4)) * 6 : 0;
 
           ctx.font = canvasFont(config.fontWeight, roleFontSize, family);
           ctx.globalAlpha = entrance * enter;
           ctx.translate(cx, cy + yOffset);
-          if (isHero) ctx.scale(heroScale, heroScale);
           if (blurPx > 0.3) ctx.filter = `blur(${blurPx}px)`;
 
           if (isHero) {
@@ -2695,12 +2630,10 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
             ? interpolateColors(highlight, [0, 1], [token.color ?? config.accentColor, token.color ?? config.activeColor])
             : (token.color ?? config.baseColor);
           const blurPx = isAccent ? (1 - enter) * 22 : (1 - enter) * 4;
-          const scale = isAccent ? 1.08 - enter * 0.08 : 1;
 
           ctx.font = canvasFont(config.fontWeight, roleFontSize, family);
           ctx.globalAlpha = entrance * enter;
           ctx.translate(cx, cy);
-          ctx.scale(scale, scale);
           if (blurPx > 0.3) ctx.filter = `blur(${blurPx}px)`;
           if (isAccent && enter > 0.7) {
             ctx.shadowColor = config.accentColor;
@@ -2749,13 +2682,11 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           const colour = interpolateColors(highlight, [0, 1], [token.color ?? config.baseColor, token.color ?? config.activeColor]);
           const swing = index % 2 === 0 ? -8 : 8;
           const rotation = (1 - enter) * swing;
-          const scale = 0.9 + enter * 0.1;
 
           ctx.font = canvasFont(config.fontWeight, roleFontSize, family);
           ctx.globalAlpha = entrance * enter;
           ctx.translate(cx, cy);
           ctx.rotate((rotation * Math.PI) / 180);
-          ctx.scale(scale, scale);
 
           if (isAccent) {
             const scaleFactor = canvasScale({ width, height });
@@ -2856,19 +2787,15 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           const role = token.role ?? "normal";
           const isAccent = isBounceWordAccent(role);
           const roleFontSize = config.fontSizePx * bounceWordFontScale(role);
-          // `enter` (holds after rising) drives visibility; only the scale
-          // overshoot uses the non-decaying `centerPunchScale` — using
-          // `tokenPulse` for opacity faded already-spoken words back out.
+          // `enter` (holds after rising) drives visibility — using
+          // `tokenPulse` faded already-spoken words back out.
           const enter = tokenEnter({ frame, fps, fromFrame: timing.fromFrame }, ENTER_SMOOTH);
-          const punch = centerPunchScale({ frame, fps, fromFrame: timing.fromFrame }, ENTER_BOUNCY);
           const pillGrow = maskRevealX({ frame, fps, fromFrame: timing.fromFrame }, ENTER_SMOOTH);
           const yOffset = (1 - enter) * 26;
-          const scale = 0.75 + Math.min(1.18, punch) * 0.25;
 
           ctx.font = canvasFont(config.fontWeight, roleFontSize, family);
           ctx.globalAlpha = entrance * enter;
           ctx.translate(cx, cy + yOffset);
-          ctx.scale(scale, scale);
 
           if (isAccent) {
             const padX = roleFontSize * 0.2;
@@ -2949,21 +2876,15 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           const role = token.role ?? "normal";
           const isAccent = isZoomFocusAccent(role);
           const roleFontSize = config.fontSizePx * zoomFocusFontScale(role);
-          // `enter` (holds after rising) drives visibility; only the punch-in
-          // scale uses the non-decaying `centerPunchScale` — using
-          // `tokenPulse` for opacity faded already-spoken words back out.
+          // `enter` (holds after rising) drives visibility — using
+          // `tokenPulse` faded already-spoken words back out.
           const enter = tokenEnter({ frame, fps, fromFrame: timing.fromFrame }, ENTER_SMOOTH);
-          const punch = centerPunchScale({ frame, fps, fromFrame: timing.fromFrame }, ENTER_BOUNCY);
           const highlight = tokenHighlight(timing, ENTER_SMOOTH);
-          const scale = isAccent
-            ? Math.min(1.25, 0.4 + punch * 0.85 * config.emphasisScale)
-            : 0.7 + enter * 0.3;
           const colour = interpolateColors(highlight, [0, 1], [token.color ?? config.baseColor, token.color ?? config.activeColor]);
 
           ctx.font = canvasFont(config.fontWeight, roleFontSize, family);
           ctx.globalAlpha = entrance * enter;
           ctx.translate(cx, cy);
-          ctx.scale(scale, scale);
 
           if (isAccent) {
             const scaleFactor = canvasScale({ width, height });
@@ -3032,20 +2953,16 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           const isHero = isMaskRevealHero(role);
           const roleFontSize = config.fontSizePx * maskRevealFontScale(role);
           const enter = tokenEnter(timing, ENTER_SMOOTH);
-          const pulse = tokenPulse(timing, ENTER_BOUNCY);
-          
+
           const durationFrames = Math.max(1, timing.toFrame - timing.fromFrame);
           const elapsed = Math.max(0, frame - timing.fromFrame);
           const progress = Math.min(1, elapsed / durationFrames);
-          
-          const scale = isHero ? 0.82 + Math.min(1.1, pulse) * 0.18 : 1;
-          
+
           let colour: string | CanvasGradient = token.color ?? (isHero ? config.accentColor : config.baseColor);
 
           ctx.font = canvasFont(config.fontWeight, roleFontSize, family);
           ctx.globalAlpha = entrance * enter;
           ctx.translate(cx, cy);
-          ctx.scale(scale, scale);
 
           if (isHero) {
             ctx.shadowColor = config.accentColor;
@@ -3163,7 +3080,6 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           ctx.font = canvasFont(weight, roleFontSize, fam, fontStyle);
 
           let enter: number;
-          let scale = 1;
           let yOffset = 0;
           let xOffset = 0;
           let blurPx = 0;
@@ -3172,16 +3088,11 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           if (ekRole === "display") {
             color = isAccent ? (token.color ?? config.accentColor) : (token.color ?? config.baseColor);
             if (isPop) {
-              // Punch in past 100%, settle, and hold — mirrors
-              // `EditorialKineticToken`'s pop variant.
-              const punch = centerPunchScale(timing, ENTER_BOUNCY);
-              scale = 0.8 + punch * 0.2;
               enter = tokenEnter(timing, ENTER_SMOOTH);
               blurPx = (1 - enter) * 6 * scaleFactor;
             } else {
               enter = tokenEnter(timing, ENTER_SMOOTH);
               yOffset = (1 - enter) * 26 * scaleFactor;
-              scale = 0.97 + enter * 0.03;
               blurPx = (1 - enter) * 8 * scaleFactor;
             }
           } else if (ekRole === "editorial") {
@@ -3201,7 +3112,6 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           ctx.filter = blurPx > 0.3 ? `blur(${blurPx}px)` : "none";
           ctx.globalAlpha = entrance * enter;
           ctx.translate(cx + xOffset, cy + yOffset);
-          ctx.scale(scale, scale);
           ctx.fillStyle = color;
           ctx.fillText(text, -tokenWidth / 2, 0);
           ctx.filter = "none";
@@ -3230,7 +3140,6 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           ctx.font = canvasFont(weight, roleFontSize, fam, fontStyle);
 
           let enter: number;
-          let scale = 1;
           let yOffset = 0;
           let blurPx = 0;
           let color: string;
@@ -3242,17 +3151,12 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
 
           if (tier === "main") {
             color = isAccent ? (token.color ?? config.accentColor) : (token.color ?? config.baseColor);
-            // Punch in past 100%, settle, and hold — mirrors
-            // `EditorialStackHeroToken`'s hero tier.
-            const punch = centerPunchScale(timing, ENTER_BOUNCY);
-            scale = 0.82 + punch * 0.18;
             enter = tokenEnter(timing, ENTER_SMOOTH);
             blurPx = (1 - enter) * 6 * scaleFactor;
           } else if (tier === "primary") {
             color = token.color ?? config.baseColor;
             enter = tokenEnter(timing, ENTER_SMOOTH);
             yOffset = (1 - enter) * 35 * scaleFactor;
-            scale = 0.97 + enter * 0.03;
             blurPx = (1 - enter) * 6 * scaleFactor;
           } else if (tier === "secondary" || tier === "support") {
             color = token.color ?? "#ffffff";
@@ -3261,7 +3165,6 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
             const travelX = alignVariant === 0 ? -20 : alignVariant === 2 ? 20 : 0;
             yOffset = (1 - enter) * travelY * scaleFactor;
             const animXOffset = (1 - enter) * travelX * scaleFactor;
-            scale = 1;
             blurPx = (1 - enter) * 6 * scaleFactor;
 
             if (alignVariant === 0) {
@@ -3279,7 +3182,6 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           ctx.filter = blurPx > 0.3 ? `blur(${blurPx}px)` : "none";
           ctx.globalAlpha = entrance * enter;
           ctx.translate(cx + alignOffsetX, cy + yOffset);
-          ctx.scale(scale, scale);
           ctx.fillStyle = color;
           ctx.fillText(text, -tokenWidth / 2, 0);
           ctx.filter = "none";
@@ -3318,17 +3220,14 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
 
           const enter = tokenEnter(timing, ENTER_SMOOTH);
 
-          let scale = 1;
           let animXOffset = 0;
           let yOffset = 0;
           let blurPx = 0;
 
           if (tier === "hero") {
-            scale = 0.9 + centerPunchScale(timing, ENTER_SUBTLE) * 0.1;
             blurPx = (1 - enter) * 7 * scaleFactor;
           } else if (tier === "primary") {
             yOffset = (1 - enter) * 22 * scaleFactor;
-            scale = 0.98 + enter * 0.02;
             blurPx = (1 - enter) * 5 * scaleFactor;
           } else if (tier === "accent") {
             animXOffset = (1 - enter) * (align === "right" ? 26 : -26) * scaleFactor;
@@ -3345,7 +3244,6 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           ctx.filter = blurPx > 0.3 ? `blur(${blurPx}px)` : "none";
           ctx.globalAlpha = entrance * enter;
           ctx.translate(cx + edgeOffsetX + animXOffset, cy + yOffset);
-          ctx.scale(scale, scale);
           fillWithHalo(
             ctx,
             text,
@@ -3361,6 +3259,42 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           ctx.filter = "none";
 
           ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
+          break;
+        }
+
+        case "popWord": {
+          if (frame < timing.fromFrame) break;
+          const role = token.role ?? "normal";
+          const isAccent = role === "critical";
+          const isAnchor = role === "keyword";
+          const isHero = role === "emphasis";
+          
+          const scale = tokenEnter(timing, ENTER_BOUNCY);
+          const opacity = Math.min(1, Math.max(0, (frame - timing.fromFrame) / 6));
+          
+          ctx.scale(scale, scale);
+          ctx.globalAlpha *= opacity;
+
+          const color = (isAccent || isHero) ? config.accentColor : config.baseColor;
+          const text = applyTextCase(token.text, roleCaseTransform(role, config));
+
+          if (isAnchor) {
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = config.accentColor;
+            ctx.strokeText(text, -tokenWidth / 2, 0);
+          } else {
+            ctx.fillStyle = color;
+            if (isHero) {
+              ctx.shadowColor = config.accentColor;
+              // Canvas shadow blur is sensitive to scale, but we use fixed value to match CSS
+              ctx.shadowBlur = 20;
+              ctx.fillText(text, -tokenWidth / 2, 0);
+              // Draw text twice to intensify the glow, similar to CSS multiple shadows
+              ctx.shadowBlur = 40;
+            }
+            ctx.fillText(text, -tokenWidth / 2, 0);
+            ctx.shadowBlur = 0; // reset
+          }
           break;
         }
 
@@ -3389,8 +3323,7 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           const { started, ended } = focusEnvelope(timing);
           const pulse = tokenPulse(timing, ENTER_BOUNCY);
           const direction = dynamicSlideStackDirection(token.text, timing.fromFrame);
-          
-          const scale = 1 + Math.max(0, pulse * 0.15);
+
           const travel = pulse * roleFontSize * 0.15;
           const xOffset = direction === "left" ? -travel : direction === "right" ? travel : 0;
           const yOffset = direction === "up" ? -travel : direction === "down" ? travel : 0;
@@ -3401,7 +3334,6 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           ctx.globalAlpha =
             entrance * focusWordOpacity(started, ended, config.upcomingOpacity);
           ctx.translate(cx + xOffset, cy + yOffset);
-          ctx.scale(scale, scale);
           if (blurPx > 0.1) {
             ctx.filter = `blur(${blurPx}px)`;
           }
@@ -3433,11 +3365,9 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           const scaleFactor = canvasScale({ width, height });
 
           const enter = tokenEnter({ frame, fps, fromFrame: timing.fromFrame }, isHero ? ENTER_BOUNCY : ENTER_SMOOTH);
-          const pulse = tokenPulse(timing, ENTER_BOUNCY);
           const travel = (1 - enter) * (isHero ? 60 : 40) * scaleFactor;
           const xOffset = direction === "left" ? -travel : direction === "right" ? travel : 0;
           const yOffset = direction === "up" ? -travel : direction === "down" ? travel : 0;
-          const heroScale = isHero ? Math.min(1.08, 0.85 + pulse * 0.23) : 1;
           const blurPx = (1 - enter) * (isHero ? 5 : 3) * scaleFactor;
           const color = token.color ?? (isHero ? config.accentColor : config.baseColor);
 
@@ -3445,7 +3375,6 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           ctx.globalAlpha = entrance * enter;
           ctx.filter = blurPx > 0.3 ? `blur(${blurPx}px)` : "none";
           ctx.translate(cx + xOffset, cy + yOffset);
-          ctx.scale(heroScale, heroScale);
           strokeThenFill(ctx, text, -tokenWidth / 2, 0, color, isHero ? config.strokeWidthPx : 0, config.strokeColor);
           ctx.filter = "none";
 
@@ -3772,13 +3701,11 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           }
 
           const rotateDeg = (1 - enter) * 40;
-          const arcScale = 0.9 + enter * 0.1;
           const radius = roleFontSize * 1.9;
           const chars = Array.from(text);
 
           ctx.translate(cx, cy);
           ctx.rotate((rotateDeg * Math.PI) / 180);
-          ctx.scale(arcScale, arcScale);
           ctx.fillStyle = color;
           ctx.textAlign = "center";
 
@@ -3805,17 +3732,14 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           const role = token.role ?? "normal";
           const roleFontSize = config.fontSizePx * floatingBubbleFontScale(role);
           const enter = tokenEnter({ frame, fps, fromFrame: timing.fromFrame }, ENTER_BOUNCY);
-          const pulse = tokenPulse(timing, ENTER_BOUNCY);
           const scaleFactor = canvasScale({ width, height });
           const drift = floatingBubbleOffset(token.text, index, frame, fps);
-          const settleScale = 0.7 + Math.min(1.1, pulse) * 0.3;
           const tint = floatingBubbleTint(token.text);
           const color = token.color ?? "#ffffff";
 
           ctx.font = canvasFont(config.fontWeight, roleFontSize, family);
           ctx.globalAlpha = entrance * enter;
           ctx.translate(cx + drift.x * scaleFactor, cy + (drift.y - (1 - enter) * 24) * scaleFactor);
-          ctx.scale(settleScale, settleScale);
 
           const padX = roleFontSize * 0.42;
           const padY = roleFontSize * 0.28;

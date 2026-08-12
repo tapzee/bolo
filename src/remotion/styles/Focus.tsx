@@ -26,9 +26,9 @@ import { focusEnvelope, tokenPulse, ENTER_BOUNCY } from "../captions/animation";
  * One centred block, every word the same size and weight, up to three wrapped
  * rows. The whole page arrives once (the shared `pageEntrance` on the block),
  * then nothing enters again: the only thing that moves is the spoken word,
- * which lifts slightly, scales up ~7% and brightens to full white while the
- * words around it hold at `upcomingOpacity`. Words already spoken settle back
- * to `FOCUS_SPOKEN_OPACITY` rather than snapping off, so the viewer can still
+ * which lifts slightly and brightens to full white while the words around it
+ * hold at `upcomingOpacity`. Words already spoken settle back to
+ * `FOCUS_SPOKEN_OPACITY` rather than snapping off, so the viewer can still
  * read the start of the line.
  *
  * The one deviation from uniformity is deliberate and is what keeps the page
@@ -70,8 +70,7 @@ export const FocusToken: React.FC<TokenViewProps> = ({
 
   const fontSize = (textStyle.fontSize as number) * focusFontScale(tier);
   const opacity = focusWordOpacity(started, ended, config.upcomingOpacity);
-  
-  const scale = 1 + Math.max(0, pulse * 0.15);
+
   const travel = pulse * fontSize * 0.15;
   const xOffset = direction === "left" ? -travel : direction === "right" ? travel : 0;
   const yOffset = direction === "up" ? -travel : direction === "down" ? travel : 0;
@@ -105,7 +104,7 @@ export const FocusToken: React.FC<TokenViewProps> = ({
           color: colour,
           textTransform: focusTierIsUpper(tier) ? "uppercase" : "lowercase",
           opacity,
-          transform: `translate(${xOffset}px, ${yOffset}px) scale(${scale})`,
+          transform: `translate(${xOffset}px, ${yOffset}px)`,
           filter: blurPx > 0.1 ? `blur(${blurPx}px)` : undefined,
           // The two-part readability guarantee this template uses in place of
           // a conventional outline — see `PREMIUM_HALO` / `premiumStrokePx`.

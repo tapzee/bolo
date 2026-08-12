@@ -10,7 +10,7 @@ import {
 import { FONT_FAMILY } from "../fonts";
 import type { WordRole } from "@/core";
 import { hasDevanagari } from "@/core";
-import { ENTER_BOUNCY, ENTER_SMOOTH, centerPunchScale, tokenEnter } from "../captions/animation";
+import { ENTER_BOUNCY, ENTER_SMOOTH, tokenEnter } from "../captions/animation";
 
 /**
  * Mixed Weight — Template 08.
@@ -43,13 +43,8 @@ export const MixedWeightToken: React.FC<TokenViewProps> = ({
 
   let opacity: number;
   let yOffset: number;
-  let scale = 1;
 
   if (isKeyword) {
-    // Punch in past 100%, settle, and hold — see `centerPunchScale`'s own
-    // doc comment for why this is a bare spring rather than `tokenPulse`.
-    const punch = centerPunchScale(timing, ENTER_BOUNCY);
-    scale = 0.75 + punch * 0.25;
     opacity = tokenEnter(timing, ENTER_SMOOTH);
     yOffset = 0;
   } else if (isDevanagari) {
@@ -74,7 +69,7 @@ export const MixedWeightToken: React.FC<TokenViewProps> = ({
           fontWeight: isKeyword ? 900 : 300,
           color: token.color ?? (isKeyword ? config.accentColor : config.baseColor),
           opacity,
-          transform: `scale(${scale}) translateY(${yOffset}px)`,
+          transform: `translateY(${yOffset}px)`,
           zIndex: 1,
           textTransform: roleCaseTransform(role, config),
         }}

@@ -1,11 +1,9 @@
 import { memo } from "react";
 import { interpolateColors } from "remotion";
 import {
-  ENTER_BOUNCY,
   ENTER_SMOOTH,
   tokenEnter,
   tokenHighlight,
-  tokenPulse,
 } from "../captions/animation";
 import {
   displayText,
@@ -52,7 +50,6 @@ export const KineticToken = memo(function KineticToken({
   const timing = { frame, fps, fromFrame, toFrame };
   const enter = tokenEnter(timing, ENTER_SMOOTH);
   const highlight = tokenHighlight(timing, ENTER_SMOOTH);
-  const pulse = tokenPulse(timing, ENTER_BOUNCY);
 
   const text = displayText(token);
   const variant = kineticVariant(text, index);
@@ -64,7 +61,6 @@ export const KineticToken = memo(function KineticToken({
 
   let translateX = 0;
   let translateY = 0;
-  let scale = 1;
   let blurPx = 0;
 
   switch (variant) {
@@ -85,18 +81,12 @@ export const KineticToken = memo(function KineticToken({
       blurPx = arrive * 9;
       break;
     case "blurPop":
-      scale = 0.72 + settle * 0.28;
       blurPx = arrive * 14;
       break;
     case "blurOut":
-      scale = 1.4 - settle * 0.4;
       blurPx = arrive * 14;
       break;
   }
-
-  // A small settle-bounce layered on top of the word's own arrival, so the
-  // page keeps feeling alive after the slide/blur resolves.
-  scale += pulse * 0.05;
 
   const restColor = token.color ?? config.baseColor;
   const spokenColor = token.color ?? config.activeColor;
@@ -143,7 +133,7 @@ export const KineticToken = memo(function KineticToken({
       style={{
         ...tokenShellStyle,
         opacity,
-        transform: `translate(${translateX}px, ${translateY}px) scale(${scale})`,
+        transform: `translate(${translateX}px, ${translateY}px)`,
         filter: blurPx > 0.05 ? `blur(${blurPx}px)` : undefined,
       }}
     >

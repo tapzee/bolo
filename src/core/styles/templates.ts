@@ -72,6 +72,16 @@ export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
   // together), so a template-level override here would quietly detune them.
   t("focus", "Focus", "premium", "focus", {}, "New"),
   t("stack", "Stack", "premium", "stack", {}, "New"),
+  t("pop-word", "Pop Word", "premium", "popWord", {
+    fontId: "inter", fontSizePx: 100, fontWeight: 900,
+    baseColor: "#ffffff", accentColor: "#f97316", textCase: "lower"
+  }, "New"),
+
+  t("kold-cinematic", "Kold Cinematic", "premium", "focus", {
+    fontId: "playfair", fontSizePx: 85, fontWeight: 600, textCase: "none",
+    baseColor: "#f3f4f6", activeColor: "#ffffff", accentColor: "#ffffff",
+    strokeWidthPx: 0, dropShadow: true, upcomingOpacity: 0.65, specialFontId: "playfair"
+  }, "Hot"),
 
   // ---- Trending ----------------------------------------------------------
   t("hero-mixed-pro", "Hero Mixed Pro", "trending", "heroMixed", {

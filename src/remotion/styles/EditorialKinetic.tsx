@@ -11,10 +11,8 @@ import { FONT_FAMILY } from "../fonts";
 import type { WordRole } from "@/core";
 import { hasDevanagari } from "@/core";
 import {
-  ENTER_BOUNCY,
   ENTER_SMOOTH,
   ENTER_SUBTLE,
-  centerPunchScale,
   tokenEnter,
 } from "../captions/animation";
 
@@ -76,7 +74,6 @@ const EditorialKineticBase: React.FC<
   let color: string;
   let noStroke = false;
   let enter: number;
-  let scale = 1;
   let yOffset = 0;
   let xOffset = 0;
   let blurPx = 0;
@@ -88,18 +85,11 @@ const EditorialKineticBase: React.FC<
       : (token.color ?? config.baseColor);
 
     if (variant === "pop") {
-      // Punch in past 100%, settle, and hold — see `centerPunchScale`'s own
-      // doc comment for why this is a bare spring rather than `tokenPulse`.
-      // 0.8 → ~1.04 overshoot → asymptotes to exactly 1.0 as the spring
-      // settles, matching the spec's "small, premium, not cartoonish" ask.
-      const punch = centerPunchScale(timing, ENTER_BOUNCY);
-      scale = 0.8 + punch * 0.2;
       enter = tokenEnter(timing, ENTER_SMOOTH);
       blurPx = (1 - enter) * 6;
     } else {
       enter = tokenEnter(timing, ENTER_SMOOTH);
       yOffset = (1 - enter) * 26;
-      scale = 0.97 + enter * 0.03;
       blurPx = (1 - enter) * 8;
     }
   } else if (ekRole === "editorial") {
@@ -149,7 +139,7 @@ const EditorialKineticBase: React.FC<
           letterSpacing:
             ekRole === "display" ? textStyle.letterSpacing : 0,
           opacity: enter,
-          transform: `translate(${xOffset}px, ${yOffset}px) scale(${scale})`,
+          transform: `translate(${xOffset}px, ${yOffset}px)`,
           filter: blurPx > 0.3 ? `blur(${blurPx}px)` : undefined,
           WebkitTextStroke: noStroke
             ? "0px transparent"

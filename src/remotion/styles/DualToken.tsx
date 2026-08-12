@@ -59,9 +59,6 @@ export const DualToken = memo(function DualToken({
 
   // Pop spring — stronger on the last/only word
   const shouldAnimate = isImpactWord || isSingleWord;
-  const popScale = shouldAnimate
-    ? 1 + pulse * 0.28 * config.emphasisScale
-    : 1 + pulse * 0.08 * config.emphasisScale;
   const popRotate = shouldAnimate ? pulse * -1.5 : 0;
   const liftY = (1 - enter) * 10;
 
@@ -113,7 +110,7 @@ export const DualToken = memo(function DualToken({
           ...tokenGlyphStyle,
           ...textStyle,
           color: bigColor,
-          transform: `translateY(${-liftY}px) scale(${popScale}) rotate(${popRotate}deg)`,
+          transform: `translateY(${-liftY}px) rotate(${popRotate}deg)`,
           display: "inline-block",
           textShadow:
             highlight > 0.01

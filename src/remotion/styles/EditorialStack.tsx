@@ -62,7 +62,6 @@ export const EditorialStackToken: React.FC<TokenViewProps> = ({
 
   const yOffset = (isBigTier ? (1 - enter) * 22 : (1 - enter) * 8);
   const blurPx = isBigTier ? (1 - enter) * 7 : 0;
-  const scale = isBigTier ? 0.96 + enter * 0.04 : 1;
 
   return (
     <span style={tokenShellStyle}>
@@ -74,7 +73,7 @@ export const EditorialStackToken: React.FC<TokenViewProps> = ({
           color,
           fontWeight,
           opacity: enter,
-          transform: `translateY(${yOffset}px) scale(${scale})`,
+          transform: `translateY(${yOffset}px)`,
           filter: blurPx > 0.3 ? `blur(${blurPx}px)` : undefined,
           zIndex: 1,
           textTransform: roleCaseTransform(role, config),

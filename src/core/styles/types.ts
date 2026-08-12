@@ -64,6 +64,7 @@ export const STYLE_IDS = [
   // `remotion/captions/primitives.ts` for the rules both are built on.
   "stack",
   "focus",
+  "popWord",
 ] as const;
 
 export type StyleId = (typeof STYLE_IDS)[number];
