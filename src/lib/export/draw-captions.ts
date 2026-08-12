@@ -58,6 +58,7 @@ import {
   kineticSplitSide,
   isKineticSplitAccent,
   kineticSplitFontScale,
+  roleCaseTransform,
   frameProgress,
   pickFrameState,
   CENTER_PUNCH_STATES,
