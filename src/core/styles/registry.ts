@@ -359,9 +359,11 @@ export const CAPTION_STYLES: Readonly<
       dropShadow: true,
       maxWordsPerPage: 5,
       linesPerPage: 3,
-      annotationSizeRatio: 0.40,
+      lineHeight: 0.9,
+      annotationSizeRatio: 0.60,
       annotationWeight: 500,
       annotationColor: "#ffffff",
+      specialFontId: "grandHotel",
       combineWithinMs: 900,
     }
   ),
