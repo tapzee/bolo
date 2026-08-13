@@ -869,7 +869,7 @@ export const designWallaProRole = (
 };
 
 export const designWallaProFontScale = (role: DesignWallaProRole): number =>
-  role === "middle" ? 1.15 : 0.40;
+  role === "middle" ? 1.15 : 0.60;
 
 /**
  * Design Walla Pro: Alternates slide-in direction based on pageSeed so the bi-directional layout is consistent on the page.
