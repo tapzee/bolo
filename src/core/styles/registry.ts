@@ -1457,7 +1457,7 @@ export const CAPTION_STYLES: Readonly<
       uppercase: true,
       baseColor: "#ffffff",
       accentColor: "#ffd60a",
-      strokeWidthPx: 4,
+      strokeWidthPx: 0,
       maxWordsPerPage: 8,
       dropShadow: true,
       lineHeight: 0.9,

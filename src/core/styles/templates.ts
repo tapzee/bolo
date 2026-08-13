@@ -786,7 +786,7 @@ export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
     fontId: "anton", specialFontId: "rougeScript", uppercase: true,
     fontSizePx: 76, maxWordsPerPage: 4, linesPerPage: 2,
     baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#ffd60a",
-    dropShadow: true, strokeWidthPx: 5,
+    dropShadow: true, strokeWidthPx: 0,
   }, "New"),
 
   // ==========================================================================
