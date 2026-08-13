@@ -71,6 +71,7 @@ export const STYLE_IDS = [
   "stack",
   "focus",
   "popWord",
+  "dualLine",
 ] as const;
 
 export type StyleId = (typeof STYLE_IDS)[number];

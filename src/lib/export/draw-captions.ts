@@ -236,6 +236,10 @@ const getRenderText = (
     }
     return text;
   }
+  if (config.styleId === "dualLine") {
+    const splitIndex = Math.ceil(totalTokens / 2);
+    return index < splitIndex ? text.toUpperCase() : text;
+  }
   if (config.styleId === "designWalla") {
     if (index !== heroIndex) return applyTextCase(text, resolveTextCase(config));
     const isScript = designWallaHeroIsScript(pageSeed) && !hasDevanagari(text);
@@ -368,6 +372,15 @@ const layoutLines = (
         ctx.font = canvasFont(config.fontWeight, fontSize, scriptFamily, "italic");
         fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
       }
+    } else if (config.styleId === "dualLine") {
+      const splitIndex = Math.ceil(page.tokens.length / 2);
+      const isTopLine = index < splitIndex;
+      const isScript = !isTopLine && !hasDevanagari(text);
+      fontSize = config.fontSizePx * (isTopLine ? 1 : 0.95);
+      const fam = isTopLine ? family : isScript ? resolveFontFamily(config.specialFontId ?? "caveat") : family;
+      const weight = isTopLine ? Math.max(800, config.fontWeight) : 500;
+      ctx.font = canvasFont(weight, fontSize, fam, isScript ? "italic" : "normal");
+      fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
     } else if (config.styleId === "heroMixed" && heroMixedBackdrop) {
       // Poster scene: the hero is drawn separately as a full-bleed backdrop
       // (see the block above the lines loop), so it takes no space in flow.
@@ -887,6 +900,10 @@ const layoutLines = (
       return;
     }
 
+    if (config.styleId === "dualLine" && index === Math.ceil(page.tokens.length / 2)) {
+      flush();
+    }
+
     if (config.styleId === "focus" && focusTier(token.role ?? "normal") === "hero") {
       flush();
       lines.push({ items: [measured], width, height: rowHeight([measured]) });
@@ -1403,6 +1420,37 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
             config.strokeWidthPx,
             config.strokeColor,
           );
+          break;
+        }
+        
+        case "dualLine": {
+          const enter = tokenEnter(timing, ENTER_SMOOTH);
+          const splitIndex = Math.ceil(page.tokens.length / 2);
+          const isTopLine = index < splitIndex;
+          const isScript = !isTopLine && !hasDevanagari(text);
+          
+          const lift = (1 - enter) * 40 * canvasScale({ width, height });
+          ctx.globalAlpha = entrance * enter;
+          ctx.translate(cx, cy + lift);
+
+          const color = isTopLine ? config.accentColor : config.baseColor;
+          const fam = isTopLine ? family : isScript ? resolveFontFamily(config.specialFontId ?? "caveat") : family;
+          const weight = isTopLine ? Math.max(800, config.fontWeight) : 500;
+          const currentFontSize = config.fontSizePx * (isTopLine ? 1 : 0.95);
+          ctx.font = canvasFont(weight, currentFontSize, fam, isScript ? "italic" : "normal");
+          
+          strokeThenFill(
+            ctx,
+            text,
+            -tokenWidth / 2,
+            0,
+            color,
+            isScript ? 0 : config.strokeWidthPx,
+            config.strokeColor,
+          );
+          
+          // Restore font for layout loop next iteration
+          ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
           break;
         }
 

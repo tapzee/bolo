@@ -782,6 +782,11 @@ export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
   t("mask-reveal-pro", "Mask Reveal", "bold", "maskReveal", {}, "New"),
   t("draw-on-pro", "Draw On", "clean", "drawOn", {}, "New"),
   t("depth-3d-pro", "3D Depth", "trending", "depth3d", {}, "New"),
+  t("dual-line-pro", "Dual Line Pro", "premium", "dualLine", {
+    fontId: "anton", specialFontId: "caveat", uppercase: true,
+    baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#ffd60a",
+    dropShadow: true, strokeWidthPx: 5,
+  }, "New"),
 
   // ==========================================================================
   // MOTION SYSTEMS FAMILY

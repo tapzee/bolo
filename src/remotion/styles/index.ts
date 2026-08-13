@@ -9,6 +9,7 @@ import { GlowToken } from "./Glow";
 import { HeroStackToken } from "./HeroStack";
 import { PopToken } from "./Pop";
 import { SplashToken } from "./Splash";
+import { DualLineToken } from "./DualLine";
 import { DynamicToken } from "./Dynamic";
 import { DynamicHighlightToken } from "./DynamicHighlight";
 import { HeroMixedToken } from "./HeroMixed";
@@ -130,5 +131,6 @@ export const TOKEN_RENDERERS: Readonly<
   stack: StackToken,
   focus: FocusToken,
   popWord: PopWordToken,
+  dualLine: DualLineToken,
 };
 

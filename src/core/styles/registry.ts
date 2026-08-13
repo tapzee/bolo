@@ -1444,6 +1444,25 @@ export const CAPTION_STYLES: Readonly<
       dropShadow: false,
     },
   ),
+
+  dualLine: define(
+    "dualLine",
+    "Dual Line Pro",
+    "Two-line layout with Sans Serif uppercase top and elegant Cursive script bottom.",
+    {
+      fontId: "anton",
+      specialFontId: "caveat",
+      fontWeight: 800,
+      fontSizePx: 90,
+      uppercase: true,
+      baseColor: "#ffffff",
+      accentColor: "#ffd60a",
+      strokeWidthPx: 4,
+      maxWordsPerPage: 8,
+      dropShadow: true,
+      lineHeight: 1.1,
+    },
+  ),
 };
 
 export const CAPTION_STYLE_LIST: readonly CaptionStyleDefinition[] =
