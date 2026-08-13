@@ -4,6 +4,7 @@ import { FONT_FAMILY } from "../fonts";
 import {
   designWallaProRole,
   designWallaProDirection,
+  designWallaProHeroIsSerif,
   designWallaProFontScale,
   displayText,
   tokenGlyphStyle,
@@ -35,6 +36,7 @@ export const DesignWallaProToken = memo(function DesignWallaProToken({
   // Middle pops from center (or small lift)
   // Top / Bottom slide in from sides based on direction
   const direction = designWallaProDirection(pageSeed);
+  const isSerif = designWallaProHeroIsSerif(pageSeed);
 
   let transformStr = "";
   if (isMiddle) {
@@ -66,12 +68,12 @@ export const DesignWallaProToken = memo(function DesignWallaProToken({
           style={{
             ...textStyle,
             ...tokenGlyphStyle,
-            fontFamily: textStyle.fontFamily,
+            fontFamily: isSerif ? FONT_FAMILY["instrumentSerif"] : textStyle.fontFamily,
             fontSize: config.fontSizePx * scale,
-            fontWeight: Math.max(800, config.fontWeight),
+            fontWeight: isSerif ? 400 : Math.max(800, config.fontWeight),
             fontStyle: "italic",
-            color: token.color ?? config.accentColor,
-            textTransform: "uppercase",
+            color: isSerif ? "#ffffff" : (token.color ?? config.accentColor),
+            textTransform: isSerif ? "lowercase" : "uppercase",
             opacity: enter,
             transform: transformStr,
             filter: blurPx > 0.3 ? `blur(${blurPx}px)` : undefined,

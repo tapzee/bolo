@@ -113,6 +113,7 @@ import {
   designWallaHeroDirection,
   designWallaProRole,
   designWallaProDirection,
+  designWallaProHeroIsSerif,
   designWallaProFontScale,
   isGlassHighlightAccent,
   glassHighlightFontScale,
@@ -3484,11 +3485,15 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           
           const blurPx = (1 - enter) * 4 * scaleFactor;
 
+          const isSerif = designWallaProHeroIsSerif(pageSeed);
+
           if (isMiddle) {
             const travel = (1 - enter) * 20 * scaleFactor;
             const heroSize = config.fontSizePx * designWallaProFontScale(role);
+            const heroFamily = isSerif ? resolveFontFamily("instrumentSerif") : family;
+            const heroWeight = isSerif ? 400 : Math.max(800, config.fontWeight);
             
-            ctx.font = canvasFont(Math.max(800, config.fontWeight), heroSize, family, "italic");
+            ctx.font = canvasFont(heroWeight, heroSize, heroFamily, "italic");
             ctx.globalAlpha = entrance * enter;
             
             ctx.translate(cx, cy + travel);
@@ -3496,8 +3501,8 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
             ctx.scale(scale, scale);
             if (blurPx > 0.3) ctx.filter = `blur(${blurPx}px)`;
             
-            const color = token.color ?? config.accentColor;
-            strokeThenFill(ctx, text, -tokenWidth / 2, 0, color, config.strokeWidthPx, config.strokeColor);
+            const color = isSerif ? "#ffffff" : (token.color ?? config.accentColor);
+            strokeThenFill(ctx, applyTextCase(text, isSerif ? "lower" : "upper"), -tokenWidth / 2, 0, color, config.strokeWidthPx, config.strokeColor);
             
             if (blurPx > 0.3) ctx.filter = "none";
             ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);

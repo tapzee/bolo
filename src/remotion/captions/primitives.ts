@@ -877,6 +877,9 @@ export const designWallaProFontScale = (role: DesignWallaProRole): number =>
 export const designWallaProDirection = (pageSeed: number): "left" | "right" =>
   pageSeed % 2 === 0 ? "left" : "right";
 
+export const designWallaProHeroIsSerif = (pageSeed: number): boolean =>
+  pageSeed % 3 === 0;
+
 export const SLIDE_STACK_DIRECTIONS = ["left", "right", "up", "down"] as const;
 export type SlideStackDirection = (typeof SLIDE_STACK_DIRECTIONS)[number];
 export const dynamicSlideStackDirection = (text: string, index: number): SlideStackDirection =>
