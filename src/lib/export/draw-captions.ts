@@ -3477,7 +3477,11 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           break;
         }
 
-        case "designWallaPro": {
+        case "designWallaPro":
+        case "designWallaProPink":
+        case "designWallaProBlue":
+        case "designWallaProGreen":
+        case "designWallaProOrange": {
           const role = designWallaProRole(index, heroIndex);
           const scaleFactor = canvasScale({ width, height });
           const enter = tokenEnter(timing, ENTER_SMOOTH);
