@@ -3489,11 +3489,12 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
 
           if (isMiddle) {
             const travel = (1 - enter) * 20 * scaleFactor;
-            const heroSize = config.fontSizePx * designWallaProFontScale(role);
+            const heroSize = config.fontSizePx * designWallaProFontScale(role) * (isSerif ? 1.2 : 1);
             const heroFamily = isSerif ? resolveFontFamily("instrumentSerif") : family;
-            const heroWeight = isSerif ? 400 : Math.max(800, config.fontWeight);
+            const heroWeight = Math.max(800, config.fontWeight);
+            const heroStyle = isSerif ? "italic" : "normal";
             
-            ctx.font = canvasFont(heroWeight, heroSize, heroFamily, "italic");
+            ctx.font = canvasFont(heroWeight, heroSize, heroFamily, heroStyle);
             ctx.globalAlpha = entrance * enter;
             
             ctx.translate(cx, cy + travel);
