@@ -3487,9 +3487,8 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           if (isMiddle) {
             const travel = (1 - enter) * 20 * scaleFactor;
             const heroSize = config.fontSizePx * designWallaProFontScale(role);
-            const heroFamily = config.specialFontId ? resolveFontFamily(config.specialFontId) : resolveFontFamily("grandHotel");
             
-            ctx.font = canvasFont(Math.max(800, config.fontWeight), heroSize, heroFamily, "italic");
+            ctx.font = canvasFont(Math.max(800, config.fontWeight), heroSize, family, "italic");
             ctx.globalAlpha = entrance * enter;
             
             ctx.translate(cx, cy + travel);

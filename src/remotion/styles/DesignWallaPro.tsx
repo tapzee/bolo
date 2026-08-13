@@ -66,14 +66,12 @@ export const DesignWallaProToken = memo(function DesignWallaProToken({
           style={{
             ...textStyle,
             ...tokenGlyphStyle,
-            fontFamily: config.specialFontId
-              ? FONT_FAMILY[config.specialFontId]
-              : FONT_FAMILY["grandHotel"],
+            fontFamily: textStyle.fontFamily,
             fontSize: config.fontSizePx * scale,
             fontWeight: Math.max(800, config.fontWeight),
             fontStyle: "italic",
             color: token.color ?? config.accentColor,
-            textTransform: "none",
+            textTransform: "uppercase",
             opacity: enter,
             transform: transformStr,
             filter: blurPx > 0.3 ? `blur(${blurPx}px)` : undefined,
@@ -111,7 +109,7 @@ export const DesignWallaProToken = memo(function DesignWallaProToken({
               : config.textCase === "lower"
                 ? "lowercase"
                 : "none",
-          WebkitTextStroke: "0px transparent",
+          WebkitTextStroke: "none",
           textShadow: "none",
         }}
       >

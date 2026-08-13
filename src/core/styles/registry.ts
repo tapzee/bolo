@@ -361,9 +361,8 @@ export const CAPTION_STYLES: Readonly<
       linesPerPage: 3,
       lineHeight: 0.9,
       annotationSizeRatio: 0.60,
-      annotationWeight: 500,
+      annotationWeight: 800,
       annotationColor: "#ffffff",
-      specialFontId: "grandHotel",
       combineWithinMs: 900,
     }
   ),
