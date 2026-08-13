@@ -854,6 +854,29 @@ export const designWallaHeroIsScript = (pageSeed: number): boolean =>
 export const designWallaHeroDirection = (pageSeed: number): "up" | "down" =>
   pageSeed % 2 === 0 ? "up" : "down";
 
+/**
+ * Design Walla Pro: exactly three lines. Words before hero go to top, hero goes to middle, words after go to bottom.
+ */
+export type DesignWallaProRole = "top" | "middle" | "bottom";
+
+export const designWallaProRole = (
+  index: number,
+  heroIndex: number,
+): DesignWallaProRole => {
+  if (index === heroIndex) return "middle";
+  if (index < heroIndex) return "top";
+  return "bottom";
+};
+
+export const designWallaProFontScale = (role: DesignWallaProRole): number =>
+  role === "middle" ? 1.15 : 0.40;
+
+/**
+ * Design Walla Pro: Alternates slide-in direction based on pageSeed so the bi-directional layout is consistent on the page.
+ */
+export const designWallaProDirection = (pageSeed: number): "left" | "right" =>
+  pageSeed % 2 === 0 ? "left" : "right";
+
 export const SLIDE_STACK_DIRECTIONS = ["left", "right", "up", "down"] as const;
 export type SlideStackDirection = (typeof SLIDE_STACK_DIRECTIONS)[number];
 export const dynamicSlideStackDirection = (text: string, index: number): SlideStackDirection =>

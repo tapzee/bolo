@@ -84,6 +84,13 @@ export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
     specialFontId: "caveat", secondaryFontId: "montserrat"
   }, "Hot"),
 
+  t("design-walla-pro", "Design Walla Pro", "premium", "designWallaPro", {
+    fontId: "montserrat", fontSizePx: 95, fontWeight: 900, textCase: "none",
+    baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#ffe600",
+    strokeWidthPx: 3, dropShadow: true,
+    secondaryFontId: "poppins"
+  }, "Hot"),
+
   // ---- Trending ----------------------------------------------------------
   t("hero-mixed-pro", "Hero Mixed Pro", "trending", "heroMixed", {
     fontId: "montserrat", fontSizePx: 118, textCase: "upper",

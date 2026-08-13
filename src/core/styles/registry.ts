@@ -342,6 +342,30 @@ export const CAPTION_STYLES: Readonly<
     },
   ),
 
+  designWallaPro: define(
+    "designWallaPro",
+    "Design Walla Pro",
+    "Three-line bi-directional layout matching the premium reference exactly.",
+    {
+      fontId: "inter",
+      secondaryFontId: "poppins",
+      fontWeight: 900,
+      fontSizePx: 95,
+      uppercase: false,
+      baseColor: "#ffffff",
+      activeColor: "#ffffff",
+      accentColor: "#ffe600",
+      strokeWidthPx: 3,
+      dropShadow: true,
+      maxWordsPerPage: 5,
+      linesPerPage: 3,
+      annotationSizeRatio: 0.40,
+      annotationWeight: 500,
+      annotationColor: "#ffffff",
+      combineWithinMs: 900,
+    }
+  ),
+
   dynamicHighlight: define(
     "dynamicHighlight",
     "Dynamic Highlight",

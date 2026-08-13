@@ -111,6 +111,9 @@ import {
   DESIGN_WALLA_SMALL_RATIO,
   designWallaHeroIsScript,
   designWallaHeroDirection,
+  designWallaProRole,
+  designWallaProDirection,
+  designWallaProFontScale,
   isGlassHighlightAccent,
   glassHighlightFontScale,
   isSplitTextHero,
@@ -236,6 +239,10 @@ const getRenderText = (
     if (index !== heroIndex) return applyTextCase(text, resolveTextCase(config));
     const isScript = designWallaHeroIsScript(pageSeed) && !hasDevanagari(text);
     return isScript ? text : text.toUpperCase();
+  }
+  if (config.styleId === "designWallaPro") {
+    if (index === heroIndex) return text.toUpperCase();
+    return applyTextCase(text, resolveTextCase(config));
   }
   if (config.styleId === "hero") {
     // The headline is forced upper, the supporting text forced lower —
@@ -711,6 +718,17 @@ const layoutLines = (
         ctx.font = canvasFont(Math.max(800, config.fontWeight), fontSize, family);
       }
       fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
+    } else if (config.styleId === "designWallaPro") {
+      const role = designWallaProRole(index, heroIndex);
+      const scale = designWallaProFontScale(role);
+      fontSize = config.fontSizePx * scale;
+      if (role === "middle") {
+        ctx.font = canvasFont(Math.max(800, config.fontWeight), fontSize, family, "italic");
+      } else {
+        const smallFamily = config.secondaryFontId ? resolveFontFamily(config.secondaryFontId) : family;
+        ctx.font = canvasFont(config.annotationWeight > 0 ? config.annotationWeight : 500, fontSize, smallFamily);
+      }
+      fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
     } else if (config.styleId === "dynamicSlideStack") {
       const role = token.role ?? "normal";
       fontSize = config.fontSizePx * dynamicSlideStackFontScale(role);
@@ -859,7 +877,8 @@ const layoutLines = (
       (config.styleId === "hero" ||
         config.styleId === "heroMixed" ||
         config.styleId === "maskReveal" ||
-        config.styleId === "designWalla") &&
+        config.styleId === "designWalla" ||
+        config.styleId === "designWallaPro") &&
       index === heroIndex
     ) {
       flush();
@@ -3452,6 +3471,59 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           if (blurPx > 0.3) ctx.filter = `blur(${blurPx}px)`;
           ctx.translate(cx, cy + yOffset);
           strokeThenFill(ctx, text, -tokenWidth / 2, 0, color, isDwScript ? 0 : config.strokeWidthPx, config.strokeColor);
+          if (blurPx > 0.3) ctx.filter = "none";
+          ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
+          break;
+        }
+
+        case "designWallaPro": {
+          const role = designWallaProRole(index, heroIndex);
+          const scaleFactor = canvasScale({ width, height });
+          const enter = tokenEnter(timing, ENTER_SMOOTH);
+          const isMiddle = role === "middle";
+          
+          const blurPx = (1 - enter) * 4 * scaleFactor;
+
+          if (isMiddle) {
+            const travel = (1 - enter) * 20 * scaleFactor;
+            const heroSize = config.fontSizePx * designWallaProFontScale(role);
+            
+            ctx.font = canvasFont(Math.max(800, config.fontWeight), heroSize, family, "italic");
+            ctx.globalAlpha = entrance * enter;
+            
+            ctx.translate(cx, cy + travel);
+            const scale = 0.9 + enter * 0.1;
+            ctx.scale(scale, scale);
+            if (blurPx > 0.3) ctx.filter = `blur(${blurPx}px)`;
+            
+            const color = token.color ?? config.accentColor;
+            strokeThenFill(ctx, text, -tokenWidth / 2, 0, color, config.strokeWidthPx, config.strokeColor);
+            
+            if (blurPx > 0.3) ctx.filter = "none";
+            ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
+            break;
+          }
+
+          const direction = designWallaProDirection(pageSeed);
+          const isTop = role === "top";
+          const baseOffset = direction === "left" ? -60 : 60;
+          const finalOffset = isTop ? baseOffset : -baseOffset;
+          const travel = (1 - enter) * finalOffset * scaleFactor;
+          
+          const smallSize = config.fontSizePx * designWallaProFontScale(role);
+          const smallFamily = config.secondaryFontId ? resolveFontFamily(config.secondaryFontId) : family;
+          
+          ctx.font = canvasFont(
+            config.annotationWeight > 0 ? config.annotationWeight : 500,
+            smallSize,
+            smallFamily,
+          );
+          ctx.globalAlpha = entrance * enter;
+          ctx.translate(cx + travel, cy);
+          
+          if (blurPx > 0.3) ctx.filter = `blur(${blurPx}px)`;
+          strokeThenFill(ctx, text, -tokenWidth / 2, 0, config.annotationColor || config.baseColor, 0, config.strokeColor);
+          
           if (blurPx > 0.3) ctx.filter = "none";
           ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
           break;

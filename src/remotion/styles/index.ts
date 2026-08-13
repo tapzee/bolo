@@ -56,6 +56,7 @@ import { StackToken } from "./Stack";
 import { FocusToken } from "./Focus";
 import { PopWordToken } from "./PopWord";
 import { DesignWallaToken } from "./DesignWalla";
+import { DesignWallaProToken } from "./DesignWallaPro";
 
 /**
  * Style id → word renderer.
@@ -78,6 +79,7 @@ export const TOKEN_RENDERERS: Readonly<
   dynamic: DynamicToken,
   heroMixed: HeroMixedToken,
   designWalla: DesignWallaToken,
+  designWallaPro: DesignWallaProToken,
   dynamicHighlight: DynamicHighlightToken,
   editorialOverlay: EditorialOverlayToken,
   kinetic: KineticToken,
