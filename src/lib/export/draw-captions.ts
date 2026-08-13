@@ -3503,7 +3503,14 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
             if (blurPx > 0.3) ctx.filter = `blur(${blurPx}px)`;
             
             const color = isSerif ? "#ffffff" : (token.color ?? config.accentColor);
+            
+            ctx.shadowColor = isSerif ? "rgba(255, 255, 255, 0.3)" : `${color}80`;
+            ctx.shadowBlur = 10 * scaleFactor;
+            
             strokeThenFill(ctx, applyTextCase(text, isSerif ? "lower" : "upper"), -tokenWidth / 2, 0, color, config.strokeWidthPx, config.strokeColor);
+            
+            ctx.shadowBlur = 0;
+            ctx.shadowColor = "transparent";
             
             if (blurPx > 0.3) ctx.filter = "none";
             ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
