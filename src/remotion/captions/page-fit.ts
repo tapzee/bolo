@@ -11,6 +11,7 @@ import {
 } from "@/remotion/styles/DynamicHighlight";
 import {
   HERO_SMALL_RATIO,
+  DESIGN_WALLA_SMALL_RATIO,
   heroWordIndex,
   specialWordIndex,
   getSplashWordRole,
@@ -109,6 +110,19 @@ export const resolveTokenBoxes = (
         config.annotationSizeRatio > 0 ? config.annotationSizeRatio : HERO_SMALL_RATIO;
       return tokens.map((token, index) =>
         toBox(token.text, config.fontSizePx * (index === heroIndex ? 1 : smallRatio)),
+      );
+    }
+
+    case "designWalla": {
+      const heroIndex = heroWordIndex(texts);
+      const smallRatio =
+        config.annotationSizeRatio > 0 ? config.annotationSizeRatio : DESIGN_WALLA_SMALL_RATIO;
+      // Conservatively uses the larger of the two hero scales (accent's
+      // 1.15x) regardless of which one a page actually lands on at render
+      // time — the box-fit estimate only needs to never *underestimate*,
+      // per `estimate.ts`'s "wrong-but-safe" rule.
+      return tokens.map((token, index) =>
+        toBox(token.text, config.fontSizePx * (index === heroIndex ? 1.15 : smallRatio)),
       );
     }
 

@@ -108,6 +108,9 @@ import {
   isDynamicSlideStackHero,
   dynamicSlideStackFontScale,
   dynamicSlideStackDirection,
+  DESIGN_WALLA_SMALL_RATIO,
+  designWallaHeroIsScript,
+  designWallaHeroDirection,
   isGlassHighlightAccent,
   glassHighlightFontScale,
   isSplitTextHero,
@@ -219,6 +222,7 @@ const getRenderText = (
   heroIndex: number,
   heroMixedBackdrop = false,
   specialIndex = -1,
+  pageSeed = 0,
 ): string => {
   const text = token.text.trim();
   if (config.styleId === "splash") {
@@ -229,9 +233,9 @@ const getRenderText = (
     return text;
   }
   if (config.styleId === "designWalla") {
-    const role = getSplashWordRole(text, index, totalTokens);
-    if (role === "accent") return text.toUpperCase();
-    return applyTextCase(text, resolveTextCase(config));
+    if (index !== heroIndex) return applyTextCase(text, resolveTextCase(config));
+    const isScript = designWallaHeroIsScript(pageSeed) && !hasDevanagari(text);
+    return isScript ? text : text.toUpperCase();
   }
   if (config.styleId === "hero") {
     // The headline is forced upper, the supporting text forced lower —
@@ -312,6 +316,7 @@ const layoutLines = (
   specialIndex: number,
   frame: number,
   fps: number,
+  pageSeed: number,
 ): Line[] => {
   const lines: Line[] = [];
   let current: Measured[] = [];
@@ -336,7 +341,7 @@ const layoutLines = (
     config.annotationSizeRatio > 0 ? config.annotationSizeRatio : HERO_SMALL_RATIO;
 
   page.tokens.forEach((token, index) => {
-    const text = getRenderText(token, config, index, page.tokens.length, heroIndex, heroMixedBackdrop, specialIndex);
+    const text = getRenderText(token, config, index, page.tokens.length, heroIndex, heroMixedBackdrop, specialIndex, pageSeed);
     let fontSize = config.fontSizePx;
     let fontToRestore: string | null = null;
 
@@ -686,25 +691,24 @@ const layoutLines = (
       );
       fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
     } else if (config.styleId === "designWalla") {
-      const role = getSplashWordRole(text, index, page.tokens.length);
-      const isAccent = role === "accent";
-      const isScript = role === "script";
+      const isDwHero = index === heroIndex;
+      const smallRatio =
+        config.annotationSizeRatio > 0 ? config.annotationSizeRatio : DESIGN_WALLA_SMALL_RATIO;
 
-      let roleFamily = family;
-      if (isAccent) {
-        fontSize = config.fontSizePx * 1.15;
-        if (config.secondaryFontId) roleFamily = resolveFontFamily(config.secondaryFontId);
-        ctx.font = canvasFont(Math.max(800, config.fontWeight), fontSize, roleFamily);
-      } else if (isScript) {
+      if (!isDwHero) {
+        fontSize = config.fontSizePx * smallRatio;
+        const smallFamily = config.secondaryFontId ? resolveFontFamily(config.secondaryFontId) : family;
+        ctx.font = canvasFont(
+          config.annotationWeight > 0 ? config.annotationWeight : 500,
+          fontSize,
+          smallFamily,
+        );
+      } else if (designWallaHeroIsScript(pageSeed) && !hasDevanagari(text)) {
         fontSize = config.fontSizePx * 1.05;
-        const specialFont = config.specialFontId ?? "playfair";
-        if (!family.toLowerCase().includes(specialFont) && !family.toLowerCase().includes("caveat")) {
-          roleFamily = resolveFontFamily(specialFont);
-        }
-        ctx.font = canvasFont(config.fontWeight, fontSize, roleFamily, "italic");
+        ctx.font = canvasFont(400, fontSize, resolveFontFamily(config.specialFontId ?? "grandHotel"), "italic");
       } else {
-        fontSize = config.fontSizePx;
-        ctx.font = canvasFont(config.fontWeight, fontSize, family);
+        fontSize = config.fontSizePx * 1.15;
+        ctx.font = canvasFont(Math.max(800, config.fontWeight), fontSize, family);
       }
       fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
     } else if (config.styleId === "dynamicSlideStack") {
@@ -851,7 +855,13 @@ const layoutLines = (
     // The hero owns its row, exactly as `flexBasis: 100%` does in the DOM:
     // close whatever was accumulating, emit the hero alone, and let the
     // remaining words start a fresh row beneath it.
-    if ((config.styleId === "hero" || config.styleId === "heroMixed" || config.styleId === "maskReveal") && index === heroIndex) {
+    if (
+      (config.styleId === "hero" ||
+        config.styleId === "heroMixed" ||
+        config.styleId === "maskReveal" ||
+        config.styleId === "designWalla") &&
+      index === heroIndex
+    ) {
       flush();
       lines.push({ items: [measured], width, height: rowHeight([measured]) });
       return;
@@ -882,9 +892,11 @@ const layoutLines = (
       return;
     }
 
-    // Dynamic Slide Stack & Design Walla: every word owns its row too, mirroring the DOM's
-    // `flexBasis: 100%` (see DynamicSlideStackToken / DesignWallaToken).
-    if (config.styleId === "dynamicSlideStack" || config.styleId === "designWalla") {
+    // Dynamic Slide Stack: every word owns its row too, mirroring the DOM's
+    // `flexBasis: 100%` (see DynamicSlideStackToken). Design Walla no longer
+    // belongs here — only its hero word owns a row (handled above); its
+    // supporting words wrap together like `hero`'s small/BIG/small stack.
+    if (config.styleId === "dynamicSlideStack") {
       flush();
       lines.push({ items: [measured], width, height: rowHeight([measured]) });
       return;
@@ -1043,7 +1055,7 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
   // the export never disagrees with the preview about which pages are posters.
   const pageSeed = getHash(page.id);
   const heroMixedBackdrop = config.styleId === "heroMixed" && pageSeed % 3 === 0;
-  const lines = layoutLines(ctx, page, config, maxWidth, family, heroIndex, heroMixedBackdrop, specialIndex, frame, fps);
+  const lines = layoutLines(ctx, page, config, maxWidth, family, heroIndex, heroMixedBackdrop, specialIndex, frame, fps, pageSeed);
 
   const gapY = lineGapPx(config.lineHeight, config.fontSizePx);
   const blockHeight =
@@ -1204,6 +1216,7 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
         heroIndex,
         heroMixedBackdrop,
         specialIndex,
+        pageSeed,
       );
       const timing = {
         frame,
@@ -3386,43 +3399,61 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
         }
 
         case "designWalla": {
-          const role = getSplashWordRole(token.text, index, page.tokens.length);
-          const isAccent = role === "accent";
-          const isScript = role === "script";
-
-          const direction = dynamicSlideStackDirection(token.text, index);
-          
-          let roleFontSize = config.fontSizePx;
-          let roleFamily = family;
-          let roleWeight = config.fontWeight;
-
-          if (isAccent) {
-            roleFontSize *= 1.15;
-            roleWeight = Math.max(800, config.fontWeight);
-            if (config.secondaryFontId) roleFamily = resolveFontFamily(config.secondaryFontId);
-          } else if (isScript) {
-            roleFontSize *= 1.05;
-            const specialFont = config.specialFontId ?? "playfair";
-            if (!family.toLowerCase().includes(specialFont) && !family.toLowerCase().includes("caveat")) {
-              roleFamily = resolveFontFamily(specialFont);
-            }
-          }
-          
+          // Mirror of DesignWallaToken.tsx. The row break itself is already
+          // handled in `layoutLines`; this only has to draw a word at the
+          // right size, in the right place.
+          const isDwHero = index === heroIndex;
+          const isDwScript = designWallaHeroIsScript(pageSeed) && !hasDevanagari(token.text);
           const scaleFactor = canvasScale({ width, height });
+          const smallRatio =
+            config.annotationSizeRatio > 0 ? config.annotationSizeRatio : DESIGN_WALLA_SMALL_RATIO;
 
-          const enter = tokenEnter({ frame, fps, fromFrame: timing.fromFrame }, isAccent ? ENTER_BOUNCY : ENTER_SMOOTH);
-          const travel = (1 - enter) * (isAccent ? 60 : 40) * scaleFactor;
-          const xOffset = direction === "left" ? -travel : direction === "right" ? travel : 0;
-          const yOffset = direction === "up" ? -travel : direction === "down" ? travel : 0;
-          const blurPx = (1 - enter) * (isAccent ? 5 : 3) * scaleFactor;
-          const color = token.color ?? (isAccent ? config.accentColor : config.baseColor);
+          if (!isDwHero) {
+            const enter = tokenEnter(timing, ENTER_SMOOTH);
+            let heroOffsetX = 0;
+            let liftY = 0;
+            const blurPx = (1 - enter) * 3 * scaleFactor;
 
-          ctx.font = canvasFont(roleWeight, roleFontSize, roleFamily, isScript ? "italic" : "normal");
+            if (index < heroIndex) {
+              heroOffsetX = (widestLine - line.width) / 2;
+              liftY = (1 - enter) * 16 * scaleFactor;
+            } else if (index > heroIndex) {
+              heroOffsetX = -(widestLine - line.width) / 2;
+              liftY = (1 - enter) * -16 * scaleFactor;
+            }
+
+            ctx.globalAlpha = entrance * enter;
+            const smallFamily = config.secondaryFontId ? resolveFontFamily(config.secondaryFontId) : family;
+            ctx.font = canvasFont(
+              config.annotationWeight > 0 ? config.annotationWeight : 500,
+              config.fontSizePx * smallRatio,
+              smallFamily,
+            );
+            if (blurPx > 0.3) ctx.filter = `blur(${blurPx}px)`;
+            ctx.translate(cx + heroOffsetX, cy + liftY);
+            strokeThenFill(ctx, text, -tokenWidth / 2, 0, config.annotationColor || config.baseColor, 0, config.strokeColor);
+            if (blurPx > 0.3) ctx.filter = "none";
+            ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
+            break;
+          }
+
+          const direction = designWallaHeroDirection(pageSeed);
+          const enter = tokenEnter(timing, isDwScript ? ENTER_SMOOTH : ENTER_BOUNCY);
+          const travel = (1 - enter) * (isDwScript ? 40 : 55) * scaleFactor;
+          const yOffset = direction === "up" ? travel : -travel;
+          const blurPx = (1 - enter) * (isDwScript ? 3 : 5) * scaleFactor;
+          const color = token.color ?? (isDwScript ? config.baseColor : config.accentColor);
+          const heroFamily = isDwScript ? resolveFontFamily(config.specialFontId ?? "grandHotel") : family;
+          const heroWeight = isDwScript ? 400 : Math.max(800, config.fontWeight);
+          const heroSize = config.fontSizePx * (isDwScript ? 1.05 : 1.15);
+
+          ctx.font = canvasFont(heroWeight, heroSize, heroFamily, isDwScript ? "italic" : "normal");
           ctx.globalAlpha = entrance * enter;
-          ctx.filter = blurPx > 0.3 ? `blur(${blurPx}px)` : "none";
-          ctx.translate(cx + xOffset, cy + yOffset);
-          strokeThenFill(ctx, text, -tokenWidth / 2, 0, color, isAccent ? config.strokeWidthPx : 0, config.strokeColor);
-          ctx.filter = "none";
+          if (blurPx > 0.3) ctx.filter = `blur(${blurPx}px)`;
+          ctx.translate(cx, cy + yOffset);
+          strokeThenFill(ctx, text, -tokenWidth / 2, 0, color, isDwScript ? 0 : config.strokeWidthPx, config.strokeColor);
+          if (blurPx > 0.3) ctx.filter = "none";
+          ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
           break;
         }
 

@@ -832,6 +832,28 @@ export const dynamicSlideStackFontScale = (role: WordRole): number =>
  * the Canvas2D export always agree, and the same word entering twice always
  * slides the same way.
  */
+/** Design Walla: supporting-text size, as a fraction of the hero's `fontSizePx`. */
+export const DESIGN_WALLA_SMALL_RATIO = 0.36;
+
+/**
+ * Design Walla: which page-level hero treatment this page's single hero word
+ * gets — bold yellow caps or an italic script flourish. Seeded from the page
+ * (not the word) so the whole page commits to one identity, matching the
+ * reference video: every page shows exactly one hero style, never both mixed
+ * on the same page.
+ */
+export const designWallaHeroIsScript = (pageSeed: number): boolean =>
+  pageSeed % 4 >= 2;
+
+/**
+ * Design Walla: which way the hero word slides in — up from below or down
+ * from above. Also page-seeded (a different bit than the style choice above)
+ * so a page's hero commits to one direction rather than reading as arbitrary
+ * per-word jitter.
+ */
+export const designWallaHeroDirection = (pageSeed: number): "up" | "down" =>
+  pageSeed % 2 === 0 ? "up" : "down";
+
 export const SLIDE_STACK_DIRECTIONS = ["left", "right", "up", "down"] as const;
 export type SlideStackDirection = (typeof SLIDE_STACK_DIRECTIONS)[number];
 export const dynamicSlideStackDirection = (text: string, index: number): SlideStackDirection =>

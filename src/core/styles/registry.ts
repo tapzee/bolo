@@ -315,9 +315,14 @@ export const CAPTION_STYLES: Readonly<
   designWalla: define(
     "designWalla",
     "Design Walla",
-    "Mixed fonts and sizes, directional animations.",
+    "One hero word per page — bold yellow caps or an italic script flourish — sandwiched by small supporting text above and below, sliding in from a random vertical direction.",
     {
       fontId: "inter",
+      // The script hero's face. Playfair (this template's old default) is a
+      // serif, not a true cursive — it read as "a smaller Playfair" rather
+      // than the reference's joined handwriting script, the same problem
+      // `dynamicHighlight` already hit and fixed the same way.
+      specialFontId: "grandHotel",
       fontWeight: 600,
       fontSizePx: 95,
       uppercase: false,
@@ -327,6 +332,13 @@ export const CAPTION_STYLES: Readonly<
       strokeWidthPx: 3,
       dropShadow: true,
       maxWordsPerPage: 5,
+      // The template's identity is exactly 3 rows — small supporting words,
+      // the oversized hero, small supporting words — same reasoning as
+      // `hero`'s own `linesPerPage: 3`.
+      linesPerPage: 3,
+      annotationSizeRatio: 0.36,
+      annotationWeight: 500,
+      annotationColor: "#ffffff",
     },
   ),
 
