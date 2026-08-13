@@ -360,7 +360,7 @@ export const CAPTION_STYLES: Readonly<
       maxWordsPerPage: 5,
       linesPerPage: 3,
       lineHeight: 0.9,
-      annotationSizeRatio: 0.60,
+      annotationSizeRatio: 0.70,
       annotationWeight: 800,
       annotationColor: "#ffffff",
       combineWithinMs: 900,
