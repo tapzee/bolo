@@ -32,6 +32,7 @@ import {
   Syncopate,
   Jost,
   Bangers,
+  Rouge_Script,
 } from "next/font/google";
 
 /**
@@ -323,6 +324,15 @@ export const bangers = Bangers({
   adjustFontFallback: false,
 });
 
+export const rougeScript = Rouge_Script({
+  variable: "--font-rouge-script",
+  subsets: ["latin"],
+  weight: "400",
+  display: "swap",
+  adjustFontFallback: false,
+});
+
+
 export const fontVariables = [
   geistSans.variable,
   geistMono.variable,
@@ -357,4 +367,5 @@ export const fontVariables = [
   syncopate.variable,
   jost.variable,
   bangers.variable,
+  rougeScript.variable,
 ].join(" ");

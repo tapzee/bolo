@@ -39,4 +39,5 @@ export const FONT_FAMILY: Readonly<Record<FontId, string>> = {
   syncopate: "var(--bolo-font-syncopate)",
   jost: "var(--bolo-font-jost)",
   bangers: "var(--bolo-font-bangers)",
-};
+  rougeScript: "var(--bolo-font-rouge-script)",
+} as const;

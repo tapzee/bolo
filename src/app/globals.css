@@ -44,7 +44,8 @@
   --bolo-font-outfit: var(--font-outfit), var(--font-devanagari), sans-serif;
   --bolo-font-syncopate: var(--font-syncopate), var(--font-devanagari), sans-serif;
   --bolo-font-jost: var(--font-jost), var(--font-devanagari), sans-serif;
-  --bolo-font-bangers: var(--font-bangers), var(--font-devanagari), cursive;
+  --bolo-font-bangers: var(--font-bangers), var(--font-devanagari), cursive, sans-serif;
+  --bolo-font-rouge-script: var(--font-rouge-script), var(--font-devanagari), cursive, sans-serif;
 }
 
 /* ===========================================================================

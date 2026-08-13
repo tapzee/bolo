@@ -108,6 +108,7 @@ export const FONT_IDS = [
   "syncopate",
   "jost",
   "bangers",
+  "rougeScript",
 ] as const;
 
 export type FontId = (typeof FONT_IDS)[number];
@@ -153,6 +154,7 @@ export const FONTS: readonly FontOption[] = [
   { id: "syncopate", label: "Druk Wide", nativeDevanagari: false, defaultWeight: 700 },
   { id: "jost", label: "Futura", nativeDevanagari: false, defaultWeight: 500 },
   { id: "bangers", label: "KOMIKA AXIS", nativeDevanagari: false, defaultWeight: 400 },
+  { id: "rougeScript", label: "Rouge Script", nativeDevanagari: false, defaultWeight: 400 },
 ];
 
 export type CaptionPlacement = "top" | "center" | "bottom-third" | "bottom";

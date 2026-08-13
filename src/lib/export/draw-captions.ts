@@ -377,8 +377,8 @@ const layoutLines = (
       const isTopLine = index < splitIndex;
       const isScript = !isTopLine && !hasDevanagari(text);
       fontSize = config.fontSizePx * (isTopLine ? 1 : 0.95);
-      const fam = isTopLine ? family : isScript ? resolveFontFamily(config.specialFontId ?? "caveat") : family;
-      const weight = isTopLine ? Math.max(800, config.fontWeight) : 500;
+      const fam = isTopLine ? family : isScript ? resolveFontFamily(config.specialFontId ?? "rougeScript") : family;
+      const weight = isTopLine ? Math.max(800, config.fontWeight) : 700;
       ctx.font = canvasFont(weight, fontSize, fam, isScript ? "italic" : "normal");
       fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
     } else if (config.styleId === "heroMixed" && heroMixedBackdrop) {
@@ -1434,8 +1434,8 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           ctx.translate(cx, cy + lift);
 
           const color = isTopLine ? config.accentColor : config.baseColor;
-          const fam = isTopLine ? family : isScript ? resolveFontFamily(config.specialFontId ?? "caveat") : family;
-          const weight = isTopLine ? Math.max(800, config.fontWeight) : 500;
+          const fam = isTopLine ? family : isScript ? resolveFontFamily(config.specialFontId ?? "rougeScript") : family;
+          const weight = isTopLine ? Math.max(800, config.fontWeight) : 700;
           const currentFontSize = config.fontSizePx * (isTopLine ? 1 : 0.95);
           ctx.font = canvasFont(weight, currentFontSize, fam, isScript ? "italic" : "normal");
           

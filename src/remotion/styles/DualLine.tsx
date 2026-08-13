@@ -35,12 +35,12 @@ export const DualLineToken = memo(function DualLineToken({
   const family = isTopLine
     ? textStyle.fontFamily
     : isScript
-      ? FONT_FAMILY[config.specialFontId ?? "caveat"]
+      ? FONT_FAMILY[config.specialFontId ?? "rougeScript"]
       : textStyle.fontFamily;
 
   const color = isTopLine ? config.accentColor : config.baseColor;
   const transformCase = isTopLine ? "uppercase" : "none";
-  const weight = isTopLine ? Math.max(800, config.fontWeight) : 500;
+  const weight = isTopLine ? Math.max(800, config.fontWeight) : 700;
   
   // Slide up animation (down to up)
   const lift = (1 - enter) * 40;

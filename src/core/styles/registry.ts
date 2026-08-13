@@ -1451,7 +1451,7 @@ export const CAPTION_STYLES: Readonly<
     "Two-line layout with Sans Serif uppercase top and elegant Cursive script bottom.",
     {
       fontId: "anton",
-      specialFontId: "caveat",
+      specialFontId: "rougeScript",
       fontWeight: 800,
       fontSizePx: 90,
       uppercase: true,
@@ -1460,7 +1460,7 @@ export const CAPTION_STYLES: Readonly<
       strokeWidthPx: 4,
       maxWordsPerPage: 8,
       dropShadow: true,
-      lineHeight: 1.1,
+      lineHeight: 0.9,
     },
   ),
 };
