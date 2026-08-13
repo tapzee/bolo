@@ -59,7 +59,7 @@ export const DualLineToken = memo(function DualLineToken({
             ...textStyle,
             ...tokenGlyphStyle,
             fontFamily: family,
-            fontSize: config.fontSizePx * (isTopLine ? 1 : 0.95),
+            fontSize: config.fontSizePx * (isTopLine ? 1 : 1.35),
             fontWeight: weight,
             color: color,
             textTransform: transformCase,

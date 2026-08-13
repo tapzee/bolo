@@ -376,7 +376,7 @@ const layoutLines = (
       const splitIndex = Math.ceil(page.tokens.length / 2);
       const isTopLine = index < splitIndex;
       const isScript = !isTopLine && !hasDevanagari(text);
-      fontSize = config.fontSizePx * (isTopLine ? 1 : 0.95);
+      fontSize = config.fontSizePx * (isTopLine ? 1 : 1.35);
       const fam = isTopLine ? family : isScript ? resolveFontFamily(config.specialFontId ?? "rougeScript") : family;
       const weight = isTopLine ? Math.max(800, config.fontWeight) : 700;
       ctx.font = canvasFont(weight, fontSize, fam, isScript ? "italic" : "normal");
@@ -1436,7 +1436,7 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           const color = isTopLine ? config.accentColor : config.baseColor;
           const fam = isTopLine ? family : isScript ? resolveFontFamily(config.specialFontId ?? "rougeScript") : family;
           const weight = isTopLine ? Math.max(800, config.fontWeight) : 700;
-          const currentFontSize = config.fontSizePx * (isTopLine ? 1 : 0.95);
+          const currentFontSize = config.fontSizePx * (isTopLine ? 1 : 1.35);
           ctx.font = canvasFont(weight, currentFontSize, fam, isScript ? "italic" : "normal");
           
           strokeThenFill(

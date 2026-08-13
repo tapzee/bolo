@@ -784,6 +784,7 @@ export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
   t("depth-3d-pro", "3D Depth", "trending", "depth3d", {}, "New"),
   t("dual-line-pro", "Dual Line Pro", "premium", "dualLine", {
     fontId: "anton", specialFontId: "rougeScript", uppercase: true,
+    fontSizePx: 76, maxWordsPerPage: 4, linesPerPage: 2,
     baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#ffd60a",
     dropShadow: true, strokeWidthPx: 5,
   }, "New"),
