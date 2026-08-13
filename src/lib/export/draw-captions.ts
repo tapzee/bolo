@@ -3487,8 +3487,9 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           if (isMiddle) {
             const travel = (1 - enter) * 20 * scaleFactor;
             const heroSize = config.fontSizePx * designWallaProFontScale(role);
+            const heroFamily = config.specialFontId ? resolveFontFamily(config.specialFontId) : resolveFontFamily("grandHotel");
             
-            ctx.font = canvasFont(Math.max(800, config.fontWeight), heroSize, family, "italic");
+            ctx.font = canvasFont(Math.max(800, config.fontWeight), heroSize, heroFamily, "italic");
             ctx.globalAlpha = entrance * enter;
             
             ctx.translate(cx, cy + travel);
@@ -3522,8 +3523,14 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           ctx.translate(cx + travel, cy);
           
           if (blurPx > 0.3) ctx.filter = `blur(${blurPx}px)`;
+          
+          const savedShadowColor = ctx.shadowColor;
+          ctx.shadowColor = "transparent";
+
           strokeThenFill(ctx, text, -tokenWidth / 2, 0, config.annotationColor || config.baseColor, 0, config.strokeColor);
           
+          ctx.shadowColor = savedShadowColor;
+
           if (blurPx > 0.3) ctx.filter = "none";
           ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
           break;
