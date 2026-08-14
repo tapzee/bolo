@@ -735,9 +735,9 @@ const layoutLines = (
       }
       fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
     } else if (config.styleId.startsWith("designWallaPro")) {
-      const isBlue = config.styleId === "designWallaProBlue";
-      const role = isBlue ? designWallaProBlueRole(index, heroIndex, pageSeed) : designWallaProRole(index, heroIndex);
-      const scale = isBlue ? designWallaProBlueFontScale(role) : designWallaProFontScale(role);
+      const isBlueOrGreen = config.styleId === "designWallaProBlue" || config.styleId === "designWallaProGreen";
+      const role = isBlueOrGreen ? designWallaProBlueRole(index, heroIndex, pageSeed) : designWallaProRole(index, heroIndex);
+      const scale = isBlueOrGreen ? designWallaProBlueFontScale(role) : designWallaProFontScale(role);
       fontSize = config.fontSizePx * scale;
       if (role === "middle") {
         ctx.font = canvasFont(Math.max(800, config.fontWeight), fontSize, family, "italic");
@@ -3533,24 +3533,24 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
         case "designWallaProBlue":
         case "designWallaProGreen":
         case "designWallaProOrange": {
-          const isBlue = config.styleId === "designWallaProBlue";
-          const role = isBlue ? designWallaProBlueRole(index, heroIndex, pageSeed) : designWallaProRole(index, heroIndex);
+          const isBlueOrGreen = config.styleId === "designWallaProBlue" || config.styleId === "designWallaProGreen";
+          const role = isBlueOrGreen ? designWallaProBlueRole(index, heroIndex, pageSeed) : designWallaProRole(index, heroIndex);
           const scaleFactor = canvasScale({ width, height });
           const enter = tokenEnter(timing, ENTER_SMOOTH);
           const isMiddle = role === "middle";
           
           const blurPx = (1 - enter) * 4 * scaleFactor;
 
-          const isSerif = designWallaProHeroIsSerif(pageSeed);
+          const isSerif = config.styleId === "designWallaProGreen" ? false : designWallaProHeroIsSerif(pageSeed);
 
           if (isMiddle) {
             let travel = 0;
-            if (isBlue) {
+            if (isBlueOrGreen) {
               travel = (1 - enter) * 60 * scaleFactor;
             } else {
               travel = (1 - enter) * 20 * scaleFactor;
             }
-            const scaleFunc = isBlue ? designWallaProBlueFontScale : designWallaProFontScale;
+            const scaleFunc = isBlueOrGreen ? designWallaProBlueFontScale : designWallaProFontScale;
             const heroSize = config.fontSizePx * scaleFunc(role) * (isSerif ? 1.2 : 1);
             const heroFamily = isSerif ? resolveFontFamily("instrumentSerif") : family;
             const heroWeight = Math.max(800, config.fontWeight);
@@ -3561,7 +3561,7 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
             
             ctx.translate(cx, cy + travel);
             const scale = 0.9 + enter * 0.1;
-            if (!isBlue) {
+            if (!isBlueOrGreen) {
               ctx.scale(scale, scale);
             }
             if (blurPx > 0.3) ctx.filter = `blur(${blurPx}px)`;
@@ -3587,7 +3587,7 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           const finalOffset = isTop ? baseOffset : -baseOffset;
           const travel = (1 - enter) * finalOffset * scaleFactor;
           
-          const scaleFunc = isBlue ? designWallaProBlueFontScale : designWallaProFontScale;
+          const scaleFunc = isBlueOrGreen ? designWallaProBlueFontScale : designWallaProFontScale;
           const smallSize = config.fontSizePx * scaleFunc(role);
           const smallFamily = config.secondaryFontId ? resolveFontFamily(config.secondaryFontId) : family;
           
