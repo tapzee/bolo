@@ -34,6 +34,11 @@ export const DesignWallaProToken = memo(function DesignWallaProToken({
   const isMiddle = role === "middle";
 
   const scale = isBlueOrGreen ? designWallaProBlueFontScale(role) : designWallaProFontScale(role);
+  let fitScale = 1;
+  if (isBlueOrGreen && !isMiddle && text.length > 15) {
+    fitScale = 15 / text.length;
+  }
+  const finalScale = scale * fitScale;
 
   // Animation logic:
   // Middle pops from center (or small lift)
@@ -77,7 +82,7 @@ export const DesignWallaProToken = memo(function DesignWallaProToken({
             ...textStyle,
             ...tokenGlyphStyle,
             fontFamily: isSerif ? FONT_FAMILY["instrumentSerif"] : textStyle.fontFamily,
-            fontSize: config.fontSizePx * scale * (isSerif ? 1.2 : 1),
+            fontSize: config.fontSizePx * finalScale * (isSerif ? 1.2 : 1),
             fontWeight: Math.max(800, config.fontWeight), // Both are bold now
             fontStyle: isSerif ? "italic" : "normal",
             color: isSerif ? "#ffffff" : (token.color ?? config.accentColor),
@@ -111,7 +116,7 @@ export const DesignWallaProToken = memo(function DesignWallaProToken({
           fontFamily: config.secondaryFontId
             ? FONT_FAMILY[config.secondaryFontId]
             : textStyle.fontFamily,
-          fontSize: config.fontSizePx * scale,
+          fontSize: config.fontSizePx * finalScale,
           fontWeight: config.annotationWeight > 0 ? config.annotationWeight : 500,
           color: config.annotationColor || config.baseColor,
           textTransform:
@@ -122,6 +127,7 @@ export const DesignWallaProToken = memo(function DesignWallaProToken({
                 : "none",
           WebkitTextStroke: "none",
           textShadow: "none",
+          whiteSpace: "nowrap",
         }}
       >
         {text}
