@@ -83,6 +83,12 @@ export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
     strokeWidthPx: 0, dropShadow: true, linesPerPage: 1, textCase: "lower"
   }, "New"),
 
+  t("big-grand", "Big Grand", "premium", "bigGrand", {
+    fontId: "montserrat", fontSizePx: 110, fontWeight: 800, textCase: "upper",
+    baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#87ceeb",
+    specialFontId: "rubik", strokeWidthPx: 0, dropShadow: true, linesPerPage: 3
+  }, "New"),
+
 
   t("design-walla", "Design Walla", "premium", "designWalla", {
     fontId: "inter", fontSizePx: 95, fontWeight: 600, textCase: "none",
