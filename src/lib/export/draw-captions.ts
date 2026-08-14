@@ -4007,6 +4007,7 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           const travel = (1 - enter) * (isUp ? 40 : -40);
           const scaleFactor = canvasScale({ width, height });
           const blurPx = (1 - enter) * 4 * scaleFactor;
+          const color = token.color ?? config.baseColor;
           
           ctx.globalAlpha = entrance * enter;
           
@@ -4019,15 +4020,20 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
             ctx.filter = `blur(${blurPx}px)`;
           }
 
+          ctx.shadowColor = color;
+          ctx.shadowBlur = 12 * scaleFactor;
+
           strokeThenFill(
             ctx,
             text,
             -tokenWidth / 2,
             0,
-            token.color ?? config.baseColor,
+            color,
             config.strokeWidthPx,
             config.strokeColor,
           );
+          
+          clearShadow(ctx);
           ctx.filter = "none";
           break;
         }
