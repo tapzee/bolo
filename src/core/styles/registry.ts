@@ -1463,6 +1463,25 @@ export const CAPTION_STYLES: Readonly<
       lineHeight: 0.9,
     },
   ),
+
+  grandCaption: define(
+    "grandCaption",
+    "GRAND caption",
+    "Alternating up and down entry for words.",
+    {
+      fontId: "poppins",
+      fontWeight: 900,
+      fontSizePx: 110,
+      uppercase: false,
+      baseColor: "#ffffff",
+      accentColor: "#ffe600",
+      strokeWidthPx: 3,
+      maxWordsPerPage: 5,
+      dropShadow: true,
+      linesPerPage: 1,
+      textCase: "lower"
+    }
+  ),
 };
 
 export const CAPTION_STYLE_LIST: readonly CaptionStyleDefinition[] =
