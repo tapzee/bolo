@@ -3573,8 +3573,13 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
             
             const color = isSerif ? "#ffffff" : (token.color ?? config.accentColor);
             
-            ctx.shadowColor = isSerif ? "rgba(255, 255, 255, 0.3)" : `${color}80`;
-            ctx.shadowBlur = 10 * scaleFactor;
+            if (isBlueOrGreen) {
+              ctx.shadowColor = isSerif ? "rgba(255, 255, 255, 0.5)" : `${color}a0`;
+              ctx.shadowBlur = 15 * scaleFactor;
+            } else {
+              ctx.shadowColor = isSerif ? "rgba(255, 255, 255, 0.3)" : `${color}80`;
+              ctx.shadowBlur = 10 * scaleFactor;
+            }
             
             strokeThenFill(ctx, applyTextCase(text, isSerif ? "lower" : "upper"), -tokenWidth / 2, 0, color, config.strokeWidthPx, config.strokeColor);
             
