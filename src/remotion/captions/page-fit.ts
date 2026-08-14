@@ -58,6 +58,8 @@ import {
   stackFontScale,
   focusTier,
   focusFontScale,
+  designWallaProBlueFontScale,
+  designWallaProFontScale,
 } from "./primitives";
 
 /**
@@ -124,6 +126,28 @@ export const resolveTokenBoxes = (
       return tokens.map((token, index) =>
         toBox(token.text, config.fontSizePx * (index === heroIndex ? 1.15 : smallRatio)),
       );
+    }
+
+    case "designWallaPro":
+    case "designWallaProPink":
+    case "designWallaProBlue":
+    case "designWallaProGreen":
+    case "designWallaProOrange": {
+      const heroIndex = heroWordIndex(texts);
+      const isBlueOrGreen = styleId === "designWallaProBlue" || styleId === "designWallaProGreen";
+      return tokens.map((token, index) => {
+        const role = index === heroIndex ? "middle" : index < heroIndex ? "top" : "bottom";
+        const scaleFunc = isBlueOrGreen ? designWallaProBlueFontScale : designWallaProFontScale;
+        let scale = scaleFunc(role);
+        
+        // Secondary fonts shrink dynamically if there are many words.
+        // We artificially reduce the estimated width for secondary text here so the greedy wrap packs them all on one line.
+        if (isBlueOrGreen && role !== "middle") {
+          scale = scale * 0.5; // highly optimistic so it packs 6+ words without breaking
+        }
+        
+        return toBox(token.text, config.fontSizePx * scale * 1.2); // 1.2 safety factor for hero serifs
+      });
     }
 
     case "dynamicHighlight": {
