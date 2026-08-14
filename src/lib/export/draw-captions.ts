@@ -3600,7 +3600,7 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           const scaleFunc = isBlueOrGreen ? designWallaProBlueFontScale : designWallaProFontScale;
           let fitScale = 1;
           if (isBlueOrGreen && !isMiddle) {
-            const rowTokensCount = role === "top" ? heroIndex : (tokens.length - heroIndex - 1);
+            const rowTokensCount = role === "top" ? heroIndex : (page.tokens.length - heroIndex - 1);
             if (rowTokensCount > 4) {
               fitScale = 4 / rowTokensCount;
             }
