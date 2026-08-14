@@ -27,23 +27,23 @@ export const DesignWallaProToken = memo(function DesignWallaProToken({
   pageSeed = 0,
 }: TokenViewProps) {
   const text = displayText(token);
-  const isBlue = config.styleId === "designWallaProBlue";
-  const role = isBlue ? designWallaProBlueRole(index, heroIndex, pageSeed) : designWallaProRole(index, heroIndex);
+  const isBlueOrGreen = config.styleId === "designWallaProBlue" || config.styleId === "designWallaProGreen";
+  const role = isBlueOrGreen ? designWallaProBlueRole(index, heroIndex, pageSeed) : designWallaProRole(index, heroIndex);
   const timing = { frame, fps, fromFrame, toFrame };
   const enter = tokenEnter(timing, ENTER_SMOOTH);
   const isMiddle = role === "middle";
 
-  const scale = isBlue ? designWallaProBlueFontScale(role) : designWallaProFontScale(role);
+  const scale = isBlueOrGreen ? designWallaProBlueFontScale(role) : designWallaProFontScale(role);
 
   // Animation logic:
   // Middle pops from center (or small lift)
   // Top / Bottom slide in from sides based on direction
   const direction = designWallaProDirection(pageSeed);
-  const isSerif = designWallaProHeroIsSerif(pageSeed);
+  const isSerif = config.styleId === "designWallaProGreen" ? false : designWallaProHeroIsSerif(pageSeed);
 
   let transformStr = "";
   if (isMiddle) {
-    if (isBlue) {
+    if (isBlueOrGreen) {
       const travel = (1 - enter) * 60; // down to up animation
       transformStr = `translateY(${travel}px)`;
     } else {
