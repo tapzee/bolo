@@ -77,6 +77,13 @@ export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
     baseColor: "#ffffff", accentColor: "#f97316", textCase: "lower"
   }, "New"),
 
+  t("grand-caption", "GRAND caption", "premium", "grandCaption", {
+    fontId: "poppins", fontSizePx: 110, fontWeight: 900,
+    baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#ffe600",
+    strokeWidthPx: 3, dropShadow: true, linesPerPage: 1, textCase: "lower"
+  }, "New"),
+
+
   t("design-walla", "Design Walla", "premium", "designWalla", {
     fontId: "inter", fontSizePx: 95, fontWeight: 600, textCase: "none",
     baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#ffe600",
