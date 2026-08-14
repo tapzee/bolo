@@ -59,6 +59,7 @@ import { PopWordToken } from "./PopWord";
 import { DesignWallaToken } from "./DesignWalla";
 import { DesignWallaProToken } from "./DesignWallaPro";
 import { GrandCaptionToken } from "./GrandCaption";
+import { BigGrandToken } from "./BigGrand";
 
 /**
  * Style id → word renderer.
@@ -87,6 +88,7 @@ export const TOKEN_RENDERERS: Readonly<
   designWallaProGreen: DesignWallaProToken,
   designWallaProOrange: DesignWallaProToken,
   grandCaption: GrandCaptionToken,
+  bigGrand: BigGrandToken,
   dynamicHighlight: DynamicHighlightToken,
   editorialOverlay: EditorialOverlayToken,
   kinetic: KineticToken,
