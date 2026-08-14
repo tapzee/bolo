@@ -4001,6 +4001,38 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           break;
         }
 
+        case "grandCaption": {
+          const enter = tokenEnter(timing, ENTER_SMOOTH);
+          const isUp = index % 2 === 0;
+          const travel = (1 - enter) * (isUp ? 40 : -40);
+          const scaleFactor = canvasScale({ width, height });
+          const blurPx = (1 - enter) * 4 * scaleFactor;
+          
+          ctx.globalAlpha = entrance * enter;
+          
+          // Apply translation and scale
+          ctx.translate(cx, cy + travel * scaleFactor);
+          const scale = 0.9 + enter * 0.1;
+          ctx.scale(scale, scale);
+          
+          if (blurPx > 0.3) {
+            ctx.filter = `blur(${blurPx}px)`;
+          }
+
+          strokeThenFill(
+            ctx,
+            text,
+            -tokenWidth / 2,
+            0,
+            token.color ?? config.baseColor,
+            config.strokeWidthPx,
+            config.strokeColor,
+          );
+          ctx.filter = "none";
+          break;
+        }
+
+
         case "floatingBubble": {
           const role = token.role ?? "normal";
           const roleFontSize = config.fontSizePx * floatingBubbleFontScale(role);
