@@ -25,6 +25,7 @@ export const DesignWallaProToken = memo(function DesignWallaProToken({
   index = 0,
   heroIndex = 0,
   pageSeed = 0,
+  totalTokens = 1,
 }: TokenViewProps) {
   const text = displayText(token);
   const isBlueOrGreen = config.styleId === "designWallaProBlue" || config.styleId === "designWallaProGreen";
@@ -35,8 +36,11 @@ export const DesignWallaProToken = memo(function DesignWallaProToken({
 
   const scale = isBlueOrGreen ? designWallaProBlueFontScale(role) : designWallaProFontScale(role);
   let fitScale = 1;
-  if (isBlueOrGreen && !isMiddle && text.length > 15) {
-    fitScale = 15 / text.length;
+  if (isBlueOrGreen && !isMiddle) {
+    const rowTokensCount = role === "top" ? heroIndex : (totalTokens ?? 1) - heroIndex - 1;
+    if (rowTokensCount > 4) {
+      fitScale = 4 / rowTokensCount;
+    }
   }
   const finalScale = scale * fitScale;
 
