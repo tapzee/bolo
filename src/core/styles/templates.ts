@@ -90,6 +90,30 @@ export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
     strokeWidthPx: 3, dropShadow: true,
     secondaryFontId: "poppins"
   }, "Hot"),
+  t("design-walla-pro-pink", "Design Walla Pro (Pink)", "premium", "designWallaProPink", {
+    fontId: "montserrat", fontSizePx: 95, fontWeight: 900, textCase: "none",
+    baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#ff1493",
+    strokeWidthPx: 3, dropShadow: true,
+    secondaryFontId: "poppins"
+  }, "Hot"),
+  t("design-walla-pro-blue", "Design Walla Pro (Blue)", "premium", "designWallaProBlue", {
+    fontId: "montserrat", fontSizePx: 95, fontWeight: 900, textCase: "none",
+    baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#00e5ff",
+    strokeWidthPx: 3, dropShadow: true,
+    secondaryFontId: "poppins"
+  }, "Hot"),
+  t("design-walla-pro-green", "Design Walla Pro (Green)", "premium", "designWallaProGreen", {
+    fontId: "montserrat", fontSizePx: 95, fontWeight: 900, textCase: "none",
+    baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#39ff14",
+    strokeWidthPx: 3, dropShadow: true,
+    secondaryFontId: "poppins"
+  }, "Hot"),
+  t("design-walla-pro-orange", "Design Walla Pro (Orange)", "premium", "designWallaProOrange", {
+    fontId: "montserrat", fontSizePx: 95, fontWeight: 900, textCase: "none",
+    baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#ff6f00",
+    strokeWidthPx: 3, dropShadow: true,
+    secondaryFontId: "poppins"
+  }, "Hot"),
 
   // ---- Trending ----------------------------------------------------------
   t("hero-mixed-pro", "Hero Mixed Pro", "trending", "heroMixed", {
