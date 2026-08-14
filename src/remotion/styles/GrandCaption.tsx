@@ -29,6 +29,8 @@ export const GrandCaptionToken = memo(function GrandCaptionToken({
   const transformStr = `translateY(${travel}px) scale(${0.9 + enter * 0.1})`;
   const blurPx = (1 - enter) * 4;
 
+  const color = token.color ?? config.baseColor;
+
   return (
     <span
       style={{
@@ -42,6 +44,8 @@ export const GrandCaptionToken = memo(function GrandCaptionToken({
         style={{
           ...textStyle,
           ...tokenGlyphStyle,
+          color: color,
+          textShadow: `0 0 12px ${color}`,
         }}
       >
         {text}
