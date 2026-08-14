@@ -96,13 +96,13 @@ export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
     strokeWidthPx: 3, dropShadow: true,
     secondaryFontId: "poppins"
   }, "Hot"),
-  t("design-walla-pro-blue", "Design Walla Pro (Blue)", "premium", "designWallaProBlue", {
+  t("design-walla-pro-blue", "Design Walla Elite (Blue)", "premium", "designWallaProBlue", {
     fontId: "montserrat", fontSizePx: 95, fontWeight: 900, textCase: "none",
     baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#00e5ff",
     strokeWidthPx: 3, dropShadow: true,
     secondaryFontId: "poppins"
   }, "Hot"),
-  t("design-walla-pro-green", "Design Walla Pro (Green)", "premium", "designWallaProGreen", {
+  t("design-walla-pro-green", "Design Walla Elite (Green)", "premium", "designWallaProGreen", {
     fontId: "montserrat", fontSizePx: 95, fontWeight: 900, textCase: "none",
     baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#39ff14",
     strokeWidthPx: 3, dropShadow: true,
