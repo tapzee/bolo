@@ -868,8 +868,25 @@ export const designWallaProRole = (
   return "bottom";
 };
 
+export const designWallaProBlueRole = (
+  index: number,
+  heroIndex: number,
+  pageSeed: number,
+): DesignWallaProRole => {
+  // 75% of the time, no primary (middle) word, just secondary (top). This forces a 1-row layout most of the time.
+  const hasPrimary = pageSeed % 4 === 0;
+  if (!hasPrimary) return "top";
+
+  if (index === heroIndex) return "middle";
+  if (index < heroIndex) return "top";
+  return "bottom";
+};
+
 export const designWallaProFontScale = (role: DesignWallaProRole): number =>
   role === "middle" ? 1.15 : 0.60;
+
+export const designWallaProBlueFontScale = (role: DesignWallaProRole): number =>
+  role === "middle" ? 0.90 : role === "top" ? 0.80 : 0.90;
 
 /**
  * Design Walla Pro: Alternates slide-in direction based on pageSeed so the bi-directional layout is consistent on the page.
