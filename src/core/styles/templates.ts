@@ -80,7 +80,7 @@ export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
   t("grand-caption", "GRAND caption", "premium", "grandCaption", {
     fontId: "poppins", fontSizePx: 110, fontWeight: 900,
     baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#ffffff",
-    strokeWidthPx: 3, dropShadow: true, linesPerPage: 1, textCase: "lower"
+    strokeWidthPx: 0, dropShadow: true, linesPerPage: 1, textCase: "lower"
   }, "New"),
 
 
