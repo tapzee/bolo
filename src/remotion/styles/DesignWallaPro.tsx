@@ -3,9 +3,11 @@ import { ENTER_SMOOTH, tokenEnter } from "../captions/animation";
 import { FONT_FAMILY } from "../fonts";
 import {
   designWallaProRole,
+  designWallaProBlueRole,
   designWallaProDirection,
   designWallaProHeroIsSerif,
   designWallaProFontScale,
+  designWallaProBlueFontScale,
   displayText,
   tokenGlyphStyle,
   tokenShellStyle,
@@ -25,12 +27,13 @@ export const DesignWallaProToken = memo(function DesignWallaProToken({
   pageSeed = 0,
 }: TokenViewProps) {
   const text = displayText(token);
-  const role = designWallaProRole(index, heroIndex);
+  const isBlue = config.styleId === "designWallaProBlue";
+  const role = isBlue ? designWallaProBlueRole(index, heroIndex, pageSeed) : designWallaProRole(index, heroIndex);
   const timing = { frame, fps, fromFrame, toFrame };
   const enter = tokenEnter(timing, ENTER_SMOOTH);
   const isMiddle = role === "middle";
 
-  const scale = designWallaProFontScale(role);
+  const scale = isBlue ? designWallaProBlueFontScale(role) : designWallaProFontScale(role);
 
   // Animation logic:
   // Middle pops from center (or small lift)
@@ -40,8 +43,13 @@ export const DesignWallaProToken = memo(function DesignWallaProToken({
 
   let transformStr = "";
   if (isMiddle) {
-    const travel = (1 - enter) * 20;
-    transformStr = `translateY(${travel}px) scale(${0.9 + enter * 0.1})`;
+    if (isBlue) {
+      const travel = (1 - enter) * 60; // down to up animation
+      transformStr = `translateY(${travel}px)`;
+    } else {
+      const travel = (1 - enter) * 20;
+      transformStr = `translateY(${travel}px) scale(${0.9 + enter * 0.1})`;
+    }
   } else {
     // Bi-directional slide
     const isTop = role === "top";
