@@ -86,7 +86,9 @@ export const DesignWallaProToken = memo(function DesignWallaProToken({
             fontWeight: Math.max(800, config.fontWeight), // Both are bold now
             fontStyle: isSerif ? "italic" : "normal",
             color: isSerif ? "#ffffff" : (token.color ?? config.accentColor),
-            textShadow: isSerif ? "0 0 10px rgba(255, 255, 255, 0.3)" : `0 0 10px ${token.color ?? config.accentColor}80`,
+            textShadow: (isBlueOrGreen && isMiddle)
+              ? (isSerif ? "0 0 12px rgba(255, 255, 255, 0.5), 0 0 20px rgba(255, 255, 255, 0.3)" : `0 0 12px ${token.color ?? config.accentColor}90, 0 0 20px ${token.color ?? config.accentColor}40`)
+              : (isSerif ? "0 0 10px rgba(255, 255, 255, 0.3)" : `0 0 10px ${token.color ?? config.accentColor}80`),
             textTransform: isSerif ? "lowercase" : "uppercase",
             opacity: enter,
             transform: transformStr,
