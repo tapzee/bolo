@@ -3599,8 +3599,11 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           
           const scaleFunc = isBlueOrGreen ? designWallaProBlueFontScale : designWallaProFontScale;
           let fitScale = 1;
-          if (isBlueOrGreen && text.length > 15) {
-            fitScale = 15 / text.length;
+          if (isBlueOrGreen && !isMiddle) {
+            const rowTokensCount = role === "top" ? heroIndex : (tokens.length - heroIndex - 1);
+            if (rowTokensCount > 4) {
+              fitScale = 4 / rowTokensCount;
+            }
           }
           const smallSize = config.fontSizePx * scaleFunc(role) * fitScale;
           const smallFamily = config.secondaryFontId ? resolveFontFamily(config.secondaryFontId) : family;
