@@ -738,7 +738,12 @@ const layoutLines = (
       const isBlueOrGreen = config.styleId === "designWallaProBlue" || config.styleId === "designWallaProGreen";
       const role = isBlueOrGreen ? designWallaProBlueRole(index, heroIndex, pageSeed) : designWallaProRole(index, heroIndex);
       const scale = isBlueOrGreen ? designWallaProBlueFontScale(role) : designWallaProFontScale(role);
-      fontSize = config.fontSizePx * scale;
+      let fitScale = 1;
+      const text = token.text.trim();
+      if (isBlueOrGreen && role !== "middle" && text.length > 15) {
+        fitScale = 15 / text.length;
+      }
+      fontSize = config.fontSizePx * scale * fitScale;
       if (role === "middle") {
         ctx.font = canvasFont(Math.max(800, config.fontWeight), fontSize, family, "italic");
       } else {
@@ -3588,7 +3593,11 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           const travel = (1 - enter) * finalOffset * scaleFactor;
           
           const scaleFunc = isBlueOrGreen ? designWallaProBlueFontScale : designWallaProFontScale;
-          const smallSize = config.fontSizePx * scaleFunc(role);
+          let fitScale = 1;
+          if (isBlueOrGreen && text.length > 15) {
+            fitScale = 15 / text.length;
+          }
+          const smallSize = config.fontSizePx * scaleFunc(role) * fitScale;
           const smallFamily = config.secondaryFontId ? resolveFontFamily(config.secondaryFontId) : family;
           
           ctx.font = canvasFont(
