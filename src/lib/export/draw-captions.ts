@@ -358,6 +358,7 @@ const layoutLines = (
     const text = getRenderText(token, config, index, page.tokens.length, heroIndex, heroMixedBackdrop, specialIndex, pageSeed);
     let fontSize = config.fontSizePx;
     let fontToRestore: string | null = null;
+    let letterSpacingToRestore: string | null = null;
 
     if (config.styleId === "splash") {
       const role = getSplashWordRole(text, index, page.tokens.length);
@@ -837,6 +838,28 @@ const layoutLines = (
         ctx.font = canvasFont(700, fontSize, montserrat);
       }
       fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
+    } else if (config.styleId === "bigGrand") {
+      const isHero = index === heroIndex;
+      const isTopLine = index < heroIndex;
+      const fontId = config.fontId || "montserrat";
+      const specialFontId = config.specialFontId || "rubik";
+      let sizePx = config.fontSizePx || 110;
+      let fontFam = resolveFontFamily(fontId);
+      
+      if (isHero) {
+        fontFam = resolveFontFamily(specialFontId);
+        ctx.font = canvasFont(900, sizePx, fontFam);
+      } else if (isTopLine) {
+        sizePx = sizePx * 0.35;
+        ctx.font = canvasFont(700, sizePx, fontFam);
+      } else {
+        sizePx = sizePx * 0.50;
+        ctx.font = canvasFont(700, sizePx, fontFam);
+        ctx.letterSpacing = `${sizePx * 0.15}px`;
+        letterSpacingToRestore = `${config.letterSpacingPx}px`;
+      }
+      fontSize = sizePx;
+      fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
     }
 
     // Spiral Reveal's hero word owns a square arc box (matches
@@ -889,6 +912,7 @@ const layoutLines = (
 
     const width = ctx.measureText(text).width;
     if (fontToRestore) ctx.font = fontToRestore;
+    if (letterSpacingToRestore) ctx.letterSpacing = letterSpacingToRestore;
 
     const measured: Measured = { token, index, width, fontSize };
 
@@ -959,7 +983,7 @@ const layoutLines = (
     // Stack: one word per row too (see Stack.tsx's `flexBasis: 100%`), which
     // is what makes the three-row poster shape hold no matter how short the
     // words are. Matches `resolveTokenBoxes`' one-row-per-token estimate.
-    if (config.styleId === "stack") {
+    if (config.styleId === "stack" || config.styleId === "bigGrand") {
       flush();
       lines.push({ items: [measured], width, height: rowHeight([measured]) });
       return;
@@ -3997,6 +4021,72 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           });
 
           ctx.textAlign = "left";
+          ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
+          break;
+        }
+
+        case "bigGrand": {
+          const enter = tokenEnter(timing, ENTER_SMOOTH);
+          const exitFrames = fps * 0.3;
+          const exitProgress = Math.max(0, Math.min(1, (frame - timing.toFrame) / exitFrames));
+          const isLeaving = exitProgress > 0;
+          const opacity = isLeaving ? 1 - exitProgress : enter;
+          const scale = isLeaving ? 1 - (0.5 * exitProgress) : 0.5 + (0.5 * enter);
+          
+          const isHero = index === heroIndex;
+          const isTopLine = index < heroIndex;
+          const fontId = config.fontId || "montserrat";
+          const specialFontId = config.specialFontId || "rubik";
+          const heroColor = config.accentColor ?? "#87ceeb";
+          const color = token.color ?? config.baseColor;
+
+          let sizePx = config.fontSizePx || 110;
+          let fontFam = resolveFontFamily(fontId);
+          const fontColor = color;
+          
+          if (isHero) {
+            fontFam = resolveFontFamily(specialFontId);
+          } else if (isTopLine) {
+            sizePx = sizePx * 0.35;
+          } else {
+            sizePx = sizePx * 0.50;
+            ctx.letterSpacing = `${sizePx * 0.15}px`;
+          }
+
+          ctx.font = canvasFont(isHero ? 900 : 700, sizePx, fontFam);
+          ctx.globalAlpha = opacity;
+          
+          ctx.translate(cx, cy);
+          ctx.scale(scale, scale);
+          
+          if (isHero) {
+            let pattern = undefined;
+            if (typeof document !== 'undefined') {
+              const c = document.createElement("canvas");
+              c.width = 6;
+              c.height = 6;
+              const pCtx = c.getContext("2d");
+              if (pCtx) {
+                pCtx.fillStyle = heroColor;
+                pCtx.beginPath();
+                pCtx.arc(0, 0, 1.2, 0, Math.PI * 2);
+                pCtx.fill();
+                pCtx.beginPath();
+                pCtx.arc(3, 3, 1.2, 0, Math.PI * 2);
+                pCtx.fill();
+                pattern = ctx.createPattern(c, "repeat");
+              }
+            }
+            ctx.fillStyle = pattern || heroColor;
+          } else {
+            ctx.fillStyle = fontColor;
+          }
+          
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(text, 0, 0);
+          
+          ctx.letterSpacing = `${config.letterSpacingPx}px`;
           ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
           break;
         }
