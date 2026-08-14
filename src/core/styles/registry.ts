@@ -1482,6 +1482,26 @@ export const CAPTION_STYLES: Readonly<
       textCase: "lower"
     }
   ),
+
+  bigGrand: define(
+    "bigGrand",
+    "Big Grand",
+    "Three-row layout with a textured hero word and scaling entrance.",
+    {
+      fontId: "montserrat",
+      specialFontId: "rubik",
+      fontWeight: 800,
+      fontSizePx: 110,
+      uppercase: true,
+      baseColor: "#ffffff",
+      accentColor: "#87ceeb",
+      strokeWidthPx: 0,
+      maxWordsPerPage: 8,
+      dropShadow: true,
+      linesPerPage: 3,
+      textCase: "upper"
+    }
+  ),
 };
 
 export const CAPTION_STYLE_LIST: readonly CaptionStyleDefinition[] =
