@@ -73,6 +73,7 @@ export const STYLE_IDS = [
   "popWord",
   "dualLine",
   "grandCaption",
+  "bigGrand",
 ] as const;
 
 export type StyleId = (typeof STYLE_IDS)[number];
