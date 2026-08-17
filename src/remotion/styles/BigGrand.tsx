@@ -16,7 +16,6 @@ export const BigGrandToken = memo(function BigGrandToken({
   fromFrame,
   toFrame,
   config,
-  textStyle,
   index = 0,
   heroIndex = 0,
 }: TokenViewProps) {
@@ -51,7 +50,7 @@ export const BigGrandToken = memo(function BigGrandToken({
   let letterSpacing = isDeva ? "normal" : "0.02em";
   let color = textColor;
   let textShadow = "0 2px 10px rgba(0, 0, 0, 0.9), 0 0 4px rgba(0, 0, 0, 0.9)";
-  let textTransform: "uppercase" | "none" = isDeva ? "none" : "uppercase";
+  const textTransform: "uppercase" | "none" = isDeva ? "none" : "uppercase";
 
   if (isHero) {
     // Row 2: Hero word (Massive, Vibrant Solid Cyan with Glowing Aura)
