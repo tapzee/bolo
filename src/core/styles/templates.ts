@@ -98,6 +98,22 @@ export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
     specialFontId: "caveat", secondaryFontId: "montserrat"
   }, "Hot"),
 
+  t("design-walla-editorial", "Design Walla Editorial", "premium", "designWallaEditorial", {
+    fontId: "anton", fontSizePx: 100, fontWeight: 900, textCase: "none",
+    baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#ffe600",
+    strokeWidthPx: 3, dropShadow: true,
+    specialFontId: "playfair", secondaryFontId: "inter",
+    lineHeight: 0.88, annotationSizeRatio: 0.48, annotationWeight: 600,
+  }, "Hot"),
+
+  t("design-walla-editorial-yellow", "Design Walla Editorial (Yellow)", "premium", "designWallaEditorialYellow", {
+    fontId: "anton", fontSizePx: 100, fontWeight: 900, textCase: "none",
+    baseColor: "#ffffff", activeColor: "#ffe600", accentColor: "#ffe600",
+    strokeWidthPx: 3, dropShadow: true,
+    specialFontId: "playfair", secondaryFontId: "inter",
+    lineHeight: 0.88, annotationSizeRatio: 0.48, annotationWeight: 600,
+  }, "New"),
+
   t("design-walla-pro", "Design Walla Pro", "premium", "designWallaPro", {
     fontId: "montserrat", fontSizePx: 95, fontWeight: 900, textCase: "none",
     baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#ffe600",
