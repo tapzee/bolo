@@ -3765,9 +3765,11 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
             config.fontSizePx * supportRatio,
             supportFamily,
           );
+          const isSharingWithBigWord = !isBottomTrailing && page.tokens.some((_, i) => i !== index && designWallaEditorialRow(i, texts) === currentRow);
+          const topAlignShift = isSharingWithBigWord ? 10 * scaleFactor : 0;
           ctx.globalAlpha = entrance * enter;
           if (blurPx > 0.3) ctx.filter = `blur(${blurPx}px)`;
-          ctx.translate(cx + slideX + tuckOffset, cy + overlapY);
+          ctx.translate(cx + slideX + tuckOffset, cy + overlapY - topAlignShift);
 
           ctx.shadowColor = "rgba(0,0,0,0.6)";
           ctx.shadowBlur = 10 * scaleFactor;

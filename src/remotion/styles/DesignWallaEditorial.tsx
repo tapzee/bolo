@@ -189,8 +189,9 @@ export const DesignWallaEditorialToken = memo(function DesignWallaEditorialToken
                 paddingRight: isBottomTrailing ? "16px" : undefined,
               }
             : {
-                marginRight: "8px",
-                alignSelf: "center",
+                marginRight: "4px",
+                alignSelf: "flex-start",
+                paddingTop: "0.10em",
               }),
           marginTop: currentRow > 0 ? "-0.18em" : undefined,
           zIndex: 1,
