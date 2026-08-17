@@ -84,9 +84,10 @@ export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
   }, "New"),
 
   t("big-grand", "Big Grand", "premium", "bigGrand", {
-    fontId: "montserrat", fontSizePx: 110, fontWeight: 800, textCase: "upper",
-    baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#87ceeb",
-    specialFontId: "rubik", strokeWidthPx: 0, dropShadow: true, linesPerPage: 3
+    fontId: "montserrat", fontSizePx: 125, fontWeight: 800, textCase: "upper",
+    baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#38bdf8",
+    specialFontId: "montserrat", strokeWidthPx: 0, dropShadow: true, linesPerPage: 3,
+    maxWordsPerPage: 6
   }, "New"),
 
 

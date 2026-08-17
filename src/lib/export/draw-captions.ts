@@ -842,20 +842,22 @@ const layoutLines = (
       const isHero = index === heroIndex;
       const isTopLine = index < heroIndex;
       const fontId = config.fontId || "montserrat";
-      const specialFontId = config.specialFontId || "rubik";
-      let sizePx = config.fontSizePx || 110;
+      const specialFontId = config.specialFontId || fontId;
+      let sizePx = config.fontSizePx || 125;
       let fontFam = resolveFontFamily(fontId);
       
       if (isHero) {
         fontFam = resolveFontFamily(specialFontId);
         ctx.font = canvasFont(900, sizePx, fontFam);
       } else if (isTopLine) {
-        sizePx = sizePx * 0.35;
-        ctx.font = canvasFont(700, sizePx, fontFam);
+        sizePx = sizePx * 0.52;
+        ctx.font = canvasFont(800, sizePx, fontFam);
+        ctx.letterSpacing = `${sizePx * 0.04}px`;
+        letterSpacingToRestore = `${config.letterSpacingPx}px`;
       } else {
-        sizePx = sizePx * 0.50;
-        ctx.font = canvasFont(700, sizePx, fontFam);
-        ctx.letterSpacing = `${sizePx * 0.15}px`;
+        sizePx = sizePx * 0.40;
+        ctx.font = canvasFont(800, sizePx, fontFam);
+        ctx.letterSpacing = `${sizePx * 0.18}px`;
         letterSpacingToRestore = `${config.letterSpacingPx}px`;
       }
       fontSize = sizePx;
@@ -924,7 +926,8 @@ const layoutLines = (
         config.styleId === "heroMixed" ||
         config.styleId === "maskReveal" ||
         config.styleId === "designWalla" ||
-        config.styleId.startsWith("designWallaPro")) &&
+        config.styleId.startsWith("designWallaPro") ||
+        config.styleId === "bigGrand") &&
       index === heroIndex
     ) {
       flush();
@@ -983,7 +986,7 @@ const layoutLines = (
     // Stack: one word per row too (see Stack.tsx's `flexBasis: 100%`), which
     // is what makes the three-row poster shape hold no matter how short the
     // words are. Matches `resolveTokenBoxes`' one-row-per-token estimate.
-    if (config.styleId === "stack" || config.styleId === "bigGrand") {
+    if (config.styleId === "stack") {
       flush();
       lines.push({ items: [measured], width, height: rowHeight([measured]) });
       return;
@@ -4027,65 +4030,71 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
 
         case "bigGrand": {
           const enter = tokenEnter(timing, ENTER_SMOOTH);
-          const exitFrames = fps * 0.3;
-          const exitProgress = Math.max(0, Math.min(1, (frame - timing.toFrame) / exitFrames));
-          const isLeaving = exitProgress > 0;
-          const opacity = isLeaving ? 1 - exitProgress : enter;
-          const scale = isLeaving ? 1 - (0.5 * exitProgress) : 0.5 + (0.5 * enter);
+          const isSpoken = timing.fromFrame <= frame;
+          if (!isSpoken) break;
+
+          const scaleFactor = canvasScale({ width, height });
+          const opacity = entrance * Math.min(1, enter);
+          const scale = 0.85 + (0.15 * Math.min(1, enter));
+          const translateY = (1 - Math.min(1, enter)) * 14 * scaleFactor;
+          const blurPx = (1 - Math.min(1, enter)) * 4 * scaleFactor;
           
           const isHero = index === heroIndex;
           const isTopLine = index < heroIndex;
           const fontId = config.fontId || "montserrat";
-          const specialFontId = config.specialFontId || "rubik";
-          const heroColor = config.accentColor ?? "#87ceeb";
-          const color = token.color ?? config.baseColor;
+          const specialFontId = config.specialFontId || fontId;
+          const heroColor = config.accentColor ?? "#38bdf8";
 
-          let sizePx = config.fontSizePx || 110;
+          let sizePx = config.fontSizePx || 125;
           let fontFam = resolveFontFamily(fontId);
-          const fontColor = color;
           
           if (isHero) {
             fontFam = resolveFontFamily(specialFontId);
           } else if (isTopLine) {
-            sizePx = sizePx * 0.35;
+            sizePx = sizePx * 0.52;
+            ctx.letterSpacing = `${sizePx * 0.04}px`;
           } else {
-            sizePx = sizePx * 0.50;
-            ctx.letterSpacing = `${sizePx * 0.15}px`;
+            sizePx = sizePx * 0.40;
+            ctx.letterSpacing = `${sizePx * 0.18}px`;
           }
 
-          ctx.font = canvasFont(isHero ? 900 : 700, sizePx, fontFam);
+          ctx.font = canvasFont(isHero ? 900 : 800, sizePx, fontFam);
           ctx.globalAlpha = opacity;
           
-          ctx.translate(cx, cy);
+          ctx.translate(cx, cy + translateY);
           ctx.scale(scale, scale);
+          if (blurPx > 0.3) ctx.filter = `blur(${blurPx}px)`;
           
           if (isHero) {
             let pattern = undefined;
             if (typeof document !== 'undefined') {
               const c = document.createElement("canvas");
-              c.width = 6;
-              c.height = 6;
+              c.width = 5;
+              c.height = 10;
               const pCtx = c.getContext("2d");
               if (pCtx) {
                 pCtx.fillStyle = heroColor;
-                pCtx.beginPath();
-                pCtx.arc(0, 0, 1.2, 0, Math.PI * 2);
-                pCtx.fill();
-                pCtx.beginPath();
-                pCtx.arc(3, 3, 1.2, 0, Math.PI * 2);
-                pCtx.fill();
+                pCtx.fillRect(0, 0, 3, 10);
+                pCtx.fillStyle = "#0284c7";
+                pCtx.fillRect(3, 0, 2, 10);
                 pattern = ctx.createPattern(c, "repeat");
               }
             }
+            
+            // Glowing cyan shadow
+            ctx.shadowColor = heroColor;
+            ctx.shadowBlur = 18 * scaleFactor;
             ctx.fillStyle = pattern || heroColor;
+            ctx.fillText(text, -tokenWidth / 2, 0);
           } else {
-            ctx.fillStyle = fontColor;
+            ctx.shadowColor = "rgba(0, 0, 0, 0.7)";
+            ctx.shadowBlur = 8 * scaleFactor;
+            ctx.fillStyle = "#ffffff";
+            ctx.fillText(text, -tokenWidth / 2, 0);
           }
           
-          ctx.textAlign = "center";
-          ctx.textBaseline = "middle";
-          ctx.fillText(text, 0, 0);
-          
+          clearShadow(ctx);
+          ctx.filter = "none";
           ctx.letterSpacing = `${config.letterSpacingPx}px`;
           ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
           break;

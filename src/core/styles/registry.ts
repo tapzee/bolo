@@ -1486,17 +1486,17 @@ export const CAPTION_STYLES: Readonly<
   bigGrand: define(
     "bigGrand",
     "Big Grand",
-    "Three-row layout with a textured hero word and scaling entrance.",
+    "Three-row layout with an oversized electric textured hero word, scaled top lead-in and wide-tracked bottom punchline.",
     {
       fontId: "montserrat",
-      specialFontId: "rubik",
+      specialFontId: "montserrat",
       fontWeight: 800,
-      fontSizePx: 110,
+      fontSizePx: 125,
       uppercase: true,
       baseColor: "#ffffff",
-      accentColor: "#87ceeb",
+      accentColor: "#38bdf8",
       strokeWidthPx: 0,
-      maxWordsPerPage: 8,
+      maxWordsPerPage: 6,
       dropShadow: true,
       linesPerPage: 3,
       textCase: "upper"

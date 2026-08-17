@@ -115,6 +115,16 @@ export const resolveTokenBoxes = (
       );
     }
 
+    case "bigGrand": {
+      const heroIndex = heroWordIndex(texts);
+      return tokens.map((token, index) => {
+        const isHero = index === heroIndex;
+        const isTopLine = index < heroIndex;
+        const scale = isHero ? 1.0 : isTopLine ? 0.52 : 0.40;
+        return toBox(token.text, config.fontSizePx * scale);
+      });
+    }
+
     case "designWalla": {
       const heroIndex = heroWordIndex(texts);
       const smallRatio =
