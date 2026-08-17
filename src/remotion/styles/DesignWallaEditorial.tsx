@@ -174,7 +174,7 @@ export const DesignWallaEditorialToken = memo(function DesignWallaEditorialToken
       : designWallaEditorialFontScale("support");
   const slideX = (1 - enter) * (currentRow === 0 ? -18 : 18);
   const blurPx = (1 - enter) * 3.5;
-  const isBottomTrailing = currentRow === 2 && totalTokens >= 3;
+  const isTopAlign = currentRow === 0 || ((pageSeed + index) % 2 === 0);
 
   return (
     <>
@@ -185,13 +185,13 @@ export const DesignWallaEditorialToken = memo(function DesignWallaEditorialToken
           ...(isSoloRow && totalTokens > 1
             ? {
                 flexBasis: "100%",
-                justifyContent: isBottomTrailing ? "flex-end" : "center",
-                paddingRight: isBottomTrailing ? "16px" : undefined,
+                justifyContent: "center",
               }
             : {
                 marginRight: "4px",
-                alignSelf: "flex-start",
-                paddingTop: "0.10em",
+                alignSelf: isTopAlign ? "flex-start" : "flex-end",
+                paddingTop: isTopAlign ? "0.10em" : undefined,
+                paddingBottom: !isTopAlign ? "0.08em" : undefined,
               }),
           marginTop: currentRow > 0 ? "-0.18em" : undefined,
           zIndex: 1,

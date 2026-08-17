@@ -3753,8 +3753,6 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
             config.annotationSizeRatio > 0
               ? config.annotationSizeRatio
               : designWallaEditorialFontScale("support");
-          const isBottomTrailing = currentRow === 2 && page.tokens.length >= 3;
-          const tuckOffset = isBottomTrailing ? 18 * scaleFactor : 0;
           const slideX = (1 - enter) * (currentRow === 0 ? -18 : 18) * scaleFactor;
           const blurPx = (1 - enter) * 3.5 * scaleFactor;
           const supportFamily = resolveFontFamily(config.secondaryFontId ?? "inter");
@@ -3765,11 +3763,12 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
             config.fontSizePx * supportRatio,
             supportFamily,
           );
-          const isSharingWithBigWord = !isBottomTrailing && page.tokens.some((_, i) => i !== index && designWallaEditorialRow(i, texts) === currentRow);
-          const topAlignShift = isSharingWithBigWord ? 10 * scaleFactor : 0;
+          const isSharingWithBigWord = page.tokens.some((_, i) => i !== index && designWallaEditorialRow(i, texts) === currentRow);
+          const isTopAlign = currentRow === 0 || ((pageSeed + index) % 2 === 0);
+          const edgeAlignShift = isSharingWithBigWord ? (isTopAlign ? -10 * scaleFactor : 8 * scaleFactor) : 0;
           ctx.globalAlpha = entrance * enter;
           if (blurPx > 0.3) ctx.filter = `blur(${blurPx}px)`;
-          ctx.translate(cx + slideX + tuckOffset, cy + overlapY - topAlignShift);
+          ctx.translate(cx + slideX, cy + overlapY + edgeAlignShift);
 
           ctx.shadowColor = "rgba(0,0,0,0.6)";
           ctx.shadowBlur = 10 * scaleFactor;
