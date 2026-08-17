@@ -3719,7 +3719,7 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
             ctx.font = canvasFont(700, config.fontSizePx * serifScale, serifFamily, "italic");
             ctx.globalAlpha = entrance * enter;
             if (blurPx > 0.3) ctx.filter = `blur(${blurPx}px)`;
-            const overlapY = currentRow > 0 ? -16 * scaleFactor : 0;
+            const overlapY = currentRow > 0 ? -18 * scaleFactor : 0;
             ctx.translate(cx, cy + travelY + floatY + overlapY);
             ctx.rotate(floatRotate);
             ctx.scale(floatScale, floatScale);
@@ -3753,18 +3753,21 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
             config.annotationSizeRatio > 0
               ? config.annotationSizeRatio
               : designWallaEditorialFontScale("support");
+          const isBottomTrailing = currentRow === 2 && page.tokens.length >= 3;
+          const tuckOffset = isBottomTrailing ? 18 * scaleFactor : 0;
           const slideX = (1 - enter) * (currentRow === 0 ? -18 : 18) * scaleFactor;
           const blurPx = (1 - enter) * 3.5 * scaleFactor;
           const supportFamily = resolveFontFamily(config.secondaryFontId ?? "inter");
+          const overlapY = currentRow > 0 ? -14 * scaleFactor : 0;
 
           ctx.font = canvasFont(
-            config.annotationWeight > 0 ? config.annotationWeight : 600,
+            config.annotationWeight > 0 ? config.annotationWeight : 700,
             config.fontSizePx * supportRatio,
             supportFamily,
           );
           ctx.globalAlpha = entrance * enter;
           if (blurPx > 0.3) ctx.filter = `blur(${blurPx}px)`;
-          ctx.translate(cx + slideX, cy);
+          ctx.translate(cx + slideX + tuckOffset, cy + overlapY);
 
           ctx.shadowColor = "rgba(0,0,0,0.6)";
           ctx.shadowBlur = 10 * scaleFactor;

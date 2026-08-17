@@ -47,7 +47,6 @@ export const DesignWallaEditorialToken = memo(function DesignWallaEditorialToken
   if (tier === "punch") {
     const enter = tokenEnter(timing, ENTER_BOUNCY);
     const punchScale = designWallaEditorialFontScale("punch");
-    // Alternate punch entrance direction: down-to-up or up-to-down with snappy 3D scale pop
     const direction = (pageSeed + index) % 2 === 0 ? "up" : "down";
     const travelY = direction === "up" ? (1 - enter) * 24 : (1 - enter) * -24;
     const scale = 0.88 + enter * 0.12;
@@ -63,6 +62,8 @@ export const DesignWallaEditorialToken = memo(function DesignWallaEditorialToken
         style={{
           ...tokenShellStyle,
           ...(isRowStart && totalTokens > 1 ? { flexBasis: "100%", justifyContent: "center" } : {}),
+          marginTop: currentRow > 0 ? "-0.16em" : undefined,
+          alignSelf: "center",
           zIndex: 1,
         }}
       >
@@ -110,7 +111,8 @@ export const DesignWallaEditorialToken = memo(function DesignWallaEditorialToken
           ...tokenShellStyle,
           ...(isRowStart && totalTokens > 1 ? { flexBasis: "100%", justifyContent: "center" } : {}),
           // Vertical negative overlap so the serif ascenders gracefully tuck under the row above
-          marginTop: currentRow > 0 ? "-0.20em" : undefined,
+          marginTop: currentRow > 0 ? "-0.22em" : undefined,
+          alignSelf: "center",
           zIndex: 3,
         }}
       >
@@ -148,12 +150,23 @@ export const DesignWallaEditorialToken = memo(function DesignWallaEditorialToken
       : designWallaEditorialFontScale("support");
   const slideX = (1 - enter) * (currentRow === 0 ? -18 : 18);
   const blurPx = (1 - enter) * 3.5;
+  const isBottomTrailing = currentRow === 2 && totalTokens >= 3;
 
   return (
     <span
       style={{
         ...tokenShellStyle,
-        ...(isRowStart && totalTokens > 1 ? { flexBasis: "100%", justifyContent: "center" } : {}),
+        ...(isRowStart && totalTokens > 1
+          ? {
+              flexBasis: "100%",
+              justifyContent: isBottomTrailing ? "flex-end" : "center",
+              paddingRight: isBottomTrailing ? "16px" : undefined,
+            }
+          : {
+              marginRight: "8px",
+              alignSelf: "center",
+            }),
+        marginTop: currentRow > 0 ? "-0.18em" : undefined,
         zIndex: 1,
       }}
     >
@@ -165,7 +178,7 @@ export const DesignWallaEditorialToken = memo(function DesignWallaEditorialToken
             ? FONT_FAMILY[config.secondaryFontId]
             : FONT_FAMILY["inter"],
           fontSize: config.fontSizePx * supportRatio,
-          fontWeight: config.annotationWeight > 0 ? config.annotationWeight : 600,
+          fontWeight: config.annotationWeight > 0 ? config.annotationWeight : 700,
           fontStyle: "normal",
           color: config.annotationColor || config.baseColor || "#ffffff",
           textTransform:
