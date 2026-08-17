@@ -41,8 +41,24 @@ export const DesignWallaEditorialToken = memo(function DesignWallaEditorialToken
   const currentRow = designWallaEditorialRow(index, texts);
   const prevRow = index > 0 ? designWallaEditorialRow(index - 1, texts) : -1;
   const isRowStart = index === 0 || currentRow !== prevRow;
+  const tokensOnCurrentRow = texts.filter((_, i) => designWallaEditorialRow(i, texts) === currentRow).length;
+  const isSoloRow = tokensOnCurrentRow === 1;
 
   const timing = { frame, fps, fromFrame, toFrame };
+
+  const rowDivider = isRowStart && currentRow > 0 ? (
+    <span
+      key={`break-${index}`}
+      style={{
+        flexBasis: "100%",
+        width: "100%",
+        height: 0,
+        margin: 0,
+        padding: 0,
+        pointerEvents: "none",
+      }}
+    />
+  ) : null;
 
   if (tier === "punch") {
     const enter = tokenEnter(timing, ENTER_BOUNCY);
@@ -58,37 +74,41 @@ export const DesignWallaEditorialToken = memo(function DesignWallaEditorialToken
         : config.accentColor || config.activeColor || "#ffe600");
 
     return (
-      <span
-        style={{
-          ...tokenShellStyle,
-          ...(isRowStart && totalTokens > 1 ? { flexBasis: "100%", justifyContent: "center" } : {}),
-          marginTop: currentRow > 0 ? "-0.16em" : undefined,
-          alignSelf: "center",
-          zIndex: 1,
-        }}
-      >
+      <>
+        {rowDivider}
         <span
           style={{
-            ...textStyle,
-            ...tokenGlyphStyle,
-            fontFamily: FONT_FAMILY[config.fontId ?? "anton"],
-            fontSize: config.fontSizePx * punchScale,
-            fontWeight: Math.max(800, config.fontWeight),
-            fontStyle: "normal",
-            color: punchColor,
-            textTransform: "uppercase",
-            letterSpacing: "-0.5px",
-            opacity: enter,
-            transform: `translateY(${travelY}px) scale(${scale})`,
-            textShadow:
-              buildGlowShadow(config, punchColor, 1) ||
-              "0 4px 14px rgba(0,0,0,0.65)",
-            filter: blurPx > 0.3 ? `blur(${blurPx}px)` : undefined,
+            ...tokenShellStyle,
+            ...(isSoloRow && totalTokens > 1
+              ? { flexBasis: "100%", justifyContent: "center" }
+              : { marginRight: "8px", alignSelf: "center" }),
+            marginTop: currentRow > 0 ? "-0.16em" : undefined,
+            zIndex: 1,
           }}
         >
-          {text}
+          <span
+            style={{
+              ...textStyle,
+              ...tokenGlyphStyle,
+              fontFamily: FONT_FAMILY[config.fontId ?? "anton"],
+              fontSize: config.fontSizePx * punchScale,
+              fontWeight: Math.max(800, config.fontWeight),
+              fontStyle: "normal",
+              color: punchColor,
+              textTransform: "uppercase",
+              letterSpacing: "-0.5px",
+              opacity: enter,
+              transform: `translateY(${travelY}px) scale(${scale})`,
+              textShadow:
+                buildGlowShadow(config, punchColor, 1) ||
+                "0 4px 14px rgba(0,0,0,0.65)",
+              filter: blurPx > 0.3 ? `blur(${blurPx}px)` : undefined,
+            }}
+          >
+            {text}
+          </span>
         </span>
-      </span>
+      </>
     );
   }
 
@@ -106,39 +126,43 @@ export const DesignWallaEditorialToken = memo(function DesignWallaEditorialToken
     const blurPx = (1 - enter) * 4;
 
     return (
-      <span
-        style={{
-          ...tokenShellStyle,
-          ...(isRowStart && totalTokens > 1 ? { flexBasis: "100%", justifyContent: "center" } : {}),
-          // Vertical negative overlap so the serif ascenders gracefully tuck under the row above
-          marginTop: currentRow > 0 ? "-0.22em" : undefined,
-          alignSelf: "center",
-          zIndex: 3,
-        }}
-      >
+      <>
+        {rowDivider}
         <span
           style={{
-            ...textStyle,
-            ...tokenGlyphStyle,
-            fontFamily: FONT_FAMILY[config.specialFontId ?? "playfair"],
-            fontSize: config.fontSizePx * serifScale,
-            fontWeight: 700,
-            fontStyle: "italic",
-            color: token.color ?? "#ffffff",
-            textTransform: "lowercase",
-            letterSpacing: "0px",
-            opacity: enter,
-            transform: `translateY(${travelY + floatY}px) rotate(${floatRotate}deg) scale(${floatScale})`,
-            textShadow:
-              buildGlowShadow(config, "#ffffff", 1) ||
-              "0 4px 20px rgba(0, 0, 0, 0.85), 0 2px 6px rgba(0,0,0,0.7)",
-            WebkitTextStroke: "0px transparent",
-            filter: blurPx > 0.3 ? `blur(${blurPx}px)` : undefined,
+            ...tokenShellStyle,
+            ...(isSoloRow && totalTokens > 1
+              ? { flexBasis: "100%", justifyContent: "center" }
+              : { marginRight: "8px", alignSelf: "center" }),
+            // Vertical negative overlap so the serif ascenders gracefully tuck under the row above
+            marginTop: currentRow > 0 ? "-0.22em" : undefined,
+            zIndex: 3,
           }}
         >
-          {text}
+          <span
+            style={{
+              ...textStyle,
+              ...tokenGlyphStyle,
+              fontFamily: FONT_FAMILY[config.specialFontId ?? "playfair"],
+              fontSize: config.fontSizePx * serifScale,
+              fontWeight: 700,
+              fontStyle: "italic",
+              color: token.color ?? "#ffffff",
+              textTransform: "lowercase",
+              letterSpacing: "0px",
+              opacity: enter,
+              transform: `translateY(${travelY + floatY}px) rotate(${floatRotate}deg) scale(${floatScale})`,
+              textShadow:
+                buildGlowShadow(config, "#ffffff", 1) ||
+                "0 4px 20px rgba(0, 0, 0, 0.85), 0 2px 6px rgba(0,0,0,0.7)",
+              WebkitTextStroke: "0px transparent",
+              filter: blurPx > 0.3 ? `blur(${blurPx}px)` : undefined,
+            }}
+          >
+            {text}
+          </span>
         </span>
-      </span>
+      </>
     );
   }
 
@@ -153,49 +177,52 @@ export const DesignWallaEditorialToken = memo(function DesignWallaEditorialToken
   const isBottomTrailing = currentRow === 2 && totalTokens >= 3;
 
   return (
-    <span
-      style={{
-        ...tokenShellStyle,
-        ...(isRowStart && totalTokens > 1
-          ? {
-              flexBasis: "100%",
-              justifyContent: isBottomTrailing ? "flex-end" : "center",
-              paddingRight: isBottomTrailing ? "16px" : undefined,
-            }
-          : {
-              marginRight: "8px",
-              alignSelf: "center",
-            }),
-        marginTop: currentRow > 0 ? "-0.18em" : undefined,
-        zIndex: 1,
-      }}
-    >
+    <>
+      {rowDivider}
       <span
         style={{
-          ...textStyle,
-          ...tokenGlyphStyle,
-          fontFamily: config.secondaryFontId
-            ? FONT_FAMILY[config.secondaryFontId]
-            : FONT_FAMILY["inter"],
-          fontSize: config.fontSizePx * supportRatio,
-          fontWeight: config.annotationWeight > 0 ? config.annotationWeight : 700,
-          fontStyle: "normal",
-          color: config.annotationColor || config.baseColor || "#ffffff",
-          textTransform:
-            config.textCase === "upper" || config.uppercase
-              ? "uppercase"
-              : config.textCase === "lower"
-                ? "lowercase"
-                : "none",
-          opacity: enter,
-          transform: `translateX(${slideX}px)`,
-          filter: blurPx > 0.3 ? `blur(${blurPx}px)` : undefined,
-          WebkitTextStroke: "0px transparent",
-          textShadow: "0 2px 10px rgba(0,0,0,0.6)",
+          ...tokenShellStyle,
+          ...(isSoloRow && totalTokens > 1
+            ? {
+                flexBasis: "100%",
+                justifyContent: isBottomTrailing ? "flex-end" : "center",
+                paddingRight: isBottomTrailing ? "16px" : undefined,
+              }
+            : {
+                marginRight: "8px",
+                alignSelf: "center",
+              }),
+          marginTop: currentRow > 0 ? "-0.18em" : undefined,
+          zIndex: 1,
         }}
       >
-        {text}
+        <span
+          style={{
+            ...textStyle,
+            ...tokenGlyphStyle,
+            fontFamily: config.secondaryFontId
+              ? FONT_FAMILY[config.secondaryFontId]
+              : FONT_FAMILY["inter"],
+            fontSize: config.fontSizePx * supportRatio,
+            fontWeight: config.annotationWeight > 0 ? config.annotationWeight : 700,
+            fontStyle: "normal",
+            color: config.annotationColor || config.baseColor || "#ffffff",
+            textTransform:
+              config.textCase === "upper" || config.uppercase
+                ? "uppercase"
+                : config.textCase === "lower"
+                  ? "lowercase"
+                  : "none",
+            opacity: enter,
+            transform: `translateX(${slideX}px)`,
+            filter: blurPx > 0.3 ? `blur(${blurPx}px)` : undefined,
+            WebkitTextStroke: "0px transparent",
+            textShadow: "0 2px 10px rgba(0,0,0,0.6)",
+          }}
+        >
+          {text}
+        </span>
       </span>
-    </span>
+    </>
   );
 });

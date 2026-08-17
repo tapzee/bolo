@@ -968,29 +968,45 @@ export const designWallaEditorialRow = (
   if (total <= 1) return 0;
   if (total === 2) {
     const isFirstShort = (texts[0]?.trim().length ?? 0) <= 3;
-    if (isFirstShort) return 0; // both on Row 0
+    if (isFirstShort) return 0;
     return index === 0 ? 0 : 1;
   }
-  if (total === 3) {
-    const isFirstShort = (texts[0]?.trim().length ?? 0) <= 3;
-    if (isFirstShort) {
-      return index <= 1 ? 0 : 1;
-    }
-    return index;
+
+  const heroIdx = heroWordIndex(texts);
+
+  // If hero is word 0 (e.g. ["COMMISSION", "aur", "har", "stage"]):
+  if (heroIdx === 0) {
+    if (index === 0) return 0;
+    if (total === 3) return index;
+    return index <= 2 ? 1 : 2;
   }
 
-  // 4 or 5 tokens:
-  const isFirstShort = (texts[0]?.trim().length ?? 0) <= 3;
-  if (isFirstShort) {
-    if (index <= 1) return 0;
-    if (index === 2) return 1;
+  // If hero is word 1 (e.g. ["ki", "INTERIOR", "industry", "ki"]):
+  if (heroIdx === 1) {
+    const isFirstShort = (texts[0]?.trim().length ?? 0) <= 3;
+    if (isFirstShort) {
+      if (index <= 1) return 0;
+      if (index === 2) return 1;
+      return 2;
+    }
+    if (index === 0) return 0;
+    if (index === 1) return 1;
     return 2;
   }
 
-  if (index === 0) return 0;
-  if (index === 1 || index === 2) {
-    if (total >= 4) return 1;
+  // If hero is word 2 with a preceding big word + short connector (e.g. ["VAJAH", "se", "BUDGET", "kaafi"]):
+  if (heroIdx === 2 && (texts[0]?.trim().length ?? 0) > 3 && (texts[1]?.trim().length ?? 0) <= 3) {
+    if (index === 0) return 0;
+    if (index === 1 || index === 2) return 1;
+    return 2;
   }
+
+  // Standard 3-row layout:
+  // Row 0: words before hero (e.g. "man jo" or "Too many" or "Kya aapne" or "And bahut")
+  // Row 1: hero word (e.g. "BEECH" or "MIDDLE" or "PATA" or "SARE")
+  // Row 2: words after hero (e.g. "mein jo" or "hai?" or "hai" or "AISE")
+  if (index < heroIdx) return 0;
+  if (index === heroIdx) return 1;
   return 2;
 };
 
