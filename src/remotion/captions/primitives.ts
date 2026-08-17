@@ -1333,3 +1333,93 @@ export const isStackAccentColour = (tier: StackTier): boolean => tier === "hero"
 /** Caps shout, small text whispers — the case contrast is part of the tier system. */
 export const stackTierIsUpper = (tier: StackTier): boolean =>
   tier === "hero" || tier === "primary";
+
+export type BigGrandRole = "top" | "hero" | "bottom";
+
+export interface BigGrandTransform {
+  translateX: number;
+  translateY: number;
+  scale: number;
+  blurPx: number;
+}
+
+export const bigGrandRole = (index: number, heroIndex: number): BigGrandRole => {
+  if (index === heroIndex) return "hero";
+  return index < heroIndex ? "top" : "bottom";
+};
+
+export const bigGrandTransform = (
+  role: BigGrandRole,
+  enter: number,
+  pageSeed = 0,
+): BigGrandTransform => {
+  const mode = Math.abs(pageSeed) % 4;
+  const settle = Math.max(0, Math.min(1, enter));
+  const arrive = 1 - settle;
+
+  let translateX = 0;
+  let translateY = 0;
+  let scale = 1;
+  let blurPx = arrive * 6;
+
+  switch (mode) {
+    case 0: // Mode 0: Top left slide, Hero bottom spring, Bottom right slide
+      if (role === "top") {
+        translateX = arrive * -45;
+        blurPx = arrive * 6;
+      } else if (role === "hero") {
+        translateY = arrive * 28;
+        scale = 0.85 + 0.15 * settle;
+        blurPx = arrive * 8;
+      } else {
+        translateX = arrive * 45;
+        blurPx = arrive * 6;
+      }
+      break;
+
+    case 1: // Mode 1: Top drop, Hero center pop, Bottom rise
+      if (role === "top") {
+        translateY = arrive * -35;
+        blurPx = arrive * 6;
+      } else if (role === "hero") {
+        translateY = arrive * 10;
+        scale = 0.78 + 0.22 * settle;
+        blurPx = arrive * 10;
+      } else {
+        translateY = arrive * 35;
+        blurPx = arrive * 6;
+      }
+      break;
+
+    case 2: // Mode 2: Top right slide, Hero rise, Bottom left slide
+      if (role === "top") {
+        translateX = arrive * 45;
+        blurPx = arrive * 6;
+      } else if (role === "hero") {
+        translateY = arrive * 30;
+        scale = 0.82 + 0.18 * settle;
+        blurPx = arrive * 8;
+      } else {
+        translateX = arrive * -45;
+        blurPx = arrive * 6;
+      }
+      break;
+
+    case 3: // Mode 3: Unified upward sweep & elevation
+      if (role === "top") {
+        translateY = arrive * 22;
+        blurPx = arrive * 5;
+      } else if (role === "hero") {
+        translateY = arrive * 38;
+        scale = 0.85 + 0.15 * settle;
+        blurPx = arrive * 8;
+      } else {
+        translateY = arrive * 22;
+        blurPx = arrive * 5;
+      }
+      break;
+  }
+
+  return { translateX, translateY, scale, blurPx };
+};
+

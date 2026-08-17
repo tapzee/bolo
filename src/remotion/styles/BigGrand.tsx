@@ -7,6 +7,8 @@ import {
   tokenShellStyle,
   type TokenViewProps,
   displayText,
+  bigGrandRole,
+  bigGrandTransform,
 } from "../captions/primitives";
 
 export const BigGrandToken = memo(function BigGrandToken({
@@ -18,23 +20,28 @@ export const BigGrandToken = memo(function BigGrandToken({
   config,
   index = 0,
   heroIndex = 0,
+  pageSeed = 0,
 }: TokenViewProps) {
   const text = displayText(token);
   const timing = { frame, fps, fromFrame, toFrame };
   
-  // Word-by-word snappy spring reveal
+  // Word-by-word snappy reveal
   const enter = tokenEnter(timing, ENTER_SMOOTH);
   const isSpoken = timing.fromFrame <= frame;
   
   // Word stays 100% visible after entering
   const opacity = isSpoken ? Math.min(1, enter) : 0;
-  const scale = 0.88 + 0.12 * Math.min(1, enter);
-  const translateY = (1 - Math.min(1, enter)) * 12;
-  const blurPx = (1 - Math.min(1, enter)) * 4;
 
-  const isHero = index === heroIndex;
-  const isTopLine = index < heroIndex;
+  const role = bigGrandRole(index, heroIndex);
+  const isHero = role === "hero";
+  const isTopLine = role === "top";
   const isDeva = hasDevanagari(text);
+
+  const { translateX, translateY, scale, blurPx } = bigGrandTransform(
+    role,
+    enter,
+    pageSeed,
+  );
 
   const fontId = config.fontId || "montserrat";
   const specialFontId = config.specialFontId || fontId;
@@ -73,7 +80,7 @@ export const BigGrandToken = memo(function BigGrandToken({
     letterSpacing = isDeva ? "normal" : "0.18em";
   }
 
-  const transformStr = `translateY(${translateY}px) scale(${scale})`;
+  const transformStr = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
 
   return (
     <span
@@ -87,6 +94,8 @@ export const BigGrandToken = memo(function BigGrandToken({
         display: isHero ? "flex" : "inline-flex",
         justifyContent: "center",
         alignItems: "center",
+        lineHeight: 1.0,
+        margin: isHero ? "-0.04em 0" : "0 4px",
       }}
     >
       <span
@@ -99,6 +108,7 @@ export const BigGrandToken = memo(function BigGrandToken({
           letterSpacing,
           textTransform,
           textShadow,
+          lineHeight: 1.05,
           WebkitTextStroke: "none",
           paintOrder: "normal",
         }}
@@ -108,4 +118,5 @@ export const BigGrandToken = memo(function BigGrandToken({
     </span>
   );
 });
+
 

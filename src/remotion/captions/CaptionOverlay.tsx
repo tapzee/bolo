@@ -104,7 +104,7 @@ export const CaptionOverlay = memo(function CaptionOverlay({
       flexWrap: "wrap",
       alignItems: "center",
       maxWidth: captionMaxWidthPx({ width, height }, config.maxLineWidthPct),
-      gap: `${lineGapPx(config.lineHeight, config.fontSizePx)}px ${config.wordGapPx}px`,
+      gap: `${config.styleId === "bigGrand" ? 4 : lineGapPx(config.lineHeight, config.fontSizePx)}px ${config.wordGapPx}px`,
       justifyContent:
         config.textAlign === "left"
           ? "flex-start"
@@ -132,6 +132,7 @@ export const CaptionOverlay = memo(function CaptionOverlay({
       willChange: "transform, opacity",
     }),
     [
+      config.styleId,
       config.wordGapPx,
       config.lineHeight,
       config.fontSizePx,

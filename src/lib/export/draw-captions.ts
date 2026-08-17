@@ -158,6 +158,8 @@ import {
   focusTier,
   focusTierIsUpper,
   focusWordOpacity,
+  bigGrandRole,
+  bigGrandTransform,
   PREMIUM_HALO,
   premiumStrokePx,
 } from "@/remotion/captions/primitives";
@@ -251,6 +253,9 @@ const getRenderText = (
     if (index === heroIndex) return text.toUpperCase();
     return applyTextCase(text, resolveTextCase(config));
   }
+  if (config.styleId === "bigGrand") {
+    return hasDevanagari(text) ? text : text.toUpperCase();
+  }
   if (config.styleId === "hero") {
     // The headline is forced upper, the supporting text forced lower —
     // unconditionally, same as `heroMixed`'s annotation layer just below.
@@ -336,9 +341,13 @@ const layoutLines = (
   let current: Measured[] = [];
   let currentWidth = 0;
 
-  const rowHeight = (items: readonly Measured[]): number =>
-    items.reduce((tallest, item) => Math.max(tallest, item.fontSize), 0) *
-    config.lineHeight;
+  const rowHeight = (items: readonly Measured[]): number => {
+    const tallest = items.reduce((max, item) => Math.max(max, item.fontSize), 0);
+    if (config.styleId === "bigGrand") {
+      return tallest * 1.05;
+    }
+    return tallest * config.lineHeight;
+  };
 
   const flush = (): void => {
     if (current.length === 0) return;
@@ -4033,15 +4042,20 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           const isSpoken = timing.fromFrame <= frame;
           if (!isSpoken) break;
 
+          const role = bigGrandRole(index, heroIndex);
+          const isHero = role === "hero";
+          const isTopLine = role === "top";
+          const isDeva = hasDevanagari(text);
+
+          const { translateX, translateY, scale, blurPx } = bigGrandTransform(
+            role,
+            enter,
+            pageSeed,
+          );
+
           const scaleFactor = canvasScale({ width, height });
           const opacity = entrance * Math.min(1, enter);
-          const scale = 0.88 + 0.12 * Math.min(1, enter);
-          const translateY = (1 - Math.min(1, enter)) * 12 * scaleFactor;
-          const blurPx = (1 - Math.min(1, enter)) * 4 * scaleFactor;
-          
-          const isHero = index === heroIndex;
-          const isTopLine = index < heroIndex;
-          const isDeva = hasDevanagari(text);
+
           const fontId = config.fontId || "montserrat";
           const specialFontId = config.specialFontId || fontId;
           const heroColor = config.accentColor || "#38bdf8";
@@ -4062,9 +4076,9 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           ctx.font = canvasFont(isHero ? 900 : 800, sizePx, fontFam);
           ctx.globalAlpha = opacity;
           
-          ctx.translate(cx, cy + translateY);
+          ctx.translate(cx + translateX * scaleFactor, cy + translateY * scaleFactor);
           ctx.scale(scale, scale);
-          if (blurPx > 0.3) ctx.filter = `blur(${blurPx}px)`;
+          if (blurPx * scaleFactor > 0.3) ctx.filter = `blur(${blurPx * scaleFactor}px)`;
           
           if (isHero) {
             // Glowing cyan shadow + sharp base
