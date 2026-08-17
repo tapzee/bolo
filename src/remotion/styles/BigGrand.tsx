@@ -1,11 +1,12 @@
 import { memo } from "react";
+import { hasDevanagari } from "@/core";
 import { FONT_FAMILY } from "../fonts";
 import { ENTER_SMOOTH, tokenEnter } from "../captions/animation";
 import {
   tokenGlyphStyle,
   tokenShellStyle,
   type TokenViewProps,
-  displayText
+  displayText,
 } from "../captions/primitives";
 
 export const BigGrandToken = memo(function BigGrandToken({
@@ -22,62 +23,55 @@ export const BigGrandToken = memo(function BigGrandToken({
   const text = displayText(token);
   const timing = { frame, fps, fromFrame, toFrame };
   
-  // Word-by-word spring scale-in and fade-in
+  // Word-by-word snappy spring reveal
   const enter = tokenEnter(timing, ENTER_SMOOTH);
   const isSpoken = timing.fromFrame <= frame;
   
-  // Word stays fully visible after entering until whole page exits
+  // Word stays 100% visible after entering
   const opacity = isSpoken ? Math.min(1, enter) : 0;
-  const scale = 0.85 + 0.15 * Math.min(1, enter);
-  const translateY = (1 - Math.min(1, enter)) * 14;
+  const scale = 0.88 + 0.12 * Math.min(1, enter);
+  const translateY = (1 - Math.min(1, enter)) * 12;
   const blurPx = (1 - Math.min(1, enter)) * 4;
 
   const isHero = index === heroIndex;
   const isTopLine = index < heroIndex;
+  const isDeva = hasDevanagari(text);
 
   const fontId = config.fontId || "montserrat";
   const specialFontId = config.specialFontId || fontId;
 
-  const heroColor = config.accentColor ?? "#38bdf8";
+  // Vibrant Electric Cyan for Hero, Crisp Pure White for Supporting text
+  const heroColor = config.accentColor || "#38bdf8";
+  const textColor = "#ffffff";
 
-  const baseSize = config.fontSizePx || 125;
+  const baseSize = config.fontSizePx || 120;
   let sizePx = baseSize;
   let family = FONT_FAMILY[fontId];
   let fontWeight = 800;
-  let letterSpacing = "0.02em";
-  let backgroundClip: React.CSSProperties | undefined = undefined;
-  let filterStyle = "drop-shadow(0 2px 10px rgba(0, 0, 0, 0.7))";
+  let letterSpacing = isDeva ? "normal" : "0.02em";
+  let color = textColor;
+  let textShadow = "0 2px 10px rgba(0, 0, 0, 0.9), 0 0 4px rgba(0, 0, 0, 0.9)";
+  let textTransform: "uppercase" | "none" = isDeva ? "none" : "uppercase";
 
   if (isHero) {
-    // Row 2: Hero word (Massive, Textured, Glowing Electric Cyan)
+    // Row 2: Hero word (Massive, Vibrant Solid Cyan with Glowing Aura)
     sizePx = baseSize;
     family = FONT_FAMILY[specialFontId];
     fontWeight = 900;
-    letterSpacing = "0.02em";
-    
-    // Crisp vertical scanline / pinstripe texture
-    backgroundClip = {
-      backgroundImage: `repeating-linear-gradient(90deg, ${heroColor} 0px, ${heroColor} 3px, #0284c7 3px, #0284c7 5px)`,
-      WebkitBackgroundClip: "text",
-      backgroundClip: "text",
-      WebkitTextFillColor: "transparent",
-      color: "transparent",
-    };
-    
-    // Glowing electric aura drop shadow
-    filterStyle = `drop-shadow(0 0 16px ${heroColor}b0) drop-shadow(0 0 32px ${heroColor}60) drop-shadow(0 2px 10px rgba(0,0,0,0.5))`;
+    color = heroColor;
+    textShadow = `0 0 16px ${heroColor}, 0 0 32px ${heroColor}80, 0 2px 12px rgba(0, 0, 0, 0.95)`;
   } else if (isTopLine) {
-    // Row 1: Top lead-in (Medium, White, Bold)
+    // Row 1: Top lead-in (Solid White, ExtraBold)
     sizePx = baseSize * 0.52;
     family = FONT_FAMILY[fontId];
     fontWeight = 800;
-    letterSpacing = "0.04em";
+    letterSpacing = isDeva ? "normal" : "0.04em";
   } else {
-    // Row 3: Bottom punchline (Small, White, Wide letter-spacing)
+    // Row 3: Bottom punchline (Solid White, Wide Letter Spacing)
     sizePx = baseSize * 0.40;
     family = FONT_FAMILY[fontId];
     fontWeight = 800;
-    letterSpacing = "0.18em";
+    letterSpacing = isDeva ? "normal" : "0.18em";
   }
 
   const transformStr = `translateY(${translateY}px) scale(${scale})`;
@@ -98,15 +92,16 @@ export const BigGrandToken = memo(function BigGrandToken({
     >
       <span
         style={{
-          ...textStyle,
           ...tokenGlyphStyle,
           fontFamily: family,
           fontSize: `${sizePx}px`,
           fontWeight,
+          color,
           letterSpacing,
-          textTransform: "uppercase",
-          filter: filterStyle,
-          ...backgroundClip,
+          textTransform,
+          textShadow,
+          WebkitTextStroke: "none",
+          paintOrder: "normal",
         }}
       >
         {text}
