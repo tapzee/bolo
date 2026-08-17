@@ -12,6 +12,8 @@ import {
 import {
   HERO_SMALL_RATIO,
   DESIGN_WALLA_SMALL_RATIO,
+  designWallaEditorialTier,
+  designWallaEditorialFontScale,
   heroWordIndex,
   specialWordIndex,
   getSplashWordRole,
@@ -136,6 +138,19 @@ export const resolveTokenBoxes = (
       return tokens.map((token, index) =>
         toBox(token.text, config.fontSizePx * (index === heroIndex ? 1.15 : smallRatio)),
       );
+    }
+
+    case "designWallaEditorial":
+    case "designWallaEditorialYellow": {
+      const heroIndex = heroWordIndex(texts);
+      const specialIndex = specialWordIndex(texts, heroIndex);
+      return tokens.map((token, index) => {
+        const tier = designWallaEditorialTier(index, heroIndex, specialIndex, tokens.length);
+        const scale = designWallaEditorialFontScale(tier);
+        const supportRatio = config.annotationSizeRatio > 0 ? config.annotationSizeRatio : scale;
+        const finalScale = tier === "support" ? supportRatio : scale;
+        return toBox(token.text, config.fontSizePx * finalScale);
+      });
     }
 
     case "designWallaPro":

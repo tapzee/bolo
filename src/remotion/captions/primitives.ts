@@ -923,6 +923,59 @@ export const designWallaProDirection = (pageSeed: number): "left" | "right" =>
 export const designWallaProHeroIsSerif = (pageSeed: number): boolean =>
   (pageSeed % 4) < 2;
 
+/**
+ * Design Walla Editorial: 3-tier typographic interplay
+ * - punch: heavy bold condensed sans (Anton / Montserrat Black)
+ * - serif: large high-contrast flowing italic serif (Playfair Display / Instrument Serif)
+ * - support: clean compact geometric sans (Inter / Poppins)
+ */
+export type DesignWallaEditorialTier = "punch" | "serif" | "support";
+
+export const designWallaEditorialTier = (
+  index: number,
+  heroIndex: number,
+  specialIndex: number,
+  totalTokens: number,
+): DesignWallaEditorialTier => {
+  if (index === heroIndex) return "punch";
+  if (index === specialIndex && specialIndex !== -1) return "serif";
+  if (specialIndex === -1 && totalTokens >= 2 && index !== heroIndex) {
+    const nonHero = Array.from({ length: totalTokens }, (_, i) => i).filter((i) => i !== heroIndex);
+    if (nonHero.length > 0 && nonHero[nonHero.length - 1] === index) {
+      return "serif";
+    }
+  }
+  return "support";
+};
+
+export const designWallaEditorialFontScale = (tier: DesignWallaEditorialTier): number => {
+  if (tier === "punch") return 1.25;
+  if (tier === "serif") return 1.45;
+  return 0.52;
+};
+
+export const designWallaEditorialRow = (
+  index: number,
+  heroIndex: number,
+  specialIndex: number,
+  totalTokens: number,
+): number => {
+  if (totalTokens <= 1) return 0;
+  if (totalTokens === 2) return index === 0 ? 0 : 1;
+  if (totalTokens === 3) return index; // 3 words -> 3 rows (Top, Middle, Bottom)
+  
+  if (heroIndex === 0) {
+    if (index === 0) return 0;
+    if (specialIndex > 0) {
+      return index < specialIndex ? 1 : 2;
+    }
+    return index === 1 ? 1 : 2;
+  }
+  if (index < heroIndex) return 0;
+  if (index === heroIndex) return 1;
+  return 2;
+};
+
 export const SLIDE_STACK_DIRECTIONS = ["left", "right", "up", "down"] as const;
 export type SlideStackDirection = (typeof SLIDE_STACK_DIRECTIONS)[number];
 export const dynamicSlideStackDirection = (text: string, index: number): SlideStackDirection =>

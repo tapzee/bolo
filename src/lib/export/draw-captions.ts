@@ -111,6 +111,9 @@ import {
   DESIGN_WALLA_SMALL_RATIO,
   designWallaHeroIsScript,
   designWallaHeroDirection,
+  designWallaEditorialTier,
+  designWallaEditorialFontScale,
+  designWallaEditorialRow,
   designWallaProRole,
   designWallaProBlueRole,
   designWallaProDirection,
@@ -248,6 +251,12 @@ const getRenderText = (
     if (index !== heroIndex) return applyTextCase(text, resolveTextCase(config));
     const isScript = designWallaHeroIsScript(pageSeed) && !hasDevanagari(text);
     return isScript ? text : text.toUpperCase();
+  }
+  if (config.styleId.startsWith("designWallaEditorial")) {
+    const tier = designWallaEditorialTier(index, heroIndex, specialIndex, totalTokens);
+    if (tier === "punch") return text.toUpperCase();
+    if (tier === "serif") return text.toLowerCase();
+    return applyTextCase(text, resolveTextCase(config));
   }
   if (config.styleId.startsWith("designWallaPro")) {
     if (index === heroIndex) return text.toUpperCase();
@@ -753,6 +762,22 @@ const layoutLines = (
         ctx.font = canvasFont(Math.max(800, config.fontWeight), fontSize, family);
       }
       fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
+    } else if (config.styleId.startsWith("designWallaEditorial")) {
+      const tier = designWallaEditorialTier(index, heroIndex, specialIndex, page.tokens.length);
+      const scale = designWallaEditorialFontScale(tier);
+      fontSize = config.fontSizePx * scale;
+      if (tier === "punch") {
+        ctx.font = canvasFont(Math.max(800, config.fontWeight), fontSize, family);
+      } else if (tier === "serif") {
+        const serifFamily = resolveFontFamily(config.specialFontId ?? "playfair");
+        ctx.font = canvasFont(700, fontSize, serifFamily, "italic");
+      } else {
+        const supportRatio = config.annotationSizeRatio > 0 ? config.annotationSizeRatio : scale;
+        fontSize = config.fontSizePx * supportRatio;
+        const supportFamily = resolveFontFamily(config.secondaryFontId ?? "inter");
+        ctx.font = canvasFont(config.annotationWeight > 0 ? config.annotationWeight : 600, fontSize, supportFamily);
+      }
+      fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
     } else if (config.styleId.startsWith("designWallaPro")) {
       const isBlueOrGreen = config.styleId === "designWallaProBlue" || config.styleId === "designWallaProGreen";
       const role = isBlueOrGreen ? designWallaProBlueRole(index, heroIndex, pageSeed) : designWallaProRole(index, heroIndex);
@@ -955,6 +980,14 @@ const layoutLines = (
 
     if (config.styleId === "dualLine" && index === Math.ceil(page.tokens.length / 2)) {
       flush();
+    }
+
+    if (config.styleId.startsWith("designWallaEditorial")) {
+      const currentRow = designWallaEditorialRow(index, heroIndex, specialIndex, page.tokens.length);
+      const prevRow = index > 0 ? designWallaEditorialRow(index - 1, heroIndex, specialIndex, page.tokens.length) : -1;
+      if (index > 0 && currentRow !== prevRow) {
+        flush();
+      }
     }
 
     if (config.styleId === "focus" && focusTier(token.role ?? "normal") === "hero") {
@@ -3615,6 +3648,122 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           if (blurPx > 0.3) ctx.filter = `blur(${blurPx}px)`;
           ctx.translate(cx, cy + yOffset);
           strokeThenFill(ctx, text, -tokenWidth / 2, 0, color, isDwScript ? 0 : config.strokeWidthPx, config.strokeColor, config, isDwScript ? config.baseColor : config.accentColor);
+          if (blurPx > 0.3) ctx.filter = "none";
+          ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
+          break;
+        }
+
+        case "designWallaEditorial":
+        case "designWallaEditorialYellow": {
+          const tier = designWallaEditorialTier(index, heroIndex, specialIndex, page.tokens.length);
+          const currentRow = designWallaEditorialRow(index, heroIndex, specialIndex, page.tokens.length);
+          const scaleFactor = canvasScale({ width, height });
+
+          if (tier === "punch") {
+            const enter = tokenEnter(timing, ENTER_BOUNCY);
+            const punchScale = designWallaEditorialFontScale("punch");
+            const travelY = (1 - enter) * -18 * scaleFactor;
+            const punchColor =
+              token.color ??
+              (config.styleId === "designWallaEditorialYellow"
+                ? config.accentColor
+                : config.accentColor || config.activeColor || "#ffe600");
+
+            ctx.font = canvasFont(Math.max(800, config.fontWeight), config.fontSizePx * punchScale, family);
+            ctx.globalAlpha = entrance * enter;
+            ctx.translate(cx, cy + travelY);
+            const s = 0.92 + enter * 0.08;
+            ctx.scale(s, s);
+
+            if (config.glowEnabled) {
+              drawGlowPass(ctx, text.toUpperCase(), -tokenWidth / 2, 0, config, punchColor, 1);
+            } else {
+              ctx.shadowColor = "rgba(0,0,0,0.65)";
+              ctx.shadowBlur = 14 * scaleFactor;
+              ctx.shadowOffsetY = 4 * scaleFactor;
+            }
+
+            strokeThenFill(
+              ctx,
+              text.toUpperCase(),
+              -tokenWidth / 2,
+              0,
+              punchColor,
+              config.strokeWidthPx,
+              config.strokeColor,
+            );
+            clearShadow(ctx);
+            ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
+            break;
+          }
+
+          if (tier === "serif") {
+            const enter = tokenEnter(timing, ENTER_SMOOTH);
+            const serifScale = designWallaEditorialFontScale("serif");
+            const travelY = (1 - enter) * 20 * scaleFactor;
+            const serifFamily = resolveFontFamily(config.specialFontId ?? "playfair");
+
+            ctx.font = canvasFont(700, config.fontSizePx * serifScale, serifFamily, "italic");
+            ctx.globalAlpha = entrance * enter;
+            const overlapY = currentRow > 0 ? -14 * scaleFactor : 0;
+            ctx.translate(cx, cy + travelY + overlapY);
+            ctx.rotate((-2 * Math.PI) / 180);
+
+            if (config.glowEnabled) {
+              drawGlowPass(ctx, text.toLowerCase(), -tokenWidth / 2, 0, config, "#ffffff", 1);
+            } else {
+              ctx.shadowColor = "rgba(0, 0, 0, 0.85)";
+              ctx.shadowBlur = 20 * scaleFactor;
+              ctx.shadowOffsetY = 4 * scaleFactor;
+            }
+
+            strokeThenFill(
+              ctx,
+              text.toLowerCase(),
+              -tokenWidth / 2,
+              0,
+              token.color ?? "#ffffff",
+              0,
+              config.strokeColor,
+            );
+            clearShadow(ctx);
+            ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
+            break;
+          }
+
+          // Tier 3: Support Connectors
+          const enter = tokenEnter(timing, ENTER_SMOOTH);
+          const supportRatio =
+            config.annotationSizeRatio > 0
+              ? config.annotationSizeRatio
+              : designWallaEditorialFontScale("support");
+          const travelX = (1 - enter) * (currentRow === 0 ? -16 : 16) * scaleFactor;
+          const blurPx = (1 - enter) * 3 * scaleFactor;
+          const supportFamily = resolveFontFamily(config.secondaryFontId ?? "inter");
+
+          ctx.font = canvasFont(
+            config.annotationWeight > 0 ? config.annotationWeight : 600,
+            config.fontSizePx * supportRatio,
+            supportFamily,
+          );
+          ctx.globalAlpha = entrance * enter;
+          if (blurPx > 0.3) ctx.filter = `blur(${blurPx}px)`;
+          ctx.translate(cx + travelX, cy);
+
+          ctx.shadowColor = "rgba(0,0,0,0.6)";
+          ctx.shadowBlur = 10 * scaleFactor;
+          ctx.shadowOffsetY = 2 * scaleFactor;
+
+          strokeThenFill(
+            ctx,
+            text,
+            -tokenWidth / 2,
+            0,
+            config.annotationColor || config.baseColor || "#ffffff",
+            0,
+            config.strokeColor,
+          );
+          clearShadow(ctx);
           if (blurPx > 0.3) ctx.filter = "none";
           ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
           break;

@@ -456,6 +456,16 @@ Full end-to-end customization landed across all caption templates in both DOM pr
 - **Neon Glow Effect**: `glowEnabled`, `glowColor`, and `glowIntensity` controls are now available across all templates. Handled in DOM via `buildGlowShadow` in `src/remotion/captions/primitives.ts` and in Canvas2D via multi-radius blur passes in `drawGlowPass` in `src/lib/export/draw-captions.ts`.
 - **Editor Controls**: `TextPanel.tsx` (Fonts, Emphasis, Effects groups) and `TemplatesPanel.tsx` (Colors and Emphasis tabs) updated with pickers, sliders, and toggles.
 
+### Design Walla Editorial Template Engine — 18 Aug
+
+New signature template engine replicating the exact 3-row, 3-font kinetic overlay poster style:
+- **3-Tier Typographic Architecture**:
+  1. **Punch**: Bold heavy condensed uppercase sans (`Anton` / `Montserrat 900` in `#FFE600` yellow / `#FFFFFF` white).
+  2. **Hero Serif**: Flowing high-contrast italic serif (`Playfair Display Italic` / `Instrument Serif` in `#FFFFFF`, ~1.45x size, -2° tilt, overlapping vertically).
+  3. **Support**: Clean geometric sans (`Inter` / `Poppins` 600 in `#FFFFFF`, ~0.52x size).
+- **Intelligent 3-Row Arrangement & Negative Overlap**: Automatically distributes phrase tokens across 3 structured rows with negative leading (`lineHeight: 0.88`, negative margin overlap in DOM and offset Y-stepping in Canvas2D) and layered drop shadows for seamless readability.
+- **Dual-Renderer Parity**: `DesignWallaEditorialToken` in `src/remotion/styles/DesignWallaEditorial.tsx` + `TOKEN_RENDERERS` + `case "designWallaEditorial"` in `src/lib/export/draw-captions.ts` + `resolveTokenBoxes` in `src/remotion/captions/page-fit.ts`.
+
 ---
 
 ## Before you hand back

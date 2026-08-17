@@ -57,6 +57,7 @@ import { StackToken } from "./Stack";
 import { FocusToken } from "./Focus";
 import { PopWordToken } from "./PopWord";
 import { DesignWallaToken } from "./DesignWalla";
+import { DesignWallaEditorialToken } from "./DesignWallaEditorial";
 import { DesignWallaProToken } from "./DesignWallaPro";
 import { GrandCaptionToken } from "./GrandCaption";
 import { BigGrandToken } from "./BigGrand";
@@ -82,6 +83,8 @@ export const TOKEN_RENDERERS: Readonly<
   dynamic: DynamicToken,
   heroMixed: HeroMixedToken,
   designWalla: DesignWallaToken,
+  designWallaEditorial: DesignWallaEditorialToken,
+  designWallaEditorialYellow: DesignWallaEditorialToken,
   designWallaPro: DesignWallaProToken,
   designWallaProPink: DesignWallaProToken,
   designWallaProBlue: DesignWallaProToken,

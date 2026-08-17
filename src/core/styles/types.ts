@@ -10,6 +10,8 @@ export const STYLE_IDS = [
   "dynamic",
   "heroMixed",
   "designWalla",
+  "designWallaEditorial",
+  "designWallaEditorialYellow",
   "designWallaPro",
   "designWallaProPink",
   "designWallaProBlue",
