@@ -377,11 +377,16 @@ const layoutLines = (
         fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
       } else if (role === "script") {
         let scriptFamily = family;
-        if (!family.toLowerCase().includes("playfair") && !family.toLowerCase().includes("caveat")) {
+        if (config.specialFontId) {
+          scriptFamily = resolveFontFamily(config.specialFontId);
+        } else if (!family.toLowerCase().includes("playfair") && !family.toLowerCase().includes("caveat")) {
           scriptFamily = resolveFontFamily("playfair");
         }
         fontSize = config.fontSizePx * 1.05;
         ctx.font = canvasFont(config.fontWeight, fontSize, scriptFamily, "italic");
+        fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
+      } else if (config.secondaryFontId) {
+        ctx.font = canvasFont(config.fontWeight, fontSize, resolveFontFamily(config.secondaryFontId));
         fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
       }
     } else if (config.styleId === "dualLine") {
@@ -422,7 +427,9 @@ const layoutLines = (
       // template's own font — this multi-font treatment wasn't asked for
       // there.
       const annotationFamily =
-        config.styleId === "heroMixed" ? resolveFontFamily(annotationFontId(text)) : family;
+        config.secondaryFontId
+          ? resolveFontFamily(config.secondaryFontId)
+          : (config.styleId === "heroMixed" ? resolveFontFamily(annotationFontId(text)) : family);
       ctx.font = canvasFont(
         config.annotationWeight > 0 ? config.annotationWeight : 500,
         fontSize,
@@ -444,13 +451,15 @@ const layoutLines = (
       // that doesn't match what ends up on screen.
       const style = heroFontStyle(text);
       if (style === "cursive") {
-        ctx.font = canvasFont(700, config.fontSizePx, resolveFontFamily("caveat"));
+        const fam = config.specialFontId ? resolveFontFamily(config.specialFontId) : resolveFontFamily("caveat");
+        ctx.font = canvasFont(700, config.fontSizePx, fam);
         fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
       } else if (style === "impact") {
         ctx.font = canvasFont(400, config.fontSizePx, resolveFontFamily("anton"));
         fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
       } else if (style === "serif") {
-        ctx.font = canvasFont(700, config.fontSizePx, resolveFontFamily("playfair"), "italic");
+        const fam = config.specialFontId ? resolveFontFamily(config.specialFontId) : resolveFontFamily("playfair");
+        ctx.font = canvasFont(700, config.fontSizePx, fam, "italic");
         fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
       }
     } else if (config.styleId === "dynamicHighlight") {
@@ -1019,8 +1028,37 @@ const layoutLines = (
   return lines;
 };
 
+const drawGlowPass = (
+  ctx: Ctx,
+  text: string,
+  x: number,
+  y: number,
+  config: CaptionStyleConfig,
+  bloomColor?: string,
+  intensityFactor = 1,
+): void => {
+  if (!config.glowEnabled && config.styleId !== "glow") return;
+  const bloom = bloomColor ?? config.glowColor ?? config.accentColor ?? "#ffd60a";
+  const mult = (config.glowIntensity ?? 1) * intensityFactor;
+  if (mult <= 0.01) return;
+
+  ctx.save();
+  ctx.shadowColor = "#ffffff";
+  ctx.shadowBlur = config.fontSizePx * 0.08 * mult;
+  ctx.fillStyle = bloom;
+  ctx.fillText(text, x, y);
+
+  ctx.shadowColor = bloom;
+  for (const radius of GLOW_RADII) {
+    ctx.shadowBlur = config.fontSizePx * radius * 1.35 * mult;
+    ctx.fillText(text, x, y);
+  }
+  clearShadow(ctx);
+  ctx.restore();
+};
+
 /**
- * Paints text with an outward-only stroke.
+ * Paints text with an outward-only stroke and optional glow.
  *
  * `strokeText` centres the stroke on the glyph outline, so half of it would eat
  * into the letterform — the exact problem `paint-order: stroke fill` solves in
@@ -1036,7 +1074,12 @@ const strokeThenFill = (
   fill: string | CanvasGradient,
   strokeWidth: number,
   strokeColor: string,
+  config?: CaptionStyleConfig,
+  bloomColor?: string,
 ): void => {
+  if (config && (config.glowEnabled || config.styleId === "glow")) {
+    drawGlowPass(ctx, text, x, y, config, bloomColor);
+  }
   if (strokeWidth > 0) {
     ctx.lineWidth = strokeWidth * 2;
     ctx.strokeStyle = strokeColor;
@@ -1509,18 +1552,21 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           const alpha = isSpokenOrPast ? (highlight > 0.01 ? 1 : Math.max(0.65, inactiveOpacity)) : inactiveOpacity;
           ctx.globalAlpha = entrance * alpha;
 
-          let roleFontFamily = family;
+          let roleFontFamily = config.secondaryFontId ? resolveFontFamily(config.secondaryFontId) : family;
           let roleFontSize = config.fontSizePx;
           let roleColor = token.color ?? config.baseColor;
           let roleWeight = config.fontWeight;
           let roleStyle = "normal";
 
           if (role === "accent") {
+            roleFontFamily = family;
             roleColor = token.color ?? config.accentColor;
             roleFontSize = config.fontSizePx * 1.15;
             roleWeight = Math.max(800, config.fontWeight);
           } else if (role === "script") {
-            if (!roleFontFamily.toLowerCase().includes("playfair") && !roleFontFamily.toLowerCase().includes("caveat")) {
+            if (config.specialFontId) {
+              roleFontFamily = resolveFontFamily(config.specialFontId);
+            } else if (!roleFontFamily.toLowerCase().includes("playfair") && !roleFontFamily.toLowerCase().includes("caveat")) {
               roleFontFamily = resolveFontFamily("playfair");
             }
             roleStyle = "italic";
@@ -1543,7 +1589,9 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
             ctx.rotate((rotateDeg * Math.PI) / 180);
           }
 
-          if (highlight > 0.01) {
+          if (config.glowEnabled) {
+            drawGlowPass(ctx, text, -tokenWidth / 2, 0, config, colour, highlight > 0.01 ? 1 : 0.3);
+          } else if (highlight > 0.01) {
             ctx.shadowColor = "rgba(0, 0, 0, 0.75)";
             ctx.shadowBlur = 18 * canvasScale({ width, height });
             ctx.shadowOffsetY = 5 * canvasScale({ width, height });
@@ -1743,7 +1791,7 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
             ctx.font = canvasFont(
               config.annotationWeight > 0 ? config.annotationWeight : 500,
               smallFontPx,
-              resolveFontFamily(annotationFontId(text)),
+              resolveFontFamily(config.secondaryFontId ?? annotationFontId(text)),
             );
 
             // A dark chip behind the glyphs, not just colour/stroke tuning —
@@ -1809,7 +1857,7 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           // restore note in the annotation branch above for why that matters.
           const style = heroFontStyle(text);
           if (style === "cursive") {
-            ctx.font = canvasFont(700, config.fontSizePx, resolveFontFamily("caveat"));
+            ctx.font = canvasFont(700, config.fontSizePx, resolveFontFamily(config.specialFontId ?? "caveat"));
             // The template's accent color, not a hardcoded white — otherwise
             // a template's `accentColor` had nowhere in this engine it ever
             // rendered.
@@ -1819,7 +1867,7 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           } else if (style === "impact") {
             ctx.font = canvasFont(400, config.fontSizePx, resolveFontFamily("anton"));
           } else if (style === "serif") {
-            ctx.font = canvasFont(700, config.fontSizePx, resolveFontFamily("playfair"), "italic");
+            ctx.font = canvasFont(700, config.fontSizePx, resolveFontFamily(config.specialFontId ?? "playfair"), "italic");
             colour = token.color ?? config.accentColor;
             strokeWidth = Math.max(2, config.strokeWidthPx * 0.6);
             // Sentence case, not the forced uppercase every other variant
@@ -1831,7 +1879,9 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
             ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
           }
 
-          if (config.dropShadow) {
+          if (config.glowEnabled) {
+            drawGlowPass(ctx, displayTextStr, -tokenWidth / 2, 0, config, colour, highlight > 0.01 ? 1 : 0.4);
+          } else if (config.dropShadow) {
             ctx.shadowColor = "rgba(0,0,0,0.5)";
             ctx.shadowBlur = config.fontSizePx * 0.12;
             ctx.shadowOffsetY = config.fontSizePx * 0.06;
@@ -2026,14 +2076,15 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
             // rather than a flat blur. Same breathing sine of the absolute
             // clock, so the DOM preview and this export glow in sync.
             const breathe = 0.55 + 0.45 * Math.sin((frame / fps) * Math.PI * 1.2);
-            const glowStrength = enterSmooth * (0.7 + 0.3 * breathe);
+            const glowStrength = enterSmooth * (0.7 + 0.3 * breathe) * (config.glowIntensity ?? 1);
+            const glowColor = config.glowColor ?? fill;
             if (glowStrength > 0.02) {
               ctx.shadowColor = "#ffffff";
               ctx.shadowBlur = roleFontSize * 0.1 * glowStrength;
               ctx.fillStyle = fill;
               ctx.fillText(displayText, -tokenWidth / 2, 0);
 
-              ctx.shadowColor = fill;
+              ctx.shadowColor = glowColor;
               for (const radius of GLOW_RADII) {
                 ctx.shadowBlur = roleFontSize * radius * 1.35 * glowStrength;
                 ctx.fillStyle = fill;
@@ -3563,7 +3614,7 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           ctx.globalAlpha = entrance * enter;
           if (blurPx > 0.3) ctx.filter = `blur(${blurPx}px)`;
           ctx.translate(cx, cy + yOffset);
-          strokeThenFill(ctx, text, -tokenWidth / 2, 0, color, isDwScript ? 0 : config.strokeWidthPx, config.strokeColor);
+          strokeThenFill(ctx, text, -tokenWidth / 2, 0, color, isDwScript ? 0 : config.strokeWidthPx, config.strokeColor, config, isDwScript ? config.baseColor : config.accentColor);
           if (blurPx > 0.3) ctx.filter = "none";
           ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
           break;
@@ -3593,7 +3644,7 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
             }
             const scaleFunc = isBlueOrGreen ? designWallaProBlueFontScale : designWallaProFontScale;
             const heroSize = config.fontSizePx * scaleFunc(role) * (isSerif ? 1.2 : 1);
-            const heroFamily = isSerif ? resolveFontFamily("instrumentSerif") : family;
+            const heroFamily = isSerif ? resolveFontFamily(config.specialFontId ?? "instrumentSerif") : family;
             const heroWeight = Math.max(800, config.fontWeight);
             const heroStyle = isSerif ? "italic" : "normal";
             
@@ -3609,7 +3660,9 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
             
             const color = isSerif ? "#ffffff" : (token.color ?? config.accentColor);
             
-            if (isBlueOrGreen) {
+            if (config.glowEnabled) {
+              drawGlowPass(ctx, applyTextCase(text, isSerif ? "lower" : "upper"), -tokenWidth / 2, 0, config, color, 1);
+            } else if (isBlueOrGreen) {
               ctx.shadowColor = isSerif ? "rgba(255, 255, 255, 0.5)" : `${color}a0`;
               ctx.shadowBlur = 15 * scaleFactor;
             } else {

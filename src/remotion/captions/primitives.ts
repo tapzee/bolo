@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 import type { CaptionStyleConfig, CaptionToken, FontId, TextCase, WordRole } from "@/core";
-import { resolveTextCase } from "@/core";
+import { GLOW_RADII, resolveTextCase } from "@/core";
 
 export interface TokenViewProps {
   token: CaptionToken;
@@ -57,6 +57,29 @@ export interface TokenViewProps {
 }
 
 /**
+ * Computes multi-layer neon light bloom for glowing text.
+ * Multi-layer structure (tight core + mid halo + wide wash) produces realistic illumination.
+ */
+export const buildGlowShadow = (
+  config: CaptionStyleConfig,
+  bloomColor?: string,
+  intensityFactor = 1,
+): string | undefined => {
+  if (!config.glowEnabled && config.styleId !== "glow") return undefined;
+  const bloom = bloomColor ?? config.glowColor ?? config.accentColor ?? "#ffd60a";
+  const unit = config.fontSizePx;
+  const mult = (config.glowIntensity ?? 1) * intensityFactor;
+  if (mult <= 0.01) return undefined;
+  return [
+    `0 0 ${unit * 0.08 * mult}px #ffffff`,
+    ...GLOW_RADII.map(
+      (radius) => `0 0 ${unit * radius * 1.35 * mult}px ${bloom}`,
+    ),
+    `0 0 ${unit * 0.6 * mult}px ${bloom}`,
+  ].join(", ");
+};
+
+/**
  * The readability contract every style inherits.
  *
  * `-webkit-text-stroke` alone paints the stroke *over* the glyph, eating into
@@ -95,7 +118,10 @@ export const baseTextStyle = (
         ? "lowercase"
         : "none",
   whiteSpace: "pre",
-  ...strokeStyle(config.strokeWidthPx, config.strokeColor),
+  ...(config.strokeWidthPx > 0
+    ? strokeStyle(config.strokeWidthPx, config.strokeColor)
+    : { WebkitTextStroke: "0px transparent" }),
+  ...(config.glowEnabled ? { textShadow: buildGlowShadow(config) } : null),
 });
 
 /**

@@ -29,6 +29,6 @@ export const scaleStyleConfig = (
     // Floored: below ~1.5px the outline stops separating glyph from background,
     // so a 720p export would silently lose the readability guarantee that every
     // style is required to provide.
-    strokeWidthPx: Math.max(1.5, authoredStroke * scale),
+    strokeWidthPx: config.strokeWidthPx === 0 ? 0 : Math.max(1.5, authoredStroke * scale),
   };
 };

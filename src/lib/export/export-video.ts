@@ -113,7 +113,7 @@ export const exportVideo = ({
     if (config.secondaryFontId !== undefined) {
       fontLoads.push({
         fontId: config.secondaryFontId,
-        weight: 500,
+        weight: config.annotationWeight > 0 ? config.annotationWeight : 500,
         sizePx: config.fontSizePx * 0.6,
       });
     }
@@ -124,6 +124,11 @@ export const exportVideo = ({
         weight: 400,
         sizePx: config.fontSizePx * 0.9,
         style: "italic",
+      });
+      fontLoads.push({
+        fontId: config.specialFontId,
+        weight: 700,
+        sizePx: config.fontSizePx,
       });
     }
 

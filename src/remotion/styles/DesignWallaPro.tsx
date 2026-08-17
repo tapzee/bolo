@@ -2,6 +2,7 @@ import { memo } from "react";
 import { ENTER_SMOOTH, tokenEnter } from "../captions/animation";
 import { FONT_FAMILY } from "../fonts";
 import {
+  buildGlowShadow,
   designWallaProRole,
   designWallaProBlueRole,
   designWallaProDirection,
@@ -85,14 +86,16 @@ export const DesignWallaProToken = memo(function DesignWallaProToken({
           style={{
             ...textStyle,
             ...tokenGlyphStyle,
-            fontFamily: isSerif ? FONT_FAMILY["instrumentSerif"] : textStyle.fontFamily,
+            fontFamily: isSerif
+              ? FONT_FAMILY[config.specialFontId ?? "instrumentSerif"]
+              : textStyle.fontFamily,
             fontSize: config.fontSizePx * finalScale * (isSerif ? 1.2 : 1),
             fontWeight: Math.max(800, config.fontWeight), // Both are bold now
             fontStyle: isSerif ? "italic" : "normal",
             color: isSerif ? "#ffffff" : (token.color ?? config.accentColor),
-            textShadow: (isBlueOrGreen && isMiddle)
+            textShadow: buildGlowShadow(config, isSerif ? "#ffffff" : (token.color ?? config.accentColor), 1) ?? ((isBlueOrGreen && isMiddle)
               ? (isSerif ? "0 0 12px rgba(255, 255, 255, 0.5), 0 0 20px rgba(255, 255, 255, 0.3)" : `0 0 12px ${token.color ?? config.accentColor}90, 0 0 20px ${token.color ?? config.accentColor}40`)
-              : (isSerif ? "0 0 10px rgba(255, 255, 255, 0.3)" : `0 0 10px ${token.color ?? config.accentColor}80`),
+              : (isSerif ? "0 0 10px rgba(255, 255, 255, 0.3)" : `0 0 10px ${token.color ?? config.accentColor}80`)),
             textTransform: isSerif ? "lowercase" : "uppercase",
             opacity: enter,
             transform: transformStr,

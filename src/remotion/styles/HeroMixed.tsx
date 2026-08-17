@@ -8,6 +8,7 @@ import {
 import {
   HERO_SMALL_RATIO,
   annotationFontId,
+  buildGlowShadow,
   displayText,
   getHash,
   heroFontStyle,
@@ -219,10 +220,12 @@ export const HeroMixedToken = memo(function HeroMixedToken({
             // different big/small texts across a page" variety this engine
             // was asked for — restricted to legible faces since this text
             // renders as small as ~20px on a phone.
-            fontFamily: FONT_FAMILY[annotationFontId(text)],
+            fontFamily: config.secondaryFontId
+              ? FONT_FAMILY[config.secondaryFontId]
+              : FONT_FAMILY[annotationFontId(text)],
             // Matches HeroStack's supporting text: without it the small words
             // wash out against busy footage even with the stroke in place.
-            textShadow: "0 2px 10px rgba(0,0,0,0.55)",
+            textShadow: buildGlowShadow(config, config.strokeColor, 0.3) ?? "0 2px 10px rgba(0,0,0,0.55)",
           }}
         >
           {text}
@@ -246,7 +249,7 @@ export const HeroMixedToken = memo(function HeroMixedToken({
   // only the other three borrow a face and adjust weight/case/stroke to
   // suit it.
   if (heroStyle === "cursive") {
-    fontFamily = FONT_FAMILY.caveat;
+    fontFamily = config.specialFontId ? FONT_FAMILY[config.specialFontId] : FONT_FAMILY.caveat;
     // The template's accent color, not a hardcoded white — otherwise a
     // template's `accentColor` had nowhere in this engine it ever rendered.
     color = token.color ?? config.accentColor;
@@ -258,7 +261,7 @@ export const HeroMixedToken = memo(function HeroMixedToken({
     textTransform = "uppercase";
     fontWeight = 400; // Anton only ships one weight; anything heavier is synthetic.
   } else if (heroStyle === "serif") {
-    fontFamily = FONT_FAMILY.playfair;
+    fontFamily = config.specialFontId ? FONT_FAMILY[config.specialFontId] : FONT_FAMILY.playfair;
     // Sentence case, not the shouted uppercase every other variant uses —
     // an all-caps italic serif reads as a mistake, not as elegant.
     textTransform = "none";
@@ -287,6 +290,7 @@ export const HeroMixedToken = memo(function HeroMixedToken({
           fontWeight,
           fontStyle: heroStyle === "serif" ? "italic" : undefined,
           WebkitTextStroke: `${strokeWidth}px ${config.strokeColor}`,
+          textShadow: buildGlowShadow(config, color, highlight > 0.01 ? 1 : 0.4),
           filter: config.dropShadow
             ? `drop-shadow(0px ${config.fontSizePx * 0.06}px ${config.fontSizePx * 0.12}px rgba(0,0,0,0.5))`
             : undefined,

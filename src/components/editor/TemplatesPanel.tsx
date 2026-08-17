@@ -552,6 +552,36 @@ export function TemplatesPanel({
                   </span>
                 </div>
               </label>
+
+              <label className="flex flex-col gap-1 text-[11px] font-medium text-muted-foreground cursor-pointer">
+                <span>Secondary Text</span>
+                <div className="flex items-center gap-2 rounded-lg border bg-background px-2 py-1.5">
+                  <input
+                    type="color"
+                    value={config.annotationColor || config.baseColor || "#ececec"}
+                    onChange={(e) => updateConfig({ annotationColor: e.target.value })}
+                    className="size-5 shrink-0 cursor-pointer rounded border-none bg-transparent"
+                  />
+                  <span className="font-mono text-[10px] text-foreground uppercase truncate">
+                    {config.annotationColor || config.baseColor || "#ECECEC"}
+                  </span>
+                </div>
+              </label>
+
+              <label className="flex flex-col gap-1 text-[11px] font-medium text-muted-foreground cursor-pointer">
+                <span>Neon Glow Bloom</span>
+                <div className="flex items-center gap-2 rounded-lg border bg-background px-2 py-1.5">
+                  <input
+                    type="color"
+                    value={config.glowColor || config.accentColor || "#ffd60a"}
+                    onChange={(e) => updateConfig({ glowColor: e.target.value, glowEnabled: true })}
+                    className="size-5 shrink-0 cursor-pointer rounded border-none bg-transparent"
+                  />
+                  <span className="font-mono text-[10px] text-foreground uppercase truncate">
+                    {config.glowColor || config.accentColor || "#FFD60A"}
+                  </span>
+                </div>
+              </label>
             </div>
           </div>
         </div>
@@ -561,8 +591,8 @@ export function TemplatesPanel({
       {tab === "emphasis" ? (
         <div className="space-y-5 py-1 text-xs">
           <div className="space-y-2">
-            <Label className="font-semibold text-foreground">Font Family</Label>
-            <div className="grid grid-cols-1 gap-1.5 max-h-48 overflow-y-auto pr-1">
+            <Label className="font-semibold text-foreground">Primary Font</Label>
+            <div className="grid grid-cols-1 gap-1.5 max-h-36 overflow-y-auto pr-1">
               {FONTS.map((font) => {
                 const isSelected = config.fontId === font.id;
                 return (
@@ -571,7 +601,7 @@ export function TemplatesPanel({
                     type="button"
                     onClick={() => updateConfig({ fontId: font.id as FontId })}
                     className={cn(
-                      "flex items-center justify-between rounded-lg border px-3 py-2 text-left transition-all",
+                      "flex items-center justify-between rounded-lg border px-3 py-1.5 text-left transition-all text-xs",
                       isSelected
                         ? "border-brand bg-brand/10 font-bold text-brand shadow-sm ring-1 ring-brand"
                         : "border-border/60 bg-card/40 font-medium hover:border-border hover:bg-card",
@@ -583,11 +613,9 @@ export function TemplatesPanel({
                     </div>
                     {font.nativeDevanagari ? (
                       <span className="rounded bg-success/15 px-1.5 py-0.5 text-[10px] font-medium text-success">
-                        देवनागरी native
+                        देवनागरी
                       </span>
-                    ) : (
-                      <span className="text-[10px] text-muted-foreground/50">fallback</span>
-                    )}
+                    ) : null}
                   </button>
                 );
               })}
@@ -595,7 +623,79 @@ export function TemplatesPanel({
           </div>
 
           <div className="space-y-2">
-            <Label className="font-semibold text-foreground">Font Weight (Thickness)</Label>
+            <Label className="font-semibold text-foreground">Secondary / Supporting Font</Label>
+            <div className="grid grid-cols-1 gap-1.5 max-h-32 overflow-y-auto pr-1">
+              <button
+                type="button"
+                onClick={() => updateConfig({ secondaryFontId: undefined })}
+                className={cn(
+                  "flex items-center justify-between rounded-lg border px-3 py-1.5 text-left transition-all text-xs",
+                  !config.secondaryFontId
+                    ? "border-brand bg-brand/10 font-bold text-brand shadow-sm ring-1 ring-brand"
+                    : "border-border/60 bg-card/40 font-medium hover:border-border hover:bg-card text-muted-foreground",
+                )}
+              >
+                <span>Auto (Same as primary)</span>
+              </button>
+              {FONTS.map((font) => {
+                const isSelected = config.secondaryFontId === font.id;
+                return (
+                  <button
+                    key={font.id}
+                    type="button"
+                    onClick={() => updateConfig({ secondaryFontId: font.id as FontId })}
+                    className={cn(
+                      "flex items-center justify-between rounded-lg border px-3 py-1.5 text-left transition-all text-xs",
+                      isSelected
+                        ? "border-brand bg-brand/10 font-bold text-brand shadow-sm ring-1 ring-brand"
+                        : "border-border/60 bg-card/40 font-medium hover:border-border hover:bg-card",
+                    )}
+                  >
+                    <span>{font.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="font-semibold text-foreground">3rd / Script Accent Font</Label>
+            <div className="grid grid-cols-1 gap-1.5 max-h-32 overflow-y-auto pr-1">
+              <button
+                type="button"
+                onClick={() => updateConfig({ specialFontId: undefined })}
+                className={cn(
+                  "flex items-center justify-between rounded-lg border px-3 py-1.5 text-left transition-all text-xs",
+                  !config.specialFontId
+                    ? "border-brand bg-brand/10 font-bold text-brand shadow-sm ring-1 ring-brand"
+                    : "border-border/60 bg-card/40 font-medium hover:border-border hover:bg-card text-muted-foreground",
+                )}
+              >
+                <span>Auto (Script preset)</span>
+              </button>
+              {FONTS.map((font) => {
+                const isSelected = config.specialFontId === font.id;
+                return (
+                  <button
+                    key={font.id}
+                    type="button"
+                    onClick={() => updateConfig({ specialFontId: font.id as FontId })}
+                    className={cn(
+                      "flex items-center justify-between rounded-lg border px-3 py-1.5 text-left transition-all text-xs",
+                      isSelected
+                        ? "border-brand bg-brand/10 font-bold text-brand shadow-sm ring-1 ring-brand"
+                        : "border-border/60 bg-card/40 font-medium hover:border-border hover:bg-card",
+                    )}
+                  >
+                    <span>{font.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="font-semibold text-foreground">Font Weight</Label>
             <div className="grid grid-cols-4 gap-1.5">
               {[
                 { weight: 600, label: "Semi" },

@@ -207,10 +207,11 @@ export const applyTextCase = (text: string, textCase: TextCase): string =>
  */
 export interface CaptionStyleConfig {
   styleId: StyleId;
+  /** Primary font family (headline/base text) */
   fontId: FontId;
-  /** Used by Dynamic Highlight for supporting text */
+  /** Secondary font family (supporting, sub-text, or secondary tier) */
   secondaryFontId?: FontId;
-  /** Used by Dynamic Highlight for special text */
+  /** Third / Special / Accent font family (script flourish, cursive, serif, or display accent) */
   specialFontId?: FontId;
   fontWeight: number;
   fontSizePx: number;
@@ -232,6 +233,12 @@ export interface CaptionStyleConfig {
 
   /** Soft shadow under the whole caption block, for extra separation. */
   dropShadow: boolean;
+  /** Glowing neon light bloom around active text or words. */
+  glowEnabled?: boolean;
+  /** Bloom color for the glow effect. Defaults to accent/active color if unset. */
+  glowColor?: string;
+  /** Multiplier for glow radius & bloom intensity (e.g. 1.0 = standard, 2.0 = intense). */
+  glowIntensity?: number;
   /** Solid plate behind the whole caption block. */
   backgroundEnabled: boolean;
   backgroundColor: string;

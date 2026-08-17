@@ -152,8 +152,8 @@ export const DynamicHighlightToken: React.FC<TokenViewProps> = ({
     // as long as the header stays on screen instead of settling flat the
     // instant the entrance spring finishes.
     const breathe = 0.55 + 0.45 * Math.sin((frame / fps) * Math.PI * 1.2);
-    const glowStrength = enterSmooth * (0.7 + 0.3 * breathe);
-    const glowColor = color;
+    const glowStrength = enterSmooth * (0.7 + 0.3 * breathe) * (config.glowIntensity ?? 1);
+    const glowColor = config.glowColor ?? color;
     textShadow = [
       `0 0 ${fontSize * 0.1 * glowStrength}px #ffffff`,
       `0 0 ${fontSize * 0.09 * glowStrength}px ${glowColor}`,

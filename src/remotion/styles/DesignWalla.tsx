@@ -8,6 +8,7 @@ import {
 import { FONT_FAMILY } from "../fonts";
 import {
   DESIGN_WALLA_SMALL_RATIO,
+  buildGlowShadow,
   designWallaHeroDirection,
   designWallaHeroIsScript,
   displayText,
@@ -136,6 +137,7 @@ export const DesignWallaToken = memo(function DesignWallaToken({
           textTransform: isScript ? "none" : "uppercase",
           opacity: enter,
           transform: `translateY(${yOffset}px)`,
+          textShadow: buildGlowShadow(config, isScript ? config.baseColor : config.accentColor, 1),
           filter: blurPx > 0.3 ? `blur(${blurPx}px)` : undefined,
           WebkitTextStroke: isScript ? "0px transparent" : textStyle.WebkitTextStroke,
         }}

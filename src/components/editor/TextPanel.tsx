@@ -179,7 +179,7 @@ export function TextPanel({
   return (
     <div className="divide-y">
       <Group title="Fonts" defaultOpen>
-        <Row label="Font family">
+        <Row label="Primary font">
           <Select
             value={config.fontId}
             onValueChange={(v) => patch({ fontId: v as FontId })}
@@ -204,7 +204,67 @@ export function TextPanel({
           </Select>
         </Row>
 
-        <Row label="Weight">
+        <Row label="Secondary font">
+          <Select
+            value={config.secondaryFontId ?? "none"}
+            onValueChange={(v) =>
+              patch({ secondaryFontId: v === "none" ? undefined : (v as FontId) })
+            }
+          >
+            <SelectTrigger className="h-8 w-40 text-xs">
+              <SelectValue placeholder="Auto / Same as Primary" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">
+                <span className="text-muted-foreground">Auto / Same as Primary</span>
+              </SelectItem>
+              {FONTS.map((font) => (
+                <SelectItem key={font.id} value={font.id}>
+                  <span className="flex items-center gap-2">
+                    {font.label}
+                    {font.nativeDevanagari ? (
+                      <span className="rounded bg-success/15 px-1 text-[9px] text-success">
+                        देव
+                      </span>
+                    ) : null}
+                  </span>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </Row>
+
+        <Row label="3rd / Accent font">
+          <Select
+            value={config.specialFontId ?? "none"}
+            onValueChange={(v) =>
+              patch({ specialFontId: v === "none" ? undefined : (v as FontId) })
+            }
+          >
+            <SelectTrigger className="h-8 w-40 text-xs">
+              <SelectValue placeholder="Auto / Script Accent" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">
+                <span className="text-muted-foreground">Auto / Script Accent</span>
+              </SelectItem>
+              {FONTS.map((font) => (
+                <SelectItem key={font.id} value={font.id}>
+                  <span className="flex items-center gap-2">
+                    {font.label}
+                    {font.nativeDevanagari ? (
+                      <span className="rounded bg-success/15 px-1 text-[9px] text-success">
+                        देव
+                      </span>
+                    ) : null}
+                  </span>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </Row>
+
+        <Row label="Primary weight">
           <Select
             value={String(config.fontWeight)}
             onValueChange={(v) => patch({ fontWeight: Number(v) })}
@@ -222,14 +282,42 @@ export function TextPanel({
           </Select>
         </Row>
 
+        <Row label="Secondary weight">
+          <Select
+            value={String(config.annotationWeight || 500)}
+            onValueChange={(v) => patch({ annotationWeight: Number(v) })}
+          >
+            <SelectTrigger className="h-8 w-40 text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {[300, 400, 500, 600, 700, 800].map((weight) => (
+                <SelectItem key={weight} value={String(weight)}>
+                  {weight}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </Row>
+
         <SliderRow
           label="Caption size"
           value={config.fontSizePx}
-          min={28}
-          max={160}
+          min={24}
+          max={180}
           step={2}
           suffix="px"
           onChange={(v) => patch({ fontSizePx: v })}
+        />
+
+        <SliderRow
+          label="Secondary size ratio"
+          value={config.annotationSizeRatio || 0}
+          min={0}
+          max={1.5}
+          step={0.05}
+          suffix={config.annotationSizeRatio ? "x" : " (Auto)"}
+          onChange={(v) => patch({ annotationSizeRatio: v })}
         />
 
         <p className="text-[10px] leading-relaxed text-muted-foreground/60">
@@ -388,6 +476,15 @@ export function TextPanel({
             className="h-7 w-14 cursor-pointer rounded border bg-transparent"
           />
         </Row>
+        <Row label="Secondary text">
+          <input
+            type="color"
+            aria-label="Secondary text colour"
+            value={config.annotationColor || config.baseColor || "#ececec"}
+            onChange={(event) => patch({ annotationColor: event.target.value })}
+            className="h-7 w-14 cursor-pointer rounded border bg-transparent"
+          />
+        </Row>
         <SliderRow
           label="Size boost"
           value={config.emphasisScale}
@@ -452,20 +549,66 @@ export function TextPanel({
         <Toggle
           label="Text stroke"
           checked={config.strokeWidthPx > 0}
-          // Never fully off: the stroke is what keeps captions readable on
-          // bright footage, so "off" is the minimum that still separates.
-          onChange={(v) => patch({ strokeWidthPx: v ? 3 : 1 })}
+          onChange={(v) => patch({ strokeWidthPx: v ? 3 : 0 })}
         />
         {config.strokeWidthPx > 0 ? (
-          <SliderRow
-            label="Stroke width"
-            value={config.strokeWidthPx}
-            min={1}
-            max={10}
-            step={0.5}
-            suffix="px"
-            onChange={(v) => patch({ strokeWidthPx: v })}
-          />
+          <>
+            <SliderRow
+              label="Stroke width"
+              value={config.strokeWidthPx}
+              min={0.5}
+              max={16}
+              step={0.5}
+              suffix="px"
+              onChange={(v) => patch({ strokeWidthPx: v })}
+            />
+            <SliderRow
+              label="Stroke ratio"
+              value={config.strokeRatio}
+              min={0.01}
+              max={0.2}
+              step={0.005}
+              suffix={` (${Math.round(config.strokeRatio * 100)}%)`}
+              onChange={(v) => patch({ strokeRatio: v })}
+            />
+            <Row label="Stroke colour">
+              <input
+                type="color"
+                aria-label="Stroke colour"
+                value={config.strokeColor || "#000000"}
+                onChange={(event) => patch({ strokeColor: event.target.value })}
+                className="h-7 w-14 cursor-pointer rounded border bg-transparent"
+              />
+            </Row>
+          </>
+        ) : null}
+
+        <Toggle
+          label="Glowing effect"
+          checked={Boolean(config.glowEnabled || config.styleId === "glow")}
+          onChange={(v) => patch({ glowEnabled: v })}
+        />
+        {config.glowEnabled || config.styleId === "glow" ? (
+          <>
+            <Row label="Glow colour">
+              <input
+                type="color"
+                aria-label="Glow colour"
+                value={config.glowColor || config.accentColor || "#ffd60a"}
+                onChange={(event) => patch({ glowColor: event.target.value })}
+                className="h-7 w-14 cursor-pointer rounded border bg-transparent"
+              />
+            </Row>
+            <SliderRow
+              label="Glow intensity"
+              value={config.glowIntensity ?? 1}
+              min={0.2}
+              max={2.5}
+              step={0.05}
+              suffix="x"
+              onChange={(v) => patch({ glowIntensity: v })}
+            />
+          </>
         ) : null}
 
         <Toggle

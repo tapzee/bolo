@@ -446,6 +446,16 @@ to decrement, so "one" cannot be enforced anywhere honest. The 7-day pass is
 fine — time-boxed, checked against a stored expiry. Selling the ₹9 SKU needs a
 server-side export counter first.
 
+### Multi-Tier Fonts, Custom Stroke & Neon Glow Effect Parity — 17 Aug
+
+Full end-to-end customization landed across all caption templates in both DOM preview and Canvas2D export pipelines:
+
+- **Multi-tier font customization**: Primary (`fontId`), Secondary / Supporting (`secondaryFontId`), and 3rd / Script Accent (`specialFontId`) are now fully customizable across template engines (`splash`, `heroMixed`, `designWalla`, `designWallaPro`, `dualLine`, `dynamicHighlight`).
+- **Font preloading**: `export-video.ts` preloads primary, secondary, and special fonts (including italic and bold weights) before drawing export frames.
+- **Custom Stroke**: `strokeWidthPx` (can be 0 or custom width), `strokeRatio` (dynamic ratio scaling), and `strokeColor` (custom color picker) now apply cleanly across all DOM token renderers and Canvas2D export passes.
+- **Neon Glow Effect**: `glowEnabled`, `glowColor`, and `glowIntensity` controls are now available across all templates. Handled in DOM via `buildGlowShadow` in `src/remotion/captions/primitives.ts` and in Canvas2D via multi-radius blur passes in `drawGlowPass` in `src/lib/export/draw-captions.ts`.
+- **Editor Controls**: `TextPanel.tsx` (Fonts, Emphasis, Effects groups) and `TemplatesPanel.tsx` (Colors and Emphasis tabs) updated with pickers, sliders, and toggles.
+
 ---
 
 ## Before you hand back
