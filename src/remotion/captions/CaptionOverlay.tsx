@@ -157,8 +157,9 @@ export const CaptionOverlay = memo(function CaptionOverlay({
   // every word on the page, and this component is the only place that holds
   // them all. Cheap enough to leave unmemoised — it is a scan of 3–6 short
   // strings, against a `useMemo` whose own dependency check would cost more.
-  const heroIndex = heroWordIndex(page.tokens.map((t) => t.text));
-  const specialIndex = specialWordIndex(page.tokens.map((t) => t.text), heroIndex);
+  const texts = page.tokens.map((t) => t.text);
+  const heroIndex = heroWordIndex(texts);
+  const specialIndex = specialWordIndex(texts, heroIndex);
   const pageSeed = getHash(page.id);
 
   const TokenView = TOKEN_RENDERERS[config.styleId];
@@ -204,6 +205,7 @@ export const CaptionOverlay = memo(function CaptionOverlay({
               pageSeed={pageSeed}
               pageStartFrame={pageStartFrame}
               pageDurationFrames={pageDurationFrames}
+              pageTexts={texts}
             />
           ))}
         </div>

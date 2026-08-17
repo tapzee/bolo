@@ -37,6 +37,8 @@ export interface TokenViewProps {
    * answer it.
    */
   specialIndex?: number;
+  /** Texts of all tokens on the current page. */
+  pageTexts?: readonly string[];
   /**
    * Deterministic hash of the page's own id, for engines that vary their
    * whole-page treatment (not just a per-word roll) from scene to scene —
@@ -949,30 +951,46 @@ export const designWallaEditorialTier = (
 };
 
 export const designWallaEditorialFontScale = (tier: DesignWallaEditorialTier): number => {
-  if (tier === "punch") return 1.25;
-  if (tier === "serif") return 1.45;
-  return 0.52;
+  if (tier === "punch") return 1.30;
+  if (tier === "serif") return 1.50;
+  return 0.50;
 };
 
+/**
+ * Intelligent 3-row layout arrangement for Design Walla Editorial.
+ * Pairs short support words (<= 3 chars) on the side of their adjacent big word on the same row.
+ */
 export const designWallaEditorialRow = (
   index: number,
-  heroIndex: number,
-  specialIndex: number,
-  totalTokens: number,
+  texts: readonly string[],
 ): number => {
-  if (totalTokens <= 1) return 0;
-  if (totalTokens === 2) return index === 0 ? 0 : 1;
-  if (totalTokens === 3) return index; // 3 words -> 3 rows (Top, Middle, Bottom)
-  
-  if (heroIndex === 0) {
-    if (index === 0) return 0;
-    if (specialIndex > 0) {
-      return index < specialIndex ? 1 : 2;
-    }
-    return index === 1 ? 1 : 2;
+  const total = texts.length;
+  if (total <= 1) return 0;
+  if (total === 2) {
+    const isFirstShort = (texts[0]?.trim().length ?? 0) <= 3;
+    if (isFirstShort) return 0; // both on Row 0
+    return index === 0 ? 0 : 1;
   }
-  if (index < heroIndex) return 0;
-  if (index === heroIndex) return 1;
+  if (total === 3) {
+    const isFirstShort = (texts[0]?.trim().length ?? 0) <= 3;
+    if (isFirstShort) {
+      return index <= 1 ? 0 : 1;
+    }
+    return index;
+  }
+
+  // 4 or 5 tokens:
+  const isFirstShort = (texts[0]?.trim().length ?? 0) <= 3;
+  if (isFirstShort) {
+    if (index <= 1) return 0;
+    if (index === 2) return 1;
+    return 2;
+  }
+
+  if (index === 0) return 0;
+  if (index === 1 || index === 2) {
+    if (total >= 4) return 1;
+  }
   return 2;
 };
 

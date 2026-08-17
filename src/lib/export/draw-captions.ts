@@ -983,8 +983,9 @@ const layoutLines = (
     }
 
     if (config.styleId.startsWith("designWallaEditorial")) {
-      const currentRow = designWallaEditorialRow(index, heroIndex, specialIndex, page.tokens.length);
-      const prevRow = index > 0 ? designWallaEditorialRow(index - 1, heroIndex, specialIndex, page.tokens.length) : -1;
+      const texts = page.tokens.map((t) => t.text);
+      const currentRow = designWallaEditorialRow(index, texts);
+      const prevRow = index > 0 ? designWallaEditorialRow(index - 1, texts) : -1;
       if (index > 0 && currentRow !== prevRow) {
         flush();
       }
@@ -3655,14 +3656,17 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
 
         case "designWallaEditorial":
         case "designWallaEditorialYellow": {
+          const texts = page.tokens.map((t) => t.text);
           const tier = designWallaEditorialTier(index, heroIndex, specialIndex, page.tokens.length);
-          const currentRow = designWallaEditorialRow(index, heroIndex, specialIndex, page.tokens.length);
+          const currentRow = designWallaEditorialRow(index, texts);
           const scaleFactor = canvasScale({ width, height });
 
           if (tier === "punch") {
             const enter = tokenEnter(timing, ENTER_BOUNCY);
             const punchScale = designWallaEditorialFontScale("punch");
-            const travelY = (1 - enter) * -18 * scaleFactor;
+            const direction = (pageSeed + index) % 2 === 0 ? "up" : "down";
+            const travelY = (direction === "up" ? (1 - enter) * 24 : (1 - enter) * -24) * scaleFactor;
+            const blurPx = (1 - enter) * 4.5 * scaleFactor;
             const punchColor =
               token.color ??
               (config.styleId === "designWallaEditorialYellow"
@@ -3671,8 +3675,9 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
 
             ctx.font = canvasFont(Math.max(800, config.fontWeight), config.fontSizePx * punchScale, family);
             ctx.globalAlpha = entrance * enter;
+            if (blurPx > 0.3) ctx.filter = `blur(${blurPx}px)`;
             ctx.translate(cx, cy + travelY);
-            const s = 0.92 + enter * 0.08;
+            const s = 0.88 + enter * 0.12;
             ctx.scale(s, s);
 
             if (config.glowEnabled) {
@@ -3693,6 +3698,7 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
               config.strokeColor,
             );
             clearShadow(ctx);
+            if (blurPx > 0.3) ctx.filter = "none";
             ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
             break;
           }
@@ -3700,14 +3706,23 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           if (tier === "serif") {
             const enter = tokenEnter(timing, ENTER_SMOOTH);
             const serifScale = designWallaEditorialFontScale("serif");
-            const travelY = (1 - enter) * 20 * scaleFactor;
             const serifFamily = resolveFontFamily(config.specialFontId ?? "playfair");
+
+            const floatTime = timing.frame / (timing.fps || 30);
+            const floatY = Math.sin(floatTime * 3.4) * 3.5 * scaleFactor;
+            const floatRotate = ((-2.5 + Math.cos(floatTime * 2.6) * 0.8) * Math.PI) / 180;
+            const floatScale = 1 + Math.sin(floatTime * 2.0) * 0.015;
+
+            const travelY = (1 - enter) * 24 * scaleFactor;
+            const blurPx = (1 - enter) * 4 * scaleFactor;
 
             ctx.font = canvasFont(700, config.fontSizePx * serifScale, serifFamily, "italic");
             ctx.globalAlpha = entrance * enter;
-            const overlapY = currentRow > 0 ? -14 * scaleFactor : 0;
-            ctx.translate(cx, cy + travelY + overlapY);
-            ctx.rotate((-2 * Math.PI) / 180);
+            if (blurPx > 0.3) ctx.filter = `blur(${blurPx}px)`;
+            const overlapY = currentRow > 0 ? -16 * scaleFactor : 0;
+            ctx.translate(cx, cy + travelY + floatY + overlapY);
+            ctx.rotate(floatRotate);
+            ctx.scale(floatScale, floatScale);
 
             if (config.glowEnabled) {
               drawGlowPass(ctx, text.toLowerCase(), -tokenWidth / 2, 0, config, "#ffffff", 1);
@@ -3727,6 +3742,7 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
               config.strokeColor,
             );
             clearShadow(ctx);
+            if (blurPx > 0.3) ctx.filter = "none";
             ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
             break;
           }
@@ -3737,8 +3753,8 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
             config.annotationSizeRatio > 0
               ? config.annotationSizeRatio
               : designWallaEditorialFontScale("support");
-          const travelX = (1 - enter) * (currentRow === 0 ? -16 : 16) * scaleFactor;
-          const blurPx = (1 - enter) * 3 * scaleFactor;
+          const slideX = (1 - enter) * (currentRow === 0 ? -18 : 18) * scaleFactor;
+          const blurPx = (1 - enter) * 3.5 * scaleFactor;
           const supportFamily = resolveFontFamily(config.secondaryFontId ?? "inter");
 
           ctx.font = canvasFont(
@@ -3748,7 +3764,7 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           );
           ctx.globalAlpha = entrance * enter;
           if (blurPx > 0.3) ctx.filter = `blur(${blurPx}px)`;
-          ctx.translate(cx + travelX, cy);
+          ctx.translate(cx + slideX, cy);
 
           ctx.shadowColor = "rgba(0,0,0,0.6)";
           ctx.shadowBlur = 10 * scaleFactor;

@@ -14,11 +14,11 @@ import {
 
 /**
  * Design Walla Editorial — Signature 3-tier typographic interplay:
- * 1. Punch: Heavy condensed uppercase sans (Yellow/White Anton or Montserrat Black)
- * 2. Hero Serif: High-contrast flowing italic serif (Playfair Display Italic in White, ~1.45x size, -2deg tilt, overlapping vertically)
- * 3. Support: Clean compact geometric sans (Inter / Poppins, ~0.52x size)
+ * 1. Punch: Heavy bold condensed uppercase sans (Yellow/White Anton or Montserrat 900)
+ * 2. Hero Serif: High-contrast flowing italic serif with continuous floating animation (Playfair Display Italic in White, ~1.50x size, -2.5deg tilt, overlapping vertically)
+ * 3. Support: Clean compact geometric sans (Inter / Poppins, ~0.50x size)
  *
- * Words dynamically nest across 3 rows with negative leading for an authentic editorial poster feel.
+ * Words dynamically arrange across exactly 3 rows with 2/3-letter words neatly side-aligned next to their focal word.
  */
 export const DesignWallaEditorialToken = memo(function DesignWallaEditorialToken({
   token,
@@ -32,11 +32,14 @@ export const DesignWallaEditorialToken = memo(function DesignWallaEditorialToken
   heroIndex = 0,
   specialIndex = -1,
   totalTokens = 1,
+  pageSeed = 0,
+  pageTexts,
 }: TokenViewProps) {
   const text = displayText(token);
+  const texts = pageTexts ?? [text];
   const tier = designWallaEditorialTier(index, heroIndex, specialIndex, totalTokens);
-  const currentRow = designWallaEditorialRow(index, heroIndex, specialIndex, totalTokens);
-  const prevRow = index > 0 ? designWallaEditorialRow(index - 1, heroIndex, specialIndex, totalTokens) : -1;
+  const currentRow = designWallaEditorialRow(index, texts);
+  const prevRow = index > 0 ? designWallaEditorialRow(index - 1, texts) : -1;
   const isRowStart = index === 0 || currentRow !== prevRow;
 
   const timing = { frame, fps, fromFrame, toFrame };
@@ -44,7 +47,11 @@ export const DesignWallaEditorialToken = memo(function DesignWallaEditorialToken
   if (tier === "punch") {
     const enter = tokenEnter(timing, ENTER_BOUNCY);
     const punchScale = designWallaEditorialFontScale("punch");
-    const travelY = (1 - enter) * -18;
+    // Alternate punch entrance direction: down-to-up or up-to-down with snappy 3D scale pop
+    const direction = (pageSeed + index) % 2 === 0 ? "up" : "down";
+    const travelY = direction === "up" ? (1 - enter) * 24 : (1 - enter) * -24;
+    const scale = 0.88 + enter * 0.12;
+    const blurPx = (1 - enter) * 4.5;
     const punchColor =
       token.color ??
       (config.styleId === "designWallaEditorialYellow"
@@ -71,11 +78,11 @@ export const DesignWallaEditorialToken = memo(function DesignWallaEditorialToken
             textTransform: "uppercase",
             letterSpacing: "-0.5px",
             opacity: enter,
-            transform: `translateY(${travelY}px) scale(${0.92 + enter * 0.08})`,
+            transform: `translateY(${travelY}px) scale(${scale})`,
             textShadow:
               buildGlowShadow(config, punchColor, 1) ||
               "0 4px 14px rgba(0,0,0,0.65)",
-            filter: (1 - enter) > 0.1 ? `blur(${(1 - enter) * 3}px)` : undefined,
+            filter: blurPx > 0.3 ? `blur(${blurPx}px)` : undefined,
           }}
         >
           {text}
@@ -87,15 +94,23 @@ export const DesignWallaEditorialToken = memo(function DesignWallaEditorialToken
   if (tier === "serif") {
     const enter = tokenEnter(timing, ENTER_SMOOTH);
     const serifScale = designWallaEditorialFontScale("serif");
-    const travelY = (1 - enter) * 20;
+    
+    // Always-moving continuous floating breathing animation for italic serif
+    const floatTime = frame / (fps || 30);
+    const floatY = Math.sin(floatTime * 3.4) * 3.5;
+    const floatRotate = -2.5 + Math.cos(floatTime * 2.6) * 0.8;
+    const floatScale = 1 + Math.sin(floatTime * 2.0) * 0.015;
+
+    const travelY = (1 - enter) * 24;
+    const blurPx = (1 - enter) * 4;
 
     return (
       <span
         style={{
           ...tokenShellStyle,
           ...(isRowStart && totalTokens > 1 ? { flexBasis: "100%", justifyContent: "center" } : {}),
-          // Vertical negative overlap so the serif ascenders tuck under the row above
-          marginTop: currentRow > 0 ? "-0.18em" : undefined,
+          // Vertical negative overlap so the serif ascenders gracefully tuck under the row above
+          marginTop: currentRow > 0 ? "-0.20em" : undefined,
           zIndex: 3,
         }}
       >
@@ -111,12 +126,12 @@ export const DesignWallaEditorialToken = memo(function DesignWallaEditorialToken
             textTransform: "lowercase",
             letterSpacing: "0px",
             opacity: enter,
-            transform: `translateY(${travelY}px) rotate(-2deg)`,
+            transform: `translateY(${travelY + floatY}px) rotate(${floatRotate}deg) scale(${floatScale})`,
             textShadow:
               buildGlowShadow(config, "#ffffff", 1) ||
               "0 4px 20px rgba(0, 0, 0, 0.85), 0 2px 6px rgba(0,0,0,0.7)",
             WebkitTextStroke: "0px transparent",
-            filter: (1 - enter) > 0.1 ? `blur(${(1 - enter) * 2.5}px)` : undefined,
+            filter: blurPx > 0.3 ? `blur(${blurPx}px)` : undefined,
           }}
         >
           {text}
@@ -125,14 +140,14 @@ export const DesignWallaEditorialToken = memo(function DesignWallaEditorialToken
     );
   }
 
-  // Tier 3: Support Connectors
+  // Tier 3: Support Connectors (2-3 letter words neatly aligned)
   const enter = tokenEnter(timing, ENTER_SMOOTH);
   const supportRatio =
     config.annotationSizeRatio > 0
       ? config.annotationSizeRatio
       : designWallaEditorialFontScale("support");
-  const travelX = (1 - enter) * (currentRow === 0 ? -16 : 16);
-  const blurPx = (1 - enter) * 3;
+  const slideX = (1 - enter) * (currentRow === 0 ? -18 : 18);
+  const blurPx = (1 - enter) * 3.5;
 
   return (
     <span
@@ -160,7 +175,7 @@ export const DesignWallaEditorialToken = memo(function DesignWallaEditorialToken
                 ? "lowercase"
                 : "none",
           opacity: enter,
-          transform: `translateX(${travelX}px)`,
+          transform: `translateX(${slideX}px)`,
           filter: blurPx > 0.3 ? `blur(${blurPx}px)` : undefined,
           WebkitTextStroke: "0px transparent",
           textShadow: "0 2px 10px rgba(0,0,0,0.6)",
