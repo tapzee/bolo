@@ -4035,27 +4035,28 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
 
           const scaleFactor = canvasScale({ width, height });
           const opacity = entrance * Math.min(1, enter);
-          const scale = 0.85 + (0.15 * Math.min(1, enter));
-          const translateY = (1 - Math.min(1, enter)) * 14 * scaleFactor;
+          const scale = 0.88 + 0.12 * Math.min(1, enter);
+          const translateY = (1 - Math.min(1, enter)) * 12 * scaleFactor;
           const blurPx = (1 - Math.min(1, enter)) * 4 * scaleFactor;
           
           const isHero = index === heroIndex;
           const isTopLine = index < heroIndex;
+          const isDeva = hasDevanagari(text);
           const fontId = config.fontId || "montserrat";
           const specialFontId = config.specialFontId || fontId;
-          const heroColor = config.accentColor ?? "#38bdf8";
+          const heroColor = config.accentColor || "#38bdf8";
 
-          let sizePx = config.fontSizePx || 125;
+          let sizePx = config.fontSizePx || 120;
           let fontFam = resolveFontFamily(fontId);
           
           if (isHero) {
             fontFam = resolveFontFamily(specialFontId);
           } else if (isTopLine) {
             sizePx = sizePx * 0.52;
-            ctx.letterSpacing = `${sizePx * 0.04}px`;
+            if (!isDeva) ctx.letterSpacing = `${sizePx * 0.04}px`;
           } else {
             sizePx = sizePx * 0.40;
-            ctx.letterSpacing = `${sizePx * 0.18}px`;
+            if (!isDeva) ctx.letterSpacing = `${sizePx * 0.18}px`;
           }
 
           ctx.font = canvasFont(isHero ? 900 : 800, sizePx, fontFam);
@@ -4066,29 +4067,21 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           if (blurPx > 0.3) ctx.filter = `blur(${blurPx}px)`;
           
           if (isHero) {
-            let pattern = undefined;
-            if (typeof document !== 'undefined') {
-              const c = document.createElement("canvas");
-              c.width = 5;
-              c.height = 10;
-              const pCtx = c.getContext("2d");
-              if (pCtx) {
-                pCtx.fillStyle = heroColor;
-                pCtx.fillRect(0, 0, 3, 10);
-                pCtx.fillStyle = "#0284c7";
-                pCtx.fillRect(3, 0, 2, 10);
-                pattern = ctx.createPattern(c, "repeat");
-              }
-            }
-            
-            // Glowing cyan shadow
+            // Glowing cyan shadow + sharp base
             ctx.shadowColor = heroColor;
-            ctx.shadowBlur = 18 * scaleFactor;
-            ctx.fillStyle = pattern || heroColor;
+            ctx.shadowBlur = 20 * scaleFactor;
+            ctx.fillStyle = heroColor;
+            ctx.fillText(text, -tokenWidth / 2, 0);
+
+            // Dark backing for maximum high contrast against any video
+            ctx.shadowColor = "rgba(0, 0, 0, 0.95)";
+            ctx.shadowBlur = 8 * scaleFactor;
+            ctx.shadowOffsetY = 2 * scaleFactor;
             ctx.fillText(text, -tokenWidth / 2, 0);
           } else {
-            ctx.shadowColor = "rgba(0, 0, 0, 0.7)";
+            ctx.shadowColor = "rgba(0, 0, 0, 0.9)";
             ctx.shadowBlur = 8 * scaleFactor;
+            ctx.shadowOffsetY = 2 * scaleFactor;
             ctx.fillStyle = "#ffffff";
             ctx.fillText(text, -tokenWidth / 2, 0);
           }
