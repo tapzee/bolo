@@ -203,26 +203,78 @@ const DEMO_STYLES: DemoStyle[] = [
 
 export function Hero3DSection() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const bgParallaxRef = useRef<HTMLDivElement>(null);
+  const stage3DRef = useRef<HTMLDivElement>(null);
+  const textPathRef = useRef<SVGTextPathElement>(null);
+  const textRef = useRef<SVGTextElement>(null);
+
   const [isPlaying, setIsPlaying] = useState(true);
   const [activeWordIndex, setActiveWordIndex] = useState(0);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Live reel playback state
   const [selectedPhrase, setSelectedPhrase] = useState<SamplePhrase>(PHRASES[0]!);
   const [selectedStyle, setSelectedStyle] = useState<DemoStyle>(DEMO_STYLES[0]!);
 
-  // Parallax 3D tilt tracking
+  // 60FPS / 120FPS ultra-smooth hardware-accelerated text ribbon flow loop
+  useEffect(() => {
+    let animId: number;
+    let offset = 0;
+    let lastTime = performance.now();
+    const speed = 42; // px per second for elegant reading speed
+
+    let segmentLength = 1000;
+    if (textRef.current) {
+      try {
+        const total = textRef.current.getComputedTextLength();
+        if (total > 0) {
+          segmentLength = total / 4;
+        }
+      } catch {
+        segmentLength = 1000;
+      }
+    }
+
+    const animateText = (now: number) => {
+      const dt = Math.min((now - lastTime) / 1000, 0.1);
+      lastTime = now;
+
+      offset -= speed * dt;
+      if (offset <= -segmentLength) {
+        offset += segmentLength;
+      }
+
+      if (textPathRef.current) {
+        textPathRef.current.setAttribute("startOffset", `${offset.toFixed(2)}px`);
+      }
+      animId = requestAnimationFrame(animateText);
+    };
+
+    animId = requestAnimationFrame(animateText);
+    return () => cancelAnimationFrame(animId);
+  }, []);
+
+  // Decoupled mouse parallax for silky 60fps responsiveness without React re-renders
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width - 0.5;
     const y = (e.clientY - rect.top) / rect.height - 0.5;
-    setMousePos({ x, y });
+    if (bgParallaxRef.current) {
+      bgParallaxRef.current.style.transform = `translate3d(${x * 24}px, ${y * 24}px, 0)`;
+    }
+    if (stage3DRef.current) {
+      stage3DRef.current.style.transform = `translate3d(${x * 18}px, ${y * 18}px, 0) rotateX(${-y * 8}deg) rotateY(${x * 8}deg)`;
+    }
   };
 
   const handleMouseLeave = () => {
-    setMousePos({ x: 0, y: 0 });
+    if (bgParallaxRef.current) {
+      bgParallaxRef.current.style.transform = `translate3d(0px, 0px, 0)`;
+    }
+    if (stage3DRef.current) {
+      stage3DRef.current.style.transform = `translate3d(0px, 0px, 0) rotateX(0deg) rotateY(0deg)`;
+    }
   };
 
   // Playhead animation loop
@@ -240,6 +292,9 @@ export function Hero3DSection() {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
   }, [isPlaying, selectedPhrase]);
+
+  const ribbonSegment = "the first part of the project, but I'm not totally sure. Also, I told the team the new timeline should be ready by tomorrow. We can review the final captions... • ";
+  const fullRibbonText = `${ribbonSegment}${ribbonSegment}${ribbonSegment}${ribbonSegment}`;
 
   return (
     <section
@@ -284,11 +339,9 @@ export function Hero3DSection() {
 
       {/* Atmospheric 3D Lighting in Emerald-Teal Radiance */}
       <div
+        ref={bgParallaxRef}
         aria-hidden
-        className="pointer-events-none absolute inset-0 transition-transform duration-700 ease-out"
-        style={{
-          transform: `translate3d(${mousePos.x * 26}px, ${mousePos.y * 26}px, 0)`,
-        }}
+        className="pointer-events-none absolute inset-0 transition-transform duration-700 ease-out will-change-transform"
       >
         {/* Core Volumetric Sunburst */}
         <div
@@ -318,25 +371,36 @@ export function Hero3DSection() {
         {/* Animated Wavy Text Ribbon SVG */}
         <div className="absolute inset-0 z-[-1] pointer-events-none overflow-hidden flex items-start justify-center">
           <svg
-            className="w-full max-w-[1400px] h-[600px] opacity-40 dark:opacity-20"
-            viewBox="0 0 1000 500"
+            className="w-full max-w-[1500px] h-[550px] opacity-45 dark:opacity-25"
+            viewBox="0 0 1400 500"
             preserveAspectRatio="xMidYMid slice"
           >
+            {/* Guide Curve with subtle styling */}
             <path
               id="wavyRibbonPath"
-              d="M -100 450 C 150 450, 100 100, 300 150 C 600 250, 600 450, 1100 350"
+              d="M -250 420 C 100 480, 150 110, 420 160 C 720 210, 800 460, 1180 320 C 1420 230, 1550 310, 1800 360"
               fill="none"
-              stroke="transparent"
+              stroke="currentColor"
+              strokeWidth="1"
+              strokeDasharray="4 6"
+              className="text-foreground/15 dark:text-foreground/10"
             />
-            <text className="fill-foreground font-medium text-[15px] tracking-wide">
-              <textPath href="#wavyRibbonPath" startOffset="0%">
-                <animate attributeName="startOffset" from="-100%" to="100%" dur="25s" repeatCount="indefinite" />
-                the first part of the project, but I&apos;m not totally sure. Also, I told the team the new timeline should be ready by tomorrow. We can review the final captions...
+            {/* Seamless 60FPS Continuous Flowing Text */}
+            <text
+              ref={textRef}
+              className="fill-foreground font-medium text-[15px] tracking-wide antialiased"
+            >
+              <textPath
+                ref={textPathRef}
+                href="#wavyRibbonPath"
+                startOffset="0px"
+              >
+                {fullRibbonText}
               </textPath>
             </text>
           </svg>
           {/* Floating Audio Pill overlay matching the reference image */}
-          <div className="absolute top-[320px] left-[60%] -translate-x-1/2 -translate-y-1/2 rotate-[-5deg] z-0 pointer-events-none hidden lg:flex items-center gap-[5px] px-6 h-12 rounded-full bg-background border border-foreground/10 shadow-[0_8px_32px_rgba(0,0,0,0.08)]">
+          <div className="absolute top-[310px] left-[58%] -translate-x-1/2 -translate-y-1/2 rotate-[-5deg] z-0 pointer-events-none hidden lg:flex items-center gap-[5px] px-6 h-12 rounded-full bg-background/90 backdrop-blur-md border border-foreground/10 shadow-[0_8px_32px_rgba(0,0,0,0.08)]">
             {[4, 8, 14, 22, 12, 18, 8, 12, 16, 24, 14, 8, 20, 12, 6, 4].map((h, i) => (
               <div 
                 key={i} 
@@ -394,9 +458,9 @@ export function Hero3DSection() {
             2. THE 3D BILLION-DOLLAR INTERACTIVE STUDIO SHOWCASE
            =================================================================== */}
         <div
-          className="relative mt-16 sm:mt-24 mx-auto max-w-5xl transition-transform duration-700 ease-out"
+          ref={stage3DRef}
+          className="relative mt-16 sm:mt-24 mx-auto max-w-5xl transition-transform duration-700 ease-out will-change-transform"
           style={{
-            transform: `translate3d(${mousePos.x * 18}px, ${mousePos.y * 18}px, 0) rotateX(${-mousePos.y * 8}deg) rotateY(${mousePos.x * 8}deg)`,
             transformStyle: "preserve-3d",
           }}
         >
