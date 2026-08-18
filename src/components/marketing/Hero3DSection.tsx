@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import Link from "next/link";
 import {
   Sparkles,
@@ -12,14 +12,14 @@ import {
   Languages,
   Film,
   CheckCircle2,
+  Cpu,
 } from "lucide-react";
-import { CAPTION_TEMPLATES } from "@/core";
+import { CAPTION_TEMPLATES, MAX_TRANSCRIBABLE_SECONDS } from "@/core";
 import { HeroCaptionPreview } from "@/components/marketing/HeroCaptionPreview";
 
 export function Hero3DSection() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [isHovered, setIsHovered] = useState(false);
 
   // Parallax 3D tilt tracking
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -31,29 +31,25 @@ export function Hero3DSection() {
   };
 
   const handleMouseLeave = () => {
-    setIsHovered(false);
     setMousePos({ x: 0, y: 0 });
   };
 
-  const handleMouseEnter = () => {
-    setIsHovered(true);
-  };
+  const maxMinutes = Math.floor(MAX_TRANSCRIBABLE_SECONDS / 60);
 
   return (
     <section
       ref={containerRef}
       onMouseMove={handleMouseMove}
-      onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       className="relative overflow-hidden pt-10 pb-20 sm:pt-16 sm:pb-28"
       style={{ perspective: "1400px" }}
     >
-      {/* 3D Atmospheric Background Layers */}
+      {/* 3D Atmospheric Background Glow & Grid */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 transition-transform duration-700 ease-out"
         style={{
-          transform: `translate3d(${mousePos.x * 20}px, ${mousePos.y * 20}px, 0)`,
+          transform: `translate3d(${mousePos.x * 24}px, ${mousePos.y * 24}px, 0)`,
         }}
       >
         {/* Central Core Ambient Glow */}
@@ -61,20 +57,11 @@ export function Hero3DSection() {
           className="absolute left-1/2 top-10 -translate-x-1/2 size-[650px] sm:size-[850px] rounded-full opacity-45 dark:opacity-65 blur-[120px] transition-all duration-1000"
           style={{
             background:
-              "radial-gradient(circle, rgba(232, 65, 15, 0.35) 0%, rgba(245, 158, 11, 0.2) 40%, transparent 70%)",
+              "radial-gradient(circle, rgba(232, 65, 15, 0.35) 0%, rgba(245, 158, 11, 0.18) 45%, transparent 70%)",
           }}
         />
 
-        {/* Secondary Accent Aura */}
-        <div
-          className="absolute left-1/4 top-1/3 size-[400px] rounded-full opacity-25 dark:opacity-40 blur-[90px]"
-          style={{
-            background:
-              "radial-gradient(circle, rgba(251, 146, 60, 0.3) 0%, transparent 70%)",
-          }}
-        />
-
-        {/* 3D Horizon Grid Lines */}
+        {/* 3D Perspective Grid */}
         <div
           className="absolute inset-0 opacity-[0.03] dark:opacity-[0.07]"
           style={{
@@ -82,100 +69,26 @@ export function Hero3DSection() {
                               linear-gradient(to bottom, var(--foreground) 1px, transparent 1px)`,
             backgroundSize: "48px 48px",
             maskImage:
-              "radial-gradient(ellipse 60% 50% at 50% 30%, black 20%, transparent 80%)",
+              "radial-gradient(ellipse 65% 55% at 50% 30%, black 20%, transparent 80%)",
             WebkitMaskImage:
-              "radial-gradient(ellipse 60% 50% at 50% 30%, black 20%, transparent 80%)",
+              "radial-gradient(ellipse 65% 55% at 50% 30%, black 20%, transparent 80%)",
           }}
         />
       </div>
 
-      <div className="relative mx-auto max-w-6xl px-5 text-center">
-        {/* Floating 3D Badge 1 (Desktop Top Left) */}
-        <div
-          className="hidden lg:flex absolute -left-4 top-16 items-center gap-3 rounded-2xl border border-white/30 dark:border-white/10 bg-card/75 p-3.5 shadow-2xl backdrop-blur-2xl transition-transform duration-500 ease-out hover:scale-105"
-          style={{
-            transform: `translate3d(${mousePos.x * -35}px, ${mousePos.y * -35}px, 40px) rotateY(${mousePos.x * 12}deg) rotateX(${-mousePos.y * 12}deg)`,
-            boxShadow:
-              "0 20px 40px -15px rgba(0, 0, 0, 0.15), 0 0 20px rgba(232, 65, 15, 0.12)",
-          }}
-        >
-          <div className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-tr from-orange-500 to-amber-400 text-white shadow-md">
-            <Mic className="size-5" />
-          </div>
-          <div className="text-left">
-            <div className="flex items-center gap-1.5">
-              <span className="text-xs font-bold text-foreground">99.8% Accuracy</span>
-              <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            </div>
-            <p className="text-[10px] font-medium text-muted-foreground">
-              Hinglish Code-Mixing Sync
-            </p>
-          </div>
-        </div>
-
-        {/* Floating 3D Badge 2 (Desktop Top Right) */}
-        <div
-          className="hidden lg:flex absolute -right-4 top-14 items-center gap-3 rounded-2xl border border-white/30 dark:border-white/10 bg-card/75 p-3.5 shadow-2xl backdrop-blur-2xl transition-transform duration-500 ease-out hover:scale-105"
-          style={{
-            transform: `translate3d(${mousePos.x * 40}px, ${mousePos.y * 40}px, 50px) rotateY(${mousePos.x * -14}deg) rotateX(${-mousePos.y * 14}deg)`,
-            boxShadow:
-              "0 20px 40px -15px rgba(0, 0, 0, 0.15), 0 0 20px rgba(245, 158, 11, 0.12)",
-          }}
-        >
-          <div className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white shadow-md">
-            <Zap className="size-5" />
-          </div>
-          <div className="text-left">
-            <div className="flex items-center gap-1.5">
-              <span className="text-xs font-bold text-foreground">Zero Cloud Wait</span>
-              <span className="rounded bg-brand-soft px-1 text-[9px] font-extrabold text-brand">
-                GPU
-              </span>
-            </div>
-            <p className="text-[10px] font-medium text-muted-foreground">
-              Instant WebCodecs Render
-            </p>
-          </div>
-        </div>
-
-        {/* Floating 3D Badge 3 (Desktop Mid-Left) */}
-        <div
-          className="hidden xl:flex absolute -left-10 top-72 items-center gap-2.5 rounded-xl border border-border/80 bg-card/65 px-3 py-2 shadow-xl backdrop-blur-xl transition-transform duration-500 ease-out"
-          style={{
-            transform: `translate3d(${mousePos.x * -25}px, ${mousePos.y * -25}px, 20px) rotateZ(-3deg)`,
-          }}
-        >
-          <Languages className="size-4 text-brand" />
-          <span className="text-[11px] font-bold text-foreground">
-            15+ Native Indian Scripts
-          </span>
-        </div>
-
-        {/* Floating 3D Badge 4 (Desktop Mid-Right) */}
-        <div
-          className="hidden xl:flex absolute -right-10 top-72 items-center gap-2.5 rounded-xl border border-border/80 bg-card/65 px-3 py-2 shadow-xl backdrop-blur-xl transition-transform duration-500 ease-out"
-          style={{
-            transform: `translate3d(${mousePos.x * 25}px, ${mousePos.y * 25}px, 20px) rotateZ(3deg)`,
-          }}
-        >
-          <Film className="size-4 text-amber-500" />
-          <span className="text-[11px] font-bold text-foreground">
-            1080p 60FPS Lossless
-          </span>
-        </div>
-
-        {/* Top 3D Pill Tag with Shimmer Effect */}
+      <div className="relative mx-auto max-w-5xl px-5 text-center">
+        {/* Top 3D Pill Tag */}
         <div className="inline-flex items-center gap-2 rounded-full border border-brand/30 bg-gradient-to-r from-brand-soft/90 via-card to-brand-soft/90 p-1 pr-3.5 shadow-lg shadow-brand/10 backdrop-blur-xl transition-transform hover:scale-105">
           <span className="flex items-center gap-1 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-2.5 py-0.5 text-[11px] font-bold text-white shadow-sm">
             <Sparkles className="size-3" />
-            BOLO AI v2.4
+            BOLO AI
           </span>
           <span className="text-xs font-semibold text-foreground tracking-tight">
             Built for Indian Creators & Reels Makers
           </span>
         </div>
 
-        {/* Billion-Dollar Editorial Headline */}
+        {/* Unobstructed, Crystal-Clear Headline */}
         <h1 className="mt-7 text-4xl font-black tracking-tight sm:text-6xl lg:text-7xl xl:text-8xl text-balance text-foreground leading-[1.08]">
           Captions that actually get{" "}
           <span className="relative inline-block whitespace-nowrap">
@@ -211,9 +124,9 @@ export function Hero3DSection() {
           </span>
         </h1>
 
-        {/* Subtitle */}
-        <p className="mx-auto mt-6 max-w-2xl text-base sm:text-lg lg:text-xl font-normal leading-relaxed text-muted-foreground">
-          Turn spoken Hindi, Hinglish & 15+ regional audio into synchronized, viral animated captions. Edit every word with sub-second precision, apply 30+ trending templates, and export in 1080p 60fps — <span className="font-semibold text-foreground">100% privately in your browser.</span>
+        {/* Accurate Subtitle */}
+        <p className="mx-auto mt-6 max-w-2xl text-base sm:text-lg font-normal leading-relaxed text-muted-foreground">
+          Animated word-level captions for Instagram Reels and Shorts. Accurate Hindi & Hinglish recognition, {CAPTION_TEMPLATES.length}+ templates, and export up to {maxMinutes} minutes — <span className="font-semibold text-foreground">all without your video file ever leaving your browser.</span>
         </p>
 
         {/* 3D Tactile Buttons */}
@@ -256,11 +169,94 @@ export function Hero3DSection() {
           </div>
         </div>
 
+        {/* 3D Interactive Feature Badges Flanking the Stage (Zero Overlap Guaranteed) */}
+        <div className="mt-14 grid grid-cols-2 gap-3 sm:grid-cols-4 max-w-4xl mx-auto text-left">
+          {/* Card 1 */}
+          <div
+            className="group flex flex-col justify-between rounded-2xl border border-border/80 bg-card/80 p-3.5 shadow-md backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-brand/40 hover:shadow-lg"
+            style={{
+              transform: `translate3d(${mousePos.x * -10}px, ${mousePos.y * -10}px, 15px)`,
+            }}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex size-7 items-center justify-center rounded-lg bg-orange-500/10 text-orange-600">
+                <Mic className="size-4" />
+              </div>
+              <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-foreground">Hinglish Sync</p>
+              <p className="text-[10px] text-muted-foreground">Word-level timing</p>
+            </div>
+          </div>
+
+          {/* Card 2 */}
+          <div
+            className="group flex flex-col justify-between rounded-2xl border border-border/80 bg-card/80 p-3.5 shadow-md backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-brand/40 hover:shadow-lg"
+            style={{
+              transform: `translate3d(${mousePos.x * 10}px, ${mousePos.y * 10}px, 15px)`,
+            }}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex size-7 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600">
+                <ShieldCheck className="size-4" />
+              </div>
+              <span className="rounded bg-brand-soft px-1 text-[9px] font-bold text-brand">
+                WASM
+              </span>
+            </div>
+            <div>
+              <p className="text-xs font-bold text-foreground">Zero Video Upload</p>
+              <p className="text-[10px] text-muted-foreground">Local audio extract</p>
+            </div>
+          </div>
+
+          {/* Card 3 */}
+          <div
+            className="group flex flex-col justify-between rounded-2xl border border-border/80 bg-card/80 p-3.5 shadow-md backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-brand/40 hover:shadow-lg"
+            style={{
+              transform: `translate3d(${mousePos.x * -10}px, ${mousePos.y * -10}px, 15px)`,
+            }}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex size-7 items-center justify-center rounded-lg bg-orange-500/10 text-orange-600">
+                <Languages className="size-4" />
+              </div>
+              <span className="text-[9px] font-semibold text-muted-foreground">15+</span>
+            </div>
+            <div>
+              <p className="text-xs font-bold text-foreground">Indian Scripts</p>
+              <p className="text-[10px] text-muted-foreground">Devanagari fallback</p>
+            </div>
+          </div>
+
+          {/* Card 4 */}
+          <div
+            className="group flex flex-col justify-between rounded-2xl border border-border/80 bg-card/80 p-3.5 shadow-md backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-brand/40 hover:shadow-lg"
+            style={{
+              transform: `translate3d(${mousePos.x * 10}px, ${mousePos.y * 10}px, 15px)`,
+            }}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex size-7 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600">
+                <Film className="size-4" />
+              </div>
+              <span className="rounded bg-muted px-1 text-[9px] font-bold text-muted-foreground">
+                60FPS
+              </span>
+            </div>
+            <div>
+              <p className="text-xs font-bold text-foreground">WebCodecs GPU</p>
+              <p className="text-[10px] text-muted-foreground">Hardware export</p>
+            </div>
+          </div>
+        </div>
+
         {/* 3D Elevated Stage for Live Caption Visualizer */}
         <div
-          className="mt-14 sm:mt-18 transition-transform duration-700 ease-out"
+          className="mt-8 sm:mt-10 transition-transform duration-700 ease-out"
           style={{
-            transform: `translate3d(0, 0, 30px) rotateX(${mousePos.y * -6}deg) rotateY(${mousePos.x * 6}deg)`,
+            transform: `translate3d(0, 0, 20px) rotateX(${mousePos.y * -4}deg) rotateY(${mousePos.x * 4}deg)`,
             transformStyle: "preserve-3d",
           }}
         >

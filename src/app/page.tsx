@@ -73,7 +73,7 @@ const WORKFLOW_STEPS = [
     n: "03",
     icon: SlidersHorizontal,
     title: "Style & customize",
-    desc: "Choose from 30+ viral templates, customize fonts, glow, and colors.",
+    desc: `Choose from ${CAPTION_TEMPLATES.length}+ viral templates, customize fonts, glow, and colors.`,
   },
   {
     n: "04",

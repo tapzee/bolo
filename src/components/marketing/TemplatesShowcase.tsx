@@ -2,6 +2,7 @@
 
 import { Sparkles, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { CAPTION_TEMPLATES } from "@/core";
 
 interface TemplateShowcaseItem {
   id: string;
@@ -127,7 +128,7 @@ export function TemplatesShowcase() {
         <div>
           <span className="inline-flex items-center gap-1.5 rounded-full border border-brand/20 bg-brand-soft px-3 py-1 text-xs font-semibold text-brand">
             <Sparkles className="size-3.5" />
-            30+ Viral Caption Styles
+            {CAPTION_TEMPLATES.length}+ Viral Caption Styles
           </span>
           <h2 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">
             Pick a style. <span className="italic font-serif font-normal text-brand">Make it iconic.</span>
