@@ -6,12 +6,12 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "Bolo — AI captions for Hindi & Hinglish reels",
-    template: "%s · Bolo",
+    default: "Desi Auto-Caption — AI captions for Hindi & Hinglish reels",
+    template: "%s · Desi Auto-Caption",
   },
   description:
     "Word-level animated captions for Instagram Reels and YouTube Shorts, tuned for Hindi and Hinglish. Your video never leaves your browser.",
-  applicationName: "Bolo",
+  applicationName: "Desi Auto-Caption",
 };
 
 export const viewport: Viewport = {

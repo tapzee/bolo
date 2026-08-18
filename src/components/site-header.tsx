@@ -1,14 +1,19 @@
+import Image from "next/image";
 import { AuthButton } from "@/components/auth/AuthButton";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 function Wordmark() {
   return (
     <div className="flex items-center gap-2.5">
-      <div className="relative flex size-7 items-center justify-center rounded-lg bg-brand">
-        {/* Speech-bubble tail, drawn rather than an icon so the mark stays
-            crisp at any size and needs no extra network request. */}
-        <span className="block size-2.5 rounded-[3px] bg-brand-foreground" />
-        <span className="absolute -bottom-0.5 left-1.5 size-2 rotate-45 rounded-[2px] bg-brand" />
+      <div className="relative size-7 overflow-hidden rounded-lg shadow-sm border border-emerald-500/30">
+        <Image
+          src="/logo.png"
+          alt="Bolo AI Logo"
+          fill
+          sizes="28px"
+          className="object-cover"
+          priority
+        />
       </div>
       <span className="text-[15px] font-semibold tracking-tight">bolo</span>
     </div>

@@ -69,7 +69,7 @@
   --popover: #ffffff;
   --popover-foreground: #0a0a0b;
 
-  --primary: #e8410f;
+  --primary: #10b981;
   --primary-foreground: #ffffff;
 
   --secondary: #f2f2f4;
@@ -86,12 +86,12 @@
 
   --border: #e5e5e8;
   --input: #e5e5e8;
-  --ring: #e8410f;
+  --ring: #10b981;
 
-  /* Bolo extensions */
-  --brand: #e8410f;
+  /* Bolo extensions matching the Emerald Teal brand mark */
+  --brand: #10b981;
   --brand-foreground: #ffffff;
-  --brand-soft: rgba(232, 65, 15, 0.1);
+  --brand-soft: rgba(16, 185, 129, 0.12);
   --surface-inset: #f2f2f4;
   --success: #059669;
   --warning: #d97706;
@@ -111,9 +111,8 @@
   --popover: #16161a;
   --popover-foreground: #f4f4f5;
 
-  --primary: #ff5a2c;
-  /* Near-black on orange clears AA; white on this orange does not. */
-  --primary-foreground: #180a04;
+  --primary: #34d399;
+  --primary-foreground: #022c22;
 
   --secondary: #1a1a1f;
   --secondary-foreground: #f4f4f5;
@@ -129,11 +128,11 @@
 
   --border: #232327;
   --input: #2a2a30;
-  --ring: #ff5a2c;
+  --ring: #34d399;
 
-  --brand: #ff5a2c;
-  --brand-foreground: #180a04;
-  --brand-soft: rgba(255, 90, 44, 0.12);
+  --brand: #34d399;
+  --brand-foreground: #022c22;
+  --brand-soft: rgba(52, 211, 153, 0.15);
   --surface-inset: #08080a;
   --success: #34d399;
   --warning: #fbbf24;

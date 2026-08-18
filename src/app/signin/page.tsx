@@ -8,14 +8,22 @@ export const metadata: Metadata = {
   description: "Sign in to Bolo to keep your caption projects across devices.",
 };
 
+import Image from "next/image";
+
 function Wordmark() {
   return (
-    <Link href="/" className="mx-auto flex w-fit items-center gap-2.5">
-      <span className="relative flex size-8 items-center justify-center rounded-lg bg-brand">
-        <span className="block size-3 rounded-[3px] bg-brand-foreground" />
-        <span className="absolute -bottom-0.5 left-1.5 size-2.5 rotate-45 rounded-[2px] bg-brand" />
-      </span>
-      <span className="text-lg font-semibold tracking-tight">bolo</span>
+    <Link href="/" className="mx-auto flex w-fit items-center gap-2.5 transition-transform hover:scale-105">
+      <div className="relative size-10 overflow-hidden rounded-2xl shadow-md border border-emerald-500/30">
+        <Image
+          src="/logo.png"
+          alt="Bolo AI Logo"
+          fill
+          sizes="40px"
+          className="object-cover"
+          priority
+        />
+      </div>
+      <span className="text-xl font-bold tracking-tight">bolo</span>
     </Link>
   );
 }

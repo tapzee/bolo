@@ -2,6 +2,7 @@
 
 import { useState, type ReactNode } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Sparkles, Menu, X, ArrowRight, Wand2, ChevronRight } from "lucide-react";
 import { CAPTION_TEMPLATES } from "@/core";
@@ -44,17 +45,23 @@ const LEGAL = [
 function Wordmark() {
   return (
     <Link href="/" className="group flex items-center gap-2.5 transition-transform hover:scale-[1.02]">
-      <span className="relative flex size-8 items-center justify-center rounded-xl bg-gradient-to-tr from-orange-600 via-amber-500 to-orange-500 shadow-md shadow-orange-500/25 border-t border-white/40">
-        <span className="block size-2.5 rounded-[3px] bg-white shadow-sm" />
-        <span className="absolute -bottom-0.5 left-1.5 size-2 rotate-45 rounded-[2px] bg-orange-600" />
-      </span>
+      <div className="relative size-8 overflow-hidden rounded-xl shadow-md shadow-emerald-500/20 border border-emerald-500/30">
+        <Image
+          src="/logo.png"
+          alt="Desi Auto-Caption Logo"
+          fill
+          sizes="32px"
+          className="object-cover"
+          priority
+        />
+      </div>
       <div className="flex items-center gap-1.5">
         <span className="text-base font-extrabold tracking-tight text-foreground">
-          bolo
+          Desi
         </span>
         <span className="flex items-center gap-1 rounded-full bg-brand-soft px-2 py-0.5 text-[10px] font-bold text-brand uppercase tracking-wider border border-brand/20">
           <span className="size-1 rounded-full bg-brand animate-pulse" />
-          AI
+          Auto-Caption
         </span>
       </div>
     </Link>
@@ -96,7 +103,7 @@ export function MarketingHeader() {
 
           <Link
             href="/create"
-            className="group relative inline-flex items-center gap-1.5 overflow-hidden rounded-full bg-gradient-to-r from-orange-600 via-amber-500 to-orange-600 bg-[length:200%_auto] px-4 sm:px-5 py-2 text-xs font-bold text-white shadow-[0_4px_14px_rgba(232,65,15,0.35)] transition-all duration-300 hover:bg-[position:right_center] hover:shadow-[0_6px_20px_rgba(232,65,15,0.5)] hover:scale-105 active:scale-95 border-t border-white/40"
+            className="group relative inline-flex items-center gap-1.5 overflow-hidden rounded-full bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-600 bg-[length:200%_auto] px-4 sm:px-5 py-2 text-xs font-bold text-white shadow-[0_4px_14px_rgba(16,185,129,0.35)] transition-all duration-300 hover:bg-[position:right_center] hover:shadow-[0_6px_20px_rgba(16,185,129,0.5)] hover:scale-105 active:scale-95 border-t border-white/40"
           >
             {/* Shimmer light sheen */}
             <span className="absolute -inset-x-full top-0 h-full w-1/2 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-12 transition-all duration-1000 group-hover:translate-x-[400%]" />
@@ -142,7 +149,7 @@ export function MarketingHeader() {
             <Link
               href="/create"
               onClick={() => setMobileMenuOpen(false)}
-              className="mt-1 flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-orange-600 via-amber-500 to-orange-600 py-3 text-xs font-bold text-white shadow-md shadow-orange-500/25"
+              className="mt-1 flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-600 py-3 text-xs font-bold text-white shadow-md shadow-emerald-500/25"
             >
               <Wand2 className="size-3.5" />
               <span>Create Captions Free</span>
@@ -235,7 +242,7 @@ export function MarketingFooter() {
 
       <div className="border-t border-border/60">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-5 py-6 text-xs text-muted-foreground sm:flex-row">
-          <span>© {new Date().getFullYear()} Bolo AI. All rights reserved.</span>
+          <span>© {new Date().getFullYear()} Desi Auto-Caption. All rights reserved.</span>
           <div className="flex items-center gap-4">
             <Link href="/terms" className="hover:text-foreground">
               Terms

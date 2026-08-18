@@ -3,10 +3,10 @@
 import { TextParticle } from "@/components/ui/text-particle";
 
 const settings = {
-  text: "Bolo AI",
+  text: "Desi",
   particleDensity: 4,
   particleSize: 2,
-  particleColor: "#f97316",
+  particleColor: "#10b981",
   fontSize: 140,
 };
 
