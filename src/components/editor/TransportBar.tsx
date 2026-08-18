@@ -5,6 +5,7 @@ import type { PlayerRef } from "@remotion/player";
 import {
   ChevronLeft,
   ChevronRight,
+  Grid,
   Maximize2,
   Minimize2,
   Pause,
@@ -13,6 +14,8 @@ import {
   SkipForward,
   Volume2,
   VolumeX,
+  ZoomIn,
+  ZoomOut,
 } from "lucide-react";
 import { VIDEO_FPS } from "@/core";
 import { cn } from "@/lib/utils";
@@ -29,16 +32,28 @@ export interface TransportBarProps {
   durationInFrames: number;
   onToggleFullscreen?: () => void;
   isFullscreen?: boolean;
+  zoom?: number;
+  onZoomIn?: () => void;
+  onZoomOut?: () => void;
+  onResetZoom?: () => void;
+  showGrid?: boolean;
+  onToggleGrid?: () => void;
 }
 
 /**
- * Custom playback transport with interactive scrubber timeline.
+ * Custom playback transport with interactive scrubber timeline, zoom & grid controls.
  */
 export function TransportBar({
   player,
   durationInFrames,
   onToggleFullscreen,
   isFullscreen = false,
+  zoom = 1,
+  onZoomIn,
+  onZoomOut,
+  onResetZoom,
+  showGrid = false,
+  onToggleGrid,
 }: TransportBarProps) {
   const [playing, setPlaying] = useState(false);
   const [muted, setMuted] = useState(false);
@@ -191,12 +206,32 @@ export function TransportBar({
           event.preventDefault();
           onToggleFullscreen();
         }
+      } else if (event.key === "g" || event.key === "G") {
+        if (onToggleGrid) {
+          event.preventDefault();
+          onToggleGrid();
+        }
+      } else if (event.key === "+" || event.key === "=") {
+        if (onZoomIn) {
+          event.preventDefault();
+          onZoomIn();
+        }
+      } else if (event.key === "-" || event.key === "_") {
+        if (onZoomOut) {
+          event.preventDefault();
+          onZoomOut();
+        }
+      } else if (event.key === "0") {
+        if (onResetZoom) {
+          event.preventDefault();
+          onResetZoom();
+        }
       }
     };
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [toggle, step, onToggleFullscreen]);
+  }, [toggle, step, onToggleFullscreen, onToggleGrid, onZoomIn, onZoomOut, onResetZoom]);
 
   const buttonClass =
     "flex size-8 items-center justify-center rounded-lg text-muted-foreground transition-all hover:bg-accent hover:text-foreground active:scale-95 disabled:opacity-40";
@@ -336,6 +371,63 @@ export function TransportBar({
       >
         {muted ? <VolumeX className="size-3.5 text-destructive" /> : <Volume2 className="size-3.5" />}
       </button>
+
+      {/* Zoom controls: [-] 100% [+] */}
+      {onZoomIn !== undefined && onZoomOut !== undefined ? (
+        <div className="flex items-center gap-0.5">
+          <div className="mx-0.5 h-3.5 w-px bg-border/60" />
+
+          <button
+            type="button"
+            className={buttonClass}
+            title="Zoom out (-)"
+            onClick={onZoomOut}
+            disabled={zoom <= 0.5}
+          >
+            <ZoomOut className="size-3.5" />
+          </button>
+
+          <button
+            type="button"
+            className="px-1.5 py-0.5 font-mono text-[11px] font-medium text-muted-foreground hover:text-foreground tabular-nums select-none transition-colors"
+            title="Click to reset zoom to 100% (0)"
+            onClick={onResetZoom}
+          >
+            {Math.round(zoom * 100)}%
+          </button>
+
+          <button
+            type="button"
+            className={buttonClass}
+            title="Zoom in (+)"
+            onClick={onZoomIn}
+            disabled={zoom >= 2.5}
+          >
+            <ZoomIn className="size-3.5" />
+          </button>
+        </div>
+      ) : null}
+
+      {/* Grid & Safe-Zone overlay toggle */}
+      {onToggleGrid !== undefined ? (
+        <div className="flex items-center">
+          <div className="mx-0.5 h-3.5 w-px bg-border/60" />
+
+          <button
+            type="button"
+            className={cn(
+              "flex size-8 items-center justify-center rounded-lg transition-all active:scale-95",
+              showGrid
+                ? "bg-amber-500/20 text-amber-500 ring-1 ring-amber-500/40 shadow-xs"
+                : "text-muted-foreground hover:bg-accent hover:text-foreground",
+            )}
+            title={showGrid ? "Hide rule-of-thirds & safe-zone grid (G)" : "Show rule-of-thirds & safe-zone grid (G)"}
+            onClick={onToggleGrid}
+          >
+            <Grid className="size-3.5" />
+          </button>
+        </div>
+      ) : null}
 
       {onToggleFullscreen !== undefined ? (
         <button

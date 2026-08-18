@@ -16,6 +16,7 @@ import {
   Download,
   Edit3,
   Film,
+  Grid,
   Languages,
   Layers,
   Maximize2,
@@ -133,6 +134,8 @@ export function CreateFlow() {
   // the moment it mounts.
   const [player, setPlayer] = useState<PlayerRef | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [zoom, setZoom] = useState(1);
+  const [showGrid, setShowGrid] = useState(false);
   const stageContainerRef = useRef<HTMLDivElement>(null);
 
   const toggleFullscreen = useCallback(() => {
@@ -142,6 +145,22 @@ export function CreateFlow() {
     } else {
       void document.exitFullscreen?.().catch(() => {});
     }
+  }, []);
+
+  const zoomIn = useCallback(() => {
+    setZoom((z) => Math.min(2.5, Math.round((z + 0.25) * 100) / 100));
+  }, []);
+
+  const zoomOut = useCallback(() => {
+    setZoom((z) => Math.max(0.5, Math.round((z - 0.25) * 100) / 100));
+  }, []);
+
+  const resetZoom = useCallback(() => {
+    setZoom(1);
+  }, []);
+
+  const toggleGrid = useCallback(() => {
+    setShowGrid((g) => !g);
   }, []);
 
   useEffect(() => {
@@ -718,29 +737,69 @@ export function CreateFlow() {
                 maxHeight: isFullscreen ? "calc(100vh - 120px)" : undefined,
               }}
             >
-              <ErrorBoundary label="Preview">
-                <PlayerStage
-                  playerRef={setPlayer}
-                  pages={pages}
-                  config={previewConfig}
-                  canvasWidth={canvas.width}
-                  canvasHeight={canvas.height}
-                  durationInFrames={durationInFrames}
-                  videoSrc={state.video?.objectUrl ?? null}
-                  controls={false}
-                />
-              </ErrorBoundary>
+              {/* Zoom Scaled Stage */}
+              <div
+                className="relative w-full h-full transition-transform duration-150 ease-out"
+                style={{
+                  transform: `scale(${zoom})`,
+                  transformOrigin: "center center",
+                }}
+              >
+                <ErrorBoundary label="Preview">
+                  <PlayerStage
+                    playerRef={setPlayer}
+                    pages={pages}
+                    config={previewConfig}
+                    canvasWidth={canvas.width}
+                    canvasHeight={canvas.height}
+                    durationInFrames={durationInFrames}
+                    videoSrc={state.video?.objectUrl ?? null}
+                    controls={false}
+                  />
+                </ErrorBoundary>
 
-              <CaptionDragLayer
-                config={config}
-                enabled
-                onMove={(horizontalOffsetPct, verticalOffsetPct) =>
-                  patch({ horizontalOffsetPct, verticalOffsetPct })
-                }
-                onResize={({ fontSizePx, maxLineWidthPct }) =>
-                  patch({ fontSizePx, maxLineWidthPct })
-                }
-              />
+                <CaptionDragLayer
+                  config={config}
+                  enabled
+                  onMove={(horizontalOffsetPct, verticalOffsetPct) =>
+                    patch({ horizontalOffsetPct, verticalOffsetPct })
+                  }
+                  onResize={({ fontSizePx, maxLineWidthPct }) =>
+                    patch({ fontSizePx, maxLineWidthPct })
+                  }
+                />
+              </div>
+
+              {/* Grid & Safe Zone Guide Overlay */}
+              {showGrid ? (
+                <div className="pointer-events-none absolute inset-0 z-20 overflow-hidden">
+                  {/* 3x3 Rule of thirds grid */}
+                  <div className="absolute inset-0 grid grid-cols-3 grid-rows-3">
+                    <div className="border-r border-b border-white/20" />
+                    <div className="border-r border-b border-white/20" />
+                    <div className="border-b border-white/20" />
+                    <div className="border-r border-b border-white/20" />
+                    <div className="border-r border-b border-white/20 flex items-center justify-center">
+                      {/* Center Crosshair */}
+                      <div className="relative size-4">
+                        <div className="absolute top-1/2 left-0 right-0 h-px bg-amber-400/80 -translate-y-1/2 shadow-xs" />
+                        <div className="absolute left-1/2 top-0 bottom-0 w-px bg-amber-400/80 -translate-x-1/2 shadow-xs" />
+                      </div>
+                    </div>
+                    <div className="border-b border-white/20" />
+                    <div className="border-r border-white/20" />
+                    <div className="border-r border-white/20" />
+                    <div />
+                  </div>
+
+                  {/* Social Media Safe Zone */}
+                  <div className="absolute inset-x-[8%] top-[12%] bottom-[16%] rounded-lg border border-dashed border-amber-400/50 bg-amber-400/[0.03]">
+                    <span className="absolute top-1 left-2 font-mono text-[9px] font-bold tracking-wider text-amber-400 uppercase">
+                      Safe Zone (Reels / Shorts)
+                    </span>
+                  </div>
+                </div>
+              ) : null}
 
               {/* Floating Quick Fullscreen overlay button */}
               <button
@@ -758,12 +817,18 @@ export function CreateFlow() {
             </div>
 
             {/* Transport playback buttons & seek bar */}
-            <div className={cn("w-full", isFullscreen && "max-w-xl pb-2")}>
+            <div className={cn("w-full", isFullscreen && "max-w-2xl pb-2")}>
               <TransportBar
                 player={player}
                 durationInFrames={durationInFrames}
                 onToggleFullscreen={toggleFullscreen}
                 isFullscreen={isFullscreen}
+                zoom={zoom}
+                onZoomIn={zoomIn}
+                onZoomOut={zoomOut}
+                onResetZoom={resetZoom}
+                showGrid={showGrid}
+                onToggleGrid={toggleGrid}
               />
             </div>
           </div>
