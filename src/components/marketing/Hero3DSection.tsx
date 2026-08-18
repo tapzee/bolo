@@ -648,7 +648,7 @@ export function Hero3DSection() {
 
           {/* Floating Speech Ribbon Dock below the phone */}
           <div
-            className="relative -mt-6 sm:-mt-8 mx-auto max-w-lg z-40 px-4"
+            className="relative mt-4 sm:mt-6 mx-auto max-w-lg z-50 px-4"
             style={{ animation: "ribbonFloat 4s ease-in-out infinite" }}
           >
             <div className="flex items-center justify-between gap-3 rounded-full border border-emerald-500/30 bg-card/90 dark:bg-neutral-950/90 px-4 py-2.5 shadow-[0_16px_36px_-10px_rgba(16,185,129,0.25)] backdrop-blur-2xl text-foreground">
