@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { CAPTION_TEMPLATES } from "@/core";
 import { MarketingPage } from "@/components/marketing/SiteChrome";
-import { HeroCaptionPreview } from "@/components/marketing/HeroCaptionPreview";
+import { Hero3DSection } from "@/components/marketing/Hero3DSection";
 import { LanguageShowcase } from "@/components/marketing/LanguageShowcase";
 import { TemplatesShowcase } from "@/components/marketing/TemplatesShowcase";
 import { FaqAccordion } from "@/components/marketing/FaqAccordion";
@@ -110,87 +110,10 @@ const TESTIMONIALS = [
 export default function LandingPage() {
   return (
     <MarketingPage>
-      {/* 1. Hero Section */}
-      <section className="relative overflow-hidden pt-12 pb-16 sm:pt-20 sm:pb-24">
-        {/* Ambient background glow */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 opacity-40 dark:opacity-60"
-          style={{
-            background:
-              "radial-gradient(ellipse 65% 55% at 50% -10%, var(--brand-soft) 0%, rgba(232, 65, 15, 0.04) 45%, transparent 80%)",
-          }}
-        />
+      {/* 1. 3D Masterpiece Hero Section */}
+      <Hero3DSection />
 
-        <div className="relative mx-auto max-w-5xl px-5 text-center">
-          {/* Top Badge */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-brand/25 bg-brand-soft/70 px-3.5 py-1.5 text-xs font-semibold text-brand shadow-sm backdrop-blur-md transition-transform hover:scale-105">
-            <Sparkles className="size-3.5 animate-pulse" />
-            <span>Built for Indian creators & Reels makers</span>
-          </div>
-
-          {/* Editorial Display Headline (Inspired by reference design) */}
-          <h1 className="mt-6 text-4xl font-extrabold tracking-tight sm:text-6xl lg:text-7xl text-balance text-foreground leading-[1.1]">
-            Captions that actually get{" "}
-            <span
-              className="italic font-serif font-normal text-brand underline decoration-brand/30 decoration-wavy decoration-2 underline-offset-8"
-              style={{
-                fontFamily:
-                  "var(--font-instrument-serif), var(--font-playfair), serif",
-              }}
-            >
-              Hinglish right.
-            </span>
-          </h1>
-
-          {/* Hero Subtitle */}
-          <p className="mx-auto mt-6 max-w-2xl text-base sm:text-lg leading-relaxed text-muted-foreground">
-            Generate animated, word-level synchronized captions for Instagram Reels, YouTube Shorts, and TikTok. Accurate Hindi & Hinglish transcription, 30+ viral templates, and 100% private in-browser rendering.
-          </p>
-
-          {/* Hero Action Buttons */}
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-3.5">
-            <Link
-              href="/create"
-              className="group inline-flex items-center gap-2.5 rounded-2xl bg-gradient-to-r from-orange-600 to-amber-500 px-7 py-3.5 text-sm font-bold text-white shadow-xl shadow-orange-500/25 transition-all duration-200 hover:opacity-95 hover:shadow-2xl hover:shadow-orange-500/40 hover:-translate-y-0.5 active:scale-95"
-            >
-              <Wand2 className="size-4" />
-              <span>Try free now</span>
-              <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
-            </Link>
-
-            <Link
-              href="/styles"
-              className="inline-flex items-center gap-2 rounded-2xl border border-border/80 bg-card/80 px-6 py-3.5 text-sm font-semibold text-foreground backdrop-blur-md shadow-sm transition-all hover:bg-muted hover:border-foreground/20"
-            >
-              <span>Browse {CAPTION_TEMPLATES.length} templates</span>
-            </Link>
-          </div>
-
-          {/* Trust points */}
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-medium text-muted-foreground">
-            <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="size-3.5 text-success" />
-              No card required
-            </span>
-            <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="size-3.5 text-success" />
-              100% in-browser privacy
-            </span>
-            <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="size-3.5 text-success" />
-              1080p 60fps export
-            </span>
-          </div>
-        </div>
-
-        {/* 2. Interactive Audio Waveform & Speech Ribbon Showcase */}
-        <div className="mt-12 sm:mt-16">
-          <HeroCaptionPreview />
-        </div>
-      </section>
-
-      {/* 3. Numbers / Key Highlights Bar */}
+      {/* 2. Numbers / Key Highlights Bar */}
       <section className="border-y border-border/60 bg-card/40 backdrop-blur-sm">
         <div className="mx-auto max-w-6xl px-5 py-10">
           <div className="grid grid-cols-2 gap-6 sm:grid-cols-4 text-center">
