@@ -276,6 +276,10 @@ export function Hero3DSection() {
           0%, 100% { transform: translateY(0px) rotateY(-16deg) rotateX(-4deg); }
           50% { transform: translateY(-10px) rotateY(-18deg) rotateX(-6deg); }
         }
+        @keyframes waveformScale {
+          0% { transform: scaleY(0.3); }
+          100% { transform: scaleY(1.1); }
+        }
       `}} />
 
       {/* Atmospheric 3D Lighting in Emerald-Teal Radiance */}
@@ -332,14 +336,17 @@ export function Hero3DSection() {
             </text>
           </svg>
           {/* Floating Audio Pill overlay matching the reference image */}
-          <div className="absolute top-[320px] left-[60%] -translate-x-1/2 -translate-y-1/2 rotate-[-5deg] z-0 pointer-events-none hidden lg:flex items-center gap-1 px-4 py-2 rounded-full bg-background border border-foreground/10 shadow-[0_4px_24px_rgba(0,0,0,0.06)]">
-            {[...Array(16)].map((_, i) => (
+          <div className="absolute top-[320px] left-[60%] -translate-x-1/2 -translate-y-1/2 rotate-[-5deg] z-0 pointer-events-none hidden lg:flex items-center gap-[5px] px-6 h-12 rounded-full bg-background border border-foreground/10 shadow-[0_8px_32px_rgba(0,0,0,0.08)]">
+            {[4, 8, 14, 22, 12, 18, 8, 12, 16, 24, 14, 8, 20, 12, 6, 4].map((h, i) => (
               <div 
                 key={i} 
-                className="w-1 bg-foreground rounded-full" 
+                className="w-1.5 bg-foreground rounded-full will-change-transform" 
                 style={{ 
-                  height: `${[4, 8, 14, 22, 12, 18, 6, 10, 16, 24, 14, 8, 20, 12, 6, 4][i]}px`,
-                  opacity: i < 4 || i > 11 ? 0.3 : 0.8
+                  height: `${h}px`,
+                  transformOrigin: "center",
+                  animation: `waveformScale ${0.8 + (i % 3) * 0.15}s ease-in-out infinite alternate`,
+                  animationDelay: `${i * 0.1}s`,
+                  opacity: i < 4 || i > 11 ? 0.25 : 0.8
                 }} 
               />
             ))}
