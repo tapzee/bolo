@@ -12,18 +12,26 @@ import Image from "next/image";
 
 function Wordmark() {
   return (
-    <Link href="/" className="mx-auto flex w-fit items-center gap-2.5 transition-transform hover:scale-105">
-      <div className="relative size-10 overflow-hidden rounded-2xl shadow-md border border-brand/30">
+    <Link href="/" className="mx-auto flex w-fit items-center gap-3 transition-transform hover:scale-105">
+      <div className="relative size-12 overflow-hidden rounded-2xl shadow-lg shadow-brand/20 border border-brand/30">
         <Image
           src="/logo.png"
-          alt="Bolo AI Logo"
+          alt="Desi Auto-Caption Logo"
           fill
-          sizes="40px"
+          sizes="48px"
           className="object-cover"
           priority
         />
       </div>
-      <span className="text-xl font-bold tracking-tight">bolo</span>
+      <div className="flex items-center gap-2">
+        <span className="text-2xl font-black tracking-tight text-foreground">
+          Desi
+        </span>
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 dark:bg-emerald-500/25 border border-emerald-500/30 px-2.5 py-0.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 tracking-wider uppercase">
+          <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          AUTO-CAPTION
+        </span>
+      </div>
     </Link>
   );
 }

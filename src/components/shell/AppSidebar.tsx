@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   FolderClock,
@@ -98,14 +99,26 @@ export function AppSidebar() {
         )}
       >
         <Link href="/" className="flex items-center gap-2.5">
-          <span className="relative flex size-7 shrink-0 items-center justify-center rounded-lg bg-brand">
-            <span className="block size-2.5 rounded-[3px] bg-brand-foreground" />
-            <span className="absolute -bottom-0.5 left-1.5 size-2 rotate-45 rounded-[2px] bg-brand" />
-          </span>
+          <div className="relative size-8 shrink-0 overflow-hidden rounded-xl shadow-sm border border-brand/30">
+            <Image
+              src="/logo.png"
+              alt="Desi Auto-Caption Logo"
+              fill
+              sizes="32px"
+              className="object-cover"
+              priority
+            />
+          </div>
           {collapsed ? null : (
-            <span className="text-[15px] font-semibold tracking-tight">
-              bolo
-            </span>
+            <div className="flex items-center gap-1.5 overflow-hidden">
+              <span className="text-base font-black tracking-tight text-foreground">
+                Desi
+              </span>
+              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 dark:bg-emerald-500/25 border border-emerald-500/30 px-1.5 py-0.5 text-[9px] font-bold text-emerald-600 dark:text-emerald-400 tracking-wider uppercase">
+                <span className="size-1 rounded-full bg-emerald-500 animate-pulse" />
+                AUTO-CAPTION
+              </span>
+            </div>
           )}
         </Link>
       </div>

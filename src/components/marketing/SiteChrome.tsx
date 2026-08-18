@@ -42,26 +42,33 @@ const LEGAL = [
   { href: "/delivery", label: "Delivery Policy" },
 ];
 
-function Wordmark() {
+function Wordmark({ size = "default" }: { size?: "default" | "large" }) {
+  const isLarge = size === "large";
   return (
-    <Link href="/" className="group flex items-center gap-2.5 transition-transform hover:scale-[1.02]">
-      <div className="relative size-8 overflow-hidden rounded-xl shadow-md shadow-brand/20 border border-brand/30">
+    <Link href="/" className="group flex items-center gap-3 transition-transform hover:scale-[1.02]">
+      <div className={`relative overflow-hidden rounded-2xl shadow-lg shadow-brand/20 border border-brand/30 transition-transform group-hover:scale-105 ${
+        isLarge ? "size-12 sm:size-14" : "size-10 sm:size-11"
+      }`}>
         <Image
           src="/logo.png"
           alt="Desi Auto-Caption Logo"
           fill
-          sizes="32px"
+          sizes={isLarge ? "56px" : "44px"}
           className="object-cover"
           priority
         />
       </div>
-      <div className="flex items-center gap-1.5">
-        <span className="text-base font-extrabold tracking-tight text-foreground">
+      <div className="flex items-center gap-2">
+        <span className={`font-black tracking-tight text-foreground ${
+          isLarge ? "text-2xl sm:text-3xl" : "text-xl sm:text-2xl"
+        }`}>
           Desi
         </span>
-        <span className="flex items-center gap-1 rounded-full bg-brand-soft px-2 py-0.5 text-[10px] font-bold text-brand uppercase tracking-wider border border-brand/20">
-          <span className="size-1 rounded-full bg-brand animate-pulse" />
-          Auto-Caption
+        <span className={`inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 dark:bg-emerald-500/25 border border-emerald-500/30 font-bold text-emerald-600 dark:text-emerald-400 tracking-wider uppercase ${
+          isLarge ? "px-3 py-1 text-xs" : "px-2.5 py-0.5 text-[11px]"
+        }`}>
+          <span className="size-1.5 sm:size-2 rounded-full bg-emerald-500 animate-pulse" />
+          AUTO-CAPTION
         </span>
       </div>
     </Link>
@@ -193,7 +200,7 @@ export function MarketingFooter() {
       <div className="mx-auto grid max-w-6xl gap-10 px-5 py-16 sm:grid-cols-2 lg:grid-cols-5">
         {/* Brand Column */}
         <div className="space-y-4 lg:col-span-2">
-          <Wordmark />
+          <Wordmark size="large" />
           <p className="max-w-sm text-xs leading-relaxed text-muted-foreground">
             The high-precision AI caption generator crafted for Indian creators.
             Flawless Hindi & Hinglish sync, {CAPTION_TEMPLATES.length}+ viral templates, and 100% private in-browser video processing.

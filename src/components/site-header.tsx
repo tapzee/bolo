@@ -1,22 +1,31 @@
+import Link from "next/link";
 import Image from "next/image";
 import { AuthButton } from "@/components/auth/AuthButton";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 function Wordmark() {
   return (
-    <div className="flex items-center gap-2.5">
-      <div className="relative size-7 overflow-hidden rounded-lg shadow-sm border border-brand/30">
+    <Link href="/" className="group flex items-center gap-2.5 transition-transform hover:scale-[1.02]">
+      <div className="relative size-9 overflow-hidden rounded-xl shadow-md border border-brand/30 transition-transform group-hover:scale-105">
         <Image
           src="/logo.png"
-          alt="Bolo AI Logo"
+          alt="Desi Auto-Caption Logo"
           fill
-          sizes="28px"
+          sizes="36px"
           className="object-cover"
           priority
         />
       </div>
-      <span className="text-[15px] font-semibold tracking-tight">bolo</span>
-    </div>
+      <div className="flex items-center gap-1.5">
+        <span className="text-lg font-black tracking-tight text-foreground">
+          Desi
+        </span>
+        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 dark:bg-emerald-500/25 border border-emerald-500/30 px-2 py-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 tracking-wider uppercase">
+          <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          AUTO-CAPTION
+        </span>
+      </div>
+    </Link>
   );
 }
 
