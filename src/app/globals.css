@@ -69,7 +69,7 @@
   --popover: #ffffff;
   --popover-foreground: #0a0a0b;
 
-  --primary: #10b981;
+  --primary: #24B86C;
   --primary-foreground: #ffffff;
 
   --secondary: #f2f2f4;
@@ -86,14 +86,15 @@
 
   --border: #e5e5e8;
   --input: #e5e5e8;
-  --ring: #10b981;
+  --ring: #24B86C;
 
   /* Bolo extensions matching the Emerald Teal brand mark */
-  --brand: #10b981;
+  --brand: #24B86C;
   --brand-foreground: #ffffff;
-  --brand-soft: rgba(16, 185, 129, 0.12);
+  --brand-secondary: #11998E;
+  --brand-soft: rgba(36, 184, 108, 0.12);
   --surface-inset: #f2f2f4;
-  --success: #059669;
+  --success: #24B86C;
   --warning: #d97706;
 
   --shadow-soft: 0 1px 2px rgba(9, 9, 11, 0.06), 0 8px 24px rgba(9, 9, 11, 0.06);
@@ -111,8 +112,8 @@
   --popover: #16161a;
   --popover-foreground: #f4f4f5;
 
-  --primary: #34d399;
-  --primary-foreground: #022c22;
+  --primary: #24B86C;
+  --primary-foreground: #ffffff;
 
   --secondary: #1a1a1f;
   --secondary-foreground: #f4f4f5;
@@ -128,13 +129,14 @@
 
   --border: #232327;
   --input: #2a2a30;
-  --ring: #34d399;
+  --ring: #24B86C;
 
-  --brand: #34d399;
-  --brand-foreground: #022c22;
-  --brand-soft: rgba(52, 211, 153, 0.15);
+  --brand: #24B86C;
+  --brand-foreground: #ffffff;
+  --brand-secondary: #11998E;
+  --brand-soft: rgba(36, 184, 108, 0.15);
   --surface-inset: #08080a;
-  --success: #34d399;
+  --success: #24B86C;
   --warning: #fbbf24;
 
   --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.35);
@@ -164,6 +166,7 @@
 
   --color-brand: var(--brand);
   --color-brand-foreground: var(--brand-foreground);
+  --color-brand-secondary: var(--brand-secondary);
   --color-brand-soft: var(--brand-soft);
   --color-surface-inset: var(--surface-inset);
   --color-success: var(--success);

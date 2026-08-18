@@ -13,7 +13,7 @@ import Image from "next/image";
 function Wordmark() {
   return (
     <Link href="/" className="mx-auto flex w-fit items-center gap-2.5 transition-transform hover:scale-105">
-      <div className="relative size-10 overflow-hidden rounded-2xl shadow-md border border-emerald-500/30">
+      <div className="relative size-10 overflow-hidden rounded-2xl shadow-md border border-brand/30">
         <Image
           src="/logo.png"
           alt="Bolo AI Logo"

@@ -101,7 +101,7 @@ const DEMO_STYLES: DemoStyle[] = [
         return (
           <span
             key={word.text}
-            className="inline-block transform scale-110 px-2.5 py-1 rounded-xl font-black text-white bg-gradient-to-r from-emerald-500 to-teal-500 shadow-[0_0_24px_rgba(16,185,129,0.7)] transition-all duration-150"
+            className="inline-block transform scale-110 px-2.5 py-1 rounded-xl font-black text-white bg-gradient-to-r from-brand to-brand-secondary shadow-[0_0_24px_rgba(36,184,108,0.7)] transition-all duration-150"
             style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
           >
             {word.text}
@@ -130,7 +130,7 @@ const DEMO_STYLES: DemoStyle[] = [
         return (
           <span
             key={word.text}
-            className="inline-block px-2.5 py-1 rounded uppercase font-black text-black bg-emerald-400 shadow-lg scale-110 tracking-wider transition-all duration-150"
+            className="inline-block px-2.5 py-1 rounded uppercase font-black text-black bg-brand shadow-lg scale-110 tracking-wider transition-all duration-150"
             style={{ fontFamily: "var(--font-anton), sans-serif" }}
           >
             {word.text}
@@ -159,7 +159,7 @@ const DEMO_STYLES: DemoStyle[] = [
         return (
           <span
             key={word.text}
-            className="inline-block px-2 py-0.5 italic font-normal text-emerald-300 bg-black/60 rounded-md underline decoration-emerald-400 decoration-2 underline-offset-4 scale-105 transition-all duration-150"
+            className="inline-block px-2 py-0.5 italic font-normal text-brand bg-black/60 rounded-md underline decoration-brand-secondary decoration-2 underline-offset-4 scale-105 transition-all duration-150"
             style={{ fontFamily: "var(--font-instrument-serif), var(--font-playfair), serif" }}
           >
             {word.text}
@@ -329,7 +329,7 @@ export function Hero3DSection() {
         <div className="mx-auto max-w-4xl text-center">
           {/* Top 3D Pill Tag with Interactive Particle Toggle */}
           <div className="inline-flex flex-wrap items-center justify-center gap-2 rounded-full border border-brand/30 bg-gradient-to-r from-brand-soft/90 via-card to-brand-soft/90 p-1 pr-3 shadow-lg shadow-brand/10 backdrop-blur-xl transition-transform hover:scale-105">
-            <span className="flex items-center gap-1 rounded-full bg-gradient-to-r from-emerald-600 to-teal-500 px-2.5 py-0.5 text-[11px] font-bold text-white shadow-sm">
+            <span className="flex items-center gap-1 rounded-full bg-gradient-to-r from-brand to-brand-secondary px-2.5 py-0.5 text-[11px] font-bold text-white shadow-sm">
               <Sparkles className="size-3" />
               DESI AI
             </span>
@@ -340,7 +340,7 @@ export function Hero3DSection() {
               onClick={() => setParticleMode(!particleMode)}
               className={`ml-1 flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold transition-all ${
                 particleMode
-                  ? "bg-gradient-to-r from-emerald-500 to-teal-400 text-white shadow-sm animate-pulse"
+                  ? "bg-gradient-to-r from-brand to-brand-secondary text-white shadow-sm animate-pulse"
                   : "bg-muted/80 text-muted-foreground hover:text-foreground"
               }`}
             >
@@ -367,7 +367,7 @@ export function Hero3DSection() {
               <span className="relative inline-block whitespace-nowrap cursor-default select-none pt-1">
                 {/* Every Letter Moves in a Frequency Wave */}
                 <span
-                  className="relative z-10 italic font-serif font-normal bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-500 dark:from-emerald-400 dark:via-teal-300 dark:to-emerald-400 bg-clip-text text-transparent drop-shadow-[0_16px_32px_rgba(16,185,129,0.35)] inline-flex"
+                  className="relative z-10 italic font-serif font-normal bg-gradient-to-r from-brand via-brand-secondary to-brand bg-clip-text text-transparent drop-shadow-[0_16px_32px_rgba(36,184,108,0.35)] inline-flex"
                   style={{
                     fontFamily:
                       "var(--font-instrument-serif), var(--font-playfair), serif",
@@ -399,7 +399,7 @@ export function Hero3DSection() {
                 >
                   <span
                     aria-hidden
-                    className="absolute -top-1 inset-x-1 h-[8px] sm:h-[12px] -z-0 rounded-full bg-gradient-to-r from-emerald-500/90 via-teal-400 to-emerald-500/90 blur-[6px] opacity-85 shadow-[0_10px_20px_rgba(16,185,129,0.4)]"
+                    className="absolute -top-1 inset-x-1 h-[8px] sm:h-[12px] -z-0 rounded-full bg-gradient-to-r from-brand/90 via-brand-secondary to-brand/90 blur-[6px] opacity-85 shadow-[0_10px_20px_rgba(36,184,108,0.4)]"
                   />
                   <svg
                     className="w-full text-brand drop-shadow-[0_6px_12px_rgba(16,185,129,0.4)]"
@@ -430,7 +430,7 @@ export function Hero3DSection() {
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
             <Link
               href="/create"
-              className="group relative inline-flex items-center gap-3 overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-600 bg-[length:200%_auto] px-8 py-4 text-sm sm:text-base font-bold text-white shadow-[0_12px_32px_-4px_rgba(16,185,129,0.45),0_4px_12px_rgba(16,185,129,0.3)] transition-all duration-300 hover:bg-[position:right_center] hover:shadow-[0_18px_44px_-4px_rgba(16,185,129,0.6),0_6px_16px_rgba(16,185,129,0.4)] hover:-translate-y-1 active:translate-y-0 active:scale-95 border-t border-white/40"
+              className="group relative inline-flex items-center gap-3 overflow-hidden rounded-2xl bg-gradient-to-r from-brand via-brand-secondary to-brand bg-[length:200%_auto] px-8 py-4 text-sm sm:text-base font-bold text-white shadow-[0_12px_32px_-4px_rgba(36,184,108,0.45),0_4px_12px_rgba(36,184,108,0.3)] transition-all duration-300 hover:bg-[position:right_center] hover:shadow-[0_18px_44px_-4px_rgba(36,184,108,0.6),0_6px_16px_rgba(36,184,108,0.4)] hover:-translate-y-1 active:translate-y-0 active:scale-95 border-t border-white/40"
             >
               {/* Shimmer light sweep */}
               <span className="absolute -inset-x-full top-0 h-full w-1/2 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-12 transition-all duration-1000 group-hover:translate-x-[400%]" />
@@ -453,15 +453,15 @@ export function Hero3DSection() {
           {/* Trust Badges */}
           <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-semibold text-muted-foreground">
             <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="size-3.5 text-emerald-500" />
+              <CheckCircle2 className="size-3.5 text-brand" />
               No card required
             </span>
             <span className="flex items-center gap-1.5">
-              <ShieldCheck className="size-3.5 text-emerald-500" />
+              <ShieldCheck className="size-3.5 text-brand" />
               100% in-browser privacy
             </span>
             <span className="flex items-center gap-1.5">
-              <Zap className="size-3.5 text-emerald-500" />
+              <Zap className="size-3.5 text-brand" />
               1080p 60fps WebCodecs
             </span>
           </div>
@@ -489,7 +489,7 @@ export function Hero3DSection() {
 
           {/* Left Inward 3D Satellite Card */}
           <div
-            className="hidden lg:flex absolute -left-4 xl:-left-12 top-20 flex-col gap-3 rounded-3xl border border-emerald-500/20 bg-card/85 p-5 shadow-2xl backdrop-blur-2xl transition-all duration-500 z-10 max-w-[220px]"
+            className="hidden lg:flex absolute -left-4 xl:-left-12 top-20 flex-col gap-3 rounded-3xl border border-brand/20 bg-card/85 p-5 shadow-2xl backdrop-blur-2xl transition-all duration-500 z-10 max-w-[220px]"
             style={{
               animation: "floatLeftCard 6s ease-in-out infinite",
               transformOrigin: "right center",
@@ -498,11 +498,11 @@ export function Hero3DSection() {
             }}
           >
             <div className="flex items-center justify-between">
-              <div className="flex size-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-400 text-white shadow-md">
+              <div className="flex size-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-brand to-brand-secondary text-white shadow-md">
                 <Mic className="size-5" />
               </div>
-              <span className="flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-600">
-                <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="flex items-center gap-1 rounded-full bg-brand/10 px-2 py-0.5 text-[10px] font-bold text-brand">
+                <span className="size-1.5 rounded-full bg-brand animate-pulse" />
                 Live
               </span>
             </div>
@@ -525,7 +525,7 @@ export function Hero3DSection() {
             }}
           >
             <div className="flex items-center justify-between">
-              <div className="flex size-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-teal-500 to-emerald-500 text-white shadow-md">
+              <div className="flex size-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-brand-secondary to-brand text-white shadow-md">
                 <Zap className="size-5" />
               </div>
               <span className="rounded-md bg-brand-soft px-1.5 py-0.5 text-[10px] font-bold text-brand">
@@ -550,7 +550,7 @@ export function Hero3DSection() {
           >
             {/* Dynamic Island / Camera Notch */}
             <div className="absolute top-4 left-1/2 -translate-x-1/2 h-4 w-24 rounded-full bg-neutral-950 z-30 border border-neutral-800 flex items-center justify-end px-2">
-              <div className="size-2 rounded-full bg-emerald-950 border border-emerald-800" />
+              <div className="size-2 rounded-full bg-brand/20 border border-brand/50" />
             </div>
 
             {/* Inner Phone Screen */}
@@ -569,7 +569,7 @@ export function Hero3DSection() {
               <div className="relative z-20 flex items-center justify-between gap-2 pt-5">
                 <button
                   onClick={() => setIsPlaying(!isPlaying)}
-                  className="flex size-8 items-center justify-center rounded-full bg-gradient-to-tr from-emerald-600 to-teal-400 text-white shadow-md transition-transform hover:scale-105 active:scale-95"
+                  className="flex size-8 items-center justify-center rounded-full bg-gradient-to-tr from-brand to-brand-secondary text-white shadow-md transition-transform hover:scale-105 active:scale-95"
                 >
                   {isPlaying ? (
                     <Pause className="size-3.5 fill-current" />
@@ -584,7 +584,7 @@ export function Hero3DSection() {
                     {[8, 16, 10, 18, 12, 16, 8, 14].map((h, i) => (
                       <span
                         key={i}
-                        className="w-[2px] rounded-full bg-gradient-to-b from-emerald-500 to-teal-400 transition-all duration-150"
+                        className="w-[2px] rounded-full bg-gradient-to-b from-brand to-brand-secondary transition-all duration-150"
                         style={{
                           height: isPlaying ? `${Math.max(3, (h * ((i + activeWordIndex) % 4 + 1)) / 4)}px` : "3px",
                         }}
@@ -651,17 +651,17 @@ export function Hero3DSection() {
             className="relative mt-4 sm:mt-6 mx-auto max-w-lg z-50 px-4"
             style={{ animation: "ribbonFloat 4s ease-in-out infinite" }}
           >
-            <div className="flex items-center justify-between gap-3 rounded-full border border-emerald-500/30 bg-card/90 dark:bg-neutral-950/90 px-4 py-2.5 shadow-[0_16px_36px_-10px_rgba(16,185,129,0.25)] backdrop-blur-2xl text-foreground">
+            <div className="flex items-center justify-between gap-3 rounded-full border border-brand/30 bg-card/90 dark:bg-neutral-950/90 px-4 py-2.5 shadow-[0_16px_36px_-10px_rgba(36,184,108,0.25)] backdrop-blur-2xl text-foreground">
               <div className="flex items-center gap-2">
-                <span className="size-2 rounded-full bg-emerald-500 animate-ping" />
-                <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">Live AI Sync</span>
+                <span className="size-2 rounded-full bg-brand animate-ping" />
+                <span className="text-xs font-bold text-brand">Live AI Sync</span>
               </div>
               <p className="text-xs font-semibold text-muted-foreground truncate">
                 &ldquo;Yeh simple trick aapke reels ko 10X viral karegi!&rdquo;
               </p>
               <Link
                 href="/create"
-                className="shrink-0 rounded-full bg-gradient-to-r from-emerald-600 to-teal-500 px-3 py-1 text-[11px] font-bold text-white hover:opacity-95 shadow-sm transition-opacity"
+                className="shrink-0 rounded-full bg-gradient-to-r from-brand to-brand-secondary px-3 py-1 text-[11px] font-bold text-white hover:opacity-95 shadow-sm transition-opacity"
               >
                 Create
               </Link>

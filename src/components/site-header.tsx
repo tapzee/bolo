@@ -5,7 +5,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 function Wordmark() {
   return (
     <div className="flex items-center gap-2.5">
-      <div className="relative size-7 overflow-hidden rounded-lg shadow-sm border border-emerald-500/30">
+      <div className="relative size-7 overflow-hidden rounded-lg shadow-sm border border-brand/30">
         <Image
           src="/logo.png"
           alt="Bolo AI Logo"

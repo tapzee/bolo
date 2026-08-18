@@ -45,7 +45,7 @@ const LEGAL = [
 function Wordmark() {
   return (
     <Link href="/" className="group flex items-center gap-2.5 transition-transform hover:scale-[1.02]">
-      <div className="relative size-8 overflow-hidden rounded-xl shadow-md shadow-emerald-500/20 border border-emerald-500/30">
+      <div className="relative size-8 overflow-hidden rounded-xl shadow-md shadow-brand/20 border border-brand/30">
         <Image
           src="/logo.png"
           alt="Desi Auto-Caption Logo"
@@ -103,7 +103,7 @@ export function MarketingHeader() {
 
           <Link
             href="/create"
-            className="group relative inline-flex items-center gap-1.5 overflow-hidden rounded-full bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-600 bg-[length:200%_auto] px-4 sm:px-5 py-2 text-xs font-bold text-white shadow-[0_4px_14px_rgba(16,185,129,0.35)] transition-all duration-300 hover:bg-[position:right_center] hover:shadow-[0_6px_20px_rgba(16,185,129,0.5)] hover:scale-105 active:scale-95 border-t border-white/40"
+            className="group relative inline-flex items-center gap-1.5 overflow-hidden rounded-full bg-gradient-to-r from-brand via-brand-secondary to-brand bg-[length:200%_auto] px-4 sm:px-5 py-2 text-xs font-bold text-white shadow-[0_4px_14px_rgba(36,184,108,0.35)] transition-all duration-300 hover:bg-[position:right_center] hover:shadow-[0_6px_20px_rgba(36,184,108,0.5)] hover:scale-105 active:scale-95 border-t border-white/40"
           >
             {/* Shimmer light sheen */}
             <span className="absolute -inset-x-full top-0 h-full w-1/2 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-12 transition-all duration-1000 group-hover:translate-x-[400%]" />
@@ -149,7 +149,7 @@ export function MarketingHeader() {
             <Link
               href="/create"
               onClick={() => setMobileMenuOpen(false)}
-              className="mt-1 flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-600 py-3 text-xs font-bold text-white shadow-md shadow-emerald-500/25"
+              className="mt-1 flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-brand via-brand-secondary to-brand py-3 text-xs font-bold text-white shadow-md shadow-brand/25"
             >
               <Wand2 className="size-3.5" />
               <span>Create Captions Free</span>

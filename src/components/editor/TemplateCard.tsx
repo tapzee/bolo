@@ -86,7 +86,7 @@ export const TemplateCard = memo(function TemplateCard({
 
       {/* Top left selected indicator checkmark */}
       {selected ? (
-        <span className="absolute top-1.5 left-1.5 z-10 flex size-5 items-center justify-center rounded-full bg-emerald-500 text-white shadow-md">
+        <span className="absolute top-1.5 left-1.5 z-10 flex size-5 items-center justify-center rounded-full bg-brand text-white shadow-md">
           <svg
             className="size-3 stroke-[2.5]"
             fill="none"
