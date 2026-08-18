@@ -3,7 +3,8 @@
 import { useState, type ReactNode } from "react";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { Sparkles, Menu, X, ArrowRight, Wand2 } from "lucide-react";
+import { Sparkles, Menu, X, ArrowRight, Wand2, ChevronRight } from "lucide-react";
+import { CAPTION_TEMPLATES } from "@/core";
 
 const NAV_LINKS = [
   { href: "/create", label: "Create" },
@@ -14,7 +15,7 @@ const NAV_LINKS = [
 
 const PRODUCT = [
   { href: "/create", label: "Video Studio" },
-  { href: "/styles", label: "Caption Templates" },
+  { href: "/styles", label: "Caption Presets" },
   { href: "/pricing", label: "Pricing Plans" },
   { href: "/faq", label: "Supported Languages" },
 ];
@@ -43,15 +44,16 @@ const LEGAL = [
 function Wordmark() {
   return (
     <Link href="/" className="group flex items-center gap-2.5 transition-transform hover:scale-[1.02]">
-      <span className="relative flex size-8 items-center justify-center rounded-xl bg-gradient-to-tr from-orange-600 to-amber-500 shadow-md shadow-orange-500/20">
-        <span className="block size-2.5 rounded-[3px] bg-white" />
+      <span className="relative flex size-8 items-center justify-center rounded-xl bg-gradient-to-tr from-orange-600 via-amber-500 to-orange-500 shadow-md shadow-orange-500/25 border-t border-white/40">
+        <span className="block size-2.5 rounded-[3px] bg-white shadow-sm" />
         <span className="absolute -bottom-0.5 left-1.5 size-2 rotate-45 rounded-[2px] bg-orange-600" />
       </span>
       <div className="flex items-center gap-1.5">
         <span className="text-base font-extrabold tracking-tight text-foreground">
           bolo
         </span>
-        <span className="rounded-full bg-brand-soft px-1.5 py-0.2 text-[10px] font-bold text-brand uppercase tracking-wider">
+        <span className="flex items-center gap-1 rounded-full bg-brand-soft px-2 py-0.5 text-[10px] font-bold text-brand uppercase tracking-wider border border-brand/20">
+          <span className="size-1 rounded-full bg-brand animate-pulse" />
           AI
         </span>
       </div>
@@ -63,36 +65,41 @@ export function MarketingHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-blur-xl transition-all">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-5">
+    <header className="fixed top-3 sm:top-5 inset-x-0 z-50 px-4 sm:px-6 pointer-events-none">
+      <div className="pointer-events-auto mx-auto max-w-5xl rounded-full border border-white/60 dark:border-white/10 bg-card/80 dark:bg-card/85 p-2 px-3 sm:px-5 shadow-[0_16px_36px_-10px_rgba(0,0,0,0.12),0_0_24px_rgba(232,65,15,0.06)] backdrop-blur-2xl transition-all duration-300 flex items-center justify-between gap-4">
+        {/* Wordmark Logo */}
         <Wordmark />
 
-        {/* Desktop Navigation Links */}
-        <nav className="hidden items-center gap-1 rounded-full border border-border/60 bg-card/60 px-3 py-1 text-sm font-medium text-muted-foreground shadow-sm backdrop-blur-md md:flex">
+        {/* Center Desktop Navigation Pills */}
+        <nav className="hidden md:flex items-center gap-1 rounded-full bg-muted/50 p-1 border border-border/40">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="rounded-full px-3.5 py-1.5 transition-colors hover:bg-muted/70 hover:text-foreground"
+              className="rounded-full px-4 py-1.5 text-xs font-semibold text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-card hover:shadow-sm"
             >
               {link.label}
             </Link>
           ))}
         </nav>
 
-        {/* Right CTA / Action Area */}
-        <div className="flex items-center gap-2.5">
+        {/* Right Actions Cluster */}
+        <div className="flex items-center gap-2 sm:gap-3">
           <ThemeToggle />
+
           <Link
             href="/signin"
-            className="hidden rounded-xl px-3 py-2 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:block"
+            className="hidden sm:inline-flex rounded-full px-3.5 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground hover:bg-muted/60"
           >
             Sign in
           </Link>
+
           <Link
             href="/create"
-            className="group relative inline-flex items-center gap-1.5 overflow-hidden rounded-xl bg-gradient-to-r from-orange-600 to-amber-500 px-4 py-2 text-xs font-bold text-white shadow-md shadow-orange-500/25 transition-all duration-200 hover:opacity-95 hover:shadow-lg hover:shadow-orange-500/35 active:scale-95"
+            className="group relative inline-flex items-center gap-1.5 overflow-hidden rounded-full bg-gradient-to-r from-orange-600 via-amber-500 to-orange-600 bg-[length:200%_auto] px-4 sm:px-5 py-2 text-xs font-bold text-white shadow-[0_4px_14px_rgba(232,65,15,0.35)] transition-all duration-300 hover:bg-[position:right_center] hover:shadow-[0_6px_20px_rgba(232,65,15,0.5)] hover:scale-105 active:scale-95 border-t border-white/40"
           >
+            {/* Shimmer light sheen */}
+            <span className="absolute -inset-x-full top-0 h-full w-1/2 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-12 transition-all duration-1000 group-hover:translate-x-[400%]" />
             <Sparkles className="size-3.5" />
             <span>Try free</span>
           </Link>
@@ -101,43 +108,43 @@ export function MarketingHeader() {
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-            className="flex size-9 items-center justify-center rounded-xl border border-border bg-card text-muted-foreground hover:text-foreground md:hidden"
+            className="flex size-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground hover:text-foreground md:hidden transition-transform active:scale-95"
           >
             {mobileMenuOpen ? <X className="size-4" /> : <Menu className="size-4" />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu Overlay */}
+      {/* Floating Mobile Menu Dropdown */}
       {mobileMenuOpen && (
-        <div className="border-b border-border bg-card/95 px-5 py-6 shadow-xl backdrop-blur-2xl md:hidden animate-in fade-in slide-in-from-top-2 duration-200">
-          <nav className="flex flex-col gap-2">
+        <div className="pointer-events-auto mx-auto mt-2 max-w-sm rounded-3xl border border-white/60 dark:border-white/10 bg-card/95 p-4 shadow-2xl backdrop-blur-2xl md:hidden animate-in fade-in slide-in-from-top-2 duration-200">
+          <nav className="flex flex-col gap-1.5">
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between rounded-xl px-4 py-3 text-sm font-semibold text-foreground hover:bg-muted"
+                className="flex items-center justify-between rounded-2xl px-4 py-2.5 text-xs font-bold text-foreground hover:bg-muted transition-colors"
               >
                 <span>{link.label}</span>
-                <ArrowRight className="size-4 text-muted-foreground" />
+                <ChevronRight className="size-4 text-muted-foreground" />
               </Link>
             ))}
-            <div className="my-2 h-px bg-border/60" />
+            <div className="my-1.5 h-px bg-border/60" />
             <Link
               href="/signin"
               onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center justify-between rounded-xl px-4 py-3 text-sm font-semibold text-muted-foreground hover:bg-muted hover:text-foreground"
+              className="flex items-center justify-between rounded-2xl px-4 py-2.5 text-xs font-semibold text-muted-foreground hover:bg-muted hover:text-foreground"
             >
               <span>Sign in</span>
-              <ArrowRight className="size-4" />
+              <ArrowRight className="size-3.5" />
             </Link>
             <Link
               href="/create"
               onClick={() => setMobileMenuOpen(false)}
-              className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-brand py-3 text-sm font-bold text-brand-foreground shadow-md"
+              className="mt-1 flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-orange-600 via-amber-500 to-orange-600 py-3 text-xs font-bold text-white shadow-md shadow-orange-500/25"
             >
-              <Wand2 className="size-4" />
+              <Wand2 className="size-3.5" />
               <span>Create Captions Free</span>
             </Link>
           </nav>
@@ -156,7 +163,7 @@ export function MarketingFooter() {
           <Wordmark />
           <p className="max-w-sm text-xs leading-relaxed text-muted-foreground">
             The high-precision AI caption generator crafted for Indian creators.
-            Flawless Hindi & Hinglish sync, 30+ viral templates, and 100% private in-browser video processing.
+            Flawless Hindi & Hinglish sync, {CAPTION_TEMPLATES.length}+ viral templates, and 100% private in-browser video processing.
           </p>
           <div className="flex items-center gap-2 pt-1">
             <span className="inline-flex items-center gap-1 rounded-full border border-border bg-surface-inset px-2.5 py-1 text-[10px] font-medium text-muted-foreground">
@@ -248,7 +255,7 @@ export function MarketingFooter() {
 
 export function MarketingPage({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-dvh bg-background text-foreground selection:bg-brand selection:text-white">
+    <div className="min-h-dvh bg-background text-foreground selection:bg-brand selection:text-white pt-16 sm:pt-20">
       <MarketingHeader />
       <main>{children}</main>
       <MarketingFooter />
