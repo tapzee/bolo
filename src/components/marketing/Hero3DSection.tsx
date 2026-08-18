@@ -205,6 +205,8 @@ export function Hero3DSection() {
   const containerRef = useRef<HTMLDivElement>(null);
   const bgParallaxRef = useRef<HTMLDivElement>(null);
   const stage3DRef = useRef<HTMLDivElement>(null);
+  const ribbonTextRef = useRef<SVGTextElement>(null);
+  const ribbonTextPathRef = useRef<SVGTextPathElement>(null);
 
   const [isPlaying, setIsPlaying] = useState(true);
   const [activeWordIndex, setActiveWordIndex] = useState(0);
@@ -254,6 +256,45 @@ export function Hero3DSection() {
   }, [isPlaying, selectedPhrase]);
 
   const marqueeText = "Yeh simple trick aapke reels ko 10X viral karegi • Auto-punctuated Hinglish captions in seconds • ";
+  const curvedRibbonText = marqueeText.repeat(6);
+
+  // 60FPS curved-text scroll along the wavy ribbon banner's own path (desktop only)
+  useEffect(() => {
+    let animId: number;
+    let offset = 0;
+    let lastTime = performance.now();
+    const speed = 42;
+
+    let segmentLength = 1000;
+    if (ribbonTextRef.current) {
+      try {
+        const total = ribbonTextRef.current.getComputedTextLength();
+        if (total > 0) {
+          segmentLength = total / 6;
+        }
+      } catch {
+        segmentLength = 1000;
+      }
+    }
+
+    const animateRibbonText = (now: number) => {
+      const dt = Math.min((now - lastTime) / 1000, 0.1);
+      lastTime = now;
+
+      offset -= speed * dt;
+      if (offset <= -segmentLength) {
+        offset += segmentLength;
+      }
+
+      if (ribbonTextPathRef.current) {
+        ribbonTextPathRef.current.setAttribute("startOffset", `${offset.toFixed(2)}px`);
+      }
+      animId = requestAnimationFrame(animateRibbonText);
+    };
+
+    animId = requestAnimationFrame(animateRibbonText);
+    return () => cancelAnimationFrame(animId);
+  }, []);
 
   return (
     <section
@@ -370,20 +411,70 @@ export function Hero3DSection() {
         </div>
 
         {/* ===================================================================
-            1B. LIVE SYNC RIBBON ROW — clean, non-overlapping banner + pills
+            1B. LIVE SYNC RIBBON ROW — clean, non-overlapping wavy banner + pills
            =================================================================== */}
-        <div className="relative mt-16 sm:mt-20 mx-auto max-w-3xl px-6 sm:px-0">
-          {/* Scrolling caption-preview banner */}
-          <div className="relative overflow-hidden rounded-full bg-foreground dark:bg-black py-3.5 sm:py-4 -rotate-2 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.35)]">
+        <div className="relative mt-20 sm:mt-24 mx-auto max-w-4xl px-6 sm:px-0">
+          {/* Hand-drawn spiral squiggle accent, trailing in from the left like the reference */}
+          <svg
+            aria-hidden
+            className="pointer-events-none absolute -left-2 sm:-left-8 -top-16 sm:-top-20 w-16 h-24 sm:w-20 sm:h-28 text-foreground/25 dark:text-foreground/15 hidden sm:block"
+            viewBox="0 0 80 110"
+            fill="none"
+          >
+            <path
+              d="M40 8 C 58 8, 70 22, 66 40 C 62 60, 40 66, 28 54 C 18 44, 22 30, 34 28 C 42 26, 48 32, 44 38"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+            />
+            <path
+              d="M40 8 C 30 -6, 10 -2, 6 18"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+            />
+          </svg>
+
+          {/* Wavy ribbon banner — desktop: real curved SVG path, mobile: simplified straight strip */}
+          <div className="relative h-[110px] sm:h-[150px] w-full hidden sm:block">
+            <svg
+              className="absolute inset-0 w-full h-full overflow-visible"
+              viewBox="0 0 1200 150"
+              preserveAspectRatio="none"
+              aria-hidden
+            >
+              <path
+                id="heroRibbonCurve"
+                d="M -20 100 C 220 40, 380 150, 620 90 C 860 30, 980 130, 1220 70"
+                fill="none"
+                className="stroke-black dark:stroke-neutral-950"
+                strokeWidth="62"
+                strokeLinecap="round"
+                style={{ filter: "drop-shadow(0 20px 30px rgba(0,0,0,0.3))" }}
+              />
+              <text
+                ref={ribbonTextRef}
+                className="fill-white font-medium text-[19px] tracking-wide antialiased"
+                dy="7"
+              >
+                <textPath ref={ribbonTextPathRef} href="#heroRibbonCurve" startOffset="0px">
+                  {curvedRibbonText}
+                </textPath>
+              </text>
+            </svg>
+          </div>
+
+          {/* Mobile fallback: straight scrolling strip (curved SVG is desktop-only) */}
+          <div className="relative overflow-hidden rounded-full bg-black dark:bg-neutral-950 py-3.5 -rotate-2 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.35)] sm:hidden">
             <div
               className="flex w-max whitespace-nowrap will-change-transform"
               style={{ animation: "heroMarquee 18s linear infinite" }}
             >
-              <span className="px-4 text-sm sm:text-base font-medium tracking-wide text-background">
+              <span className="px-4 text-sm font-medium tracking-wide text-white">
                 {marqueeText}
                 {marqueeText}
               </span>
-              <span aria-hidden className="px-4 text-sm sm:text-base font-medium tracking-wide text-background">
+              <span aria-hidden className="px-4 text-sm font-medium tracking-wide text-white">
                 {marqueeText}
                 {marqueeText}
               </span>
@@ -391,7 +482,7 @@ export function Hero3DSection() {
           </div>
 
           {/* Split sentence pill + live waveform, overlapping the banner's top-left like the reference */}
-          <div className="absolute -top-5 left-2 sm:left-8 flex items-center gap-3 z-10">
+          <div className="absolute -top-5 sm:top-2 left-2 sm:left-10 flex items-center gap-3 z-10">
             <span className="rounded-full bg-brand text-white px-4 py-2 text-xs sm:text-sm font-bold shadow-lg">
               Split sentence
             </span>
