@@ -448,7 +448,7 @@ export function TextPanel({
         </p>
       </Group>
 
-      <Group title="Emphasis">
+      <Group title="Highlight">
         <Row label="Spoken word">
           <input
             type="color"

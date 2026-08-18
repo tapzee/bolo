@@ -204,7 +204,7 @@ export function TemplatesPanel({
     { id: "built-in", label: "Templates", icon: <LayoutGrid className="size-3" /> },
     { id: "layout", label: "Layout", icon: <Sliders className="size-3" /> },
     { id: "colors", label: "Colors", icon: <Palette className="size-3" /> },
-    { id: "emphasis", label: "Emphasis", icon: <Sparkles className="size-3" /> },
+    { id: "emphasis", label: "Highlight", icon: <Sparkles className="size-3" /> },
     {
       id: "mine",
       label: `Presets (${presets.length})`,
@@ -761,7 +761,7 @@ export function TemplatesPanel({
               <p className="font-semibold text-foreground">No custom presets saved yet.</p>
               <p>
                 Tune any template using the <strong className="text-brand">Layout</strong>,{" "}
-                <strong className="text-brand">Colors</strong>, and <strong className="text-brand">Emphasis</strong> tabs, then hit <strong className="text-foreground">Save</strong> to store your signature video branding!
+                <strong className="text-brand">Colors</strong>, and <strong className="text-brand">Highlight</strong> tabs, then hit <strong className="text-foreground">Save</strong> to store your signature video branding!
               </p>
             </div>
           ) : (

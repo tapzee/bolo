@@ -223,10 +223,10 @@ export function WordInspector({
         </div>
       </div>
 
-      {/* --- EMPHASIS ROLE (DYNAMIC HIGHLIGHT) --- */}
+      {/* --- HIGHLIGHT ROLE (DYNAMIC HIGHLIGHT) --- */}
       <div className="space-y-3">
         <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground/80">
-          Word Emphasis Role
+          Word Highlight Role
         </Label>
         <div className="grid grid-cols-2 gap-2">
           {[
@@ -251,7 +251,7 @@ export function WordInspector({
           ))}
         </div>
         <p className="text-[10px] text-muted-foreground/70 leading-relaxed">
-          Auto-assignment will pick the role if left on &apos;Auto&apos;. Only templates with Dynamic Emphasis support these roles.
+          Auto-assignment will pick the role if left on &apos;Auto&apos;. Only templates with Dynamic Highlight support these roles.
         </p>
       </div>
 
