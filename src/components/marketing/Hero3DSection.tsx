@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { motion } from "motion/react";
 import Link from "next/link";
 import {
   Sparkles,
@@ -88,12 +89,37 @@ export function Hero3DSection() {
           </span>
         </div>
 
-        {/* Unobstructed, Crystal-Clear Headline */}
-        <h1 className="mt-7 text-4xl font-black tracking-tight sm:text-6xl lg:text-7xl xl:text-8xl text-balance text-foreground leading-[1.08]">
+        {/* Unobstructed, Crystal-Clear Headline with 3D Floating Accent */}
+        <h1 className="mt-7 text-4xl font-black tracking-tight sm:text-6xl lg:text-7xl xl:text-8xl text-balance text-foreground leading-[1.12]">
           Captions that actually get{" "}
-          <span className="relative inline-block whitespace-nowrap">
+          <motion.span
+            className="relative inline-block whitespace-nowrap cursor-default select-none pt-1"
+            animate={{
+              y: [-6, 6, -6],
+              rotate: [-0.75, 0.75, -0.75],
+            }}
+            transition={{
+              duration: 4,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+            whileHover={{ scale: 1.05 }}
+            style={{
+              transformStyle: "preserve-3d",
+            }}
+          >
+            {/* Floating Sparkle Pill */}
+            <motion.span
+              className="absolute -top-3 sm:-top-4 -right-3 sm:-right-4 size-6 sm:size-7 flex items-center justify-center rounded-full bg-gradient-to-tr from-amber-400 to-orange-500 text-white shadow-lg shadow-orange-500/40 z-20"
+              animate={{ scale: [1, 1.15, 1], rotate: [0, 15, 0] }}
+              transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <Sparkles className="size-3.5 sm:size-4" />
+            </motion.span>
+
+            {/* 3D Floating Word Text with Deep Multi-Layer Shadow */}
             <span
-              className="relative z-10 italic font-serif font-normal bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 bg-clip-text text-transparent drop-shadow-[0_4px_24px_rgba(232,65,15,0.3)]"
+              className="relative z-10 italic font-serif font-normal bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 bg-clip-text text-transparent drop-shadow-[0_16px_32px_rgba(232,65,15,0.45)] drop-shadow-[0_4px_8px_rgba(0,0,0,0.15)]"
               style={{
                 fontFamily:
                   "var(--font-instrument-serif), var(--font-playfair), serif",
@@ -101,27 +127,30 @@ export function Hero3DSection() {
             >
               Hinglish right.
             </span>
-            {/* Glowing 3D light underline accent */}
+
+            {/* 3D Floating Ambient Light Pool Under-Plate */}
             <span
               aria-hidden
-              className="absolute -bottom-1 sm:-bottom-2 inset-x-0 h-[6px] sm:h-[10px] -z-0 rounded-full bg-gradient-to-r from-orange-500/80 via-amber-400 to-orange-500/80 blur-[4px] opacity-75"
+              className="absolute -bottom-1 sm:-bottom-2.5 inset-x-1 h-[8px] sm:h-[12px] -z-0 rounded-full bg-gradient-to-r from-orange-500/90 via-amber-400 to-orange-500/90 blur-[6px] opacity-85 shadow-[0_10px_20px_rgba(232,65,15,0.4)]"
             />
+
+            {/* 3D Floating Curved Ribbon */}
             <svg
-              className="absolute -bottom-2 sm:-bottom-3.5 inset-x-0 w-full text-brand/70"
-              height="8"
-              viewBox="0 0 100 8"
+              className="absolute -bottom-2 sm:-bottom-4 inset-x-0 w-full text-brand drop-shadow-[0_6px_12px_rgba(232,65,15,0.4)]"
+              height="10"
+              viewBox="0 0 100 10"
               preserveAspectRatio="none"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                d="M0 5C20 1 30 7 50 4C70 1 80 7 100 3"
+                d="M0 6C20 1 30 9 50 5C70 1 80 9 100 4"
                 stroke="currentColor"
-                strokeWidth="3.5"
+                strokeWidth="4"
                 strokeLinecap="round"
               />
             </svg>
-          </span>
+          </motion.span>
         </h1>
 
         {/* Accurate Subtitle */}
