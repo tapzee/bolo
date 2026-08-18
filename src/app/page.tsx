@@ -7,7 +7,6 @@ import {
   ShieldCheck,
   MousePointerClick,
   Zap,
-  CheckCircle2,
   ArrowRight,
   Flame,
   Star,

@@ -16,7 +16,6 @@ import {
   Download,
   Edit3,
   Film,
-  Grid,
   Languages,
   Layers,
   Maximize2,
