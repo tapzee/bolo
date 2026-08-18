@@ -212,15 +212,14 @@ const DEMO_STYLES: DemoStyle[] = [
 
 export function Hero3DSection() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [activeWordIndex, setActiveWordIndex] = useState(0);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [particleMode, setParticleMode] = useState(false);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Live reel playback state
   const [selectedPhrase, setSelectedPhrase] = useState<SamplePhrase>(PHRASES[0]!);
   const [selectedStyle, setSelectedStyle] = useState<DemoStyle>(DEMO_STYLES[0]!);
-  const [activeWordIndex, setActiveWordIndex] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(true);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Parallax 3D tilt tracking
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -327,7 +326,7 @@ export function Hero3DSection() {
             1. HERO HEADLINE & ACTIONS (Top Section)
            =================================================================== */}
         <div className="mx-auto max-w-4xl text-center">
-          {/* Top 3D Pill Tag with Interactive Particle Toggle */}
+          {/* Top 3D Pill Tag */}
           <div className="inline-flex flex-wrap items-center justify-center gap-2 rounded-full border border-brand/30 bg-gradient-to-r from-brand-soft/90 via-card to-brand-soft/90 p-1 pr-3 shadow-lg shadow-brand/10 backdrop-blur-xl transition-transform hover:scale-105">
             <span className="flex items-center gap-1 rounded-full bg-gradient-to-r from-brand to-brand-secondary px-2.5 py-0.5 text-[11px] font-bold text-white shadow-sm">
               <Sparkles className="size-3" />
@@ -336,36 +335,13 @@ export function Hero3DSection() {
             <span className="text-xs font-semibold text-foreground tracking-tight">
               Desi Auto-Caption for Indian Creators
             </span>
-            <button
-              onClick={() => setParticleMode(!particleMode)}
-              className={`ml-1 flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold transition-all ${
-                particleMode
-                  ? "bg-gradient-to-r from-brand to-brand-secondary text-white shadow-sm animate-pulse"
-                  : "bg-muted/80 text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <Sparkles className="size-2.5" />
-              <span>{particleMode ? "Particle FX Active ✨" : "Try Particle FX"}</span>
-            </button>
           </div>
 
-          {/* Letter-by-Letter Acoustic Wave Frequency OR Interactive TextParticle Headline */}
+          {/* Interactive TextParticle Headline with Wave Effect Fallback */}
           <h1 className="mt-7 text-4xl font-black tracking-tight sm:text-6xl lg:text-7xl xl:text-8xl text-balance text-foreground leading-[1.1]">
             Captions that actually get{" "}
-            {particleMode ? (
-              <span className="relative inline-block w-full max-w-[420px] sm:max-w-[540px] h-20 sm:h-28 align-middle -my-2">
-                <TextParticle
-                  text="Hinglish right."
-                  fontSize={85}
-                  particleDensity={4}
-                  particleSize={2.5}
-                  particleColor="#10b981"
-                  className="w-full h-full cursor-crosshair"
-                />
-              </span>
-            ) : (
-              <span className="relative inline-block whitespace-nowrap cursor-default select-none pt-1">
-                {/* Every Letter Moves in a Frequency Wave */}
+            <span className="relative inline-block w-full max-w-[420px] sm:max-w-[540px] h-20 sm:h-28 align-middle -my-2 group">
+              <div className="absolute inset-0 opacity-10 group-hover:opacity-0 transition-opacity duration-500 pointer-events-none">
                 <span
                   className="relative z-10 italic font-serif font-normal bg-gradient-to-r from-brand via-brand-secondary to-brand bg-clip-text text-transparent drop-shadow-[0_16px_32px_rgba(36,184,108,0.35)] inline-flex"
                   style={{
@@ -387,38 +363,47 @@ export function Hero3DSection() {
                     </span>
                   ))}
                 </span>
-
-                {/* Synchronized Flowing Ambient Light Pool & Curved Ribbon Line */}
-                <div
-                  className="absolute -bottom-2 sm:-bottom-3.5 inset-x-0 w-full pointer-events-none"
-                  style={{
-                    animation: "waveRibbon 2.2s ease-in-out infinite",
-                    animationDelay: "0.36s",
-                    willChange: "transform",
-                  }}
+              </div>
+              <TextParticle
+                text="Hinglish right."
+                fontSize={85}
+                particleDensity={4}
+                particleSize={2.5}
+                particleColor="#24B86C"
+                className="w-full h-full cursor-crosshair z-20 relative mix-blend-screen"
+                forceMultiplier={8}
+                radius={120}
+              />
+              {/* Synchronized Flowing Ambient Light Pool & Curved Ribbon Line */}
+              <div
+                className="absolute -bottom-2 sm:-bottom-3.5 inset-x-0 w-full pointer-events-none group-hover:opacity-50 transition-opacity duration-300"
+                style={{
+                  animation: "waveRibbon 2.2s ease-in-out infinite",
+                  animationDelay: "0.36s",
+                  willChange: "transform",
+                }}
+              >
+                <span
+                  aria-hidden
+                  className="absolute -top-1 inset-x-1 h-[8px] sm:h-[12px] -z-0 rounded-full bg-gradient-to-r from-brand/90 via-brand-secondary to-brand/90 blur-[6px] opacity-85 shadow-[0_10px_20px_rgba(36,184,108,0.4)]"
+                />
+                <svg
+                  className="w-full text-brand drop-shadow-[0_6px_12px_rgba(36,184,108,0.4)]"
+                  height="10"
+                  viewBox="0 0 100 10"
+                  preserveAspectRatio="none"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
                 >
-                  <span
-                    aria-hidden
-                    className="absolute -top-1 inset-x-1 h-[8px] sm:h-[12px] -z-0 rounded-full bg-gradient-to-r from-brand/90 via-brand-secondary to-brand/90 blur-[6px] opacity-85 shadow-[0_10px_20px_rgba(36,184,108,0.4)]"
+                  <path
+                    d="M0 6C20 1 30 9 50 5C70 1 80 9 100 4"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                    strokeLinecap="round"
                   />
-                  <svg
-                    className="w-full text-brand drop-shadow-[0_6px_12px_rgba(16,185,129,0.4)]"
-                    height="10"
-                    viewBox="0 0 100 10"
-                    preserveAspectRatio="none"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M0 6C20 1 30 9 50 5C70 1 80 9 100 4"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                </div>
-              </span>
-            )}
+                </svg>
+              </div>
+            </span>
           </h1>
 
           {/* Subtitle */}
@@ -473,7 +458,7 @@ export function Hero3DSection() {
         <div
           className="relative mt-16 sm:mt-24 mx-auto max-w-5xl transition-transform duration-700 ease-out"
           style={{
-            transform: `translate3d(${mousePos.x * 18}px, ${mousePos.y * 18}px, 0)`,
+            transform: `translate3d(${mousePos.x * 18}px, ${mousePos.y * 18}px, 0) rotateX(${-mousePos.y * 8}deg) rotateY(${mousePos.x * 8}deg)`,
             transformStyle: "preserve-3d",
           }}
         >

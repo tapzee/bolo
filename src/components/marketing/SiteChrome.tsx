@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -70,10 +70,36 @@ function Wordmark() {
 
 export function MarketingHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        setIsVisible(false);
+        setMobileMenuOpen(false);
+      } else {
+        setIsVisible(true);
+      }
+      
+      setIsScrolled(currentScrollY > 20);
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [lastScrollY]);
 
   return (
-    <header className="fixed top-3 sm:top-5 inset-x-0 z-50 px-4 sm:px-6 pointer-events-none">
-      <div className="pointer-events-auto mx-auto max-w-5xl rounded-full border border-white/60 dark:border-white/10 bg-card/80 dark:bg-card/85 p-2 px-3 sm:px-5 shadow-[0_16px_36px_-10px_rgba(0,0,0,0.12),0_0_24px_rgba(16,185,129,0.12)] backdrop-blur-2xl transition-all duration-300 flex items-center justify-between gap-4">
+    <header className={`fixed top-3 sm:top-5 inset-x-0 z-50 px-4 sm:px-6 pointer-events-none transition-transform duration-500 ease-in-out ${isVisible ? "translate-y-0" : "-translate-y-24"}`}>
+      <div className={`pointer-events-auto mx-auto max-w-5xl rounded-full border transition-all duration-500 flex items-center justify-between gap-4 ${
+        isScrolled 
+          ? "border-white/60 dark:border-white/10 bg-card/80 dark:bg-card/85 p-2 px-3 sm:px-5 shadow-[0_16px_36px_-10px_rgba(0,0,0,0.12),0_0_24px_rgba(36,184,108,0.12)] backdrop-blur-2xl" 
+          : "border-transparent bg-transparent p-3 px-3 sm:px-5 shadow-none"
+      }`}>
         {/* Wordmark Logo */}
         <Wordmark />
 
