@@ -16,13 +16,12 @@ function Wordmark() {
           priority
         />
       </div>
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-baseline gap-1.5">
         <span className="text-lg font-black tracking-tight text-foreground">
           Desi
         </span>
-        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 dark:bg-emerald-500/25 border border-emerald-500/30 px-2 py-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 tracking-wider uppercase">
-          <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
-          AUTO-CAPTION
+        <span className="text-lg font-medium tracking-tight text-foreground">
+          Auto-Caption
         </span>
       </div>
     </Link>

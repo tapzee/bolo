@@ -58,17 +58,16 @@ function Wordmark({ size = "default" }: { size?: "default" | "large" }) {
           priority
         />
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex items-baseline gap-1.5">
         <span className={`font-black tracking-tight text-foreground ${
           isLarge ? "text-2xl sm:text-3xl" : "text-xl sm:text-2xl"
         }`}>
           Desi
         </span>
-        <span className={`inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 dark:bg-emerald-500/25 border border-emerald-500/30 font-bold text-emerald-600 dark:text-emerald-400 tracking-wider uppercase ${
-          isLarge ? "px-3 py-1 text-xs" : "px-2.5 py-0.5 text-[11px]"
+        <span className={`font-medium tracking-tight text-foreground ${
+          isLarge ? "text-2xl sm:text-3xl" : "text-xl sm:text-2xl"
         }`}>
-          <span className="size-1.5 sm:size-2 rounded-full bg-emerald-500 animate-pulse" />
-          AUTO-CAPTION
+          Auto-Caption
         </span>
       </div>
     </Link>

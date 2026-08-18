@@ -110,13 +110,12 @@ export function AppSidebar() {
             />
           </div>
           {collapsed ? null : (
-            <div className="flex items-center gap-1.5 overflow-hidden">
+            <div className="flex items-baseline gap-1 overflow-hidden">
               <span className="text-base font-black tracking-tight text-foreground">
                 Desi
               </span>
-              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 dark:bg-emerald-500/25 border border-emerald-500/30 px-1.5 py-0.5 text-[9px] font-bold text-emerald-600 dark:text-emerald-400 tracking-wider uppercase">
-                <span className="size-1 rounded-full bg-emerald-500 animate-pulse" />
-                AUTO-CAPTION
+              <span className="text-sm font-medium tracking-tight text-foreground">
+                Auto-Caption
               </span>
             </div>
           )}
