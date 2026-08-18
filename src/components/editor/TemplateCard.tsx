@@ -40,6 +40,7 @@ export const TemplateCard = memo(function TemplateCard({
   const isSpiralReveal = template.engine === "spiralReveal";
   const isFloatingBubble = template.engine === "floatingBubble";
   const isEditorialStackHero = template.engine === "editorialStackHero";
+  const isDualLine = template.engine === "dualLine";
 
   // Templates that deliberately carry no outline (the premium pair, and the
   // editorial engines) must not be previewed with one — the card is the only
@@ -348,6 +349,38 @@ export const TemplateCard = memo(function TemplateCard({
           <div className="flex w-full flex-col items-center justify-center leading-none">
             <span style={{ fontSize: previewSize * 0.4, color: config.baseColor, fontFamily: FONT_FAMILY.inter, textTransform: "uppercase", letterSpacing: "0.1em" }}>THE NEW</span>
             <span style={{ fontSize: previewSize * 1.2, color: config.activeColor, fontFamily: FONT_FAMILY.playfair, fontStyle: "italic", fontWeight: 700 }}>Bolo</span>
+          </div>
+        ) : isDualLine ? (
+          <div className="flex flex-col items-center justify-center leading-none">
+            <span
+              style={{
+                fontFamily: FONT_FAMILY[config.fontId ?? "anton"],
+                fontWeight: Math.max(800, config.fontWeight),
+                fontSize: previewSize * 1.05,
+                textTransform: "uppercase",
+                color: config.accentColor ?? "#FF2A2A",
+                textShadow: `0 0 ${previewSize * 0.15}px ${config.accentColor ?? "#FF2A2A"}cc, 0 2px 6px rgba(0,0,0,0.5)`,
+                zIndex: 1,
+                lineHeight: 0.9,
+              }}
+            >
+              PAR EXTRA
+            </span>
+            <span
+              style={{
+                fontFamily: FONT_FAMILY[config.specialFontId ?? config.secondaryFontId ?? "kaushanScript"],
+                fontStyle: "italic",
+                fontWeight: 700,
+                fontSize: previewSize * 1.25,
+                color: config.baseColor ?? "#FFFFFF",
+                textShadow: "0 2px 6px rgba(0,0,0,0.6)",
+                marginTop: `-${previewSize * 0.36}px`,
+                zIndex: 2,
+                lineHeight: 0.9,
+              }}
+            >
+              cost jiske
+            </span>
           </div>
         ) : (
           <span

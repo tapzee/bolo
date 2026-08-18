@@ -32,6 +32,7 @@ import {
   canvasForSource,
   formatDuration,
   getStyleDefaults,
+  isResolutionAllowed,
   isStyleId,
   lowConfidenceIndices,
   msToFrames,
@@ -313,10 +314,14 @@ export function CreateFlow() {
     [state.video],
   );
 
-  // Watermark and resolution now follow the account rather than being pinned
-  // on. `isFreeTier: true` was hardcoded here, so a paying user still got a
-  // watermark burned in — see AGENTS.md, "Cross-boundary edit, 7 Aug".
   const { entitlements } = useCredits();
+
+  // Auto-clamp resolution if it exceeds the account's plan entitlement
+  useEffect(() => {
+    if (!isResolutionAllowed(resolution, entitlements.maxResolution)) {
+      setResolution(entitlements.maxResolution);
+    }
+  }, [resolution, entitlements.maxResolution]);
 
   const exportState = useVideoExport({
     file: state.file,
@@ -579,6 +584,7 @@ export function CreateFlow() {
         resolution={resolution}
         onResolutionChange={setResolution}
         allowedResolutions={allowedResolutions}
+        maxResolution={entitlements.maxResolution}
         saveStatus={autosave.status}
         saveError={autosave.error}
         canUndo={editor.canUndo}

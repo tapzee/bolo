@@ -402,8 +402,12 @@ const layoutLines = (
       const splitIndex = Math.ceil(page.tokens.length / 2);
       const isTopLine = index < splitIndex;
       const isScript = !isTopLine && !hasDevanagari(text);
-      fontSize = config.fontSizePx * (isTopLine ? 1 : 1.35);
-      const fam = isTopLine ? family : isScript ? resolveFontFamily(config.specialFontId ?? "rougeScript") : family;
+      fontSize = config.fontSizePx * (isTopLine ? 1 : 1.25);
+      const fam = isTopLine
+        ? family
+        : isScript
+          ? resolveFontFamily(config.specialFontId ?? config.secondaryFontId ?? "kaushanScript")
+          : family;
       const weight = isTopLine ? Math.max(800, config.fontWeight) : 700;
       ctx.font = canvasFont(weight, fontSize, fam, isScript ? "italic" : "normal");
       fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
@@ -1215,7 +1219,9 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
   const heroMixedBackdrop = config.styleId === "heroMixed" && pageSeed % 3 === 0;
   const lines = layoutLines(ctx, page, config, maxWidth, family, heroIndex, heroMixedBackdrop, specialIndex, frame, fps, pageSeed);
 
-  const gapY = lineGapPx(config.lineHeight, config.fontSizePx);
+  const gapY = config.styleId === "dualLine"
+    ? -0.34 * config.fontSizePx
+    : lineGapPx(config.lineHeight, config.fontSizePx);
   const blockHeight =
     lines.reduce((total, line) => total + line.height, 0) +
     Math.max(0, lines.length - 1) * gapY;
@@ -1549,27 +1555,54 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           const splitIndex = Math.ceil(page.tokens.length / 2);
           const isTopLine = index < splitIndex;
           const isScript = !isTopLine && !hasDevanagari(text);
-          
-          const lift = (1 - enter) * 40 * canvasScale({ width, height });
-          ctx.globalAlpha = entrance * enter;
-          ctx.translate(cx, cy + lift);
+          const scaleFactor = canvasScale({ width, height });
 
-          const color = isTopLine ? config.accentColor : config.baseColor;
-          const fam = isTopLine ? family : isScript ? resolveFontFamily(config.specialFontId ?? "rougeScript") : family;
+          // Clean, organized vertical animation:
+          // Top row enters smoothly from up to down
+          // Bottom row enters smoothly from down to up
+          const travel = isTopLine
+            ? (1 - enter) * -28 * scaleFactor
+            : (1 - enter) * 28 * scaleFactor;
+
+          ctx.globalAlpha = entrance * enter;
+          ctx.translate(cx, cy + travel);
+
+          const color = isTopLine
+            ? (token.color ?? config.accentColor ?? "#FF2A2A")
+            : (token.color ?? config.baseColor ?? "#FFFFFF");
+          const fam = isTopLine
+            ? family
+            : isScript
+              ? resolveFontFamily(config.specialFontId ?? config.secondaryFontId ?? "kaushanScript")
+              : family;
           const weight = isTopLine ? Math.max(800, config.fontWeight) : 700;
-          const currentFontSize = config.fontSizePx * (isTopLine ? 1 : 1.35);
+          const currentFontSize = config.fontSizePx * (isTopLine ? 1 : 1.25);
           ctx.font = canvasFont(weight, currentFontSize, fam, isScript ? "italic" : "normal");
-          
-          strokeThenFill(
-            ctx,
-            text,
-            -tokenWidth / 2,
-            0,
-            color,
-            isScript ? 0 : config.strokeWidthPx,
-            config.strokeColor,
-          );
-          
+
+          if (isTopLine) {
+            // Subtle soft glow on primary all-caps font, zero outline
+            const glowColor = config.glowColor ?? config.accentColor ?? "#FF2A2A";
+            ctx.shadowColor = glowColor;
+            ctx.shadowBlur = currentFontSize * 0.16;
+            ctx.fillStyle = color;
+            ctx.fillText(text, -tokenWidth / 2, 0);
+            clearShadow(ctx);
+
+            ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
+            ctx.shadowBlur = currentFontSize * 0.08;
+            ctx.shadowOffsetY = currentFontSize * 0.03;
+            ctx.fillText(text, -tokenWidth / 2, 0);
+            clearShadow(ctx);
+          } else {
+            // Secondary cursive font: zero glow, zero outline
+            ctx.shadowColor = "rgba(0, 0, 0, 0.6)";
+            ctx.shadowBlur = currentFontSize * 0.06;
+            ctx.shadowOffsetY = currentFontSize * 0.03;
+            ctx.fillStyle = color;
+            ctx.fillText(text, -tokenWidth / 2, 0);
+            clearShadow(ctx);
+          }
+
           // Restore font for layout loop next iteration
           ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
           break;

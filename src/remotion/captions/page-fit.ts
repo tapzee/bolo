@@ -481,6 +481,13 @@ export const resolveTokenBoxes = (
       return tokens.map((token, i) => toBox(token.text, config.fontSizePx * floatingBubbleFontScale(roles[i]!)));
     }
 
+    case "dualLine": {
+      const splitIndex = Math.ceil(tokens.length / 2);
+      return tokens.map((token, i) =>
+        toBox(token.text, config.fontSizePx * (i < splitIndex ? 1 : 1.25)),
+      );
+    }
+
     default:
       // Flat styles (bold-yellow, pop, box, glow, clean, kinetic, dynamic,
       // typewriter, glitch, focus, and any future style that doesn't vary size

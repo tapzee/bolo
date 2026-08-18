@@ -13,6 +13,7 @@ import {
   VolumeX,
 } from "lucide-react";
 import { VIDEO_FPS } from "@/core";
+import { cn } from "@/lib/utils";
 
 const formatTimecode = (frame: number): string => {
   const totalSeconds = Math.max(0, frame) / VIDEO_FPS;
@@ -27,38 +28,43 @@ export interface TransportBarProps {
 }
 
 /**
- * Custom playback transport.
- *
- * Replaces Remotion's built-in controls for two reasons: they cannot be styled
- * to match the editor, and they offer no frame stepping — which is the whole
- * point of a word-level caption tool, where getting a word onset right means
- * nudging one frame at a time.
- *
- * The timecode is driven by the player's `frameupdate` event written straight
- * into a ref'd DOM node, not React state. At 30fps a state update per frame
- * would re-render this bar 30 times a second, next to a live video preview.
- * Only play/pause — which changes at human speed — lives in state.
+ * Custom playback transport with interactive scrubber timeline.
  */
 export function TransportBar({ player, durationInFrames }: TransportBarProps) {
   const [playing, setPlaying] = useState(false);
   const [muted, setMuted] = useState(false);
+  const [isScrubbing, setIsScrubbing] = useState(false);
+  const [hoverTime, setHoverTime] = useState<string | null>(null);
+  const [hoverX, setHoverX] = useState<number | null>(null);
+
   const timecodeRef = useRef<HTMLSpanElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
+  const thumbRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+
+  const updateScrubberVisuals = useCallback(
+    (frame: number) => {
+      if (timecodeRef.current !== null) {
+        timecodeRef.current.textContent = formatTimecode(frame);
+      }
+      const ratio = durationInFrames <= 1 ? 0 : Math.min(1, Math.max(0, frame / (durationInFrames - 1)));
+      if (progressRef.current !== null) {
+        progressRef.current.style.transform = `scaleX(${ratio})`;
+      }
+      if (thumbRef.current !== null) {
+        thumbRef.current.style.left = `${ratio * 100}%`;
+      }
+    },
+    [durationInFrames],
+  );
 
   useEffect(() => {
     if (player === null) return;
 
     const onFrame = (event: { detail: { frame: number } }): void => {
-      const frame = event.detail.frame;
-
-      if (timecodeRef.current !== null) {
-        timecodeRef.current.textContent = formatTimecode(frame);
-      }
-      if (progressRef.current !== null) {
-        const ratio = durationInFrames <= 1 ? 0 : frame / (durationInFrames - 1);
-        // scaleX rather than width: stays on the compositor.
-        progressRef.current.style.transform = `scaleX(${Math.min(1, Math.max(0, ratio))})`;
-      }
+      // Don't fight manual pointer scrubbing
+      if (isScrubbing) return;
+      updateScrubberVisuals(event.detail.frame);
     };
 
     const onPlay = (): void => setPlaying(true);
@@ -69,13 +75,66 @@ export function TransportBar({ player, durationInFrames }: TransportBarProps) {
     player.addEventListener("pause", onPause);
 
     setPlaying(player.isPlaying());
+    updateScrubberVisuals(player.getCurrentFrame());
 
     return () => {
       player.removeEventListener("frameupdate", onFrame);
       player.removeEventListener("play", onPlay);
       player.removeEventListener("pause", onPause);
     };
-  }, [player, durationInFrames]);
+  }, [player, durationInFrames, isScrubbing, updateScrubberVisuals]);
+
+  const seekFromPointer = useCallback(
+    (clientX: number) => {
+      if (player === null || trackRef.current === null || durationInFrames <= 1) return;
+      const rect = trackRef.current.getBoundingClientRect();
+      const ratio = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+      const targetFrame = Math.round(ratio * (durationInFrames - 1));
+      player.seekTo(targetFrame);
+      updateScrubberVisuals(targetFrame);
+    },
+    [player, durationInFrames, updateScrubberVisuals],
+  );
+
+  const handlePointerDown = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      if (player === null || durationInFrames <= 1) return;
+      e.currentTarget.setPointerCapture(e.pointerId);
+      setIsScrubbing(true);
+      seekFromPointer(e.clientX);
+    },
+    [player, durationInFrames, seekFromPointer],
+  );
+
+  const handlePointerMove = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      if (isScrubbing) {
+        seekFromPointer(e.clientX);
+      }
+      if (trackRef.current !== null && durationInFrames > 1) {
+        const rect = trackRef.current.getBoundingClientRect();
+        const ratio = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
+        const hoverFrame = Math.round(ratio * (durationInFrames - 1));
+        setHoverTime(formatTimecode(hoverFrame));
+        setHoverX(ratio * 100);
+      }
+    },
+    [isScrubbing, durationInFrames, seekFromPointer],
+  );
+
+  const handlePointerUp = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      if (isScrubbing) {
+        try {
+          e.currentTarget.releasePointerCapture(e.pointerId);
+        } catch {
+          // ignore if capture was already released
+        }
+        setIsScrubbing(false);
+      }
+    },
+    [isScrubbing],
+  );
 
   const step = useCallback(
     (frames: number) => {
@@ -86,8 +145,9 @@ export function TransportBar({ player, durationInFrames }: TransportBarProps) {
         Math.max(0, player.getCurrentFrame() + frames),
       );
       player.seekTo(next);
+      updateScrubberVisuals(next);
     },
-    [player, durationInFrames],
+    [player, durationInFrames, updateScrubberVisuals],
   );
 
   const toggle = useCallback(() => {
@@ -95,8 +155,7 @@ export function TransportBar({ player, durationInFrames }: TransportBarProps) {
     player.toggle();
   }, [player]);
 
-  // Space to play/pause, arrows to step. Skipped while typing, or editing a
-  // caption would toggle playback on every space character.
+  // Space to play/pause, arrows to step
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent): void => {
       const target = event.target as HTMLElement | null;
@@ -126,16 +185,19 @@ export function TransportBar({ player, durationInFrames }: TransportBarProps) {
   }, [toggle, step]);
 
   const buttonClass =
-    "flex size-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-40";
+    "flex size-8 items-center justify-center rounded-lg text-muted-foreground transition-all hover:bg-accent hover:text-foreground active:scale-95 disabled:opacity-40";
 
   return (
-    <div className="flex w-full items-center gap-2 rounded-xl border bg-card/60 px-2 py-1.5">
+    <div className="flex w-full items-center gap-2 rounded-2xl border bg-card/85 p-2 shadow-sm backdrop-blur-md">
       <button
         type="button"
         className={buttonClass}
         title="Go to start"
         disabled={player === null}
-        onClick={() => player?.seekTo(0)}
+        onClick={() => {
+          player?.seekTo(0);
+          updateScrubberVisuals(0);
+        }}
       >
         <SkipBack className="size-3.5" />
       </button>
@@ -155,7 +217,7 @@ export function TransportBar({ player, durationInFrames }: TransportBarProps) {
         onClick={toggle}
         disabled={player === null}
         title={playing ? "Pause (Space)" : "Play (Space)"}
-        className="flex size-9 items-center justify-center rounded-full bg-brand text-brand-foreground transition-transform hover:scale-105 disabled:opacity-40"
+        className="flex size-9 items-center justify-center rounded-full bg-brand text-brand-foreground shadow-md transition-all hover:scale-105 active:scale-95 disabled:opacity-40"
       >
         {playing ? (
           <Pause className="size-4 fill-current" />
@@ -179,27 +241,70 @@ export function TransportBar({ player, durationInFrames }: TransportBarProps) {
         className={buttonClass}
         title="Go to end"
         disabled={player === null}
-        onClick={() => player?.seekTo(durationInFrames - 1)}
+        onClick={() => {
+          const endFrame = Math.max(0, durationInFrames - 1);
+          player?.seekTo(endFrame);
+          updateScrubberVisuals(endFrame);
+        }}
       >
         <SkipForward className="size-3.5" />
       </button>
 
-      <div className="mx-1 h-4 w-px bg-border" />
+      <div className="mx-1 h-4 w-px bg-border/60" />
 
-      <span className="font-mono text-xs tabular-nums text-foreground">
-        <span ref={timecodeRef}>0:00</span>
+      <span className="font-mono text-xs tabular-nums text-foreground select-none">
+        <span ref={timecodeRef} className="font-semibold text-brand">
+          0:00
+        </span>
         <span className="mx-1 text-muted-foreground/50">/</span>
         <span className="text-muted-foreground">
           {formatTimecode(durationInFrames - 1)}
         </span>
       </span>
 
-      <div className="mx-1 h-1 min-w-0 flex-1 overflow-hidden rounded-full bg-muted">
-        <div
-          ref={progressRef}
-          className="h-full w-full origin-left rounded-full bg-brand will-change-transform"
-          style={{ transform: "scaleX(0)" }}
-        />
+      {/* Interactive Drag & Click Timeline Scrubber */}
+      <div
+        ref={trackRef}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
+        onMouseLeave={() => {
+          setHoverTime(null);
+          setHoverX(null);
+        }}
+        className="group relative mx-2 flex h-7 min-w-0 flex-1 cursor-pointer items-center select-none touch-none"
+        title="Click or drag to seek anywhere in the video"
+      >
+        {/* Hover timestamp tooltip */}
+        {hoverTime !== null && hoverX !== null ? (
+          <div
+            className="pointer-events-none absolute -top-6 -translate-x-1/2 rounded bg-foreground px-1.5 py-0.5 font-mono text-[10px] font-bold text-background shadow-md transition-all"
+            style={{ left: `${hoverX}%` }}
+          >
+            {hoverTime}
+          </div>
+        ) : null}
+
+        {/* Track groove */}
+        <div className="relative h-2 w-full overflow-visible rounded-full bg-muted/90 transition-all group-hover:h-2.5">
+          {/* Active progress fill */}
+          <div
+            ref={progressRef}
+            className="h-full w-full origin-left rounded-full bg-brand shadow-sm will-change-transform"
+            style={{ transform: "scaleX(0)" }}
+          />
+
+          {/* Interactive thumb handle */}
+          <div
+            ref={thumbRef}
+            className={cn(
+              "absolute top-1/2 -translate-x-1/2 -translate-y-1/2 size-3.5 rounded-full bg-white border-2 border-brand shadow-md transition-transform pointer-events-none",
+              isScrubbing ? "scale-125 opacity-100 ring-4 ring-brand/20" : "opacity-90 group-hover:opacity-100 group-hover:scale-110",
+            )}
+            style={{ left: "0%" }}
+          />
+        </div>
       </div>
 
       <button
@@ -215,8 +320,9 @@ export function TransportBar({ player, durationInFrames }: TransportBarProps) {
           else player.unmute();
         }}
       >
-        {muted ? <VolumeX className="size-3.5" /> : <Volume2 className="size-3.5" />}
+        {muted ? <VolumeX className="size-3.5 text-destructive" /> : <Volume2 className="size-3.5" />}
       </button>
     </div>
   );
 }
+

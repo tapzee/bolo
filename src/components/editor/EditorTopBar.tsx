@@ -2,7 +2,7 @@
 
 import { Check, CloudOff, Redo2, Subtitles, Undo2 } from "lucide-react";
 import type { ExportResolution } from "@/core";
-import { formatDuration } from "@/core";
+import { formatDuration, isResolutionAllowed, planForResolution } from "@/core";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -13,6 +13,7 @@ export interface EditorTopBarProps {
   onResolutionChange: (resolution: ExportResolution) => void;
   /** Tiers this device can actually handle. */
   allowedResolutions: readonly ExportResolution[];
+  maxResolution?: ExportResolution;
   saveStatus: string;
   saveError: string | null;
   canUndo: boolean;
@@ -38,6 +39,7 @@ export function EditorTopBar({
   resolution,
   onResolutionChange,
   allowedResolutions,
+  maxResolution,
   saveStatus,
   saveError,
   canUndo,
@@ -63,24 +65,37 @@ export function EditorTopBar({
 
         <div className="hidden items-center gap-0.5 rounded-lg bg-muted p-0.5 md:flex">
           {(["720p", "1080p", "4k"] as const).map((tier) => {
-            const allowed = allowedResolutions.includes(tier);
+            const planAllowed = maxResolution !== undefined ? isResolutionAllowed(tier, maxResolution) : true;
+            const deviceAllowed = allowedResolutions.includes(tier);
+            const allowed = planAllowed && deviceAllowed;
+            const reason = !planAllowed
+              ? `${tier === "4k" ? "4K" : tier} export is on ${planForResolution(tier) ?? "a paid"} plan and above`
+              : !deviceAllowed
+                ? "Not available on this device"
+                : undefined;
+
             return (
               <button
                 key={tier}
                 type="button"
                 disabled={!allowed}
                 aria-pressed={resolution === tier}
-                title={allowed ? undefined : "Not available on this device"}
-                onClick={() => onResolutionChange(tier)}
+                title={reason}
+                onClick={() => allowed && onResolutionChange(tier)}
                 className={cn(
-                  "rounded px-2 py-0.5 text-[11px] font-medium",
+                  "flex items-center gap-1 rounded px-2 py-0.5 text-[11px] font-medium transition-colors",
                   resolution === tier
                     ? "bg-card text-foreground shadow-soft"
                     : "text-muted-foreground hover:text-foreground",
                   !allowed && "cursor-not-allowed opacity-35",
                 )}
               >
-                {tier === "4k" ? "4K" : tier}
+                <span>{tier === "4k" ? "4K" : tier}</span>
+                {!planAllowed ? (
+                  <span className="rounded bg-amber-500/15 px-1 text-[8px] font-extrabold text-amber-500">
+                    PRO
+                  </span>
+                ) : null}
               </button>
             );
           })}

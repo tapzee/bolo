@@ -36,22 +36,26 @@ function Group({
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className="border-b last:border-b-0">
+    <div className="border-b border-border/40 last:border-b-0 py-1">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className="flex w-full items-center gap-1.5 py-2.5 text-[11px] font-semibold tracking-wide text-muted-foreground uppercase hover:text-foreground"
+        className="flex w-full items-center justify-between py-2 text-xs font-bold tracking-wider text-muted-foreground uppercase transition-colors hover:text-foreground group"
       >
-        <ChevronDown
-          className={cn(
-            "size-3 transition-transform",
-            open ? "rotate-0" : "-rotate-90",
-          )}
-        />
-        {title}
+        <span className="flex items-center gap-1.5 group-hover:text-foreground">
+          {title}
+        </span>
+        <div className="flex size-5 items-center justify-center rounded-md bg-muted/40 transition-transform group-hover:bg-muted">
+          <ChevronDown
+            className={cn(
+              "size-3 text-muted-foreground transition-transform duration-200",
+              open ? "rotate-0 text-foreground" : "-rotate-90",
+            )}
+          />
+        </div>
       </button>
-      {open ? <div className="space-y-3 pb-4">{children}</div> : null}
+      {open ? <div className="space-y-3.5 pt-1 pb-3">{children}</div> : null}
     </div>
   );
 }
@@ -59,7 +63,7 @@ function Group({
 function Row({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="flex items-center justify-between gap-3">
-      <Label className="shrink-0 text-xs text-muted-foreground">{label}</Label>
+      <Label className="shrink-0 text-xs font-medium text-muted-foreground">{label}</Label>
       <div className="flex min-w-0 flex-1 justify-end">{children}</div>
     </div>
   );
@@ -86,8 +90,8 @@ function SliderRow({
   return (
     <div className="space-y-1.5">
       <div className="flex items-center justify-between">
-        <Label className="text-xs text-muted-foreground">{label}</Label>
-        <span className="font-mono text-[11px] tabular-nums text-foreground">
+        <Label className="text-xs font-medium text-muted-foreground">{label}</Label>
+        <span className="rounded-md border border-border/40 bg-muted/60 px-1.5 py-0.5 font-mono text-[10px] font-semibold tabular-nums text-foreground shadow-xs">
           {Number.isInteger(value) ? value : value.toFixed(2)}
           {suffix}
         </span>
@@ -116,7 +120,7 @@ function Toggle({
 }) {
   return (
     <div className="flex items-center justify-between gap-3">
-      <Label className="text-xs text-muted-foreground">{label}</Label>
+      <Label className="text-xs font-medium text-muted-foreground">{label}</Label>
       <button
         type="button"
         role="switch"
@@ -124,17 +128,47 @@ function Toggle({
         aria-label={label}
         onClick={() => onChange(!checked)}
         className={cn(
-          "relative h-5 w-9 shrink-0 rounded-full transition-colors",
+          "relative h-5 w-9 shrink-0 rounded-full transition-colors duration-200 outline-none focus-visible:ring-2 focus-visible:ring-ring",
           checked ? "bg-brand" : "bg-muted",
         )}
       >
         <span
           className={cn(
-            "absolute top-0.5 size-4 rounded-full bg-white transition-transform",
+            "absolute top-0.5 size-4 rounded-full bg-white shadow-xs transition-transform duration-200",
             checked ? "translate-x-4.5" : "translate-x-0.5",
           )}
         />
       </button>
+    </div>
+  );
+}
+
+function ColorPicker({
+  value,
+  onChange,
+  ariaLabel,
+}: {
+  value: string;
+  onChange: (val: string) => void;
+  ariaLabel: string;
+}) {
+  return (
+    <div className="relative flex items-center gap-2">
+      <div
+        className="size-6 rounded-lg border border-border/70 shadow-xs ring-1 ring-border/20 cursor-pointer overflow-hidden transition-transform hover:scale-105"
+        style={{ backgroundColor: value }}
+      >
+        <input
+          type="color"
+          aria-label={ariaLabel}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="h-full w-full opacity-0 cursor-pointer"
+        />
+      </div>
+      <span className="font-mono text-[10px] text-muted-foreground/80 uppercase">
+        {value}
+      </span>
     </div>
   );
 }
@@ -450,39 +484,31 @@ export function TextPanel({
 
       <Group title="Highlight">
         <Row label="Spoken word">
-          <input
-            type="color"
-            aria-label="Spoken word colour"
+          <ColorPicker
+            ariaLabel="Spoken word colour"
             value={config.activeColor}
-            onChange={(event) => patch({ activeColor: event.target.value })}
-            className="h-7 w-14 cursor-pointer rounded border bg-transparent"
+            onChange={(val) => patch({ activeColor: val })}
           />
         </Row>
         <Row label="Base text">
-          <input
-            type="color"
-            aria-label="Base text colour"
+          <ColorPicker
+            ariaLabel="Base text colour"
             value={config.baseColor}
-            onChange={(event) => patch({ baseColor: event.target.value })}
-            className="h-7 w-14 cursor-pointer rounded border bg-transparent"
+            onChange={(val) => patch({ baseColor: val })}
           />
         </Row>
         <Row label="Accent">
-          <input
-            type="color"
-            aria-label="Accent colour"
+          <ColorPicker
+            ariaLabel="Accent colour"
             value={config.accentColor}
-            onChange={(event) => patch({ accentColor: event.target.value })}
-            className="h-7 w-14 cursor-pointer rounded border bg-transparent"
+            onChange={(val) => patch({ accentColor: val })}
           />
         </Row>
         <Row label="Secondary text">
-          <input
-            type="color"
-            aria-label="Secondary text colour"
+          <ColorPicker
+            ariaLabel="Secondary text colour"
             value={config.annotationColor || config.baseColor || "#ececec"}
-            onChange={(event) => patch({ annotationColor: event.target.value })}
-            className="h-7 w-14 cursor-pointer rounded border bg-transparent"
+            onChange={(val) => patch({ annotationColor: val })}
           />
         </Row>
         <SliderRow
@@ -572,12 +598,10 @@ export function TextPanel({
               onChange={(v) => patch({ strokeRatio: v })}
             />
             <Row label="Stroke colour">
-              <input
-                type="color"
-                aria-label="Stroke colour"
+              <ColorPicker
+                ariaLabel="Stroke colour"
                 value={config.strokeColor || "#000000"}
-                onChange={(event) => patch({ strokeColor: event.target.value })}
-                className="h-7 w-14 cursor-pointer rounded border bg-transparent"
+                onChange={(val) => patch({ strokeColor: val })}
               />
             </Row>
           </>
@@ -591,12 +615,10 @@ export function TextPanel({
         {config.glowEnabled || config.styleId === "glow" ? (
           <>
             <Row label="Glow colour">
-              <input
-                type="color"
-                aria-label="Glow colour"
+              <ColorPicker
+                ariaLabel="Glow colour"
                 value={config.glowColor || config.accentColor || "#ffd60a"}
-                onChange={(event) => patch({ glowColor: event.target.value })}
-                className="h-7 w-14 cursor-pointer rounded border bg-transparent"
+                onChange={(val) => patch({ glowColor: val })}
               />
             </Row>
             <SliderRow
@@ -619,14 +641,10 @@ export function TextPanel({
         {config.backgroundEnabled ? (
           <>
             <Row label="Colour">
-              <input
-                type="color"
-                aria-label="Background colour"
+              <ColorPicker
+                ariaLabel="Background colour"
                 value={config.backgroundColor}
-                onChange={(event) =>
-                  patch({ backgroundColor: event.target.value })
-                }
-                className="h-7 w-14 cursor-pointer rounded border bg-transparent"
+                onChange={(val) => patch({ backgroundColor: val })}
               />
             </Row>
             <SliderRow

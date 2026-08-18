@@ -466,6 +466,20 @@ New signature template engine replicating the exact 3-row, 3-font kinetic overla
 - **Intelligent 3-Row Arrangement & Negative Overlap**: Automatically distributes phrase tokens across 3 structured rows with negative leading (`lineHeight: 0.88`, negative margin overlap in DOM and offset Y-stepping in Canvas2D) and layered drop shadows for seamless readability.
 - **Dual-Renderer Parity**: `DesignWallaEditorialToken` in `src/remotion/styles/DesignWallaEditorial.tsx` + `TOKEN_RENDERERS` + `case "designWallaEditorial"` in `src/lib/export/draw-captions.ts` + `resolveTokenBoxes` in `src/remotion/captions/page-fit.ts`.
 
+### 2-Row Overlay Template, Interactive Video Scrubber & 4K Sync — 18 Aug
+
+- **2-Row Overlay Template (`dualLine`)**:
+  - Row 1: All-caps bold condensed primary font (`Anton`, `#FF2A2A` red) with soft subtle glow and zero outline.
+  - Row 2: Cursive brush script (`Kaushan Script`, `#FFFFFF` white) overlaying the bottom edge of Row 1 with zero glow and zero outline.
+  - Directional vertical motion: Row 1 enters smoothly from up-to-down, Row 2 enters from down-to-up into the overlaid lockup.
+  - Strict 2-line constraint (`linesPerPage: 2`, `maxWordsPerPage: 4`) and 100% parity across DOM (`DualLine.tsx`) and Canvas2D (`draw-captions.ts`).
+- **Interactive Video Timeline Scrubber**:
+  - `TransportBar.tsx` progress bar converted into an interactive click-and-drag timeline seeker with pointer capture (`setPointerCapture`), live scrubber thumb handle, and hover timestamp previews.
+- **4K Resolution Synchronization**:
+  - `EditorTopBar.tsx` and `CreateFlow.tsx` now check `isResolutionAllowed` against `entitlements.maxResolution`, display a `PRO` badge with upgrade tooltip when locked, and auto-clamp invalid resolution state.
+- **Editor UI Polish**:
+  - `TextPanel.tsx` enhanced with modern accordions, unified `ColorPicker` swatches, and pill-shaped slider badges.
+
 ---
 
 ## Before you hand back
