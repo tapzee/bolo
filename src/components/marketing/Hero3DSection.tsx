@@ -205,8 +205,6 @@ export function Hero3DSection() {
   const containerRef = useRef<HTMLDivElement>(null);
   const bgParallaxRef = useRef<HTMLDivElement>(null);
   const stage3DRef = useRef<HTMLDivElement>(null);
-  const textPathRef = useRef<SVGTextPathElement>(null);
-  const textRef = useRef<SVGTextElement>(null);
 
   const [isPlaying, setIsPlaying] = useState(true);
   const [activeWordIndex, setActiveWordIndex] = useState(0);
@@ -215,44 +213,6 @@ export function Hero3DSection() {
   // Live reel playback state
   const [selectedPhrase, setSelectedPhrase] = useState<SamplePhrase>(PHRASES[0]!);
   const [selectedStyle, setSelectedStyle] = useState<DemoStyle>(DEMO_STYLES[0]!);
-
-  // 60FPS / 120FPS ultra-smooth hardware-accelerated text ribbon flow loop
-  useEffect(() => {
-    let animId: number;
-    let offset = 0;
-    let lastTime = performance.now();
-    const speed = 42; // px per second for elegant reading speed
-
-    let segmentLength = 1000;
-    if (textRef.current) {
-      try {
-        const total = textRef.current.getComputedTextLength();
-        if (total > 0) {
-          segmentLength = total / 4;
-        }
-      } catch {
-        segmentLength = 1000;
-      }
-    }
-
-    const animateText = (now: number) => {
-      const dt = Math.min((now - lastTime) / 1000, 0.1);
-      lastTime = now;
-
-      offset -= speed * dt;
-      if (offset <= -segmentLength) {
-        offset += segmentLength;
-      }
-
-      if (textPathRef.current) {
-        textPathRef.current.setAttribute("startOffset", `${offset.toFixed(2)}px`);
-      }
-      animId = requestAnimationFrame(animateText);
-    };
-
-    animId = requestAnimationFrame(animateText);
-    return () => cancelAnimationFrame(animId);
-  }, []);
 
   // Decoupled mouse parallax for silky 60fps responsiveness without React re-renders
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -293,8 +253,7 @@ export function Hero3DSection() {
     };
   }, [isPlaying, selectedPhrase]);
 
-  const ribbonSegment = "the first part of the project, but I'm not totally sure. Also, I told the team the new timeline should be ready by tomorrow. We can review the final captions... • ";
-  const fullRibbonText = `${ribbonSegment}${ribbonSegment}${ribbonSegment}${ribbonSegment}`;
+  const marqueeText = "Yeh simple trick aapke reels ko 10X viral karegi • Auto-punctuated Hinglish captions in seconds • ";
 
   return (
     <section
@@ -335,6 +294,10 @@ export function Hero3DSection() {
           0% { transform: scaleY(0.3); }
           100% { transform: scaleY(1.1); }
         }
+        @keyframes heroMarquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
       `}} />
 
       {/* Atmospheric 3D Lighting in Emerald-Teal Radiance */}
@@ -368,54 +331,6 @@ export function Hero3DSection() {
       </div>
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 pt-16 sm:pt-24 z-10">
-        {/* Animated Wavy Text Ribbon SVG */}
-        <div className="absolute inset-0 z-[-1] pointer-events-none overflow-hidden flex items-start justify-center">
-          <svg
-            className="w-full max-w-[1500px] h-[550px] opacity-45 dark:opacity-25"
-            viewBox="0 0 1400 500"
-            preserveAspectRatio="xMidYMid slice"
-          >
-            {/* Guide Curve with subtle styling */}
-            <path
-              id="wavyRibbonPath"
-              d="M -250 420 C 100 480, 150 110, 420 160 C 720 210, 800 460, 1180 320 C 1420 230, 1550 310, 1800 360"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1"
-              strokeDasharray="4 6"
-              className="text-foreground/15 dark:text-foreground/10"
-            />
-            {/* Seamless 60FPS Continuous Flowing Text */}
-            <text
-              ref={textRef}
-              className="fill-foreground font-medium text-[15px] tracking-wide antialiased"
-            >
-              <textPath
-                ref={textPathRef}
-                href="#wavyRibbonPath"
-                startOffset="0px"
-              >
-                {fullRibbonText}
-              </textPath>
-            </text>
-          </svg>
-          {/* Floating Audio Pill overlay matching the reference image */}
-          <div className="absolute top-[310px] left-[58%] -translate-x-1/2 -translate-y-1/2 rotate-[-5deg] z-0 pointer-events-none hidden lg:flex items-center gap-[5px] px-6 h-12 rounded-full bg-background/90 backdrop-blur-md border border-foreground/10 shadow-[0_8px_32px_rgba(0,0,0,0.08)]">
-            {[4, 8, 14, 22, 12, 18, 8, 12, 16, 24, 14, 8, 20, 12, 6, 4].map((h, i) => (
-              <div 
-                key={i} 
-                className="w-1.5 bg-foreground rounded-full will-change-transform" 
-                style={{ 
-                  height: `${h}px`,
-                  transformOrigin: "center",
-                  animation: `waveformScale ${0.8 + (i % 3) * 0.15}s ease-in-out infinite alternate`,
-                  animationDelay: `${i * 0.1}s`,
-                  opacity: i < 4 || i > 11 ? 0.25 : 0.8
-                }} 
-              />
-            ))}
-          </div>
-        </div>
         {/* ===================================================================
             1. HERO HEADLINE & ACTIONS (Top Section)
            =================================================================== */}
@@ -451,6 +366,49 @@ export function Hero3DSection() {
             >
               Browse templates
             </Link>
+          </div>
+        </div>
+
+        {/* ===================================================================
+            1B. LIVE SYNC RIBBON ROW — clean, non-overlapping banner + pills
+           =================================================================== */}
+        <div className="relative mt-16 sm:mt-20 mx-auto max-w-3xl px-6 sm:px-0">
+          {/* Scrolling caption-preview banner */}
+          <div className="relative overflow-hidden rounded-full bg-foreground dark:bg-black py-3.5 sm:py-4 -rotate-2 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.35)]">
+            <div
+              className="flex w-max whitespace-nowrap will-change-transform"
+              style={{ animation: "heroMarquee 18s linear infinite" }}
+            >
+              <span className="px-4 text-sm sm:text-base font-medium tracking-wide text-background">
+                {marqueeText}
+                {marqueeText}
+              </span>
+              <span aria-hidden className="px-4 text-sm sm:text-base font-medium tracking-wide text-background">
+                {marqueeText}
+                {marqueeText}
+              </span>
+            </div>
+          </div>
+
+          {/* Split sentence pill + live waveform, overlapping the banner's top-left like the reference */}
+          <div className="absolute -top-5 left-2 sm:left-8 flex items-center gap-3 z-10">
+            <span className="rounded-full bg-brand text-white px-4 py-2 text-xs sm:text-sm font-bold shadow-lg">
+              Split sentence
+            </span>
+            <div className="hidden sm:flex items-center gap-[3px] px-4 h-10 rounded-full bg-card border border-border/80 shadow-md">
+              {[4, 8, 14, 10, 6, 12, 8, 5].map((h, i) => (
+                <div
+                  key={i}
+                  className="w-1 bg-brand rounded-full will-change-transform"
+                  style={{
+                    height: `${h}px`,
+                    transformOrigin: "center",
+                    animation: `waveformScale ${0.8 + (i % 3) * 0.15}s ease-in-out infinite alternate`,
+                    animationDelay: `${i * 0.1}s`,
+                  }}
+                />
+              ))}
+            </div>
           </div>
         </div>
 
