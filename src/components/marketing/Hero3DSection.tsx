@@ -185,68 +185,86 @@ export function Hero3DSection() {
             </span>
           </div>
 
-          {/* Unobstructed, Crystal-Clear Headline with 3D Floating Word */}
+          {/* Unobstructed Headline with Letter-by-Letter Wave Frequency Float */}
           <h1 className="mt-7 text-4xl font-black tracking-tight sm:text-6xl lg:text-7xl text-balance text-foreground leading-[1.12]">
             Captions that actually get{" "}
-            <motion.span
-              className="relative inline-block whitespace-nowrap cursor-default select-none pt-1"
-              animate={{
-                y: [-6, 6, -6],
-                rotate: [-0.75, 0.75, -0.75],
-              }}
-              transition={{
-                duration: 4,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-              whileHover={{ scale: 1.05 }}
-              style={{
-                transformStyle: "preserve-3d",
-              }}
-            >
-              {/* Floating Sparkle Pill */}
-              <motion.span
-                className="absolute -top-3 sm:-top-4 -right-3 sm:-right-4 size-6 sm:size-7 flex items-center justify-center rounded-full bg-gradient-to-tr from-amber-400 to-orange-500 text-white shadow-lg shadow-orange-500/40 z-20"
-                animate={{ scale: [1, 1.15, 1], rotate: [0, 15, 0] }}
-                transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-              >
-                <Sparkles className="size-3.5 sm:size-4" />
-              </motion.span>
-
-              {/* 3D Floating Word Text with Deep Multi-Layer Shadow */}
+            <span className="relative inline-block whitespace-nowrap cursor-default select-none pt-1">
+              {/* Letter-by-letter frequency wave floating animation */}
               <span
-                className="relative z-10 italic font-serif font-normal bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 bg-clip-text text-transparent drop-shadow-[0_16px_32px_rgba(232,65,15,0.45)] drop-shadow-[0_4px_8px_rgba(0,0,0,0.15)]"
+                className="relative z-10 italic font-serif font-normal bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 bg-clip-text text-transparent drop-shadow-[0_16px_32px_rgba(232,65,15,0.45)] drop-shadow-[0_4px_8px_rgba(0,0,0,0.15)] inline-flex"
                 style={{
                   fontFamily:
                     "var(--font-instrument-serif), var(--font-playfair), serif",
                 }}
               >
-                Hinglish right.
+                {"Hinglish right.".split("").map((char, i) => (
+                  <motion.span
+                    key={i}
+                    className="inline-block"
+                    animate={{
+                      y: [-6, 6, -6],
+                      rotate: [-1, 1, -1],
+                    }}
+                    transition={{
+                      duration: 2.2,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                      delay: i * 0.1,
+                    }}
+                  >
+                    {char === " " ? "\u00A0" : char}
+                  </motion.span>
+                ))}
               </span>
 
-              {/* 3D Floating Ambient Light Pool Under-Plate */}
-              <span
+              {/* Synchronized 3D Floating Ambient Light Pool Under-Plate */}
+              <motion.span
                 aria-hidden
                 className="absolute -bottom-1 sm:-bottom-2.5 inset-x-1 h-[8px] sm:h-[12px] -z-0 rounded-full bg-gradient-to-r from-orange-500/90 via-amber-400 to-orange-500/90 blur-[6px] opacity-85 shadow-[0_10px_20px_rgba(232,65,15,0.4)]"
+                animate={{
+                  y: [-4, 4, -4],
+                  scaleX: [0.96, 1.04, 0.96],
+                  opacity: [0.75, 0.95, 0.75],
+                }}
+                transition={{
+                  duration: 2.2,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: 0.3,
+                }}
               />
 
-              {/* 3D Floating Curved Ribbon */}
-              <svg
-                className="absolute -bottom-2 sm:-bottom-4 inset-x-0 w-full text-brand drop-shadow-[0_6px_12px_rgba(232,65,15,0.4)]"
-                height="10"
-                viewBox="0 0 100 10"
-                preserveAspectRatio="none"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
+              {/* Synchronized 3D Floating Curved Ribbon */}
+              <motion.div
+                className="absolute -bottom-2 sm:-bottom-4 inset-x-0 w-full"
+                animate={{
+                  y: [-4, 4, -4],
+                  rotate: [-0.6, 0.6, -0.6],
+                }}
+                transition={{
+                  duration: 2.2,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: 0.35,
+                }}
               >
-                <path
-                  d="M0 6C20 1 30 9 50 5C70 1 80 9 100 4"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                  strokeLinecap="round"
-                />
-              </svg>
-            </motion.span>
+                <svg
+                  className="w-full text-brand drop-shadow-[0_6px_12px_rgba(232,65,15,0.4)]"
+                  height="10"
+                  viewBox="0 0 100 10"
+                  preserveAspectRatio="none"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M0 6C20 1 30 9 50 5C70 1 80 9 100 4"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </motion.div>
+            </span>
           </h1>
 
           {/* Accurate Subtitle */}
