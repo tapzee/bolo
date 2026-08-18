@@ -3764,7 +3764,7 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
             supportFamily,
           );
           const isSharingWithBigWord = page.tokens.some((_, i) => i !== index && designWallaEditorialRow(i, texts) === currentRow);
-          const isTopAlign = currentRow === 0 || ((pageSeed + index) % 2 === 0);
+          const isTopAlign = currentRow === 1 || (currentRow !== 0 && (pageSeed + index) % 2 === 0);
           const edgeAlignShift = isSharingWithBigWord ? (isTopAlign ? -10 * scaleFactor : 8 * scaleFactor) : 0;
           ctx.globalAlpha = entrance * enter;
           if (blurPx > 0.3) ctx.filter = `blur(${blurPx}px)`;

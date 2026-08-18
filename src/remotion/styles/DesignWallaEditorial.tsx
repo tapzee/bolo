@@ -174,7 +174,7 @@ export const DesignWallaEditorialToken = memo(function DesignWallaEditorialToken
       : designWallaEditorialFontScale("support");
   const slideX = (1 - enter) * (currentRow === 0 ? -18 : 18);
   const blurPx = (1 - enter) * 3.5;
-  const isTopAlign = currentRow === 0 || ((pageSeed + index) % 2 === 0);
+  const isTopAlign = currentRow === 1 || (currentRow !== 0 && (pageSeed + index) % 2 === 0);
 
   return (
     <>
