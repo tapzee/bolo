@@ -205,8 +205,6 @@ export function Hero3DSection() {
   const containerRef = useRef<HTMLDivElement>(null);
   const bgParallaxRef = useRef<HTMLDivElement>(null);
   const stage3DRef = useRef<HTMLDivElement>(null);
-  const fullSpeechTextRef = useRef<SVGTextElement>(null);
-  const fullSpeechTextPathRef = useRef<SVGTextPathElement>(null);
   const ribbonTextRef = useRef<SVGTextElement>(null);
   const ribbonTextPathRef = useRef<SVGTextPathElement>(null);
 
@@ -257,29 +255,29 @@ export function Hero3DSection() {
     };
   }, [isPlaying, selectedPhrase]);
 
-  const speechSentence = "the first part of the project, but I'm not totally sure. Also, I told the team the new timeline should be ready by tomorrow. We can review the final captions... • ";
-  const fullLoopingText = speechSentence.repeat(8);
+  const marqueeText = "Yeh simple trick aapke reels ko 10X viral karegi • Auto-punctuated Hinglish captions in seconds • ";
+  const curvedRibbonText = marqueeText.repeat(6);
 
-  // 60FPS / 120FPS ultra-smooth hardware-accelerated text flow across the loop and ribbon
+  // 60FPS curved-text scroll along the wavy ribbon banner's own path (desktop only)
   useEffect(() => {
     let animId: number;
     let offset = 0;
     let lastTime = performance.now();
-    const speed = 44; // smooth reading speed in px/sec
+    const speed = 42;
 
-    let segmentLength = 1200;
-    if (fullSpeechTextRef.current) {
+    let segmentLength = 1000;
+    if (ribbonTextRef.current) {
       try {
-        const total = fullSpeechTextRef.current.getComputedTextLength();
+        const total = ribbonTextRef.current.getComputedTextLength();
         if (total > 0) {
-          segmentLength = total / 8;
+          segmentLength = total / 6;
         }
       } catch {
-        segmentLength = 1200;
+        segmentLength = 1000;
       }
     }
 
-    const animateLoop = (now: number) => {
+    const animateRibbonText = (now: number) => {
       const dt = Math.min((now - lastTime) / 1000, 0.1);
       lastTime = now;
 
@@ -288,18 +286,13 @@ export function Hero3DSection() {
         offset += segmentLength;
       }
 
-      const offsetStr = `${offset.toFixed(2)}px`;
-      if (fullSpeechTextPathRef.current) {
-        fullSpeechTextPathRef.current.setAttribute("startOffset", offsetStr);
-      }
       if (ribbonTextPathRef.current) {
-        ribbonTextPathRef.current.setAttribute("startOffset", offsetStr);
+        ribbonTextPathRef.current.setAttribute("startOffset", `${offset.toFixed(2)}px`);
       }
-
-      animId = requestAnimationFrame(animateLoop);
+      animId = requestAnimationFrame(animateRibbonText);
     };
 
-    animId = requestAnimationFrame(animateLoop);
+    animId = requestAnimationFrame(animateRibbonText);
     return () => cancelAnimationFrame(animId);
   }, []);
 
@@ -308,7 +301,7 @@ export function Hero3DSection() {
       ref={containerRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="relative min-h-screen w-full overflow-hidden bg-[#FCFBF7] dark:bg-background pt-20 sm:pt-28 pb-20 selection:bg-brand/30"
+      className="relative min-h-screen w-full overflow-hidden bg-[#FCFBF7] dark:bg-background pt-24 sm:pt-32 pb-20 selection:bg-brand/30"
       style={{ perspective: "1500px" }}
     >
       {/* 60FPS Hardware-Accelerated CSS Keyframes */}
@@ -339,8 +332,8 @@ export function Hero3DSection() {
           50% { transform: translateY(-10px) rotateY(-18deg) rotateX(-6deg); }
         }
         @keyframes waveformScale {
-          0% { transform: scaleY(0.25); }
-          100% { transform: scaleY(1.15); }
+          0% { transform: scaleY(0.3); }
+          100% { transform: scaleY(1.1); }
         }
         @keyframes heroMarquee {
           0% { transform: translateX(0); }
@@ -356,16 +349,16 @@ export function Hero3DSection() {
       >
         {/* Core Volumetric Sunburst */}
         <div
-          className="absolute left-1/2 top-0 -translate-x-1/2 size-[700px] sm:size-[950px] rounded-full opacity-40 dark:opacity-65 blur-[140px] transition-all duration-1000"
+          className="absolute left-1/2 top-0 -translate-x-1/2 size-[700px] sm:size-[950px] rounded-full opacity-45 dark:opacity-65 blur-[140px] transition-all duration-1000"
           style={{
             background:
-              "radial-gradient(circle, rgba(36, 184, 108, 0.25) 0%, rgba(17, 153, 142, 0.15) 40%, transparent 70%)",
+              "radial-gradient(circle, rgba(16, 185, 129, 0.35) 0%, rgba(20, 184, 166, 0.2) 40%, transparent 70%)",
           }}
         />
 
         {/* 3D Perspective Grid Vanishing Plane */}
         <div
-          className="absolute inset-0 opacity-[0.03] dark:opacity-[0.08]"
+          className="absolute inset-0 opacity-[0.035] dark:opacity-[0.08]"
           style={{
             backgroundImage: `linear-gradient(to right, var(--foreground) 1px, transparent 1px),
                               linear-gradient(to bottom, var(--foreground) 1px, transparent 1px)`,
@@ -378,146 +371,134 @@ export function Hero3DSection() {
         />
       </div>
 
-      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 z-10">
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 pt-16 sm:pt-24 z-10">
         {/* ===================================================================
             1. HERO HEADLINE & ACTIONS (Top Section)
            =================================================================== */}
-        <div className="mx-auto max-w-4xl text-center relative z-20">
+        <div className="mx-auto max-w-4xl text-center relative z-10">
           <h1 
-            className="text-5xl sm:text-7xl lg:text-[96px] text-balance text-foreground leading-[1.05] tracking-tight font-serif"
+            className="text-6xl sm:text-7xl lg:text-[100px] text-balance text-foreground leading-[1.05] tracking-tight"
             style={{ fontFamily: "var(--font-playfair), var(--font-instrument-serif), serif" }}
           >
-            Don&apos;t type, just speak
+            Captions that <br/> actually get Hinglish right.
           </h1>
 
           {/* Subtitle */}
-          <p className="mx-auto mt-6 max-w-lg text-base sm:text-lg font-medium leading-relaxed text-muted-foreground/80">
-            The voice-to-text AI that turns speech into clear, polished captions in every video.
+          <p className="mx-auto mt-8 max-w-md text-base sm:text-lg font-medium leading-relaxed text-muted-foreground/80">
+            The voice-to-text AI that turns speech into clear, polished writing for every short-form video.
           </p>
 
-          {/* Action Buttons */}
-          <div className="mt-8 flex flex-col items-center justify-center gap-3">
+          {/* Clean Action Buttons */}
+          <div className="mt-8 flex flex-col items-center justify-center gap-4">
             <Link
               href="/create"
-              className="rounded-2xl bg-[#E8E2F7] dark:bg-purple-950/40 border border-[#D5CAFA] dark:border-purple-800/50 text-[#3B2875] dark:text-purple-200 px-8 py-3.5 text-sm sm:text-base font-semibold hover:bg-[#DDD2F5] transition-all shadow-sm active:scale-95"
+              className="rounded-xl bg-brand/10 border-2 border-brand/40 text-brand px-8 py-3 text-sm font-bold hover:bg-brand/20 transition-colors shadow-sm"
             >
-              Download for free
+              Try free now
             </Link>
             
-            <p className="text-[11px] sm:text-xs text-muted-foreground/70 font-medium tracking-wide">
-              Available on Mac, Windows, iPhone, and Android
+            <p className="text-[10px] text-muted-foreground/60 uppercase tracking-widest font-bold mt-1">
+              No card required • 100% In-browser Privacy
             </p>
+
+            <Link
+              href="/styles"
+              className="mt-6 rounded-full bg-brand text-white px-6 py-2 text-sm font-bold shadow-lg hover:shadow-xl hover:scale-105 hover:-translate-y-0.5 transition-all flex items-center gap-2"
+            >
+              Browse templates
+            </Link>
           </div>
         </div>
 
         {/* ===================================================================
-            1B. CONTINUOUS FLOWING SPEECH STRIP (Loop on left -> Swooping black ribbon on right)
+            1B. LIVE SYNC RIBBON ROW — clean, non-overlapping wavy banner + pills
            =================================================================== */}
-        <div className="relative mt-8 sm:mt-12 mx-auto max-w-6xl h-[320px] sm:h-[440px] w-full pointer-events-none">
-          {/* Main Desktop Curved SVG Graphic */}
+        <div className="relative mt-20 sm:mt-24 mx-auto max-w-4xl px-6 sm:px-0">
+          {/* Hand-drawn spiral squiggle accent, trailing in from the left like the reference */}
           <svg
-            className="absolute inset-0 w-full h-full overflow-visible hidden sm:block"
-            viewBox="0 0 1300 500"
-            preserveAspectRatio="xMidYMid meet"
+            aria-hidden
+            className="pointer-events-none absolute -left-2 sm:-left-8 -top-16 sm:-top-20 w-16 h-24 sm:w-20 sm:h-28 text-foreground/25 dark:text-foreground/15 hidden sm:block"
+            viewBox="0 0 80 110"
+            fill="none"
           >
-            <defs>
-              {/* Full path from top-left circle loop down through center to right */}
-              <path
-                id="masterSpeechPath"
-                d="M 120 120
-                   A 75 75 0 1 1 119.9 120
-                   C 120 200, 60 320, 110 400
-                   C 170 480, 360 520, 620 520
-                   C 860 520, 1080 470, 1340 380"
-                fill="none"
-              />
-              {/* The solid black ribbon section starting from center to right */}
-              <path
-                id="blackRibbonPath"
-                d="M 600 520 C 850 520, 1080 470, 1340 380"
-                fill="none"
-              />
-            </defs>
-
-            {/* 1. Master Faint Grey Text traveling along the entire path */}
-            <text
-              ref={fullSpeechTextRef}
-              className="fill-foreground/40 dark:fill-foreground/25 font-medium text-[15px] tracking-wide antialiased"
-              dy="5"
-            >
-              <textPath
-                ref={fullSpeechTextPathRef}
-                href="#masterSpeechPath"
-                startOffset="0px"
-              >
-                {fullLoopingText}
-              </textPath>
-            </text>
-
-            {/* 2. Solid Black Thick Curved Tube / Ribbon Banner */}
-            <use
-              href="#blackRibbonPath"
-              className="stroke-black dark:stroke-neutral-950"
-              strokeWidth="56"
+            <path
+              d="M40 8 C 58 8, 70 22, 66 40 C 62 60, 40 66, 28 54 C 18 44, 22 30, 34 28 C 42 26, 48 32, 44 38"
+              stroke="currentColor"
+              strokeWidth="1.5"
               strokeLinecap="round"
-              style={{ filter: "drop-shadow(0 18px 32px rgba(0,0,0,0.35))" }}
             />
-
-            {/* 3. Crisp Bold White Text traveling inside the Black Ribbon (Synchronized at 60fps) */}
-            <text
-              ref={ribbonTextRef}
-              className="fill-white font-medium text-[16px] tracking-wide antialiased"
-              dy="6"
-            >
-              <textPath
-                ref={ribbonTextPathRef}
-                href="#blackRibbonPath"
-                startOffset="0px"
-              >
-                {fullLoopingText}
-              </textPath>
-            </text>
+            <path
+              d="M40 8 C 30 -6, 10 -2, 6 18"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+            />
           </svg>
 
-          {/* Floating 'Split sentence' pill + Audio Waveform Capsule anchored on the ribbon mouth */}
-          <div className="absolute left-[38%] sm:left-[43%] lg:left-[45%] top-[240px] sm:top-[340px] -translate-x-1/2 flex flex-col items-center gap-2.5 z-20 pointer-events-auto">
-            {/* Split sentence dark green pill */}
-            <span className="rounded-full bg-[#034A38] text-white px-5 py-2 text-xs sm:text-sm font-bold shadow-lg hover:scale-105 transition-transform cursor-pointer">
-              Split sentence
-            </span>
-
-            {/* Audio Waveform Capsule */}
-            <div className="flex items-center gap-[3.5px] px-5 h-12 rounded-full bg-[#FCFBF7] dark:bg-neutral-900 border border-black/15 dark:border-white/10 shadow-[0_8px_24px_rgba(0,0,0,0.12)] -rotate-3">
-              {[4, 8, 14, 22, 12, 18, 8, 12, 16, 24, 14, 8, 20, 12, 6, 4].map((h, i) => (
-                <div
-                  key={i}
-                  className="w-1 bg-neutral-900 dark:bg-white rounded-full will-change-transform"
-                  style={{
-                    height: `${h}px`,
-                    transformOrigin: "center",
-                    animation: `waveformScale ${0.8 + (i % 3) * 0.15}s ease-in-out infinite alternate`,
-                    animationDelay: `${i * 0.08}s`,
-                    opacity: i < 3 || i > 12 ? 0.35 : 0.9,
-                  }}
-                />
-              ))}
-            </div>
+          {/* Wavy ribbon banner — desktop: real curved SVG path, mobile: simplified straight strip */}
+          <div className="relative h-[110px] sm:h-[150px] w-full hidden sm:block">
+            <svg
+              className="absolute inset-0 w-full h-full overflow-visible"
+              viewBox="0 0 1200 150"
+              preserveAspectRatio="none"
+              aria-hidden
+            >
+              <path
+                id="heroRibbonCurve"
+                d="M -20 100 C 220 40, 380 150, 620 90 C 860 30, 980 130, 1220 70"
+                fill="none"
+                className="stroke-black dark:stroke-neutral-950"
+                strokeWidth="62"
+                strokeLinecap="round"
+                style={{ filter: "drop-shadow(0 20px 30px rgba(0,0,0,0.3))" }}
+              />
+              <text
+                ref={ribbonTextRef}
+                className="fill-white font-medium text-[19px] tracking-wide antialiased"
+                dy="7"
+              >
+                <textPath ref={ribbonTextPathRef} href="#heroRibbonCurve" startOffset="0px">
+                  {curvedRibbonText}
+                </textPath>
+              </text>
+            </svg>
           </div>
 
-          {/* Mobile Fallback: Smooth Marquee strip */}
-          <div className="relative overflow-hidden rounded-full bg-black dark:bg-neutral-950 py-3.5 -rotate-2 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.35)] sm:hidden mt-20 pointer-events-auto">
+          {/* Mobile fallback: straight scrolling strip (curved SVG is desktop-only) */}
+          <div className="relative overflow-hidden rounded-full bg-black dark:bg-neutral-950 py-3.5 -rotate-2 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.35)] sm:hidden">
             <div
               className="flex w-max whitespace-nowrap will-change-transform"
               style={{ animation: "heroMarquee 18s linear infinite" }}
             >
               <span className="px-4 text-sm font-medium tracking-wide text-white">
-                {speechSentence}
-                {speechSentence}
+                {marqueeText}
+                {marqueeText}
               </span>
               <span aria-hidden className="px-4 text-sm font-medium tracking-wide text-white">
-                {speechSentence}
-                {speechSentence}
+                {marqueeText}
+                {marqueeText}
               </span>
+            </div>
+          </div>
+
+          {/* Split sentence pill + live waveform, overlapping the banner's top-left like the reference */}
+          <div className="absolute -top-5 sm:top-2 left-2 sm:left-10 flex items-center gap-3 z-10">
+            <span className="rounded-full bg-brand text-white px-4 py-2 text-xs sm:text-sm font-bold shadow-lg">
+              Split sentence
+            </span>
+            <div className="hidden sm:flex items-center gap-[3px] px-4 h-10 rounded-full bg-card border border-border/80 shadow-md">
+              {[4, 8, 14, 10, 6, 12, 8, 5].map((h, i) => (
+                <div
+                  key={i}
+                  className="w-1 bg-brand rounded-full will-change-transform"
+                  style={{
+                    height: `${h}px`,
+                    transformOrigin: "center",
+                    animation: `waveformScale ${0.8 + (i % 3) * 0.15}s ease-in-out infinite alternate`,
+                    animationDelay: `${i * 0.1}s`,
+                  }}
+                />
+              ))}
             </div>
           </div>
         </div>
