@@ -4,7 +4,12 @@ import { convertMedia, webcodecsController } from "@remotion/webcodecs";
 import type { CaptionPage, CaptionStyleConfig, ExportResolution } from "@/core";
 import { VIDEO_FPS } from "@/core";
 import { drawCaptions } from "./draw-captions";
-import { exportDimensions, supportsWebCodecs } from "./capabilities";
+import { exportDimensions, isMobileDevice, supportsWebCodecs } from "./capabilities";
+import {
+  planEncoderTuning,
+  withTunedVideoEncoder,
+  type EncoderTuning,
+} from "./encoder-config";
 import { ensureCaptionFontLoaded, resolveFontFamily } from "./fonts";
 import { drawWatermark } from "./watermark";
 
@@ -94,6 +99,11 @@ export const exportVideo = ({
   let canvas: OffscreenCanvas | null = null;
   let ctx: OffscreenCanvasRenderingContext2D | null = null;
 
+  // Filled in from `onVideoTrack`, which is the first point where the real
+  // coded size and frame rate are known and the last point that can still await
+  // `isConfigSupported` before the encoder is configured. See `encoder-config`.
+  let tuning: EncoderTuning | null = null;
+
   const run = async (): Promise<Blob> => {
     // Load every caption face up front. A font that arrives mid-encode would be
     // baked into the file, with the first seconds in a fallback typeface.
@@ -143,8 +153,8 @@ export const exportVideo = ({
       ),
     );
 
-    try {
-      const converted = await convertMedia({
+    const convert = () =>
+      convertMedia({
         src: file,
         container: "mp4",
         videoCodec: "h264",
@@ -170,16 +180,30 @@ export const exportVideo = ({
          *
          * Burning in captions means every frame must be decoded, drawn on and
          * re-encoded. There is no fast path.
+         *
+         * This is also the one place that can still await before the encoder is
+         * configured, so it is where the encoder tuning is decided.
          */
-        onVideoTrack: () => ({
-          type: "reencode",
-          videoCodec: "h264",
-          resize: {
-            mode: "max-height-width",
-            maxHeight: target.height,
+        onVideoTrack: async ({ track }) => {
+          tuning = await planEncoderTuning({
+            codedWidth: track.codedWidth,
+            codedHeight: track.codedHeight,
+            fps: track.fps,
             maxWidth: target.width,
-          },
-        }),
+            maxHeight: target.height,
+            mobile: isMobileDevice(),
+          });
+
+          return {
+            type: "reencode",
+            videoCodec: "h264",
+            resize: {
+              mode: "max-height-width",
+              maxHeight: target.height,
+              maxWidth: target.width,
+            },
+          };
+        },
         onProgress: (state) => {
           onProgress?.({
             ratio: state.overallProgress ?? -1,
@@ -229,6 +253,9 @@ export const exportVideo = ({
           });
         },
       });
+
+    try {
+      const converted = await withTunedVideoEncoder(() => tuning, convert);
 
       return await converted.save();
     } catch (error) {
