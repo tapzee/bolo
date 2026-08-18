@@ -4432,6 +4432,58 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
           break;
         }
+
+        case "dualLine": {
+          const splitIndex = Math.ceil(page.tokens.length / 2);
+          const isTopLine = index < splitIndex;
+          const isScript = !isTopLine && !hasDevanagari(text);
+          const enter = tokenEnter(timing, ENTER_SMOOTH);
+          const scaleFactor = canvasScale({ width, height });
+
+          const travel = isTopLine ? (1 - enter) * -28 * scaleFactor : (1 - enter) * 28 * scaleFactor;
+          const color = isTopLine
+            ? (token.color ?? config.accentColor ?? "#FF2A2A")
+            : (token.color ?? config.baseColor ?? "#FFFFFF");
+          const fam = isTopLine
+            ? family
+            : isScript
+              ? resolveFontFamily(config.specialFontId ?? config.secondaryFontId ?? "kaushanScript")
+              : family;
+          const weight = isTopLine ? Math.max(800, config.fontWeight) : 700;
+          const fontSize = config.fontSizePx * (isTopLine ? 1 : 1.25);
+          const glowColor = config.glowColor ?? "#C41212";
+          const glowIntensity = config.glowIntensity ?? 0.5;
+
+          ctx.font = canvasFont(weight, fontSize, fam, isScript ? "italic" : "normal");
+          ctx.globalAlpha = entrance * enter;
+          ctx.translate(cx, cy + travel);
+
+          if (isTopLine) {
+            // Subtle glow around primary text
+            ctx.shadowColor = glowColor;
+            ctx.shadowBlur = Math.round(fontSize * 0.22 * glowIntensity * scaleFactor);
+            ctx.shadowOffsetY = 0;
+            ctx.fillStyle = color;
+            ctx.fillText(text, -tokenWidth / 2, 0);
+
+            // Base shadow for contrast
+            ctx.shadowColor = "rgba(0,0,0,0.5)";
+            ctx.shadowBlur = 4 * scaleFactor;
+            ctx.shadowOffsetY = 2 * scaleFactor;
+            ctx.fillText(text, -tokenWidth / 2, 0);
+          } else {
+            // Cursive bottom line: clean white, zero glow, zero outline
+            ctx.shadowColor = "rgba(0,0,0,0.6)";
+            ctx.shadowBlur = 6 * scaleFactor;
+            ctx.shadowOffsetY = 2 * scaleFactor;
+            ctx.fillStyle = color;
+            ctx.fillText(text, -tokenWidth / 2, 0);
+          }
+
+          clearShadow(ctx);
+          ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
+          break;
+        }
       }
 
       ctx.restore();

@@ -51,9 +51,10 @@ export const DualLineToken = memo(function DualLineToken({
 
   // Primary font gets a very subtle, soft glow around the text
   // Secondary font gets NO glow and NO outline
-  const glowColor = config.glowColor ?? config.accentColor ?? "#FF2A2A";
+  const glowColor = config.glowColor ?? "#C41212";
+  const glowIntensity = config.glowIntensity ?? 0.5;
   const textGlow = isTopLine
-    ? `0 0 ${config.fontSizePx * 0.14}px ${glowColor}cc, 0 0 ${config.fontSizePx * 0.28}px ${glowColor}55, 0 2px 6px rgba(0,0,0,0.5)`
+    ? `0 0 ${config.fontSizePx * 0.14 * glowIntensity}px ${glowColor}cc, 0 0 ${config.fontSizePx * 0.28 * glowIntensity}px ${glowColor}55, 0 2px 6px rgba(0,0,0,0.5)`
     : "0 2px 6px rgba(0,0,0,0.6)";
 
   return (
