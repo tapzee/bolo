@@ -257,7 +257,7 @@ export function Hero3DSection() {
       ref={containerRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="relative overflow-hidden pt-12 pb-24 sm:pt-20 sm:pb-32"
+      className="relative min-h-screen w-full overflow-hidden bg-[#FCFBF7] dark:bg-background pt-24 sm:pt-32 pb-20 selection:bg-brand/30"
       style={{ perspective: "1500px" }}
     >
       {/* 60FPS Hardware-Accelerated CSS Keyframes */}
@@ -321,134 +321,76 @@ export function Hero3DSection() {
         />
       </div>
 
-      <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 pt-16 sm:pt-24 z-10">
+        {/* Animated Wavy Text Ribbon SVG */}
+        <div className="absolute inset-0 z-[-1] pointer-events-none overflow-hidden flex items-start justify-center">
+          <svg
+            className="w-full max-w-[1400px] h-[600px] opacity-40 dark:opacity-20"
+            viewBox="0 0 1000 500"
+            preserveAspectRatio="xMidYMid slice"
+          >
+            <path
+              id="wavyRibbonPath"
+              d="M -100 450 C 150 450, 100 100, 300 150 C 600 250, 600 450, 1100 350"
+              fill="none"
+              stroke="transparent"
+            />
+            <text className="fill-foreground font-medium text-[15px] tracking-wide">
+              <textPath href="#wavyRibbonPath" startOffset="0%">
+                <animate attributeName="startOffset" from="-100%" to="100%" dur="25s" repeatCount="indefinite" />
+                the first part of the project, but I'm not totally sure. Also, I told the team the new timeline should be ready by tomorrow. We can review the final captions...
+              </textPath>
+            </text>
+          </svg>
+          {/* Floating Audio Pill overlay matching the reference image */}
+          <div className="absolute top-[320px] left-[60%] -translate-x-1/2 -translate-y-1/2 rotate-[-5deg] z-0 pointer-events-none hidden lg:flex items-center gap-1 px-4 py-2 rounded-full bg-background border border-foreground/10 shadow-[0_4px_24px_rgba(0,0,0,0.06)]">
+            {[...Array(16)].map((_, i) => (
+              <div 
+                key={i} 
+                className="w-1 bg-foreground rounded-full" 
+                style={{ 
+                  height: `${[4, 8, 14, 22, 12, 18, 6, 10, 16, 24, 14, 8, 20, 12, 6, 4][i]}px`,
+                  opacity: i < 4 || i > 11 ? 0.3 : 0.8
+                }} 
+              />
+            ))}
+          </div>
+        </div>
         {/* ===================================================================
             1. HERO HEADLINE & ACTIONS (Top Section)
            =================================================================== */}
-        <div className="mx-auto max-w-4xl text-center">
-          {/* Top 3D Pill Tag */}
-          <div className="inline-flex flex-wrap items-center justify-center gap-2 rounded-full border border-brand/30 bg-gradient-to-r from-brand-soft/90 via-card to-brand-soft/90 p-1 pr-3 shadow-lg shadow-brand/10 backdrop-blur-xl transition-transform hover:scale-105">
-            <span className="flex items-center gap-1 rounded-full bg-gradient-to-r from-brand to-brand-secondary px-2.5 py-0.5 text-[11px] font-bold text-white shadow-sm">
-              <Sparkles className="size-3" />
-              DESI AI
-            </span>
-            <span className="text-xs font-semibold text-foreground tracking-tight">
-              Desi Auto-Caption for Indian Creators
-            </span>
-          </div>
-
-          {/* Interactive TextParticle Headline with Wave Effect Fallback */}
-          <h1 className="mt-7 text-4xl font-black tracking-tight sm:text-6xl lg:text-7xl xl:text-8xl text-balance text-foreground leading-[1.1]">
-            Captions that actually get{" "}
-            <span className="relative inline-block w-full max-w-[420px] sm:max-w-[540px] h-20 sm:h-28 align-middle -my-2 group">
-              <div className="absolute inset-0 opacity-10 group-hover:opacity-0 transition-opacity duration-500 pointer-events-none">
-                <span
-                  className="relative z-10 italic font-serif font-normal bg-gradient-to-r from-brand via-brand-secondary to-brand bg-clip-text text-transparent drop-shadow-[0_16px_32px_rgba(36,184,108,0.35)] inline-flex"
-                  style={{
-                    fontFamily:
-                      "var(--font-instrument-serif), var(--font-playfair), serif",
-                  }}
-                >
-                  {"Hinglish right.".split("").map((char, i) => (
-                    <span
-                      key={i}
-                      className="inline-block"
-                      style={{
-                        animation: "waveFrequency 2.2s ease-in-out infinite",
-                        animationDelay: `${i * 0.12}s`,
-                        willChange: "transform",
-                      }}
-                    >
-                      {char === " " ? "\u00A0" : char}
-                    </span>
-                  ))}
-                </span>
-              </div>
-              <TextParticle
-                text="Hinglish right."
-                fontSize={85}
-                particleDensity={4}
-                particleSize={2.5}
-                particleColor="#24B86C"
-                className="w-full h-full cursor-crosshair z-20 relative mix-blend-screen"
-                forceMultiplier={8}
-                radius={120}
-              />
-              {/* Synchronized Flowing Ambient Light Pool & Curved Ribbon Line */}
-              <div
-                className="absolute -bottom-2 sm:-bottom-3.5 inset-x-0 w-full pointer-events-none group-hover:opacity-50 transition-opacity duration-300"
-                style={{
-                  animation: "waveRibbon 2.2s ease-in-out infinite",
-                  animationDelay: "0.36s",
-                  willChange: "transform",
-                }}
-              >
-                <span
-                  aria-hidden
-                  className="absolute -top-1 inset-x-1 h-[8px] sm:h-[12px] -z-0 rounded-full bg-gradient-to-r from-brand/90 via-brand-secondary to-brand/90 blur-[6px] opacity-85 shadow-[0_10px_20px_rgba(36,184,108,0.4)]"
-                />
-                <svg
-                  className="w-full text-brand drop-shadow-[0_6px_12px_rgba(36,184,108,0.4)]"
-                  height="10"
-                  viewBox="0 0 100 10"
-                  preserveAspectRatio="none"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M0 6C20 1 30 9 50 5C70 1 80 9 100 4"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              </div>
-            </span>
+        <div className="mx-auto max-w-4xl text-center relative z-10">
+          <h1 
+            className="text-6xl sm:text-7xl lg:text-[100px] text-balance text-foreground leading-[1.05] tracking-tight"
+            style={{ fontFamily: "var(--font-playfair), var(--font-instrument-serif), serif" }}
+          >
+            Captions that <br/> actually get Hinglish right.
           </h1>
 
           {/* Subtitle */}
-          <p className="mx-auto mt-6 max-w-2xl text-base sm:text-lg font-normal leading-relaxed text-muted-foreground">
-            Generate animated, word-level captions for Instagram Reels & Shorts. Accurate Hindi & Hinglish recognition, {CAPTION_TEMPLATES.length}+ viral presets, and instant export up to {maxMinutes} minutes — <span className="font-semibold text-foreground">100% privately in your browser.</span>
+          <p className="mx-auto mt-8 max-w-md text-base sm:text-lg font-medium leading-relaxed text-muted-foreground/80">
+            The voice-to-text AI that turns speech into clear, polished writing for every short-form video.
           </p>
 
-          {/* 3D Tactile Buttons in Emerald-Teal */}
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+          {/* Clean Action Buttons */}
+          <div className="mt-8 flex flex-col items-center justify-center gap-4">
             <Link
               href="/create"
-              className="group relative inline-flex items-center gap-3 overflow-hidden rounded-2xl bg-gradient-to-r from-brand via-brand-secondary to-brand bg-[length:200%_auto] px-8 py-4 text-sm sm:text-base font-bold text-white shadow-[0_12px_32px_-4px_rgba(36,184,108,0.45),0_4px_12px_rgba(36,184,108,0.3)] transition-all duration-300 hover:bg-[position:right_center] hover:shadow-[0_18px_44px_-4px_rgba(36,184,108,0.6),0_6px_16px_rgba(36,184,108,0.4)] hover:-translate-y-1 active:translate-y-0 active:scale-95 border-t border-white/40"
+              className="rounded-xl bg-brand/10 border-2 border-brand/40 text-brand px-8 py-3 text-sm font-bold hover:bg-brand/20 transition-colors shadow-sm"
             >
-              {/* Shimmer light sweep */}
-              <span className="absolute -inset-x-full top-0 h-full w-1/2 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-12 transition-all duration-1000 group-hover:translate-x-[400%]" />
-              <Wand2 className="size-5" />
-              <span>Try free now</span>
-              <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
+              Try free now
             </Link>
+            
+            <p className="text-[10px] text-muted-foreground/60 uppercase tracking-widest font-bold mt-1">
+              No card required • 100% In-browser Privacy
+            </p>
 
             <Link
               href="/styles"
-              className="group inline-flex items-center gap-2.5 rounded-2xl border border-white/40 dark:border-white/10 bg-card/80 px-7 py-4 text-sm sm:text-base font-bold text-foreground shadow-lg shadow-black/5 backdrop-blur-xl transition-all duration-300 hover:bg-card hover:border-brand/40 hover:shadow-xl hover:-translate-y-0.5"
+              className="mt-6 rounded-full bg-brand text-white px-6 py-2 text-sm font-bold shadow-lg hover:shadow-xl hover:scale-105 hover:-translate-y-0.5 transition-all flex items-center gap-2"
             >
-              <span>Browse {CAPTION_TEMPLATES.length} templates</span>
-              <span className="flex size-6 items-center justify-center rounded-full bg-muted text-[11px] font-extrabold text-foreground group-hover:bg-brand group-hover:text-white transition-colors">
-                ⚡
-              </span>
+              Browse templates
             </Link>
-          </div>
-
-          {/* Trust Badges */}
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-semibold text-muted-foreground">
-            <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="size-3.5 text-brand" />
-              No card required
-            </span>
-            <span className="flex items-center gap-1.5">
-              <ShieldCheck className="size-3.5 text-brand" />
-              100% in-browser privacy
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Zap className="size-3.5 text-brand" />
-              1080p 60fps WebCodecs
-            </span>
           </div>
         </div>
 
