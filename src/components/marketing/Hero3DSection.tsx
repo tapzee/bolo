@@ -340,7 +340,7 @@ export function Hero3DSection() {
               onClick={() => setParticleMode(!particleMode)}
               className={`ml-1 flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold transition-all ${
                 particleMode
-                  ? "bg-brand text-white shadow-sm animate-pulse"
+                  ? "bg-gradient-to-r from-emerald-500 to-teal-400 text-white shadow-sm animate-pulse"
                   : "bg-muted/80 text-muted-foreground hover:text-foreground"
               }`}
             >
@@ -489,7 +489,7 @@ export function Hero3DSection() {
 
           {/* Left Inward 3D Satellite Card */}
           <div
-            className="hidden lg:flex absolute -left-10 top-20 flex-col gap-3 rounded-3xl border border-emerald-500/20 bg-card/85 p-5 shadow-2xl backdrop-blur-2xl transition-all duration-500 z-30 max-w-[220px]"
+            className="hidden lg:flex absolute -left-4 xl:-left-12 top-20 flex-col gap-3 rounded-3xl border border-emerald-500/20 bg-card/85 p-5 shadow-2xl backdrop-blur-2xl transition-all duration-500 z-10 max-w-[220px]"
             style={{
               animation: "floatLeftCard 6s ease-in-out infinite",
               transformOrigin: "right center",
@@ -516,7 +516,7 @@ export function Hero3DSection() {
 
           {/* Right Inward 3D Satellite Card */}
           <div
-            className="hidden lg:flex absolute -right-10 top-20 flex-col gap-3 rounded-3xl border border-teal-500/20 bg-card/85 p-5 shadow-2xl backdrop-blur-2xl transition-all duration-500 z-30 max-w-[220px]"
+            className="hidden lg:flex absolute -right-4 xl:-right-12 top-20 flex-col gap-3 rounded-3xl border border-teal-500/20 bg-card/85 p-5 shadow-2xl backdrop-blur-2xl transition-all duration-500 z-10 max-w-[220px]"
             style={{
               animation: "floatRightCard 6.5s ease-in-out infinite",
               transformOrigin: "left center",
@@ -542,7 +542,7 @@ export function Hero3DSection() {
 
           {/* 3D Smartphone Device Mockup / Centerpiece Stage */}
           <div
-            className="relative mx-auto w-full max-w-[340px] sm:max-w-[370px] rounded-[44px] border-[7px] border-neutral-900 bg-black p-3 shadow-[0_30px_70px_-15px_rgba(0,0,0,0.5),0_0_40px_rgba(16,185,129,0.2)]"
+            className="relative z-40 mx-auto w-full max-w-[340px] sm:max-w-[370px] rounded-[44px] border-[7px] border-neutral-900 bg-black p-3 shadow-[0_30px_70px_-15px_rgba(0,0,0,0.5),0_0_40px_rgba(16,185,129,0.2)]"
             style={{
               animation: "phoneFloat3D 6s ease-in-out infinite",
               transformOrigin: "center center",
@@ -569,7 +569,7 @@ export function Hero3DSection() {
               <div className="relative z-20 flex items-center justify-between gap-2 pt-5">
                 <button
                   onClick={() => setIsPlaying(!isPlaying)}
-                  className="flex size-8 items-center justify-center rounded-full bg-brand text-brand-foreground shadow-md transition-transform hover:scale-105 active:scale-95"
+                  className="flex size-8 items-center justify-center rounded-full bg-gradient-to-tr from-emerald-600 to-teal-400 text-white shadow-md transition-transform hover:scale-105 active:scale-95"
                 >
                   {isPlaying ? (
                     <Pause className="size-3.5 fill-current" />
@@ -584,7 +584,7 @@ export function Hero3DSection() {
                     {[8, 16, 10, 18, 12, 16, 8, 14].map((h, i) => (
                       <span
                         key={i}
-                        className="w-[2px] rounded-full bg-brand transition-all duration-150"
+                        className="w-[2px] rounded-full bg-gradient-to-b from-emerald-500 to-teal-400 transition-all duration-150"
                         style={{
                           height: isPlaying ? `${Math.max(3, (h * ((i + activeWordIndex) % 4 + 1)) / 4)}px` : "3px",
                         }}

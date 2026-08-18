@@ -118,7 +118,7 @@ export default function LandingPage() {
         <div className="mx-auto max-w-6xl px-5 py-10">
           <div className="grid grid-cols-2 gap-6 sm:grid-cols-4 text-center">
             <div className="space-y-1">
-              <p className="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
+              <p className="text-3xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-400 sm:text-4xl">
                 15+
               </p>
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
@@ -126,7 +126,7 @@ export default function LandingPage() {
               </p>
             </div>
             <div className="space-y-1">
-              <p className="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
+              <p className="text-3xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-400 sm:text-4xl">
                 0 MB
               </p>
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
@@ -134,7 +134,7 @@ export default function LandingPage() {
               </p>
             </div>
             <div className="space-y-1">
-              <p className="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
+              <p className="text-3xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-400 sm:text-4xl">
                 {CAPTION_TEMPLATES.length}+
               </p>
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
@@ -142,7 +142,7 @@ export default function LandingPage() {
               </p>
             </div>
             <div className="space-y-1">
-              <p className="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
+              <p className="text-3xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-400 sm:text-4xl">
                 60 FPS
               </p>
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">

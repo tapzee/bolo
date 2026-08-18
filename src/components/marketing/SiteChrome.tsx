@@ -73,7 +73,7 @@ export function MarketingHeader() {
 
   return (
     <header className="fixed top-3 sm:top-5 inset-x-0 z-50 px-4 sm:px-6 pointer-events-none">
-      <div className="pointer-events-auto mx-auto max-w-5xl rounded-full border border-white/60 dark:border-white/10 bg-card/80 dark:bg-card/85 p-2 px-3 sm:px-5 shadow-[0_16px_36px_-10px_rgba(0,0,0,0.12),0_0_24px_rgba(232,65,15,0.06)] backdrop-blur-2xl transition-all duration-300 flex items-center justify-between gap-4">
+      <div className="pointer-events-auto mx-auto max-w-5xl rounded-full border border-white/60 dark:border-white/10 bg-card/80 dark:bg-card/85 p-2 px-3 sm:px-5 shadow-[0_16px_36px_-10px_rgba(0,0,0,0.12),0_0_24px_rgba(16,185,129,0.12)] backdrop-blur-2xl transition-all duration-300 flex items-center justify-between gap-4">
         {/* Wordmark Logo */}
         <Wordmark />
 
