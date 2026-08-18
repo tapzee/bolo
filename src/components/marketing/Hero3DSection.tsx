@@ -23,6 +23,7 @@ import {
   Check,
 } from "lucide-react";
 import { CAPTION_TEMPLATES, MAX_TRANSCRIBABLE_SECONDS } from "@/core";
+import { TextParticle } from "@/components/ui/text-particle";
 
 interface SamplePhrase {
   id: string;
@@ -213,6 +214,7 @@ const DEMO_STYLES: DemoStyle[] = [
 export function Hero3DSection() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [particleMode, setParticleMode] = useState(false);
 
   // Live reel playback state
   const [selectedPhrase, setSelectedPhrase] = useState<SamplePhrase>(PHRASES[0]!);
@@ -330,8 +332,8 @@ export function Hero3DSection() {
             1. HERO HEADLINE & ACTIONS (Top Section)
            =================================================================== */}
         <div className="mx-auto max-w-4xl text-center">
-          {/* Top 3D Pill Tag */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-brand/30 bg-gradient-to-r from-brand-soft/90 via-card to-brand-soft/90 p-1 pr-3.5 shadow-lg shadow-brand/10 backdrop-blur-xl transition-transform hover:scale-105">
+          {/* Top 3D Pill Tag with Interactive Particle Toggle */}
+          <div className="inline-flex flex-wrap items-center justify-center gap-2 rounded-full border border-brand/30 bg-gradient-to-r from-brand-soft/90 via-card to-brand-soft/90 p-1 pr-3 shadow-lg shadow-brand/10 backdrop-blur-xl transition-transform hover:scale-105">
             <span className="flex items-center gap-1 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-2.5 py-0.5 text-[11px] font-bold text-white shadow-sm">
               <Sparkles className="size-3" />
               BOLO AI
@@ -339,65 +341,89 @@ export function Hero3DSection() {
             <span className="text-xs font-semibold text-foreground tracking-tight">
               Built for Indian Creators & Reels Makers
             </span>
+            <button
+              onClick={() => setParticleMode(!particleMode)}
+              className={`ml-1 flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold transition-all ${
+                particleMode
+                  ? "bg-brand text-white shadow-sm animate-pulse"
+                  : "bg-muted/80 text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Sparkles className="size-2.5" />
+              <span>{particleMode ? "Particle Mode ON ✨" : "Try Particle FX"}</span>
+            </button>
           </div>
 
-          {/* Letter-by-Letter Acoustic Wave Frequency Headline */}
+          {/* Letter-by-Letter Acoustic Wave Frequency OR Interactive TextParticle Headline */}
           <h1 className="mt-7 text-4xl font-black tracking-tight sm:text-6xl lg:text-7xl xl:text-8xl text-balance text-foreground leading-[1.1]">
             Captions that actually get{" "}
-            <span className="relative inline-block whitespace-nowrap cursor-default select-none pt-1">
-              {/* Every Letter Moves in a Frequency Wave */}
-              <span
-                className="relative z-10 italic font-serif font-normal bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 bg-clip-text text-transparent drop-shadow-[0_16px_32px_rgba(232,65,15,0.45)] drop-shadow-[0_4px_8px_rgba(0,0,0,0.15)] inline-flex"
-                style={{
-                  fontFamily:
-                    "var(--font-instrument-serif), var(--font-playfair), serif",
-                }}
-              >
-                {"Hinglish right.".split("").map((char, i) => (
-                  <span
-                    key={i}
-                    className="inline-block"
-                    style={{
-                      animation: "waveFrequency 2.2s ease-in-out infinite",
-                      animationDelay: `${i * 0.12}s`,
-                      willChange: "transform",
-                    }}
-                  >
-                    {char === " " ? "\u00A0" : char}
-                  </span>
-                ))}
-              </span>
-
-              {/* Synchronized Flowing Ambient Light Pool & Curved Ribbon Line */}
-              <div
-                className="absolute -bottom-2 sm:-bottom-3.5 inset-x-0 w-full pointer-events-none"
-                style={{
-                  animation: "waveRibbon 2.2s ease-in-out infinite",
-                  animationDelay: "0.36s",
-                  willChange: "transform",
-                }}
-              >
-                <span
-                  aria-hidden
-                  className="absolute -top-1 inset-x-1 h-[8px] sm:h-[12px] -z-0 rounded-full bg-gradient-to-r from-orange-500/90 via-amber-400 to-orange-500/90 blur-[6px] opacity-85 shadow-[0_10px_20px_rgba(232,65,15,0.4)]"
+            {particleMode ? (
+              <span className="relative inline-block w-full max-w-[420px] sm:max-w-[540px] h-20 sm:h-28 align-middle -my-2">
+                <TextParticle
+                  text="Hinglish right."
+                  fontSize={85}
+                  particleDensity={4}
+                  particleSize={2.5}
+                  particleColor="#f97316"
+                  className="w-full h-full cursor-crosshair"
                 />
-                <svg
-                  className="w-full text-brand drop-shadow-[0_6px_12px_rgba(232,65,15,0.4)]"
-                  height="10"
-                  viewBox="0 0 100 10"
-                  preserveAspectRatio="none"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
+              </span>
+            ) : (
+              <span className="relative inline-block whitespace-nowrap cursor-default select-none pt-1">
+                {/* Every Letter Moves in a Frequency Wave */}
+                <span
+                  className="relative z-10 italic font-serif font-normal bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 bg-clip-text text-transparent drop-shadow-[0_16px_32px_rgba(232,65,15,0.45)] drop-shadow-[0_4px_8px_rgba(0,0,0,0.15)] inline-flex"
+                  style={{
+                    fontFamily:
+                      "var(--font-instrument-serif), var(--font-playfair), serif",
+                  }}
                 >
-                  <path
-                    d="M0 6C20 1 30 9 50 5C70 1 80 9 100 4"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                    strokeLinecap="round"
+                  {"Hinglish right.".split("").map((char, i) => (
+                    <span
+                      key={i}
+                      className="inline-block"
+                      style={{
+                        animation: "waveFrequency 2.2s ease-in-out infinite",
+                        animationDelay: `${i * 0.12}s`,
+                        willChange: "transform",
+                      }}
+                    >
+                      {char === " " ? "\u00A0" : char}
+                    </span>
+                  ))}
+                </span>
+
+                {/* Synchronized Flowing Ambient Light Pool & Curved Ribbon Line */}
+                <div
+                  className="absolute -bottom-2 sm:-bottom-3.5 inset-x-0 w-full pointer-events-none"
+                  style={{
+                    animation: "waveRibbon 2.2s ease-in-out infinite",
+                    animationDelay: "0.36s",
+                    willChange: "transform",
+                  }}
+                >
+                  <span
+                    aria-hidden
+                    className="absolute -top-1 inset-x-1 h-[8px] sm:h-[12px] -z-0 rounded-full bg-gradient-to-r from-orange-500/90 via-amber-400 to-orange-500/90 blur-[6px] opacity-85 shadow-[0_10px_20px_rgba(232,65,15,0.4)]"
                   />
-                </svg>
-              </div>
-            </span>
+                  <svg
+                    className="w-full text-brand drop-shadow-[0_6px_12px_rgba(232,65,15,0.4)]"
+                    height="10"
+                    viewBox="0 0 100 10"
+                    preserveAspectRatio="none"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M0 6C20 1 30 9 50 5C70 1 80 9 100 4"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                </div>
+              </span>
+            )}
           </h1>
 
           {/* Subtitle */}
