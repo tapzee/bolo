@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, CloudOff, Redo2, Sparkles, Subtitles, Undo2 } from "lucide-react";
+import { Check, CloudOff, Redo2, Subtitles, Undo2 } from "lucide-react";
 import type { ExportResolution } from "@/core";
 import { formatDuration } from "@/core";
 import { Button } from "@/components/ui/button";
@@ -22,7 +22,7 @@ export interface EditorTopBarProps {
   onDownloadSrt: () => void;
   onExport: () => void;
   exporting: boolean;
-  watermark: boolean;
+  watermark?: boolean;
 }
 
 /**
@@ -47,7 +47,6 @@ export function EditorTopBar({
   onDownloadSrt,
   onExport,
   exporting,
-  watermark,
 }: EditorTopBarProps) {
   return (
     // top-0: the sidebar is now the only chrome, and it is a sibling column
@@ -126,17 +125,6 @@ export function EditorTopBar({
             <span className="text-muted-foreground/60">Saving…</span>
           ) : null}
         </span>
-
-        {watermark ? (
-          <button
-            type="button"
-            title="Paid plans export without a watermark"
-            className="hidden items-center gap-1.5 rounded-lg border border-warning/40 bg-warning/10 px-2.5 py-1 text-[11px] font-medium text-warning lg:flex"
-          >
-            <Sparkles className="size-3" />
-            Remove watermark — ₹9
-          </button>
-        ) : null}
 
         <Button variant="ghost" size="sm" onClick={onDownloadSrt} title="Download .srt">
           <Subtitles className="size-3.5" />
