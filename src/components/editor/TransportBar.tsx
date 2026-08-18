@@ -5,6 +5,8 @@ import type { PlayerRef } from "@remotion/player";
 import {
   ChevronLeft,
   ChevronRight,
+  Maximize2,
+  Minimize2,
   Pause,
   Play,
   SkipBack,
@@ -25,12 +27,19 @@ const formatTimecode = (frame: number): string => {
 export interface TransportBarProps {
   player: PlayerRef | null;
   durationInFrames: number;
+  onToggleFullscreen?: () => void;
+  isFullscreen?: boolean;
 }
 
 /**
  * Custom playback transport with interactive scrubber timeline.
  */
-export function TransportBar({ player, durationInFrames }: TransportBarProps) {
+export function TransportBar({
+  player,
+  durationInFrames,
+  onToggleFullscreen,
+  isFullscreen = false,
+}: TransportBarProps) {
   const [playing, setPlaying] = useState(false);
   const [muted, setMuted] = useState(false);
   const [isScrubbing, setIsScrubbing] = useState(false);
@@ -177,12 +186,17 @@ export function TransportBar({ player, durationInFrames }: TransportBarProps) {
       } else if (event.key === "ArrowRight") {
         event.preventDefault();
         step(event.shiftKey ? VIDEO_FPS : 1);
+      } else if (event.key === "f" || event.key === "F") {
+        if (onToggleFullscreen) {
+          event.preventDefault();
+          onToggleFullscreen();
+        }
       }
     };
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [toggle, step]);
+  }, [toggle, step, onToggleFullscreen]);
 
   const buttonClass =
     "flex size-8 items-center justify-center rounded-lg text-muted-foreground transition-all hover:bg-accent hover:text-foreground active:scale-95 disabled:opacity-40";
@@ -322,6 +336,21 @@ export function TransportBar({ player, durationInFrames }: TransportBarProps) {
       >
         {muted ? <VolumeX className="size-3.5 text-destructive" /> : <Volume2 className="size-3.5" />}
       </button>
+
+      {onToggleFullscreen !== undefined ? (
+        <button
+          type="button"
+          className={buttonClass}
+          title={isFullscreen ? "Exit fullscreen (F)" : "Fullscreen (F)"}
+          onClick={onToggleFullscreen}
+        >
+          {isFullscreen ? (
+            <Minimize2 className="size-3.5" />
+          ) : (
+            <Maximize2 className="size-3.5" />
+          )}
+        </button>
+      ) : null}
     </div>
   );
 }

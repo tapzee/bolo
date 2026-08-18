@@ -18,6 +18,8 @@ import {
   Film,
   Languages,
   Layers,
+  Maximize2,
+  Minimize2,
   Palette,
   RotateCcw,
   ShieldCheck,
@@ -130,6 +132,25 @@ export function CreateFlow() {
   // render. Held in state rather than a ref so effects depending on it re-run
   // the moment it mounts.
   const [player, setPlayer] = useState<PlayerRef | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const stageContainerRef = useRef<HTMLDivElement>(null);
+
+  const toggleFullscreen = useCallback(() => {
+    if (!stageContainerRef.current) return;
+    if (!document.fullscreenElement) {
+      void stageContainerRef.current.requestFullscreen?.().catch(() => {});
+    } else {
+      void document.exitFullscreen?.().catch(() => {});
+    }
+  }, []);
+
+  useEffect(() => {
+    const onFullscreenChange = () => {
+      setIsFullscreen(document.fullscreenElement === stageContainerRef.current);
+    };
+    document.addEventListener("fullscreenchange", onFullscreenChange);
+    return () => document.removeEventListener("fullscreenchange", onFullscreenChange);
+  }, []);
 
   const editor = useCaptionEditor(state.words);
 
@@ -649,53 +670,103 @@ export function CreateFlow() {
         >
           <div className="w-full flex items-center justify-between">
             <CropToolbar mode={crop} onChange={setCrop} canvas={canvas} />
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={reset}
-              className="h-8 text-xs font-medium text-muted-foreground hover:text-foreground"
-              title="Replace current video clip"
-            >
-              <RotateCcw className="size-3.5 mr-1 text-brand" />
-              Switch Video
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={toggleFullscreen}
+                className="h-8 text-xs font-medium text-muted-foreground hover:text-foreground"
+                title={isFullscreen ? "Exit Fullscreen (F)" : "Fullscreen Preview (F)"}
+              >
+                {isFullscreen ? (
+                  <Minimize2 className="size-3.5 mr-1 text-brand" />
+                ) : (
+                  <Maximize2 className="size-3.5 mr-1 text-brand" />
+                )}
+                {isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
+              </Button>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={reset}
+                className="h-8 text-xs font-medium text-muted-foreground hover:text-foreground"
+                title="Replace current video clip"
+              >
+                <RotateCcw className="size-3.5 mr-1 text-brand" />
+                Switch Video
+              </Button>
+            </div>
           </div>
 
-          {/* Video Preview Frame */}
+          {/* Video Stage Container (wraps preview frame & transport bar in fullscreen) */}
           <div
-            className="relative w-full rounded-2xl overflow-hidden shadow-lift border bg-black"
-            style={{
-              aspectRatio: `${canvas.width} / ${canvas.height}`,
-              maxWidth: `calc(var(--stage-h) * ${canvas.width / canvas.height})`,
-            }}
+            ref={stageContainerRef}
+            className={cn(
+              "w-full flex flex-col items-center gap-4 transition-all",
+              isFullscreen && "fixed inset-0 z-50 h-screen w-screen bg-black/95 p-4 flex flex-col items-center justify-between backdrop-blur-xl",
+            )}
           >
-            <ErrorBoundary label="Preview">
-              <PlayerStage
-                playerRef={setPlayer}
-                pages={pages}
-                config={previewConfig}
-                canvasWidth={canvas.width}
-                canvasHeight={canvas.height}
-                durationInFrames={durationInFrames}
-                videoSrc={state.video?.objectUrl ?? null}
-                controls={false}
+            {/* Video Preview Frame */}
+            <div
+              className="relative w-full rounded-2xl overflow-hidden shadow-lift border border-border/40 bg-black flex items-center justify-center"
+              style={{
+                aspectRatio: `${canvas.width} / ${canvas.height}`,
+                maxWidth: isFullscreen
+                  ? `min(calc((100vh - 120px) * ${canvas.width / canvas.height}), 95vw)`
+                  : `calc(var(--stage-h) * ${canvas.width / canvas.height})`,
+                maxHeight: isFullscreen ? "calc(100vh - 120px)" : undefined,
+              }}
+            >
+              <ErrorBoundary label="Preview">
+                <PlayerStage
+                  playerRef={setPlayer}
+                  pages={pages}
+                  config={previewConfig}
+                  canvasWidth={canvas.width}
+                  canvasHeight={canvas.height}
+                  durationInFrames={durationInFrames}
+                  videoSrc={state.video?.objectUrl ?? null}
+                  controls={false}
+                />
+              </ErrorBoundary>
+
+              <CaptionDragLayer
+                config={config}
+                enabled
+                onMove={(horizontalOffsetPct, verticalOffsetPct) =>
+                  patch({ horizontalOffsetPct, verticalOffsetPct })
+                }
+                onResize={({ fontSizePx, maxLineWidthPct }) =>
+                  patch({ fontSizePx, maxLineWidthPct })
+                }
               />
-            </ErrorBoundary>
 
-            <CaptionDragLayer
-              config={config}
-              enabled
-              onMove={(horizontalOffsetPct, verticalOffsetPct) =>
-                patch({ horizontalOffsetPct, verticalOffsetPct })
-              }
-              onResize={({ fontSizePx, maxLineWidthPct }) =>
-                patch({ fontSizePx, maxLineWidthPct })
-              }
-            />
+              {/* Floating Quick Fullscreen overlay button */}
+              <button
+                type="button"
+                onClick={toggleFullscreen}
+                title={isFullscreen ? "Exit fullscreen (F)" : "Fullscreen (F)"}
+                className="absolute top-3 right-3 z-30 flex size-8 items-center justify-center rounded-lg bg-black/60 text-white/90 shadow-md backdrop-blur-md transition-all hover:bg-black/85 hover:scale-105 active:scale-95"
+              >
+                {isFullscreen ? (
+                  <Minimize2 className="size-4" />
+                ) : (
+                  <Maximize2 className="size-4" />
+                )}
+              </button>
+            </div>
+
+            {/* Transport playback buttons & seek bar */}
+            <div className={cn("w-full", isFullscreen && "max-w-xl pb-2")}>
+              <TransportBar
+                player={player}
+                durationInFrames={durationInFrames}
+                onToggleFullscreen={toggleFullscreen}
+                isFullscreen={isFullscreen}
+              />
+            </div>
           </div>
-
-          {/* Transport playback buttons & seek bar */}
-          <TransportBar player={player} durationInFrames={durationInFrames} />
 
           {/* Timeline Deck Card */}
           <div className="w-full rounded-2xl border bg-card/80 p-4 shadow-sm space-y-3">
