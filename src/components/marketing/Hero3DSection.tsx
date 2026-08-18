@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { motion } from "motion/react";
 import Link from "next/link";
 import {
   Sparkles,
@@ -44,6 +43,63 @@ export function Hero3DSection() {
       className="relative overflow-hidden pt-10 pb-20 sm:pt-16 sm:pb-28"
       style={{ perspective: "1400px" }}
     >
+      {/* Self-Contained CSS Keyframe Animations for Hardware-Accelerated 60FPS Motion */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes waveFrequency {
+          0%, 100% {
+            transform: translateY(0px) rotate(0deg);
+          }
+          25% {
+            transform: translateY(-8px) rotate(-1.5deg);
+          }
+          75% {
+            transform: translateY(8px) rotate(1.5deg);
+          }
+        }
+        @keyframes waveRibbon {
+          0%, 100% {
+            transform: translateY(0px) scaleX(1);
+            opacity: 0.8;
+          }
+          50% {
+            transform: translateY(4px) scaleX(1.04);
+            opacity: 1;
+          }
+        }
+        @keyframes floatInwardLeftTop {
+          0%, 100% {
+            transform: translateY(0px) rotateY(16deg) rotateX(-4deg);
+          }
+          50% {
+            transform: translateY(-12px) rotateY(19deg) rotateX(-6deg);
+          }
+        }
+        @keyframes floatInwardRightTop {
+          0%, 100% {
+            transform: translateY(0px) rotateY(-16deg) rotateX(-4deg);
+          }
+          50% {
+            transform: translateY(-12px) rotateY(-19deg) rotateX(-6deg);
+          }
+        }
+        @keyframes floatInwardLeftBottom {
+          0%, 100% {
+            transform: translateY(0px) rotateY(14deg) rotateZ(-3deg);
+          }
+          50% {
+            transform: translateY(10px) rotateY(17deg) rotateZ(-4deg);
+          }
+        }
+        @keyframes floatInwardRightBottom {
+          0%, 100% {
+            transform: translateY(0px) rotateY(-14deg) rotateZ(3deg);
+          }
+          50% {
+            transform: translateY(10px) rotateY(-17deg) rotateZ(4deg);
+          }
+        }
+      `}} />
+
       {/* 3D Atmospheric Background Glow & Grid */}
       <div
         aria-hidden
@@ -76,21 +132,19 @@ export function Hero3DSection() {
         />
       </div>
 
-      {/* Main Container with generous width to hold side-floating cards cleanly */}
+      {/* Main Container with side margins for 3D Inward Floating Cards */}
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
         {/* ===================================================================
-            DESKTOP FLOATING 3D CARDS (Positioned in side margins without overlap)
+            DESKTOP INWARD 3D FLOATING CARDS (Bahar se andar aate hue 3D angles)
            =================================================================== */}
 
-        {/* Floating Card 1: Top-Left Flank */}
-        <motion.div
-          className="hidden xl:flex absolute left-2 2xl:left-8 top-12 items-center gap-3 rounded-2xl border border-white/40 dark:border-white/10 bg-card/80 p-3.5 shadow-2xl backdrop-blur-2xl transition-all duration-500 hover:scale-105 z-20"
-          animate={{ y: [-5, 5, -5] }}
-          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+        {/* Card 1: Top-Left Inward Flank */}
+        <div
+          className="hidden xl:flex absolute left-0 2xl:left-4 top-10 items-center gap-3 rounded-2xl border border-white/40 dark:border-white/10 bg-card/85 p-3.5 shadow-2xl backdrop-blur-2xl transition-all duration-500 hover:scale-105 z-20"
           style={{
-            transform: `translate3d(${mousePos.x * -25}px, ${mousePos.y * -25}px, 30px) rotateY(${mousePos.x * 10}deg)`,
+            animation: "floatInwardLeftTop 5s ease-in-out infinite",
             boxShadow:
-              "0 20px 40px -15px rgba(0, 0, 0, 0.12), 0 0 20px rgba(232, 65, 15, 0.1)",
+              "0 20px 40px -15px rgba(0, 0, 0, 0.15), 0 0 24px rgba(232, 65, 15, 0.12)",
           }}
         >
           <div className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-tr from-orange-500 to-amber-400 text-white shadow-md">
@@ -105,17 +159,15 @@ export function Hero3DSection() {
               Word-level accurate timing
             </p>
           </div>
-        </motion.div>
+        </div>
 
-        {/* Floating Card 2: Top-Right Flank */}
-        <motion.div
-          className="hidden xl:flex absolute right-2 2xl:right-8 top-12 items-center gap-3 rounded-2xl border border-white/40 dark:border-white/10 bg-card/80 p-3.5 shadow-2xl backdrop-blur-2xl transition-all duration-500 hover:scale-105 z-20"
-          animate={{ y: [5, -5, 5] }}
-          transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut" }}
+        {/* Card 2: Top-Right Inward Flank */}
+        <div
+          className="hidden xl:flex absolute right-0 2xl:right-4 top-10 items-center gap-3 rounded-2xl border border-white/40 dark:border-white/10 bg-card/85 p-3.5 shadow-2xl backdrop-blur-2xl transition-all duration-500 hover:scale-105 z-20"
           style={{
-            transform: `translate3d(${mousePos.x * 25}px, ${mousePos.y * 25}px, 30px) rotateY(${mousePos.x * -10}deg)`,
+            animation: "floatInwardRightTop 5.5s ease-in-out infinite",
             boxShadow:
-              "0 20px 40px -15px rgba(0, 0, 0, 0.12), 0 0 20px rgba(245, 158, 11, 0.1)",
+              "0 20px 40px -15px rgba(0, 0, 0, 0.15), 0 0 24px rgba(245, 158, 11, 0.12)",
           }}
         >
           <div className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white shadow-md">
@@ -132,15 +184,13 @@ export function Hero3DSection() {
               100% In-Browser Privacy
             </p>
           </div>
-        </motion.div>
+        </div>
 
-        {/* Floating Card 3: Lower-Left Flank */}
-        <motion.div
-          className="hidden xl:flex absolute left-4 2xl:left-12 top-64 items-center gap-3 rounded-2xl border border-border/80 bg-card/75 p-3 shadow-xl backdrop-blur-xl transition-all duration-500 hover:scale-105 z-20"
-          animate={{ y: [4, -4, 4] }}
-          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+        {/* Card 3: Lower-Left Inward Flank */}
+        <div
+          className="hidden xl:flex absolute left-2 2xl:left-8 top-64 items-center gap-3 rounded-2xl border border-border/80 bg-card/80 p-3 shadow-xl backdrop-blur-xl transition-all duration-500 hover:scale-105 z-20"
           style={{
-            transform: `translate3d(${mousePos.x * -20}px, ${mousePos.y * -20}px, 20px) rotateZ(-2deg)`,
+            animation: "floatInwardLeftBottom 6s ease-in-out infinite",
           }}
         >
           <div className="flex size-9 items-center justify-center rounded-xl bg-orange-500/10 text-brand">
@@ -150,15 +200,13 @@ export function Hero3DSection() {
             <span className="text-xs font-bold text-foreground">15+ Indian Scripts</span>
             <p className="text-[10px] text-muted-foreground">Devanagari fallback</p>
           </div>
-        </motion.div>
+        </div>
 
-        {/* Floating Card 4: Lower-Right Flank */}
-        <motion.div
-          className="hidden xl:flex absolute right-4 2xl:right-12 top-64 items-center gap-3 rounded-2xl border border-border/80 bg-card/75 p-3 shadow-xl backdrop-blur-xl transition-all duration-500 hover:scale-105 z-20"
-          animate={{ y: [-4, 4, -4] }}
-          transition={{ duration: 6.5, repeat: Infinity, ease: "easeInOut" }}
+        {/* Card 4: Lower-Right Inward Flank */}
+        <div
+          className="hidden xl:flex absolute right-2 2xl:right-8 top-64 items-center gap-3 rounded-2xl border border-border/80 bg-card/80 p-3 shadow-xl backdrop-blur-xl transition-all duration-500 hover:scale-105 z-20"
           style={{
-            transform: `translate3d(${mousePos.x * 20}px, ${mousePos.y * 20}px, 20px) rotateZ(2deg)`,
+            animation: "floatInwardRightBottom 6.5s ease-in-out infinite",
           }}
         >
           <div className="flex size-9 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600">
@@ -168,10 +216,10 @@ export function Hero3DSection() {
             <span className="text-xs font-bold text-foreground">1080p 60FPS Lossless</span>
             <p className="text-[10px] text-muted-foreground">WebCodecs GPU Export</p>
           </div>
-        </motion.div>
+        </div>
 
         {/* ===================================================================
-            CENTER HEADLINE & CALL TO ACTION (Bounded container, 100% unobstructed)
+            CENTER HEADLINE & CALL TO ACTION (Clean, unobstructed & readable)
            =================================================================== */}
         <div className="mx-auto max-w-4xl text-center">
           {/* Top 3D Pill Tag */}
@@ -185,11 +233,11 @@ export function Hero3DSection() {
             </span>
           </div>
 
-          {/* Unobstructed Headline with Letter-by-Letter Wave Frequency Float */}
+          {/* Letter-by-Letter Acoustic Wave Frequency Animated Headline */}
           <h1 className="mt-7 text-4xl font-black tracking-tight sm:text-6xl lg:text-7xl text-balance text-foreground leading-[1.12]">
             Captions that actually get{" "}
             <span className="relative inline-block whitespace-nowrap cursor-default select-none pt-1">
-              {/* Letter-by-letter frequency wave floating animation */}
+              {/* Every Letter Moves in a Frequency Wave */}
               <span
                 className="relative z-10 italic font-serif font-normal bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 bg-clip-text text-transparent drop-shadow-[0_16px_32px_rgba(232,65,15,0.45)] drop-shadow-[0_4px_8px_rgba(0,0,0,0.15)] inline-flex"
                 style={{
@@ -198,56 +246,33 @@ export function Hero3DSection() {
                 }}
               >
                 {"Hinglish right.".split("").map((char, i) => (
-                  <motion.span
+                  <span
                     key={i}
                     className="inline-block"
-                    animate={{
-                      y: [-6, 6, -6],
-                      rotate: [-1, 1, -1],
-                    }}
-                    transition={{
-                      duration: 2.2,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                      delay: i * 0.1,
+                    style={{
+                      animation: "waveFrequency 2.2s ease-in-out infinite",
+                      animationDelay: `${i * 0.12}s`,
+                      willChange: "transform",
                     }}
                   >
                     {char === " " ? "\u00A0" : char}
-                  </motion.span>
+                  </span>
                 ))}
               </span>
 
-              {/* Synchronized 3D Floating Ambient Light Pool Under-Plate */}
-              <motion.span
-                aria-hidden
-                className="absolute -bottom-1 sm:-bottom-2.5 inset-x-1 h-[8px] sm:h-[12px] -z-0 rounded-full bg-gradient-to-r from-orange-500/90 via-amber-400 to-orange-500/90 blur-[6px] opacity-85 shadow-[0_10px_20px_rgba(232,65,15,0.4)]"
-                animate={{
-                  y: [-4, 4, -4],
-                  scaleX: [0.96, 1.04, 0.96],
-                  opacity: [0.75, 0.95, 0.75],
-                }}
-                transition={{
-                  duration: 2.2,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                  delay: 0.3,
-                }}
-              />
-
-              {/* Synchronized 3D Floating Curved Ribbon */}
-              <motion.div
-                className="absolute -bottom-2 sm:-bottom-4 inset-x-0 w-full"
-                animate={{
-                  y: [-4, 4, -4],
-                  rotate: [-0.6, 0.6, -0.6],
-                }}
-                transition={{
-                  duration: 2.2,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                  delay: 0.35,
+              {/* Synchronized Flowing Ambient Light Pool & Curved Ribbon Line */}
+              <div
+                className="absolute -bottom-2 sm:-bottom-3.5 inset-x-0 w-full pointer-events-none"
+                style={{
+                  animation: "waveRibbon 2.2s ease-in-out infinite",
+                  animationDelay: "0.36s",
+                  willChange: "transform",
                 }}
               >
+                <span
+                  aria-hidden
+                  className="absolute -top-1 inset-x-1 h-[8px] sm:h-[12px] -z-0 rounded-full bg-gradient-to-r from-orange-500/90 via-amber-400 to-orange-500/90 blur-[6px] opacity-85 shadow-[0_10px_20px_rgba(232,65,15,0.4)]"
+                />
                 <svg
                   className="w-full text-brand drop-shadow-[0_6px_12px_rgba(232,65,15,0.4)]"
                   height="10"
@@ -263,7 +288,7 @@ export function Hero3DSection() {
                     strokeLinecap="round"
                   />
                 </svg>
-              </motion.div>
+              </div>
             </span>
           </h1>
 
