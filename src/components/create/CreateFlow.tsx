@@ -43,6 +43,7 @@ import {
   scriptForLanguage,
   type CaptionScript,
   type CaptionStyleConfig,
+  type CaptionWord,
   type StyleId,
   type ExportResolution,
 } from "@/core";
@@ -88,9 +89,10 @@ import { useCredits } from "@/lib/credits/use-credits";
 import { downloadSrt } from "@/lib/export/srt";
 import { useCaptionEditor } from "@/lib/editor/use-caption-editor";
 import { useCaptionPipeline } from "@/lib/media/use-caption-pipeline";
+import { probeVideo } from "@/lib/media/probe-video";
 import { useAutosave } from "@/lib/storage/use-autosave";
 import type { ProjectSnapshot } from "@/lib/storage/project-store";
-import { projectIdForFile } from "@/lib/storage/video-cache";
+import { cacheVideo, projectIdForFile } from "@/lib/storage/video-cache";
 import { storeForUser } from "@/lib/firebase/project-store";
 import { useAuth } from "@/lib/firebase/auth-context";
 import type { LanguageCode } from "@/lib/elevenlabs/types";
@@ -117,6 +119,19 @@ export function CreateFlow() {
   const { state, start, cancel, reset, restore, retryTranscription } =
     useCaptionPipeline();
   const [restoreFailed, setRestoreFailed] = useState(false);
+  /**
+   * Captured the moment a restore fails, so re-dropping the clip can reattach
+   * it to the existing project instead of starting a brand new one. Without
+   * this, the file that comes back out of the dropzone has a fresh
+   * `lastModified` (browsers don't preserve it across every re-download or
+   * re-share), so it can never be trusted to reproduce the original project id.
+   */
+  const pendingRestoreRef = useRef<{
+    projectId: string;
+    title: string;
+    words: readonly CaptionWord[];
+    styleConfig: CaptionStyleConfig;
+  } | null>(null);
   const { user } = useAuth();
   // Latin by default: Hinglish captions are what most reels here actually want,
   // and Devanagari is one dropdown away for the people who want it.
