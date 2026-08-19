@@ -29,6 +29,7 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
 import { TemplateCard } from "./TemplateCard";
+import { motion, AnimatePresence } from "motion/react";
 
 const PRESET_KEY = "bolo:presets";
 
@@ -132,6 +133,7 @@ export function TemplatesPanel({
   const [category, setCategory] = useState<TemplateCategory | "all">("all");
   const [query, setQuery] = useState("");
   const [presets, setPresets] = useState<SavedPreset[]>([]);
+  const [expandedGroupId, setExpandedGroupId] = useState<string | null>(null);
 
   // localStorage is unavailable during SSR, so presets load after mount.
   useEffect(() => setPresets(loadPresets()), []);
@@ -159,6 +161,25 @@ export function TemplatesPanel({
       );
     });
   }, [category, query]);
+
+  const groupedVisible = useMemo(() => {
+    const groupSeen = new Set<string>();
+    const result: { isLeader: boolean; template: CaptionTemplate; variants?: CaptionTemplate[]; groupId?: string }[] = [];
+
+    for (const t of visible) {
+      if (t.groupId) {
+        if (!groupSeen.has(t.groupId)) {
+          groupSeen.add(t.groupId);
+          const groupItems = visible.filter(item => item.groupId === t.groupId);
+          const variants = groupItems.slice(1);
+          result.push({ isLeader: true, template: t, variants, groupId: t.groupId });
+        }
+      } else {
+        result.push({ isLeader: false, template: t });
+      }
+    }
+    return result;
+  }, [visible]);
 
   const resolved = useMemo(() => {
     const map = new Map<string, CaptionStyleConfig>();
@@ -280,30 +301,63 @@ export function TemplatesPanel({
             )}
           </div>
 
-          <div
+          <motion.div
+            layout
             role="radiogroup"
             aria-label="Caption template"
             className="grid max-h-[calc(100vh-22rem)] grid-cols-2 gap-2.5 overflow-y-auto pr-1"
           >
-            {visible.map((template) => {
-              const templateConfig = resolved.get(template.id);
-              if (templateConfig === undefined) return null;
-              return (
-                <TemplateCard
-                  key={template.id}
-                  template={template}
-                  config={templateConfig}
-                  selected={template.id === activeTemplateId}
-                  onSelect={() => apply(template)}
-                />
-              );
-            })}
+            <AnimatePresence initial={false}>
+              {groupedVisible.flatMap((item) => {
+                const templateConfig = resolved.get(item.template.id);
+                if (templateConfig === undefined) return [];
+                
+                const isExpanded = item.groupId === expandedGroupId;
+                const hasVariants = item.variants && item.variants.length > 0;
+
+                const result = [
+                  <motion.div layout key={item.template.id} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.2 }}>
+                    <TemplateCard
+                      template={item.template}
+                      config={templateConfig}
+                      selected={item.template.id === activeTemplateId}
+                      onSelect={() => apply(item.template)}
+                      isGroupLeader={item.isLeader && hasVariants}
+                      isExpanded={isExpanded}
+                      onToggleGroup={() => {
+                        setExpandedGroupId(isExpanded ? null : item.groupId!);
+                      }}
+                    />
+                  </motion.div>
+                ];
+
+                if (isExpanded && hasVariants) {
+                  for (const v of item.variants!) {
+                    const vConfig = resolved.get(v.id);
+                    if (vConfig) {
+                      result.push(
+                        <motion.div layout key={v.id} initial={{ opacity: 0, scale: 0.9, y: -10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: -10 }} transition={{ duration: 0.2 }}>
+                          <TemplateCard
+                            template={v}
+                            config={vConfig}
+                            selected={v.id === activeTemplateId}
+                            onSelect={() => apply(v)}
+                          />
+                        </motion.div>
+                      );
+                    }
+                  }
+                }
+
+                return result;
+              })}
+            </AnimatePresence>
             {visible.length === 0 ? (
               <p className="col-span-2 py-8 text-center text-xs text-muted-foreground">
                 No templates match “{query}”. Try another term or category.
               </p>
             ) : null}
-          </div>
+          </motion.div>
         </>
       ) : null}
 
