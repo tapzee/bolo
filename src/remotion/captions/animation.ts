@@ -231,9 +231,16 @@ export interface FocusEnvelope {
   ended: number;
 }
 
+/** Snappy, critically damped spring for Focus template's kinetic blur-up-to-down entrance. */
+export const FOCUS_ENTER_SPRING: Partial<SpringConfig> = {
+  damping: 20,
+  stiffness: 220,
+  mass: 0.6,
+};
+
 export const focusEnvelope = (
   { frame, fps, fromFrame, toFrame }: TokenAnimationInput,
-  enterConfig: Partial<SpringConfig> = ENTER_SMOOTH,
+  enterConfig: Partial<SpringConfig> = FOCUS_ENTER_SPRING,
 ): FocusEnvelope => ({
   started: clamp01(spring({ frame: frame - fromFrame, fps, config: enterConfig })),
   ended: clamp01(spring({ frame: frame - toFrame, fps, config: EXIT_SETTLE })),

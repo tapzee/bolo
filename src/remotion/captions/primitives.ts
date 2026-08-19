@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 import type { CaptionStyleConfig, CaptionToken, FontId, TextCase, WordRole } from "@/core";
-import { GLOW_RADII, resolveTextCase } from "@/core";
+import { GLOW_RADII, resolveTextCase, withOpacity } from "@/core";
 
 export interface TokenViewProps {
   token: CaptionToken;
@@ -1369,6 +1369,77 @@ export const focusWordOpacity = (
 
 export const focusWordScale = (started: number, ended: number): number =>
   1 + (started - ended) * FOCUS_ACTIVE_SCALE;
+
+export interface FocusWordMotion {
+  yOffset: number;
+  scale: number;
+  blurPx: number;
+  activeProgress: number;
+}
+
+/**
+ * Focus kinetic motion physics:
+ * - Blur Up-to-Down Entrance: At speech onset, drops smoothly downward from top (-yOffset)
+ *   while optical motion blur resolves from 8-14px to 0px sharp.
+ * - Active Lift & Scale: Subtle buoyant lift (-4% font size) and dynamic scale pop (+5-8%)
+ *   during the spoken window.
+ * - Settle: Releases cleanly back to resting alignment (y=0, scale=1, blur=0).
+ */
+export const focusWordMotion = (
+  started: number,
+  ended: number,
+  tier: FocusTier,
+  fontSizePx: number,
+  isUpcoming = false,
+): FocusWordMotion => {
+  if (isUpcoming) {
+    return {
+      yOffset: 0,
+      scale: 1,
+      blurPx: 0,
+      activeProgress: 0,
+    };
+  }
+
+  const activeProgress = Math.max(0, Math.min(1, started - ended));
+  const isHero = tier === "hero";
+
+  // Blur Up-to-Down entrance travel distance
+  const entranceTravel = fontSizePx * (isHero ? 0.22 : 0.16);
+  const yEntrance = -(1 - started) * entranceTravel;
+
+  // Active buoyant float while spoken
+  const yLift = -activeProgress * (fontSizePx * 0.04);
+  const rawY = yEntrance + yLift;
+  const yOffset = Math.abs(rawY) < 0.0001 ? 0 : rawY;
+
+  // Optical blur resolving into crisp focus
+  const maxBlur = fontSizePx * (isHero ? 0.12 : 0.08);
+  const rawBlur = (1 - started) * maxBlur;
+  const blurPx = Math.abs(rawBlur) < 0.0001 ? 0 : rawBlur;
+
+  // Dynamic scale pop during active speech
+  const scaleBoost = isHero ? 0.08 : 0.05;
+  const scale = 1 + activeProgress * scaleBoost;
+
+  return { yOffset, scale, blurPx, activeProgress };
+};
+
+/**
+ * Focus glow shadow:
+ * Blends base halo with an active luminous bloom when the word is spoken.
+ */
+export const focusActiveGlowShadow = (
+  fontSizePx: number,
+  glowColor: string,
+  activeProgress: number,
+): string => {
+  const base = haloTextShadow(fontSizePx);
+  if (activeProgress <= 0.05) return base;
+  const alpha = Math.min(1, activeProgress * 0.85);
+  const glow = `0 0 ${fontSizePx * 0.25}px ${withOpacity(glowColor, alpha)}`;
+  return `${glow}, ${base}`;
+};
 
 /**
  * Stack — the editorial one. Three rows, one word per row, four typographic

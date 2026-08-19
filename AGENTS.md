@@ -489,6 +489,21 @@ New signature template engine replicating the exact 3-row, 3-font kinetic overla
 - **Editor UI Polish**:
   - `TextPanel.tsx` enhanced with modern accordions, unified `ColorPicker` swatches, and pill-shaped slider badges.
 
+### Focus Template Blur Up-to-Down Animation Upgrade — 19 Aug
+
+- **Cinematic Blur Up-to-Down Kinetic Motion**:
+  - `focusWordMotion` added to `src/remotion/captions/primitives.ts` and shared across DOM & Canvas2D export.
+  - Spoken tokens enter with a smooth top-to-bottom drop (`yEntrance = -(1 - started) * entranceTravel`) while optical motion blur (`10-14px`) crisply resolves into `0px` pin-sharp clarity on speech onset.
+  - Removed outdated random `dynamicSlideStackDirection` jumping logic.
+  - Added dynamic scale pop (+5-8% boost) and buoyant active float during speech window.
+  - Active words radiate a soft luminous bloom (`focusActiveGlowShadow`).
+  - Spoken words settle smoothly into resting position and sharp clarity at `FOCUS_SPOKEN_OPACITY`.
+- **Text Alignment Preserved 100%**:
+  - Full 4-tier typographic hierarchy (`hero`, `script`, `body`, `support`), font scaling, flex basis line-breaks, and resting alignment remain untouched.
+- **Dual-Renderer Parity**:
+  - `FocusToken` in `src/remotion/styles/Focus.tsx` and `case "focus"` in `src/lib/export/draw-captions.ts` use identical spring physics (`FOCUS_ENTER_SPRING`, `EXIT_SETTLE`), motion formulas, blur filter, scaling, and glow bloom.
+  - Unit test suite added in `src/remotion/captions/focus.test.ts` (all 183 tests passing).
+
 ---
 
 ## Before you hand back
