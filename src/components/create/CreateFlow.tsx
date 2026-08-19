@@ -798,7 +798,7 @@ export function CreateFlow() {
         /* =====================================================================
          * LEFT RAIL: SCRIPT & TIMELINE CONSOLE
          * ===================================================================== */
-        <SortableRail key="script" id="script" as="aside" initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }} className={cn("min-w-0 lg:w-[280px] xl:w-[330px] lg:shrink-0", mobileTab !== "script" && "hidden lg:block")}>
+        <SortableRail key="script" id="script" as="aside" initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }} className={cn("w-full min-w-0 lg:w-[280px] xl:w-[330px] lg:shrink-0", mobileTab !== "script" && "hidden lg:block")}>
           {(dragControls: DragControls) => (
             <div className="rounded-2xl border bg-card/70 shadow-sm p-4 space-y-3">
               <div className="flex items-center justify-between border-b pb-2.5 border-border/50">
@@ -833,7 +833,7 @@ export function CreateFlow() {
           );
 
           if (col === "video") return (
-            <SortableRail key="video" id="video" as="div" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }} className="flex-1 min-w-0 flex flex-col items-center gap-5 sticky top-12 z-30 pt-2 bg-background/95 backdrop-blur lg:bg-transparent lg:backdrop-blur-none lg:pt-0 lg:top-20 lg:self-start" style={{ ["--stage-h" as string]: "clamp(240px, 45vh, 520px)" }}>
+            <SortableRail key="video" id="video" as="div" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }} className="w-full lg:w-auto flex-1 min-w-0 flex flex-col items-center gap-5 sticky top-12 z-30 pt-2 bg-background/95 backdrop-blur lg:bg-transparent lg:backdrop-blur-none lg:pt-0 lg:top-20 lg:self-start" style={{ ["--stage-h" as string]: "clamp(240px, 45vh, 520px)" }}>
               {(dragControls: DragControls) => (
                 <>
           {/* Top Video Toolbar */}
@@ -1052,7 +1052,7 @@ export function CreateFlow() {
           );
 
           if (col === "styles") return (
-            <SortableRail key="styles" id="styles" as="aside" initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.35, delay: 0.05, ease: [0.22, 1, 0.36, 1] }} className={cn("min-w-0 space-y-4 lg:w-[360px] xl:w-[400px] lg:shrink-0", mobileTab !== "styles" && "hidden lg:block")}>
+            <SortableRail key="styles" id="styles" as="aside" initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.35, delay: 0.05, ease: [0.22, 1, 0.36, 1] }} className={cn("w-full min-w-0 space-y-4 lg:w-[360px] xl:w-[400px] lg:shrink-0", mobileTab !== "styles" && "hidden lg:block")}>
               {(dragControls: DragControls) => (
                 <>
           <div className="rounded-2xl border bg-card/80 p-4 shadow-sm space-y-5">
