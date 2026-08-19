@@ -164,7 +164,6 @@ export function CreateFlow() {
   const [crop, setCrop] = useState<CropMode>("original");
   const [templateId, setTemplateId] = useState<string | null>(null);
   const [rightTab, setRightTab] = useState<"styles" | "word" | "export">("styles");
-  const [mobileTab, setMobileTab] = useState<"script" | "timeline" | "styles">("timeline");
   const [columnOrder, setColumnOrder] = useState(["styles", "script", "video"]);
 
   // The Player lives behind a dynamic import, so it does not exist on first
@@ -473,7 +472,6 @@ export function CreateFlow() {
       const word = editor.words[index];
       if (word !== undefined) seekMs(word.startMs);
       setRightTab("word");
-      setMobileTab("styles");
     },
     [editor, seekMs],
   );
@@ -792,13 +790,13 @@ export function CreateFlow() {
         watermark={!entitlements.watermarkFree}
       />
 
-      <Reorder.Group axis="x" values={columnOrder} onReorder={setColumnOrder} className="mx-auto flex w-full max-w-[1850px] flex-col lg:flex-row gap-6 px-4 py-6 xl:px-6">
+      <Reorder.Group axis="x" values={columnOrder} onReorder={setColumnOrder} className="mx-auto flex w-full max-w-[1850px] flex-row overflow-x-auto gap-6 px-4 py-6 xl:px-6">
         {columnOrder.map((col) => {
           if (col === "script") return (
         /* =====================================================================
          * LEFT RAIL: SCRIPT & TIMELINE CONSOLE
          * ===================================================================== */
-        <SortableRail key="script" id="script" as="aside" initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }} className={cn("w-full min-w-0 lg:w-[280px] xl:w-[330px] lg:shrink-0", mobileTab !== "script" && "hidden lg:block")}>
+        <SortableRail key="script" id="script" as="aside" initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }} className="w-[280px] xl:w-[330px] shrink-0 min-w-0">
           {(dragControls: DragControls) => (
             <div className="rounded-2xl border bg-card/70 shadow-sm p-4 space-y-3">
               <div className="flex items-center justify-between border-b pb-2.5 border-border/50">
@@ -833,7 +831,7 @@ export function CreateFlow() {
           );
 
           if (col === "video") return (
-            <SortableRail key="video" id="video" as="div" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }} className="w-full lg:w-auto flex-1 min-w-0 flex flex-col items-center gap-5 sticky top-12 z-30 pt-2 bg-background/95 backdrop-blur lg:bg-transparent lg:backdrop-blur-none lg:pt-0 lg:top-20 lg:self-start" style={{ ["--stage-h" as string]: "clamp(240px, 45vh, 520px)" }}>
+            <SortableRail key="video" id="video" as="div" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }} className="w-auto flex-1 min-w-[320px] flex flex-col items-center gap-5 sticky top-20 z-30 pt-0 self-start" style={{ ["--stage-h" as string]: "clamp(240px, 45vh, 520px)" }}>
               {(dragControls: DragControls) => (
                 <>
           {/* Top Video Toolbar */}
@@ -993,30 +991,8 @@ export function CreateFlow() {
             </div>
           </div>
 
-          {/* MOBILE TAB BAR */}
-          <div className="flex w-full lg:hidden items-center justify-between gap-1 p-1 rounded-xl bg-muted/60 mt-1">
-            <button
-              onClick={() => setMobileTab("timeline")}
-              className={cn("flex-1 rounded-lg py-2 text-[11px] uppercase tracking-wider font-bold transition-all", mobileTab === "timeline" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground")}
-            >
-              Timeline
-            </button>
-            <button
-              onClick={() => setMobileTab("script")}
-              className={cn("flex-1 rounded-lg py-2 text-[11px] uppercase tracking-wider font-bold transition-all", mobileTab === "script" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground")}
-            >
-              Script
-            </button>
-            <button
-              onClick={() => setMobileTab("styles")}
-              className={cn("flex-1 rounded-lg py-2 text-[11px] uppercase tracking-wider font-bold transition-all", mobileTab === "styles" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground")}
-            >
-              Design & Options
-            </button>
-          </div>
-
           {/* Timeline Deck Card */}
-          <div className={cn("w-full rounded-2xl border bg-card/80 p-4 shadow-sm space-y-3", mobileTab !== "timeline" && "hidden lg:block")}>
+          <div className="w-full rounded-2xl border bg-card/80 p-4 shadow-sm space-y-3">
             <div className="flex w-full items-center justify-between gap-3 border-b pb-2 border-border/50 text-xs text-muted-foreground">
               <span className="font-medium text-foreground flex items-center gap-2">
                 <span>{editor.words.length} words</span>
@@ -1052,7 +1028,7 @@ export function CreateFlow() {
           );
 
           if (col === "styles") return (
-            <SortableRail key="styles" id="styles" as="aside" initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.35, delay: 0.05, ease: [0.22, 1, 0.36, 1] }} className={cn("w-full min-w-0 space-y-4 lg:w-[360px] xl:w-[400px] lg:shrink-0", mobileTab !== "styles" && "hidden lg:block")}>
+            <SortableRail key="styles" id="styles" as="aside" initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.35, delay: 0.05, ease: [0.22, 1, 0.36, 1] }} className="w-[360px] xl:w-[400px] shrink-0 min-w-0 space-y-4">
               {(dragControls: DragControls) => (
                 <>
           <div className="rounded-2xl border bg-card/80 p-4 shadow-sm space-y-5">
