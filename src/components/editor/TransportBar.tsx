@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { PlayerRef } from "@remotion/player";
+import { motion } from "motion/react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -234,12 +235,14 @@ export function TransportBar({
   }, [toggle, step, onToggleFullscreen, onToggleGrid, onZoomIn, onZoomOut, onResetZoom]);
 
   const buttonClass =
-    "flex size-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground active:scale-95 disabled:opacity-40";
+    "flex size-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-40 disabled:pointer-events-none";
 
   return (
     <div className="flex w-full items-center gap-1.5 sm:gap-2 rounded-2xl border bg-card/95 p-1.5 sm:p-2 shadow-sm backdrop-blur-xl">
-      <button
+      <motion.button
         type="button"
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
         className={buttonClass}
         title="Go to start"
         disabled={player === null}
@@ -249,44 +252,52 @@ export function TransportBar({
         }}
       >
         <SkipBack className="size-4" />
-      </button>
+      </motion.button>
 
-      <button
+      <motion.button
         type="button"
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
         className={buttonClass}
         title="Previous frame (←)"
         disabled={player === null}
         onClick={() => step(-1)}
       >
         <ChevronLeft className="size-4.5" />
-      </button>
+      </motion.button>
 
-      <button
+      <motion.button
         type="button"
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
         onClick={toggle}
         disabled={player === null}
         title={playing ? "Pause (Space)" : "Play (Space)"}
-        className="flex size-9 sm:size-10 shrink-0 items-center justify-center rounded-full bg-brand text-brand-foreground shadow-md shadow-brand/20 transition-all hover:scale-105 hover:bg-brand/90 hover:shadow-lg hover:shadow-brand/30 active:scale-95 disabled:opacity-40"
+        className="flex size-9 sm:size-10 shrink-0 items-center justify-center rounded-full bg-brand text-brand-foreground shadow-md shadow-brand/20 transition-colors hover:bg-brand/90 hover:shadow-lg hover:shadow-brand/30 disabled:opacity-40 disabled:pointer-events-none"
       >
         {playing ? (
           <Pause className="size-4 sm:size-4.5 fill-current" />
         ) : (
           <Play className="size-4 sm:size-4.5 translate-x-px fill-current" />
         )}
-      </button>
+      </motion.button>
 
-      <button
+      <motion.button
         type="button"
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
         className={buttonClass}
         title="Next frame (→)"
         disabled={player === null}
         onClick={() => step(1)}
       >
         <ChevronRight className="size-4.5" />
-      </button>
+      </motion.button>
 
-      <button
+      <motion.button
         type="button"
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
         className={buttonClass}
         title="Go to end"
         disabled={player === null}
@@ -297,7 +308,7 @@ export function TransportBar({
         }}
       >
         <SkipForward className="size-4" />
-      </button>
+      </motion.button>
 
       <div className="mx-1 h-5 w-px bg-border/50 shrink-0" />
 
@@ -356,8 +367,10 @@ export function TransportBar({
         </div>
       </div>
 
-      <button
+      <motion.button
         type="button"
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
         className={cn(buttonClass, muted && "text-destructive hover:text-destructive hover:bg-destructive/10")}
         title={muted ? "Unmute" : "Mute"}
         disabled={player === null}
@@ -370,22 +383,24 @@ export function TransportBar({
         }}
       >
         {muted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
-      </button>
+      </motion.button>
 
       {/* Zoom controls: [-] 100% [+] */}
       {onZoomIn !== undefined && onZoomOut !== undefined ? (
         <div className="flex items-center shrink-0">
           <div className="mx-1 h-5 w-px bg-border/50" />
 
-          <button
+          <motion.button
             type="button"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
             className={buttonClass}
             title="Zoom out (-)"
             onClick={onZoomOut}
             disabled={zoom <= 0.5}
           >
             <ZoomOut className="size-4" />
-          </button>
+          </motion.button>
 
           <button
             type="button"
@@ -396,15 +411,17 @@ export function TransportBar({
             {Math.round(zoom * 100)}%
           </button>
 
-          <button
+          <motion.button
             type="button"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
             className={buttonClass}
             title="Zoom in (+)"
             onClick={onZoomIn}
             disabled={zoom >= 2.5}
           >
             <ZoomIn className="size-4" />
-          </button>
+          </motion.button>
         </div>
       ) : null}
 
@@ -413,10 +430,12 @@ export function TransportBar({
         <div className="flex items-center shrink-0">
           <div className="mx-1 h-5 w-px bg-border/50" />
 
-          <button
+          <motion.button
             type="button"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
             className={cn(
-              "flex size-8 shrink-0 items-center justify-center rounded-lg transition-all active:scale-95",
+              "flex size-8 shrink-0 items-center justify-center rounded-lg transition-colors",
               showGrid
                 ? "bg-amber-500/15 text-amber-500 ring-1 ring-amber-500/40 shadow-xs"
                 : "text-muted-foreground hover:bg-accent hover:text-foreground",
@@ -425,13 +444,15 @@ export function TransportBar({
             onClick={onToggleGrid}
           >
             <Grid className="size-4" />
-          </button>
+          </motion.button>
         </div>
       ) : null}
 
       {onToggleFullscreen !== undefined ? (
-        <button
+        <motion.button
           type="button"
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
           className={cn(buttonClass, "ml-1")}
           title={isFullscreen ? "Exit fullscreen (F)" : "Fullscreen (F)"}
           onClick={onToggleFullscreen}
@@ -441,7 +462,7 @@ export function TransportBar({
           ) : (
             <Maximize2 className="size-4" />
           )}
-        </button>
+        </motion.button>
       ) : null}
     </div>
   );
