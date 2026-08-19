@@ -234,10 +234,10 @@ export function TransportBar({
   }, [toggle, step, onToggleFullscreen, onToggleGrid, onZoomIn, onZoomOut, onResetZoom]);
 
   const buttonClass =
-    "flex size-8 items-center justify-center rounded-lg text-muted-foreground transition-all hover:bg-accent hover:text-foreground active:scale-95 disabled:opacity-40";
+    "flex size-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground active:scale-95 disabled:opacity-40";
 
   return (
-    <div className="flex w-full items-center gap-2 rounded-2xl border bg-card/85 p-2 shadow-sm backdrop-blur-md">
+    <div className="flex w-full items-center gap-1.5 sm:gap-2 rounded-2xl border bg-card/95 p-1.5 sm:p-2 shadow-sm backdrop-blur-xl">
       <button
         type="button"
         className={buttonClass}
@@ -248,7 +248,7 @@ export function TransportBar({
           updateScrubberVisuals(0);
         }}
       >
-        <SkipBack className="size-3.5" />
+        <SkipBack className="size-4" />
       </button>
 
       <button
@@ -258,7 +258,7 @@ export function TransportBar({
         disabled={player === null}
         onClick={() => step(-1)}
       >
-        <ChevronLeft className="size-4" />
+        <ChevronLeft className="size-4.5" />
       </button>
 
       <button
@@ -266,12 +266,12 @@ export function TransportBar({
         onClick={toggle}
         disabled={player === null}
         title={playing ? "Pause (Space)" : "Play (Space)"}
-        className="flex size-9 items-center justify-center rounded-full bg-brand text-brand-foreground shadow-md transition-all hover:scale-105 active:scale-95 disabled:opacity-40"
+        className="flex size-9 sm:size-10 shrink-0 items-center justify-center rounded-full bg-brand text-brand-foreground shadow-md shadow-brand/20 transition-all hover:scale-105 hover:bg-brand/90 hover:shadow-lg hover:shadow-brand/30 active:scale-95 disabled:opacity-40"
       >
         {playing ? (
-          <Pause className="size-4 fill-current" />
+          <Pause className="size-4 sm:size-4.5 fill-current" />
         ) : (
-          <Play className="size-4 translate-x-px fill-current" />
+          <Play className="size-4 sm:size-4.5 translate-x-px fill-current" />
         )}
       </button>
 
@@ -282,7 +282,7 @@ export function TransportBar({
         disabled={player === null}
         onClick={() => step(1)}
       >
-        <ChevronRight className="size-4" />
+        <ChevronRight className="size-4.5" />
       </button>
 
       <button
@@ -296,17 +296,17 @@ export function TransportBar({
           updateScrubberVisuals(endFrame);
         }}
       >
-        <SkipForward className="size-3.5" />
+        <SkipForward className="size-4" />
       </button>
 
-      <div className="mx-1 h-4 w-px bg-border/60" />
+      <div className="mx-1 h-5 w-px bg-border/50 shrink-0" />
 
-      <span className="font-mono text-xs tabular-nums text-foreground select-none">
+      <span className="font-mono text-xs sm:text-sm shrink-0 tabular-nums text-foreground select-none flex items-center justify-center min-w-[70px]">
         <span ref={timecodeRef} className="font-semibold text-brand">
           0:00
         </span>
-        <span className="mx-1 text-muted-foreground/50">/</span>
-        <span className="text-muted-foreground">
+        <span className="mx-1.5 text-muted-foreground/40">/</span>
+        <span className="text-muted-foreground/80 font-medium">
           {formatTimecode(durationInFrames - 1)}
         </span>
       </span>
@@ -322,13 +322,13 @@ export function TransportBar({
           setHoverTime(null);
           setHoverX(null);
         }}
-        className="group relative mx-2 flex h-10 min-w-0 flex-1 cursor-pointer items-center select-none touch-none"
+        className="group relative mx-2 sm:mx-3 flex h-10 min-w-[60px] flex-1 cursor-pointer items-center select-none touch-none"
         title="Click or drag to seek anywhere in the video"
       >
         {/* Hover timestamp tooltip */}
         {hoverTime !== null && hoverX !== null ? (
           <div
-            className="pointer-events-none absolute -top-6 -translate-x-1/2 rounded bg-foreground px-1.5 py-0.5 font-mono text-[10px] font-bold text-background shadow-md transition-all"
+            className="pointer-events-none absolute -top-8 -translate-x-1/2 rounded-md bg-foreground/95 backdrop-blur-sm px-2 py-1 font-mono text-[10px] font-bold text-background shadow-lg transition-all"
             style={{ left: `${hoverX}%` }}
           >
             {hoverTime}
@@ -336,7 +336,7 @@ export function TransportBar({
         ) : null}
 
         {/* Track groove */}
-        <div className="relative h-2 w-full overflow-visible rounded-full bg-muted/90 transition-all group-hover:h-2.5">
+        <div className="relative h-1.5 w-full overflow-visible rounded-full bg-muted/80 transition-all duration-200 group-hover:h-2">
           {/* Active progress fill */}
           <div
             ref={progressRef}
@@ -348,8 +348,8 @@ export function TransportBar({
           <div
             ref={thumbRef}
             className={cn(
-              "absolute top-1/2 -translate-x-1/2 -translate-y-1/2 size-3.5 rounded-full bg-white border-2 border-brand shadow-md transition-transform pointer-events-none",
-              isScrubbing ? "scale-125 opacity-100 ring-4 ring-brand/20" : "opacity-90 group-hover:opacity-100 group-hover:scale-110",
+              "absolute top-1/2 -translate-x-1/2 -translate-y-1/2 size-3.5 rounded-full bg-white border border-border shadow-md transition-all pointer-events-none ring-2 ring-transparent",
+              isScrubbing ? "scale-125 opacity-100 ring-brand/30 border-brand" : "opacity-0 group-hover:opacity-100 group-hover:scale-110",
             )}
             style={{ left: "0%" }}
           />
@@ -358,7 +358,7 @@ export function TransportBar({
 
       <button
         type="button"
-        className={buttonClass}
+        className={cn(buttonClass, muted && "text-destructive hover:text-destructive hover:bg-destructive/10")}
         title={muted ? "Unmute" : "Mute"}
         disabled={player === null}
         onClick={() => {
@@ -369,13 +369,13 @@ export function TransportBar({
           else player.unmute();
         }}
       >
-        {muted ? <VolumeX className="size-3.5 text-destructive" /> : <Volume2 className="size-3.5" />}
+        {muted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
       </button>
 
       {/* Zoom controls: [-] 100% [+] */}
       {onZoomIn !== undefined && onZoomOut !== undefined ? (
-        <div className="flex items-center gap-0.5">
-          <div className="mx-0.5 h-3.5 w-px bg-border/60" />
+        <div className="flex items-center shrink-0">
+          <div className="mx-1 h-5 w-px bg-border/50" />
 
           <button
             type="button"
@@ -384,12 +384,12 @@ export function TransportBar({
             onClick={onZoomOut}
             disabled={zoom <= 0.5}
           >
-            <ZoomOut className="size-3.5" />
+            <ZoomOut className="size-4" />
           </button>
 
           <button
             type="button"
-            className="px-1.5 py-0.5 font-mono text-[11px] font-medium text-muted-foreground hover:text-foreground tabular-nums select-none transition-colors"
+            className="px-2 py-0.5 font-mono text-[11px] font-medium text-muted-foreground hover:text-foreground tabular-nums select-none transition-colors min-w-[44px] text-center"
             title="Click to reset zoom to 100% (0)"
             onClick={onResetZoom}
           >
@@ -403,28 +403,28 @@ export function TransportBar({
             onClick={onZoomIn}
             disabled={zoom >= 2.5}
           >
-            <ZoomIn className="size-3.5" />
+            <ZoomIn className="size-4" />
           </button>
         </div>
       ) : null}
 
       {/* Grid & Safe-Zone overlay toggle */}
       {onToggleGrid !== undefined ? (
-        <div className="flex items-center">
-          <div className="mx-0.5 h-3.5 w-px bg-border/60" />
+        <div className="flex items-center shrink-0">
+          <div className="mx-1 h-5 w-px bg-border/50" />
 
           <button
             type="button"
             className={cn(
-              "flex size-8 items-center justify-center rounded-lg transition-all active:scale-95",
+              "flex size-8 shrink-0 items-center justify-center rounded-lg transition-all active:scale-95",
               showGrid
-                ? "bg-amber-500/20 text-amber-500 ring-1 ring-amber-500/40 shadow-xs"
+                ? "bg-amber-500/15 text-amber-500 ring-1 ring-amber-500/40 shadow-xs"
                 : "text-muted-foreground hover:bg-accent hover:text-foreground",
             )}
             title={showGrid ? "Hide rule-of-thirds & safe-zone grid (G)" : "Show rule-of-thirds & safe-zone grid (G)"}
             onClick={onToggleGrid}
           >
-            <Grid className="size-3.5" />
+            <Grid className="size-4" />
           </button>
         </div>
       ) : null}
@@ -432,14 +432,14 @@ export function TransportBar({
       {onToggleFullscreen !== undefined ? (
         <button
           type="button"
-          className={buttonClass}
+          className={cn(buttonClass, "ml-1")}
           title={isFullscreen ? "Exit fullscreen (F)" : "Fullscreen (F)"}
           onClick={onToggleFullscreen}
         >
           {isFullscreen ? (
-            <Minimize2 className="size-3.5" />
+            <Minimize2 className="size-4" />
           ) : (
-            <Maximize2 className="size-3.5" />
+            <Maximize2 className="size-4" />
           )}
         </button>
       ) : null}
