@@ -16,13 +16,44 @@ const dummyPages: CaptionPage[] = [{
   ]
 }];
 
-export default function TemplatePreviewPlayer({ config }: { config: CaptionStyleConfig }) {
+export default function TemplatePreviewPlayer({ config, staticThumbnail }: { config: CaptionStyleConfig, staticThumbnail?: boolean }) {
+  const previewConfig = useMemo(() => {
+    // Increase font size heavily for the preview so it's readable in a tiny card
+    const scale = 5.5; 
+    return {
+      ...config,
+      placement: "center" as const,
+      verticalOffsetPct: 0,
+      horizontalOffsetPct: 0,
+      maxLineWidthPct: 100,
+      fontSizePx: config.fontSizePx * scale,
+      strokeWidthPx: config.strokeWidthPx * scale,
+      wordGapPx: config.wordGapPx * scale,
+      letterSpacingPx: config.letterSpacingPx * scale,
+    };
+  }, [config]);
+
   const inputProps = useMemo(() => ({
     pages: dummyPages,
-    config,
+    config: previewConfig,
     videoSrc: null,
     backdrop: "studio" as const
-  }), [config]);
+  }), [previewConfig]);
+
+  if (staticThumbnail) {
+    return (
+      <Thumbnail
+        component={CaptionScene}
+        inputProps={inputProps}
+        durationInFrames={60}
+        fps={30}
+        compositionWidth={400}
+        compositionHeight={188}
+        frameToDisplay={30}
+        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+      />
+    );
+  }
 
   return (
     <Player
@@ -30,8 +61,8 @@ export default function TemplatePreviewPlayer({ config }: { config: CaptionStyle
       inputProps={inputProps}
       durationInFrames={60}
       fps={30}
-      compositionWidth={1000}
-      compositionHeight={250}
+      compositionWidth={400}
+      compositionHeight={188}
       style={{ width: "100%", height: "100%", objectFit: "cover" }}
       autoPlay
       loop
