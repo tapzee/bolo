@@ -3,6 +3,7 @@ import { interpolateColors } from "remotion";
 import { GLOW_RADII } from "@/core";
 import { ENTER_SMOOTH, tokenHighlight } from "../captions/animation";
 import {
+  buildGlowShadow,
   displayText,
   tokenGlyphStyle,
   tokenShellStyle,
@@ -38,18 +39,10 @@ export const GlowToken = memo(function GlowToken({
   // carries the emphasis here — the glyph itself stays near-white so it never
   // loses contrast against the stroke.
   const bloom = token.color ?? config.glowColor ?? config.accentColor;
-  const unit = config.fontSizePx;
-  const intensity = config.glowIntensity ?? 1;
 
   const textShadow =
     highlight > 0.01
-      ? [
-          `0 0 ${unit * 0.08 * highlight * intensity}px #ffffff`,
-          ...GLOW_RADII.map(
-            (radius) => `0 0 ${unit * radius * 1.35 * highlight * intensity}px ${bloom}`,
-          ),
-          `0 0 ${unit * 0.6 * highlight * intensity}px ${bloom}`,
-        ].join(", ")
+      ? (buildGlowShadow(config, bloom, highlight) ?? "0 2px 6px rgba(0, 0, 0, 0.55)")
       : "0 2px 6px rgba(0, 0, 0, 0.55)";
 
   const color = interpolateColors(

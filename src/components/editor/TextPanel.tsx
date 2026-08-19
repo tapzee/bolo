@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 
 type Patch = (next: Partial<CaptionStyleConfig>) => void;
@@ -76,7 +77,7 @@ function Group({
 
 function Row({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div className="flex items-center justify-between gap-3">
+    <div className="flex items-center justify-between gap-3 py-0.5">
       <Label className="shrink-0 text-xs font-medium text-muted-foreground">{label}</Label>
       <div className="flex min-w-0 flex-1 justify-end">{children}</div>
     </div>
@@ -91,6 +92,7 @@ function SliderRow({
   max,
   step = 1,
   suffix = "",
+  precision,
   onChange,
 }: {
   label: string;
@@ -99,14 +101,21 @@ function SliderRow({
   max: number;
   step?: number;
   suffix?: string;
+  precision?: number;
   onChange: (value: number) => void;
 }) {
+  const displayVal = precision !== undefined
+    ? value.toFixed(precision)
+    : Number.isInteger(value)
+      ? value
+      : value.toFixed(step < 0.1 ? 2 : 1);
+
   return (
-    <div className="space-y-1.5">
+    <div className="space-y-1.5 py-0.5">
       <div className="flex items-center justify-between">
         <Label className="text-xs font-medium text-muted-foreground">{label}</Label>
         <span className="rounded-md border border-border/40 bg-muted/60 px-1.5 py-0.5 font-mono text-[10px] font-semibold tabular-nums text-foreground shadow-xs">
-          {Number.isInteger(value) ? value : value.toFixed(2)}
+          {displayVal}
           {suffix}
         </span>
       </div>
@@ -133,26 +142,12 @@ function Toggle({
   onChange: (checked: boolean) => void;
 }) {
   return (
-    <div className="flex items-center justify-between gap-3">
+    <div className="flex items-center justify-between gap-3 py-1.5">
       <Label className="text-xs font-medium text-muted-foreground">{label}</Label>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        aria-label={label}
-        onClick={() => onChange(!checked)}
-        className={cn(
-          "relative h-5 w-9 shrink-0 rounded-full transition-colors duration-200 outline-none focus-visible:ring-2 focus-visible:ring-ring",
-          checked ? "bg-brand" : "bg-muted",
-        )}
-      >
-        <span
-          className={cn(
-            "absolute top-0.5 size-4 rounded-full bg-white shadow-xs transition-transform duration-200",
-            checked ? "translate-x-[18px]" : "translate-x-0.5",
-          )}
-        />
-      </button>
+      <Switch
+        checked={checked}
+        onCheckedChange={onChange}
+      />
     </div>
   );
 }
@@ -627,7 +622,7 @@ export function TextPanel({
           onChange={(v) => patch({ glowEnabled: v })}
         />
         {config.glowEnabled || config.styleId === "glow" ? (
-          <>
+          <div className="space-y-3 pl-1 pt-1">
             <Row label="Glow colour">
               <ColorPicker
                 ariaLabel="Glow colour"
@@ -641,26 +636,29 @@ export function TextPanel({
               min={0}
               max={100}
               step={0.5}
+              precision={1}
               suffix="%"
               onChange={(v) => patch({ glowThreshold: v })}
             />
             <SliderRow
               label="Glow Radius"
               value={config.glowRadius ?? 111.0}
-              min={10}
+              min={0}
               max={250}
-              step={1}
+              step={0.5}
+              precision={1}
               onChange={(v) => patch({ glowRadius: v })}
             />
             <SliderRow
               label="Glow Intensity"
-              value={config.glowIntensity ?? 1}
-              min={0.1}
+              value={config.glowIntensity ?? 0.7}
+              min={0.05}
               max={3.0}
-              step={0.1}
+              step={0.05}
+              precision={1}
               onChange={(v) => patch({ glowIntensity: v })}
             />
-          </>
+          </div>
         ) : null}
 
         <Toggle
