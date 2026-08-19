@@ -672,7 +672,7 @@ export function Hero3DSection() {
               <div className="relative z-20 text-left pb-2">
                 <p className="text-xs font-bold text-white">@indiancreator</p>
                 <p className="text-[11px] text-white/80 line-clamp-1 mt-0.5">
-                  Viral Hinglish reel made with Desi Auto-Caption ⚡
+                  Viral Hinglish reel made with CutXflow ⚡
                 </p>
                 <div className="flex items-center gap-1.5 text-[10px] text-white/60 mt-1">
                   <Music2 className="size-3" />

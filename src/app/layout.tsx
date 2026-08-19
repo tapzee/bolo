@@ -6,12 +6,12 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "Desi Auto-Caption — AI captions for Hindi & Hinglish reels",
-    template: "%s · Desi Auto-Caption",
+    default: "CutXflow — AI captions for Hindi & Hinglish reels",
+    template: "%s · CutXflow",
   },
   description:
     "Word-level animated captions for Instagram Reels and YouTube Shorts, tuned for Hindi and Hinglish. Your video never leaves your browser.",
-  applicationName: "Desi Auto-Caption",
+  applicationName: "CutXflow",
 };
 
 export const viewport: Viewport = {

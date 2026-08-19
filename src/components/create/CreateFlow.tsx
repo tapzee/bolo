@@ -127,6 +127,7 @@ export function CreateFlow() {
   const [crop, setCrop] = useState<CropMode>("original");
   const [templateId, setTemplateId] = useState<string | null>(null);
   const [rightTab, setRightTab] = useState<"styles" | "word" | "export">("styles");
+  const [mobileTab, setMobileTab] = useState<"script" | "timeline" | "styles">("timeline");
 
   // The Player lives behind a dynamic import, so it does not exist on first
   // render. Held in state rather than a ref so effects depending on it re-run
@@ -645,7 +646,7 @@ export function CreateFlow() {
           initial={{ opacity: 0, x: -12 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-          className="order-2 min-w-0 xl:order-1"
+          className={cn("order-2 min-w-0 xl:order-1", mobileTab !== "script" && "hidden xl:block")}
         >
           <div className="rounded-2xl border bg-card/70 shadow-sm p-4 space-y-3">
             <div className="flex items-center justify-between border-b pb-2.5 border-border/50">
@@ -683,7 +684,7 @@ export function CreateFlow() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-          className="order-1 flex min-w-0 flex-col items-center gap-5 xl:order-2 xl:sticky xl:top-20 xl:self-start"
+          className="order-1 flex min-w-0 flex-col items-center gap-5 sticky top-12 z-30 pt-2 bg-background/95 backdrop-blur xl:bg-transparent xl:backdrop-blur-none xl:pt-0 xl:order-2 xl:top-20 xl:self-start"
           style={{ ["--stage-h" as string]: "min(52vh, 520px)" }}
         >
           <div className="w-full flex items-center justify-between">
@@ -727,13 +728,13 @@ export function CreateFlow() {
           >
             {/* Video Preview Frame */}
             <div
-              className="relative w-full rounded-2xl overflow-hidden shadow-lift border border-border/40 bg-black flex items-center justify-center"
+              className="relative max-w-full rounded-2xl overflow-hidden shadow-lift border border-border/40 bg-black flex items-center justify-center"
               style={{
                 aspectRatio: `${canvas.width} / ${canvas.height}`,
-                maxWidth: isFullscreen
-                  ? `min(calc((100vh - 120px) * ${canvas.width / canvas.height}), 95vw)`
+                width: isFullscreen
+                  ? `calc((100vh - 120px) * ${canvas.width / canvas.height})`
                   : `calc(var(--stage-h) * ${canvas.width / canvas.height})`,
-                maxHeight: isFullscreen ? "calc(100vh - 120px)" : undefined,
+                maxHeight: isFullscreen ? "calc(100vh - 120px)" : "var(--stage-h)",
               }}
             >
               {/* Zoom Scaled Stage */}
@@ -832,8 +833,30 @@ export function CreateFlow() {
             </div>
           </div>
 
+          {/* MOBILE TAB BAR */}
+          <div className="flex w-full xl:hidden items-center justify-between gap-1 p-1 rounded-xl bg-muted/60 mt-1">
+            <button
+              onClick={() => setMobileTab("timeline")}
+              className={cn("flex-1 rounded-lg py-2 text-[11px] uppercase tracking-wider font-bold transition-all", mobileTab === "timeline" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground")}
+            >
+              Timeline
+            </button>
+            <button
+              onClick={() => setMobileTab("script")}
+              className={cn("flex-1 rounded-lg py-2 text-[11px] uppercase tracking-wider font-bold transition-all", mobileTab === "script" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground")}
+            >
+              Script
+            </button>
+            <button
+              onClick={() => setMobileTab("styles")}
+              className={cn("flex-1 rounded-lg py-2 text-[11px] uppercase tracking-wider font-bold transition-all", mobileTab === "styles" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground")}
+            >
+              Design & Options
+            </button>
+          </div>
+
           {/* Timeline Deck Card */}
-          <div className="w-full rounded-2xl border bg-card/80 p-4 shadow-sm space-y-3">
+          <div className={cn("w-full rounded-2xl border bg-card/80 p-4 shadow-sm space-y-3", mobileTab !== "timeline" && "hidden xl:block")}>
             <div className="flex w-full items-center justify-between gap-3 border-b pb-2 border-border/50 text-xs text-muted-foreground">
               <span className="font-medium text-foreground flex items-center gap-2">
                 <span>{editor.words.length} words</span>
@@ -872,7 +895,7 @@ export function CreateFlow() {
           initial={{ opacity: 0, x: 12 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.35, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
-          className="order-3 min-w-0 space-y-4"
+          className={cn("order-3 min-w-0 space-y-4", mobileTab !== "styles" && "hidden xl:block")}
         >
           <div className="rounded-2xl border bg-card/80 p-4 shadow-sm space-y-5">
             

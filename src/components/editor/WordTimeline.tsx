@@ -506,7 +506,7 @@ export function WordTimeline({
                     onPointerUp={endDrag}
                     onPointerCancel={endDrag}
                     className={cn(
-                      "absolute inset-y-0 w-2 cursor-ew-resize touch-none rounded-sm",
+                      "absolute inset-y-0 w-6 -mx-3 cursor-ew-resize touch-none rounded-sm",
                       mode === "start" ? "left-0" : "right-0",
                       "opacity-0 group-hover:opacity-100",
                       isSelected
@@ -559,7 +559,7 @@ export function WordTimeline({
             }}
           >
             {/* Invisible expanded hit area so users can grab the 1px line easily */}
-            <div className="absolute -left-3 top-0 bottom-0 w-6" />
+            <div className="absolute -left-6 top-0 bottom-0 w-12" />
             <div className="absolute -top-px -left-[3px] size-[7px] rounded-full bg-brand" />
           </div>
         </div>

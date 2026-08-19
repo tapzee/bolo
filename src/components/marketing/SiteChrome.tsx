@@ -45,30 +45,18 @@ const LEGAL = [
 function Wordmark({ size = "default" }: { size?: "default" | "large" }) {
   const isLarge = size === "large";
   return (
-    <Link href="/" className="group flex items-center gap-3 transition-transform hover:scale-[1.02]">
-      <div className={`relative overflow-hidden rounded-2xl shadow-lg shadow-brand/20 border border-brand/30 transition-transform group-hover:scale-105 ${
-        isLarge ? "size-12 sm:size-14" : "size-10 sm:size-11"
-      }`}>
+    <Link href="/" className={`group flex items-center transition-transform hover:scale-[1.02] ${
+      isLarge ? "h-10 w-44 sm:h-11 sm:w-48" : "h-8 w-36 sm:h-9 sm:w-40"
+    }`}>
+      <div className="relative size-full transition-transform group-hover:scale-105">
         <Image
           src="/logo.png"
-          alt="Desi Auto-Caption Logo"
+          alt="CutXflow"
           fill
-          sizes={isLarge ? "56px" : "44px"}
-          className="object-cover"
+          sizes={isLarge ? "192px" : "160px"}
+          className="object-contain object-left"
           priority
         />
-      </div>
-      <div className="flex items-baseline gap-1.5">
-        <span className={`font-black tracking-tight text-foreground ${
-          isLarge ? "text-2xl sm:text-3xl" : "text-xl sm:text-2xl"
-        }`}>
-          Desi
-        </span>
-        <span className={`font-medium tracking-tight text-foreground ${
-          isLarge ? "text-2xl sm:text-3xl" : "text-xl sm:text-2xl"
-        }`}>
-          Auto-Caption
-        </span>
       </div>
     </Link>
   );
@@ -274,7 +262,7 @@ export function MarketingFooter() {
 
       <div className="border-t border-border/60">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-5 py-6 text-xs text-muted-foreground sm:flex-row">
-          <span>© {new Date().getFullYear()} Desi Auto-Caption. All rights reserved.</span>
+          <span>© {new Date().getFullYear()} CutXflow. All rights reserved.</span>
           <div className="flex items-center gap-4">
             <Link href="/terms" className="hover:text-foreground">
               Terms

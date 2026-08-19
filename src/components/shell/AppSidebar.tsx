@@ -99,24 +99,27 @@ export function AppSidebar() {
         )}
       >
         <Link href="/" className="flex items-center gap-2.5">
-          <div className="relative size-8 shrink-0 overflow-hidden rounded-xl shadow-sm border border-brand/30">
-            <Image
-              src="/logo.png"
-              alt="Desi Auto-Caption Logo"
-              fill
-              sizes="32px"
-              className="object-cover"
-              priority
-            />
-          </div>
-          {collapsed ? null : (
-            <div className="flex items-baseline gap-1 overflow-hidden">
-              <span className="text-base font-black tracking-tight text-foreground">
-                Desi
-              </span>
-              <span className="text-sm font-medium tracking-tight text-foreground">
-                Auto-Caption
-              </span>
+          {collapsed ? (
+            <div className="relative size-8 shrink-0 overflow-hidden">
+              <Image
+                src="/logo.png"
+                alt="CutXflow"
+                fill
+                sizes="32px"
+                className="object-contain object-left"
+                priority
+              />
+            </div>
+          ) : (
+            <div className="relative h-6 w-28 shrink-0">
+              <Image
+                src="/logo.png"
+                alt="CutXflow"
+                fill
+                sizes="112px"
+                className="object-contain object-left"
+                priority
+              />
             </div>
           )}
         </Link>

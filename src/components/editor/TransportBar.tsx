@@ -322,7 +322,7 @@ export function TransportBar({
           setHoverTime(null);
           setHoverX(null);
         }}
-        className="group relative mx-2 flex h-7 min-w-0 flex-1 cursor-pointer items-center select-none touch-none"
+        className="group relative mx-2 flex h-10 min-w-0 flex-1 cursor-pointer items-center select-none touch-none"
         title="Click or drag to seek anywhere in the video"
       >
         {/* Hover timestamp tooltip */}

@@ -5,24 +5,16 @@ import { ThemeToggle } from "@/components/theme-toggle";
 
 function Wordmark() {
   return (
-    <Link href="/" className="group flex items-center gap-2.5 transition-transform hover:scale-[1.02]">
-      <div className="relative size-9 overflow-hidden rounded-xl shadow-md border border-brand/30 transition-transform group-hover:scale-105">
+    <Link href="/" className="group flex items-center transition-transform hover:scale-[1.02]">
+      <div className="relative h-8 w-32 transition-transform group-hover:scale-105">
         <Image
           src="/logo.png"
-          alt="Desi Auto-Caption Logo"
+          alt="CutXflow"
           fill
-          sizes="36px"
-          className="object-cover"
+          sizes="128px"
+          className="object-contain object-left"
           priority
         />
-      </div>
-      <div className="flex items-baseline gap-1.5">
-        <span className="text-lg font-black tracking-tight text-foreground">
-          Desi
-        </span>
-        <span className="text-lg font-medium tracking-tight text-foreground">
-          Auto-Caption
-        </span>
       </div>
     </Link>
   );

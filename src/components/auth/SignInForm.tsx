@@ -7,6 +7,7 @@ import { AlertTriangle, Loader2, Lock, Mail, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/firebase/auth-context";
 import { cn } from "@/lib/utils";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 function GoogleMark() {
   return (
@@ -139,14 +140,28 @@ export function SignInForm({
 
   return (
     <div className="space-y-5">
-      <div className="space-y-1.5 text-center">
+      <div className="space-y-1.5 text-center mb-4">
         <h1 className="text-2xl font-semibold tracking-tight">
-          {mode === "signin" ? "Sign in to Bolo" : "Create your account"}
+          Welcome to Bolo
         </h1>
         <p className="text-sm text-muted-foreground">
           Keeps your projects and credits across devices.
         </p>
       </div>
+      
+      <Tabs 
+        value={mode} 
+        onValueChange={(v) => {
+          setMode(v as "signin" | "register");
+          setError(null);
+        }} 
+        className="w-full"
+      >
+        <TabsList className="grid w-full grid-cols-2 mb-2">
+          <TabsTrigger value="signin">Sign in</TabsTrigger>
+          <TabsTrigger value="register">Create account</TabsTrigger>
+        </TabsList>
+      </Tabs>
 
       <Button
         variant="outline"
@@ -155,7 +170,7 @@ export function SignInForm({
         onClick={() => void run(signInWithGoogle)}
       >
         <GoogleMark />
-        Continue with Google
+        {mode === "signin" ? "Sign in with Google" : "Sign up with Google"}
       </Button>
 
       <div className="flex items-center gap-3">
@@ -202,13 +217,28 @@ export function SignInForm({
       </div>
 
       {error !== null ? (
-        <p
-          role="alert"
-          className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/5 p-2.5 text-xs leading-relaxed text-destructive"
-        >
-          <AlertTriangle className="mt-0.5 size-3 shrink-0" />
-          {error}
-        </p>
+        <div className="flex flex-col gap-2 rounded-lg border border-destructive/30 bg-destructive/5 p-2.5">
+          <p
+            role="alert"
+            className="flex items-start gap-2 text-xs leading-relaxed text-destructive"
+          >
+            <AlertTriangle className="mt-0.5 size-3 shrink-0" />
+            <span className="flex-1">{error}</span>
+          </p>
+          {error.includes("No account with that email") && mode === "signin" && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="ml-5 h-7 w-fit text-[11px] hover:bg-destructive/10 hover:text-destructive focus-visible:bg-destructive/10 focus-visible:text-destructive border-destructive/20 text-destructive"
+              onClick={() => {
+                setMode("register");
+                setError(null);
+              }}
+            >
+              Create account instead
+            </Button>
+          )}
+        </div>
       ) : null}
 
       <Button
@@ -220,23 +250,7 @@ export function SignInForm({
         {mode === "signin" ? "Sign in" : "Create account"}
       </Button>
 
-      <button
-        type="button"
-        onClick={() => {
-          setMode((v) => (v === "signin" ? "register" : "signin"));
-          setError(null);
-        }}
-        className={cn(
-          "w-full text-center text-xs text-muted-foreground",
-          "underline-offset-4 hover:text-foreground hover:underline",
-        )}
-      >
-        {mode === "signin"
-          ? "New to Bolo? Create an account"
-          : "Already have an account? Sign in"}
-      </button>
-
-      <div className="space-y-3 border-t pt-5">
+      <div className="space-y-3 border-t pt-5 mt-2">
         <p className="flex items-start gap-2 text-[11px] leading-relaxed text-muted-foreground">
           <ShieldCheck className="mt-0.5 size-3 shrink-0 text-success" />
           Your video never leaves your browser, signed in or not. An account only

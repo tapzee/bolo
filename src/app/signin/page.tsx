@@ -12,24 +12,16 @@ import Image from "next/image";
 
 function Wordmark() {
   return (
-    <Link href="/" className="mx-auto flex w-fit items-center gap-3 transition-transform hover:scale-105">
-      <div className="relative size-12 overflow-hidden rounded-2xl shadow-lg shadow-brand/20 border border-brand/30">
+    <Link href="/" className="mx-auto flex w-fit items-center transition-transform hover:scale-105">
+      <div className="relative h-10 w-44">
         <Image
           src="/logo.png"
-          alt="Desi Auto-Caption Logo"
+          alt="CutXflow"
           fill
-          sizes="48px"
-          className="object-cover"
+          sizes="176px"
+          className="object-contain object-left"
           priority
         />
-      </div>
-      <div className="flex items-baseline gap-2">
-        <span className="text-2xl font-black tracking-tight text-foreground">
-          Desi
-        </span>
-        <span className="text-2xl font-medium tracking-tight text-foreground">
-          Auto-Caption
-        </span>
       </div>
     </Link>
   );

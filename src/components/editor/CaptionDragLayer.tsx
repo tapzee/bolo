@@ -391,7 +391,7 @@ export function CaptionDragLayer({
           onPointerMove={onMovePointer}
           onPointerUp={endMove}
           onPointerCancel={endMove}
-          className="pointer-events-auto absolute inset-0 cursor-move"
+          className="pointer-events-auto absolute inset-0 cursor-move touch-none"
           title="Drag to move captions"
         />
 
@@ -420,7 +420,7 @@ export function CaptionDragLayer({
               className={cn(
                 "pointer-events-auto absolute size-2.5 rounded-[2px]",
                 "border border-black/40 bg-white shadow-sm",
-                "transition-transform hover:scale-125",
+                "transition-transform hover:scale-125 touch-none",
               )}
               title={side ? "Drag to set line width" : "Drag to resize text"}
             />
