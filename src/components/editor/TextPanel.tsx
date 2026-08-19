@@ -25,6 +25,8 @@ import { cn } from "@/lib/utils";
 
 type Patch = (next: Partial<CaptionStyleConfig>) => void;
 
+import { motion, AnimatePresence } from "motion/react";
+
 function Group({
   title,
   children,
@@ -55,7 +57,19 @@ function Group({
           />
         </div>
       </button>
-      {open ? <div className="space-y-3.5 pt-1 pb-3">{children}</div> : null}
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2, ease: "easeInOut" }}
+            className="overflow-hidden"
+          >
+            <div className="space-y-3.5 pt-1 pb-3">{children}</div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
