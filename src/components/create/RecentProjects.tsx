@@ -62,12 +62,23 @@ const generateThumbnail = (blob: Blob): Promise<string | null> =>
     video.onerror = fail;
   });
 
+export interface RecentProjectsProps {
+  /**
+   * Opens a project in place. A plain `<Link href="/create?project=...">`
+   * would not work here — this component already lives on `/create`, so
+   * changing only the query string doesn't remount the page and nothing would
+   * actually load. The caller is expected to both update the URL and run the
+   * restore itself.
+   */
+  onOpen: (projectId: string) => void;
+}
+
 /**
  * Recent-projects strip on the /create landing screen. A quieter, thumbnail-led
  * echo of the full list at /projects — enough to jump back into the last few
  * clips without leaving the upload screen.
  */
-export function RecentProjects() {
+export function RecentProjects({ onOpen }: RecentProjectsProps) {
   const { user, loading: authLoading } = useAuth();
   const [projects, setProjects] = useState<ProjectSnapshot[] | null>(null);
   const [thumbnails, setThumbnails] = useState<Record<string, string>>({});
@@ -117,10 +128,11 @@ export function RecentProjects() {
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         {projects.map((project) => (
-          <Link
+          <button
             key={project.id}
-            href={`/create?project=${encodeURIComponent(project.id)}`}
-            className="group overflow-hidden rounded-2xl border bg-card/60 shadow-sm transition-all hover:bg-card hover:shadow-md"
+            type="button"
+            onClick={() => onOpen(project.id)}
+            className="group block w-full overflow-hidden rounded-2xl border bg-card/60 text-left shadow-sm transition-all hover:bg-card hover:shadow-md"
           >
             <div className="relative aspect-video w-full overflow-hidden bg-muted">
               {thumbnails[project.id] ? (
@@ -153,7 +165,7 @@ export function RecentProjects() {
                 {relative(project.updatedAt)}
               </p>
             </div>
-          </Link>
+          </button>
         ))}
       </div>
     </div>
