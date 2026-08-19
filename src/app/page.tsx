@@ -5,7 +5,6 @@ import {
   Wand2,
   Languages,
   ShieldCheck,
-  MousePointerClick,
   Zap,
   ArrowRight,
   Flame,
@@ -14,17 +13,6 @@ import {
   SlidersHorizontal,
   Video,
   Cpu,
-  CheckCircle2,
-  Play,
-  Share2,
-  Lock,
-  Workflow,
-  Smartphone,
-  Check,
-  Sliders,
-  Type,
-  Maximize2,
-  FileCode2,
 } from "lucide-react";
 import { CAPTION_TEMPLATES } from "@/core";
 import { MarketingPage } from "@/components/marketing/SiteChrome";

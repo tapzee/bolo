@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Sparkles, Languages, Check, ArrowRight, Volume2, Globe2, Wand2, Copy, CheckCheck } from "lucide-react";
+import { Check, ArrowRight, Globe2, Wand2, Copy, CheckCheck } from "lucide-react";
 import Link from "next/link";
-import { motion } from "motion/react";
 
 interface LanguageItem {
   id: string;

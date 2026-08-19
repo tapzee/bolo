@@ -1,10 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Sparkles, ArrowRight, Play, Wand2, Flame, Layers, Star, Zap } from "lucide-react";
+import { Sparkles, ArrowRight, Wand2 } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "motion/react";
-import { CAPTION_TEMPLATES } from "@/core";
 
 interface TemplateShowcaseItem {
   id: string;
@@ -120,7 +119,6 @@ const CATEGORIES = ["All", "Trending", "Indian Viral", "High Energy", "Minimal",
 
 export function TemplatesShowcase() {
   const [activeCategory, setActiveCategory] = useState<string>("All");
-  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
 
   const filtered = activeCategory === "All"
     ? FEATURED_TEMPLATES
@@ -180,8 +178,6 @@ export function TemplatesShowcase() {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.25 }}
-              onMouseEnter={() => setHoveredCard(item.id)}
-              onMouseLeave={() => setHoveredCard(null)}
               className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-border/80 bg-card/70 p-5 shadow-sm backdrop-blur-md transition-all duration-300 hover:border-emerald-500/50 hover:shadow-2xl hover:bg-card/90"
             >
               {/* Preview Stage Box */}
@@ -197,7 +193,7 @@ export function TemplatesShowcase() {
 
                 {/* Animated Simulated Kinetic Words */}
                 <div className="flex flex-wrap items-center justify-center gap-1.5 text-center px-3 z-10">
-                  {item.sampleWords.map((word, i) => {
+                  {item.sampleWords.map((word) => {
                     const isAcc = word.highlight;
                     return (
                       <span
