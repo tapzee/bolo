@@ -2,6 +2,7 @@
 
 import { memo, useState } from "react";
 import dynamic from "next/dynamic";
+import { motion } from "motion/react";
 import type { CaptionStyleConfig, CaptionTemplate } from "@/core";
 import { BOX_RADIUS_RATIO, GLOW_RADII } from "@/core";
 import { FONT_FAMILY } from "@/remotion/fonts";
@@ -31,7 +32,7 @@ export const TemplateCard = memo(function TemplateCard({
 }) {
   const [isHovered, setIsHovered] = useState(false);
 
-  const previewSize = Math.max(12, Math.min(19, config.fontSizePx * 0.2));
+  const previewSize = Math.max(14, Math.min(22, config.fontSizePx * 0.22));
   const isBox = template.engine === "box";
   const isGlow = template.engine === "glow";
   const isSplash = template.engine === "splash";
@@ -58,16 +59,20 @@ export const TemplateCard = memo(function TemplateCard({
     config.strokeWidthPx > 0 ? `${Math.max(1, previewSize * 0.085)}px ${config.strokeColor}` : undefined;
 
   return (
-    <button
+    <motion.button
       type="button"
       role="radio"
       aria-checked={selected}
       onClick={onSelect}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      whileHover={{ scale: 1.03 }}
+      whileTap={{ scale: 0.98 }}
+      transition={{ type: "spring", stiffness: 500, damping: 32 }}
+      style={{ transformOrigin: "center" }}
       className={cn(
-        "group relative w-full overflow-hidden rounded-xl text-left transition-all duration-200",
-        "outline-none focus-visible:ring-2 focus-visible:ring-ring hover:scale-[1.02] hover:shadow-lg",
+        "group relative w-full overflow-hidden rounded-xl text-left transition-shadow duration-200",
+        "outline-none focus-visible:ring-2 focus-visible:ring-ring hover:shadow-lg",
         selected
           ? "ring-2 ring-brand ring-offset-1 ring-offset-background shadow-md"
           : "ring-1 ring-border/60 hover:ring-border-strong",
@@ -113,7 +118,7 @@ export const TemplateCard = memo(function TemplateCard({
       ) : null}
 
       <div
-        className="flex h-[76px] items-center justify-center px-3 relative overflow-hidden"
+        className="flex h-[94px] items-center justify-center px-3 relative overflow-hidden"
         style={{
           background:
             "radial-gradient(circle at center, #2e3440 0%, #171a21 70%, #111317 100%)",
@@ -444,6 +449,6 @@ export const TemplateCard = memo(function TemplateCard({
               : template.engine}
         </span>
       </div>
-    </button>
+    </motion.button>
   );
 });

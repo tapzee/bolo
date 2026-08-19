@@ -296,7 +296,7 @@ export function TemplatesPanel({
                 if (templateConfig === undefined) return null;
 
                 return (
-                  <motion.div layout key={template.id} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.2 }}>
+                  <motion.div layout="position" key={template.id} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.2 }}>
                     <TemplateCard
                       template={template}
                       config={templateConfig}
