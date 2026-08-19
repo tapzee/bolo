@@ -1,6 +1,7 @@
 "use client";
 
 import type { CaptionStyleConfig, CaptionWord } from "@/core";
+import { removeCachedVideo } from "./video-cache";
 
 /**
  * Project persistence.
@@ -37,10 +38,39 @@ const KEY_PREFIX = "bolo:project:";
 class LocalProjectStore implements ProjectStore {
   async save(snapshot: ProjectSnapshot): Promise<void> {
     try {
-      localStorage.setItem(
-        `${KEY_PREFIX}${snapshot.id}`,
-        JSON.stringify(snapshot),
-      );
+      const key = `${KEY_PREFIX}${snapshot.id}`;
+
+      // Same defensive dedupe as FirestoreProjectStore.save — only worth
+      // doing the first time this id is written, since every later autosave
+      // to the same id is just an update. See the Firestore version for why
+      // the id can drift across drops or reopens of what is really the same
+      // clip.
+      if (localStorage.getItem(key) === null) {
+        for (let i = localStorage.length - 1; i >= 0; i -= 1) {
+          const otherKey = localStorage.key(i);
+          if (otherKey === null || otherKey === key || !otherKey.startsWith(KEY_PREFIX)) {
+            continue;
+          }
+          const raw = localStorage.getItem(otherKey);
+          if (raw === null) continue;
+          try {
+            const other = JSON.parse(raw) as ProjectSnapshot;
+            if (
+              other.title === snapshot.title &&
+              other.durationSeconds === snapshot.durationSeconds &&
+              other.sourceWidth === snapshot.sourceWidth &&
+              other.sourceHeight === snapshot.sourceHeight
+            ) {
+              localStorage.removeItem(otherKey);
+              void removeCachedVideo(other.id);
+            }
+          } catch {
+            // Corrupt entry — leave it for `list()`'s own parse guard.
+          }
+        }
+      }
+
+      localStorage.setItem(key, JSON.stringify(snapshot));
     } catch (error) {
       // Quota is ~5MB. A 600-word transcript is well under 200KB, so this
       // realistically only fires in private mode or with storage disabled.

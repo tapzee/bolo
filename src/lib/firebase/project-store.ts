@@ -2,6 +2,7 @@
 
 import type { ProjectSnapshot, ProjectStore } from "@/lib/storage/project-store";
 import { projectStore as localStore } from "@/lib/storage/project-store";
+import { removeCachedVideo } from "@/lib/storage/video-cache";
 import { firestoreDb } from "./client";
 
 /**
@@ -25,12 +26,46 @@ export class FirestoreProjectStore implements ProjectStore {
     if (db === null) return localStore.save(snapshot);
 
     try {
-      const { doc, setDoc } = await import("firebase/firestore");
+      const { collection, deleteDoc, doc, getDoc, getDocs, query, setDoc, where } =
+        await import("firebase/firestore");
+
+      const projectsRef = collection(db, "users", this.uid, "projects");
+      const ref = doc(projectsRef, snapshot.id);
+
+      // Only the first save under a brand new id can possibly be a duplicate —
+      // every later autosave to that same id is just an update — so this
+      // lookup only runs once per project instead of on every autosave tick.
+      const existing = await getDoc(ref);
+      if (!existing.exists()) {
+        // Defends against duplicate project docs: the id is derived from the
+        // file's name+size+lastModified, and that fingerprint can drift across
+        // drops or reopens (e.g. re-downloaded WhatsApp media gets a fresh
+        // mtime each time) — which would otherwise mint a new id and leave the
+        // old one behind as an orphaned "Captions only" entry forever. Any
+        // other doc for this user that is unmistakably the same clip (same
+        // title, duration and frame size) is replaced rather than left behind.
+        const siblings = await getDocs(
+          query(
+            projectsRef,
+            where("title", "==", snapshot.title),
+            where("durationSeconds", "==", snapshot.durationSeconds),
+            where("sourceWidth", "==", snapshot.sourceWidth),
+            where("sourceHeight", "==", snapshot.sourceHeight),
+          ),
+        );
+        await Promise.all(
+          siblings.docs.map(async (entry) => {
+            await deleteDoc(entry.ref);
+            await removeCachedVideo(entry.id);
+          }),
+        );
+      }
+
       // Firestore rejects `undefined` fields, and optional caption properties
       // (colour, pageBreak) are absent on untouched words — the round trip
       // drops them cleanly.
       await setDoc(
-        doc(db, "users", this.uid, "projects", snapshot.id),
+        ref,
         JSON.parse(JSON.stringify(snapshot)) as ProjectSnapshot,
         { merge: true },
       );

@@ -161,7 +161,6 @@ import {
   focusTier,
   focusTierIsUpper,
   focusWordOpacity,
-  focusWordMotion,
   bigGrandRole,
   bigGrandTransform,
   PREMIUM_HALO,
@@ -3585,9 +3584,10 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
         }
 
         case "focus": {
-          // Mirrors `FocusToken`: precise four-tier typographic hierarchy, spoken word
-          // drops with blur-up-to-down kinetic motion, active scale pop, buoyant float,
-          // and radiant bloom. Sits sharp and readable at resting opacity when finished.
+          // Mirrors `FocusToken`: uniform size and weight, the spoken word
+          // lifts/scales/brightens, everything else holds at
+          // `upcomingOpacity`, and one accent word per page carries the italic
+          // serif. Nothing here changes a word's measured box.
           const role = token.role ?? "normal";
           const tier = focusTier(role);
           const isScript = isFocusScript(role) && !hasDevanagari(token.text);
@@ -3606,61 +3606,36 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           );
 
           const { started, ended } = focusEnvelope(timing);
-          const isUpcoming = frame < timing.fromFrame;
-          const { yOffset, scale, blurPx, activeProgress } = focusWordMotion(
-            started,
-            ended,
-            tier,
-            roleFontSize,
-            isUpcoming,
-          );
+          const pulse = tokenPulse(timing, ENTER_BOUNCY);
+          const direction = dynamicSlideStackDirection(token.text, timing.fromFrame);
 
-          const isAccent = isFocusAccent(role);
-          const baseColour = isAccent
-            ? (token.color ?? config.accentColor)
-            : (token.color ?? config.baseColor);
-          const activeColour = isAccent
-            ? (token.color ?? config.accentColor)
-            : (config.activeColor ?? "#ffffff");
-
-          const colour = activeProgress > 0.05
-            ? interpolateColors(activeProgress, [0, 1], [baseColour, activeColour])
-            : baseColour;
+          const travel = pulse * roleFontSize * 0.15;
+          const xOffset = direction === "left" ? -travel : direction === "right" ? travel : 0;
+          const yOffset = direction === "up" ? -travel : direction === "down" ? travel : 0;
+          
+          const scaleFactor = canvasScale({ width, height });
+          const blurPx = ((1 - started) * 2.5 + ended * 2.5) * scaleFactor;
 
           ctx.globalAlpha =
             entrance * focusWordOpacity(started, ended, config.upcomingOpacity);
-
-          ctx.translate(cx, cy + yOffset);
-          if (scale !== 1) {
-            ctx.scale(scale, scale);
-          }
-
-          if (blurPx > 0.2) {
+          ctx.translate(cx + xOffset, cy + yOffset);
+          if (blurPx > 0.1) {
             ctx.filter = `blur(${blurPx}px)`;
           }
-
-          if (activeProgress > 0.05) {
-            const glowColor = isAccent ? config.accentColor : config.activeColor || config.baseColor;
-            ctx.shadowColor = glowColor;
-            ctx.shadowBlur = roleFontSize * 0.25 * activeProgress;
-          }
-
           fillWithHalo(
             ctx,
             text,
             -tokenWidth / 2,
             0,
-            colour,
+            isFocusAccent(role)
+              ? (token.color ?? config.accentColor)
+              : (token.color ?? config.baseColor),
             roleFontSize,
             premiumStrokePx(roleFontSize, config),
             config.strokeColor,
           );
-
-          if (blurPx > 0.2) {
+          if (blurPx > 0.1) {
             ctx.filter = "none";
-          }
-          if (activeProgress > 0.05) {
-            clearShadow(ctx);
           }
 
           ctx.font = canvasFont(config.fontWeight, config.fontSizePx, family);
