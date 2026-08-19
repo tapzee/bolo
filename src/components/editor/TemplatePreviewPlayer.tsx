@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { Player } from "@remotion/player";
+import { Player, Thumbnail } from "@remotion/player";
 import { CaptionScene } from "@/remotion/compositions/CaptionScene";
 import type { CaptionStyleConfig, CaptionPage } from "@/core";
 
