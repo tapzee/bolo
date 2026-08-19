@@ -28,6 +28,7 @@ export interface CachedVideo {
   blob: Blob;
   name: string;
   type: string;
+  lastModified: number;
   width: number;
   height: number;
   durationSeconds: number;
@@ -107,9 +108,17 @@ export const listCachedVideoIds = async (): Promise<string[]> => {
 /**
  * Rebuilds a `File` from the cache so a restored project can go straight back
  * through the normal pipeline — including export, which needs a real `File`.
+ *
+ * `lastModified` must be carried over explicitly: the File constructor
+ * defaults it to "now" otherwise, which would change `projectIdForFile`'s
+ * output on every reopen and mint a duplicate project instead of updating
+ * the one that was opened.
  */
 export const cachedVideoToFile = (cached: CachedVideo): File =>
-  new File([cached.blob], cached.name, { type: cached.type });
+  new File([cached.blob], cached.name, {
+    type: cached.type,
+    lastModified: cached.lastModified,
+  });
 
 /**
  * Stable id for a file, so re-dropping the same clip finds its existing project
