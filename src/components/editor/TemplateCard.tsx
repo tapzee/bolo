@@ -17,11 +17,17 @@ export const TemplateCard = memo(function TemplateCard({
   config,
   selected,
   onSelect,
+  isGroupLeader,
+  isExpanded,
+  onToggleGroup,
 }: {
   template: CaptionTemplate;
   config: CaptionStyleConfig;
   selected: boolean;
   onSelect: () => void;
+  isGroupLeader?: boolean;
+  isExpanded?: boolean;
+  onToggleGroup?: (e: React.MouseEvent) => void;
 }) {
   const previewSize = Math.max(12, Math.min(19, config.fontSizePx * 0.2));
   const isBox = template.engine === "box";
@@ -412,10 +418,36 @@ export const TemplateCard = memo(function TemplateCard({
         )}
       </div>
 
-      <div className="flex items-center justify-between gap-2 border-t border-border/20 bg-card/95 px-3 py-2">
-        <span className="truncate text-xs font-semibold text-foreground group-hover:text-brand transition-colors">
-          {template.name}
-        </span>
+      <div className="flex items-center justify-between gap-2 border-t border-border/20 bg-card/95 px-3 py-2 relative">
+        <div className="flex items-center gap-1.5 min-w-0 flex-1">
+          <span className="truncate text-xs font-semibold text-foreground group-hover:text-brand transition-colors">
+            {template.name}
+          </span>
+          {isGroupLeader && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleGroup?.(e);
+              }}
+              className="flex items-center justify-center rounded-sm bg-muted/80 p-0.5 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className={cn("transition-transform", isExpanded ? "rotate-180" : "")}
+              >
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+          )}
+        </div>
         <span className="shrink-0 rounded bg-muted/60 px-1.5 py-0.5 text-[9px] font-medium tracking-wide text-muted-foreground uppercase">
           {template.engine === "bold-yellow"
             ? "snap"
