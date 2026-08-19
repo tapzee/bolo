@@ -24,6 +24,7 @@ import {
   TEMPLATE_CATEGORIES,
   resolveTemplate,
 } from "@/core";
+import { FONT_FAMILY } from "@/remotion/fonts";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
