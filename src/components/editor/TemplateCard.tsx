@@ -1,10 +1,16 @@
 "use client";
 
-import { memo } from "react";
+import { memo, useState } from "react";
+import dynamic from "next/dynamic";
 import type { CaptionStyleConfig, CaptionTemplate } from "@/core";
 import { BOX_RADIUS_RATIO, GLOW_RADII } from "@/core";
 import { FONT_FAMILY } from "@/remotion/fonts";
 import { cn } from "@/lib/utils";
+
+const TemplatePreviewPlayer = dynamic(
+  () => import("./TemplatePreviewPlayer"),
+  { ssr: false }
+);
 
 /**
  * Static preview of a template with rich badges, active checkmarks, and kinetic previews.
@@ -29,6 +35,8 @@ export const TemplateCard = memo(function TemplateCard({
   isExpanded?: boolean;
   onToggleGroup?: (e: React.MouseEvent) => void;
 }) {
+  const [isHovered, setIsHovered] = useState(false);
+
   const previewSize = Math.max(12, Math.min(19, config.fontSizePx * 0.2));
   const isBox = template.engine === "box";
   const isGlow = template.engine === "glow";
@@ -61,6 +69,8 @@ export const TemplateCard = memo(function TemplateCard({
       role="radio"
       aria-checked={selected}
       onClick={onSelect}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       className={cn(
         "group relative w-full overflow-hidden rounded-xl text-left transition-all duration-200",
         "outline-none focus-visible:ring-2 focus-visible:ring-ring hover:scale-[1.02] hover:shadow-lg",
@@ -109,12 +119,13 @@ export const TemplateCard = memo(function TemplateCard({
       ) : null}
 
       <div
-        className="flex h-[76px] items-center justify-center px-3"
+        className="flex h-[76px] items-center justify-center px-3 relative overflow-hidden"
         style={{
           background:
             "radial-gradient(circle at center, #2e3440 0%, #171a21 70%, #111317 100%)",
         }}
       >
+        <div className={cn("absolute inset-0 flex items-center justify-center px-3 z-0 transition-opacity duration-300", isHovered ? "opacity-0" : "opacity-100")}>
         {isSplash ? (
           <div className="flex items-baseline gap-1.5 whitespace-nowrap">
             <span
@@ -415,6 +426,13 @@ export const TemplateCard = memo(function TemplateCard({
           >
             बोलो Bolo
           </span>
+        )}
+        </div>
+
+        {isHovered && (
+          <div className="absolute inset-0 z-10 pointer-events-none">
+            <TemplatePreviewPlayer config={config} />
+          </div>
         )}
       </div>
 

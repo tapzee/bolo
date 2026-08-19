@@ -93,29 +93,6 @@ export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
   }, "New"),
 
 
-  t("design-walla", "Design Walla", "premium", "designWalla", {
-    fontId: "inter", fontSizePx: 95, fontWeight: 600, textCase: "none",
-    baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#ffe600",
-    strokeWidthPx: 3, dropShadow: true,
-    specialFontId: "caveat", secondaryFontId: "montserrat"
-  }, "Hot", "design-walla"),
-
-  t("design-walla-editorial", "Design Walla Editorial", "premium", "designWallaEditorial", {
-    fontId: "anton", fontSizePx: 100, fontWeight: 900, textCase: "none",
-    baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#ffe600",
-    strokeWidthPx: 3, dropShadow: true,
-    specialFontId: "playfair", secondaryFontId: "inter",
-    lineHeight: 0.88, annotationSizeRatio: 0.48, annotationWeight: 600,
-  }, "Hot", "design-walla"),
-
-  t("design-walla-editorial-yellow", "Design Walla Editorial (Yellow)", "premium", "designWallaEditorialYellow", {
-    fontId: "anton", fontSizePx: 100, fontWeight: 900, textCase: "none",
-    baseColor: "#ffffff", activeColor: "#ffe600", accentColor: "#ffe600",
-    strokeWidthPx: 3, dropShadow: true,
-    specialFontId: "playfair", secondaryFontId: "inter",
-    lineHeight: 0.88, annotationSizeRatio: 0.48, annotationWeight: 600,
-  }, "New", "design-walla"),
-
   t("design-walla-pro", "Design Walla Pro", "premium", "designWallaPro", {
     fontId: "montserrat", fontSizePx: 95, fontWeight: 900, textCase: "none",
     baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#ffe600",
@@ -145,6 +122,29 @@ export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
     baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#ff6f00",
     strokeWidthPx: 3, dropShadow: true,
     secondaryFontId: "poppins"
+  }, "Hot", "design-walla"),
+
+  t("design-walla-editorial", "Design Walla Editorial", "premium", "designWallaEditorial", {
+    fontId: "anton", fontSizePx: 100, fontWeight: 900, textCase: "none",
+    baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#ffe600",
+    strokeWidthPx: 3, dropShadow: true,
+    specialFontId: "playfair", secondaryFontId: "inter",
+    lineHeight: 0.88, annotationSizeRatio: 0.48, annotationWeight: 600,
+  }, "Hot", "design-walla"),
+
+  t("design-walla-editorial-yellow", "Design Walla Editorial (Yellow)", "premium", "designWallaEditorialYellow", {
+    fontId: "anton", fontSizePx: 100, fontWeight: 900, textCase: "none",
+    baseColor: "#ffffff", activeColor: "#ffe600", accentColor: "#ffe600",
+    strokeWidthPx: 3, dropShadow: true,
+    specialFontId: "playfair", secondaryFontId: "inter",
+    lineHeight: 0.88, annotationSizeRatio: 0.48, annotationWeight: 600,
+  }, "New", "design-walla"),
+
+  t("design-walla", "Design Walla", "premium", "designWalla", {
+    fontId: "inter", fontSizePx: 95, fontWeight: 600, textCase: "none",
+    baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#ffe600",
+    strokeWidthPx: 3, dropShadow: true,
+    specialFontId: "caveat", secondaryFontId: "montserrat"
   }, "Hot", "design-walla"),
 
   // ---- Trending ----------------------------------------------------------
