@@ -24,6 +24,7 @@ import {
   type StyleId,
 } from "@/core";
 import { buildCaptionPages } from "@/remotion/captions/build-pages";
+import { FONT_FAMILY } from "@/remotion/fonts";
 import {
   BACKDROPS,
   type BackdropId,
