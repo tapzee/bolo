@@ -9,7 +9,7 @@ import {
   useState,
 } from "react";
 import dynamic from "next/dynamic";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import type { PlayerRef } from "@remotion/player";
 import {
   AlertTriangle,
@@ -935,112 +935,137 @@ export function CreateFlow() {
               ))}
             </div>
 
-            {/* TAB 1: STYLES & DESIGN */}
-            {rightTab === "styles" ? (
-              <div className="space-y-6">
-                <TemplatesPanel
-                  config={config}
-                  activeTemplateId={templateId}
-                  onApply={applyTemplate}
-                  patch={patch}
-                />
-                
-                {/* The raw motion-engine picker used to sit here. Removed: every
-                    template already carries its engine, so exposing the five
-                    engines separately gave two competing ways to change the
-                    same thing and made the rail twice as long. */}
-                <div className="border-t border-border/50 pt-4">
-                  <div className="rounded-xl border bg-muted/30 p-3">
-                    <TextPanel config={config} patch={patch} />
-                  </div>
-                </div>
-              </div>
-            ) : null}
-
-            {/* TAB 2: WORD EDIT INSPECTOR */}
-            {rightTab === "word" ? (
-              <div className="space-y-4">
-                {selectedWord !== undefined && editor.selected !== null ? (
-                  <Section title="Word Properties" hint={`Editing word #${editor.selected + 1} in your timeline`}>
-                    <WordInspector
-                      word={selectedWord}
-                      index={editor.selected}
-                      totalWords={editor.words.length}
-                      onSetText={editor.actions.setText}
-                      onSetColor={editor.actions.setColor}
-                      onSetEmphasis={editor.actions.setEmphasis}
-                      onSetRole={editor.actions.setRole}
-                      onSplit={editor.actions.splitAt}
-                      onMerge={editor.actions.mergeAt}
-                      onClearBreak={editor.actions.clearBreak}
-                      onDelete={editor.actions.remove}
-                      onInsertAfter={editor.actions.insertAfter}
+            <div className="relative overflow-hidden">
+              <AnimatePresence mode="wait" initial={false}>
+                {/* TAB 1: STYLES & DESIGN */}
+                {rightTab === "styles" && (
+                  <motion.div
+                    key="styles"
+                    initial={{ opacity: 0, x: 10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -10 }}
+                    transition={{ duration: 0.15 }}
+                    className="space-y-6"
+                  >
+                    <TemplatesPanel
+                      config={config}
+                      activeTemplateId={templateId}
+                      onApply={applyTemplate}
+                      patch={patch}
                     />
-                  </Section>
-                ) : (
-                  <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed bg-card/40 py-12 px-6 text-center text-muted-foreground">
-                    <Edit3 className="size-8 text-muted-foreground/30" />
-                    <p className="font-bold text-foreground text-sm">No Word Selected</p>
-                    <p className="text-xs leading-relaxed max-w-[240px]">
-                      Click any word on the left script panel or on the bottom audio timeline to alter its spelling, color, timing, and line breaks.
-                    </p>
-                  </div>
-                )}
-              </div>
-            ) : null}
-
-            {/* TAB 3: EXPORT & RENDER SETTINGS */}
-            {rightTab === "export" ? (
-              <div className="space-y-6">
-                {state.file !== null && sourceSize !== null ? (
-                  <>
-                    <div className="space-y-3">
-                      <h3 className="font-bold text-xs tracking-wide text-foreground uppercase flex items-center gap-1.5">
-                        <Download className="size-3.5 text-brand" />
-                        <span>Video Export & Quality</span>
-                      </h3>
-                      <p className="text-xs text-muted-foreground/80 leading-relaxed">
-                        Select your preferred render resolution and export directly using local hardware encoding.
-                      </p>
-                      <div className="rounded-xl border bg-background/50 p-3">
-                        <ExportPanel
-                          resolution={resolution}
-                          onResolutionChange={setResolution}
-                          availability={capabilities?.tiers ?? null}
-                          webcodecsSupported={capabilities?.webcodecs ?? true}
-                          dimensions={exportDimensions(sourceSize, resolution)}
-                          sourceHeight={sourceSize.height}
-                          watermark={!entitlements.watermarkFree}
-                          maxResolution={entitlements.maxResolution}
-                          exportState={exportState}
-                        />
+                    
+                    {/* The raw motion-engine picker used to sit here. Removed: every
+                        template already carries its engine, so exposing the five
+                        engines separately gave two competing ways to change the
+                        same thing and made the rail twice as long. */}
+                    <div className="border-t border-border/50 pt-4">
+                      <div className="rounded-xl border bg-muted/30 p-3">
+                        <TextPanel config={config} patch={patch} />
                       </div>
                     </div>
-
-                    <div className="border-t pt-5 border-border/50 space-y-3">
-                      <h3 className="font-bold text-xs tracking-wide text-foreground uppercase flex items-center gap-1.5">
-                        <Layers className="size-3.5 text-brand" />
-                        <span>SubRip (.srt) File</span>
-                      </h3>
-                      <p className="text-xs text-muted-foreground/80 leading-relaxed">
-                        Download standard `.srt` subtitles with exact word-level timing for Premiere Pro, CapCut, or direct social uploading.
-                      </p>
-                      <button
-                        type="button"
-                        onClick={() => downloadSrt(pages, state.file?.name ?? "captions")}
-                        className="w-full rounded-xl border border-border bg-background py-2 text-xs font-bold text-foreground shadow-sm transition-all hover:bg-accent hover:border-border-strong"
-                      >
-                        Download .srt Subtitle File
-                      </button>
-                    </div>
-                  </>
-                ) : (
-                  <p className="text-center text-xs text-muted-foreground py-8">
-                    Video file metadata loading...
-                  </p>
+                  </motion.div>
                 )}
-              </div>
-            ) : null}
+
+                {/* TAB 2: WORD EDIT INSPECTOR */}
+                {rightTab === "word" && (
+                  <motion.div
+                    key="word"
+                    initial={{ opacity: 0, x: 10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -10 }}
+                    transition={{ duration: 0.15 }}
+                    className="space-y-4"
+                  >
+                    {selectedWord !== undefined && editor.selected !== null ? (
+                      <Section title="Word Properties" hint={`Editing word #${editor.selected + 1} in your timeline`}>
+                        <WordInspector
+                          word={selectedWord}
+                          index={editor.selected}
+                          totalWords={editor.words.length}
+                          onSetText={editor.actions.setText}
+                          onSetColor={editor.actions.setColor}
+                          onSetEmphasis={editor.actions.setEmphasis}
+                          onSetRole={editor.actions.setRole}
+                          onSplit={editor.actions.splitAt}
+                          onMerge={editor.actions.mergeAt}
+                          onClearBreak={editor.actions.clearBreak}
+                          onDelete={editor.actions.remove}
+                          onInsertAfter={editor.actions.insertAfter}
+                        />
+                      </Section>
+                    ) : (
+                      <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed bg-card/40 py-12 px-6 text-center text-muted-foreground">
+                        <Edit3 className="size-8 text-muted-foreground/30" />
+                        <p className="font-bold text-foreground text-sm">No Word Selected</p>
+                        <p className="text-xs leading-relaxed max-w-[240px]">
+                          Click any word on the left script panel or on the bottom audio timeline to alter its spelling, color, timing, and line breaks.
+                        </p>
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+
+                {/* TAB 3: EXPORT & RENDER SETTINGS */}
+                {rightTab === "export" && (
+                  <motion.div
+                    key="export"
+                    initial={{ opacity: 0, x: 10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -10 }}
+                    transition={{ duration: 0.15 }}
+                    className="space-y-6"
+                  >
+                    {state.file !== null && sourceSize !== null ? (
+                      <>
+                        <div className="space-y-3">
+                          <h3 className="font-bold text-xs tracking-wide text-foreground uppercase flex items-center gap-1.5">
+                            <Download className="size-3.5 text-brand" />
+                            <span>Video Export & Quality</span>
+                          </h3>
+                          <p className="text-xs text-muted-foreground/80 leading-relaxed">
+                            Select your preferred render resolution and export directly using local hardware encoding.
+                          </p>
+                          <div className="rounded-xl border bg-background/50 p-3">
+                            <ExportPanel
+                              resolution={resolution}
+                              onResolutionChange={setResolution}
+                              availability={capabilities?.tiers ?? null}
+                              webcodecsSupported={capabilities?.webcodecs ?? true}
+                              dimensions={exportDimensions(sourceSize, resolution)}
+                              sourceHeight={sourceSize.height}
+                              watermark={!entitlements.watermarkFree}
+                              maxResolution={entitlements.maxResolution}
+                              exportState={exportState}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="border-t pt-5 border-border/50 space-y-3">
+                          <h3 className="font-bold text-xs tracking-wide text-foreground uppercase flex items-center gap-1.5">
+                            <Layers className="size-3.5 text-brand" />
+                            <span>SubRip (.srt) File</span>
+                          </h3>
+                          <p className="text-xs text-muted-foreground/80 leading-relaxed">
+                            Download standard `.srt` subtitles with exact word-level timing for Premiere Pro, CapCut, or direct social uploading.
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => downloadSrt(pages, state.file?.name ?? "captions")}
+                            className="w-full rounded-xl border border-border bg-background py-2 text-xs font-bold text-foreground shadow-sm transition-all hover:bg-accent hover:border-border-strong"
+                          >
+                            Download .srt Subtitle File
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <p className="text-center text-xs text-muted-foreground py-8">
+                        Video file metadata loading...
+                      </p>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
 
           {/* Bottom Security Reassurance Card */}
