@@ -663,7 +663,7 @@ export function TemplatesPanel({
                   >
                     <div className="flex items-center gap-2">
                       <Type className={cn("size-3.5", isSelected ? "text-brand" : "text-muted-foreground")} />
-                      <span>{font.label}</span>
+                      <span className="text-sm" style={{ fontFamily: FONT_FAMILY[font.id as FontId] }}>{font.label}</span>
                     </div>
                     {font.nativeDevanagari ? (
                       <span className="rounded bg-success/15 px-1.5 py-0.5 text-[10px] font-medium text-success">
@@ -705,7 +705,7 @@ export function TemplatesPanel({
                         : "border-border/60 bg-card/40 font-medium hover:border-border hover:bg-card",
                     )}
                   >
-                    <span>{font.label}</span>
+                    <span className="text-sm" style={{ fontFamily: FONT_FAMILY[font.id as FontId] }}>{font.label}</span>
                   </button>
                 );
               })}
@@ -741,7 +741,7 @@ export function TemplatesPanel({
                         : "border-border/60 bg-card/40 font-medium hover:border-border hover:bg-card",
                     )}
                   >
-                    <span>{font.label}</span>
+                    <span className="text-sm" style={{ fontFamily: FONT_FAMILY[font.id as FontId] }}>{font.label}</span>
                   </button>
                 );
               })}
