@@ -770,7 +770,7 @@ export function CreateFlow() {
   );
 
   return (
-    <>
+    <div className="h-dvh flex flex-col overflow-hidden bg-background">
       <EditorTopBar
         title={state.file?.name ?? "Untitled Project"}
         durationSeconds={state.video?.durationSeconds ?? 0}
@@ -790,16 +790,16 @@ export function CreateFlow() {
         watermark={!entitlements.watermarkFree}
       />
 
-      <Reorder.Group axis="x" values={columnOrder} onReorder={setColumnOrder} className="mx-auto flex w-full max-w-[1850px] flex-row overflow-x-auto gap-6 px-4 py-6 xl:px-6">
+      <Reorder.Group axis="x" values={columnOrder} onReorder={setColumnOrder} className="mx-auto flex w-full max-w-[1850px] flex-1 flex-row overflow-x-auto overflow-y-hidden gap-6 px-4 py-6 xl:px-6">
         {columnOrder.map((col) => {
           if (col === "script") return (
         /* =====================================================================
          * LEFT RAIL: SCRIPT & TIMELINE CONSOLE
          * ===================================================================== */
-        <SortableRail key="script" id="script" as="aside" initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }} className="w-[280px] xl:w-[330px] shrink-0 min-w-0">
+        <SortableRail key="script" id="script" as="aside" initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }} className="w-[280px] xl:w-[330px] shrink-0 min-w-0 h-full flex flex-col pb-4">
           {(dragControls: DragControls) => (
-            <div className="rounded-2xl border bg-card/70 shadow-sm p-4 space-y-3">
-              <div className="flex items-center justify-between border-b pb-2.5 border-border/50">
+            <div className="rounded-2xl border bg-card/70 shadow-sm p-4 space-y-3 flex flex-col flex-1 overflow-hidden">
+              <div className="flex items-center justify-between border-b pb-2.5 border-border/50 shrink-0">
                 <h2 className="text-xs font-bold tracking-wide text-foreground uppercase flex items-center gap-1.5">
                   <GripHorizontal onPointerDown={(e) => dragControls.start(e)} className="size-3.5 text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing transition-colors" />
                 <Edit3 className="size-3.5 text-brand" />
@@ -810,11 +810,11 @@ export function CreateFlow() {
               </span>
             </div>
 
-            <p className="text-[11px] text-muted-foreground/80 leading-normal">
+            <p className="text-[11px] text-muted-foreground/80 leading-normal shrink-0">
               Click any word below to jump to its timestamp or edit its exact spelling, line break, and highlight color.
             </p>
 
-            <div className="space-y-2 pr-1">
+            <div className="space-y-2 pr-1 flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
               <CaptionLines
                 pages={pages}
                 words={editor.words}
@@ -831,7 +831,7 @@ export function CreateFlow() {
           );
 
           if (col === "video") return (
-            <SortableRail key="video" id="video" as="div" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }} className="w-auto flex-1 min-w-[320px] flex flex-col items-center gap-5 sticky top-20 z-30 pt-0 self-start" style={{ ["--stage-h" as string]: "clamp(240px, 45vh, 520px)" }}>
+            <SortableRail key="video" id="video" as="div" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }} className="w-auto flex-1 min-w-[320px] flex flex-col items-center gap-5 z-30 pt-0" style={{ ["--stage-h" as string]: "clamp(240px, 45vh, 520px)" }}>
               {(dragControls: DragControls) => (
                 <>
           {/* Top Video Toolbar */}
@@ -1028,17 +1028,17 @@ export function CreateFlow() {
           );
 
           if (col === "styles") return (
-            <SortableRail key="styles" id="styles" as="aside" initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.35, delay: 0.05, ease: [0.22, 1, 0.36, 1] }} className="w-[360px] xl:w-[400px] shrink-0 min-w-0 space-y-4">
+            <SortableRail key="styles" id="styles" as="aside" initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.35, delay: 0.05, ease: [0.22, 1, 0.36, 1] }} className="w-[360px] xl:w-[400px] shrink-0 min-w-0 h-full flex flex-col pb-4">
               {(dragControls: DragControls) => (
                 <>
-          <div className="rounded-2xl border bg-card/80 p-4 shadow-sm space-y-5">
+          <div className="rounded-2xl border bg-card/80 p-4 shadow-sm space-y-5 flex flex-col flex-1 overflow-hidden">
             
             {/* 3-Tab Main Navigation Inspector */}
-            <div className="flex items-center gap-2 mb-3">
+            <div className="flex items-center gap-2 mb-3 shrink-0">
               <GripHorizontal onPointerDown={(e) => dragControls.start(e)} className="size-4 text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing transition-colors shrink-0" />
               <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex-1 cursor-grab active:cursor-grabbing">Editor Tools</div>
             </div>
-            <div className="flex gap-1 rounded-xl bg-muted p-1 text-xs font-semibold">
+            <div className="flex gap-1 rounded-xl bg-muted p-1 text-xs font-semibold shrink-0">
               {[
                 { id: "styles", label: "Styles & Design", icon: <Palette className="size-3.5" /> },
                 { id: "word", label: "Word Edit", icon: <Edit3 className="size-3.5" />, activeBadge: selectedWord !== undefined },
@@ -1067,7 +1067,7 @@ export function CreateFlow() {
               ))}
             </div>
 
-            <div className="relative overflow-hidden">
+            <div className="relative flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent pr-1">
               <AnimatePresence mode="wait" initial={false}>
                 {/* TAB 1: STYLES & DESIGN */}
                 {rightTab === "styles" && (
@@ -1215,6 +1215,6 @@ export function CreateFlow() {
           return null;
         })}
       </Reorder.Group>
-    </>
+    </div>
   );
 }
