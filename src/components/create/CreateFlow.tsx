@@ -379,6 +379,7 @@ export function CreateFlow() {
       const word = editor.words[index];
       if (word !== undefined) seekMs(word.startMs);
       setRightTab("word");
+      setMobileTab("styles");
     },
     [editor, seekMs],
   );
