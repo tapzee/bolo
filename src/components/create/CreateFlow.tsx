@@ -688,36 +688,39 @@ export function CreateFlow() {
           className="order-1 flex min-w-0 flex-col items-center gap-5 sticky top-12 z-30 pt-2 bg-background/95 backdrop-blur lg:bg-transparent lg:backdrop-blur-none lg:pt-0 lg:order-2 lg:top-20 lg:self-start"
           style={{ ["--stage-h" as string]: "clamp(240px, 45vh, 520px)" }}
         >
-          <div className="w-full flex items-center justify-between">
+          {/* Top Video Toolbar */}
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.2 }}
+            className="w-full flex flex-col sm:flex-row items-center justify-between gap-3 rounded-2xl bg-[#0A0D14]/80 backdrop-blur-2xl border border-white/10 p-2 sm:p-2.5 shadow-2xl relative z-40"
+          >
             <CropToolbar mode={crop} onChange={setCrop} canvas={canvas} />
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
+            
+            <div className="flex items-center gap-2 shrink-0">
+              <button
                 onClick={toggleFullscreen}
-                className="h-8 text-xs font-medium text-muted-foreground hover:text-foreground"
+                className="group flex h-8 items-center gap-1.5 rounded-full bg-white/5 px-3.5 text-[11px] font-bold text-white/70 transition-all hover:bg-white/10 hover:text-white hover:shadow-[0_0_15px_rgba(255,255,255,0.1)] ring-1 ring-inset ring-white/10"
                 title={isFullscreen ? "Exit Fullscreen (F)" : "Fullscreen Preview (F)"}
               >
                 {isFullscreen ? (
-                  <Minimize2 className="size-3.5 mr-1 text-brand" />
+                  <Minimize2 className="size-3.5 text-emerald-400/70 transition-colors group-hover:text-emerald-400" />
                 ) : (
-                  <Maximize2 className="size-3.5 mr-1 text-brand" />
+                  <Maximize2 className="size-3.5 text-emerald-400/70 transition-colors group-hover:text-emerald-400" />
                 )}
-                {isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
-              </Button>
+                <span>{isFullscreen ? "Exit Fullscreen" : "Fullscreen"}</span>
+              </button>
 
-              <Button
-                variant="outline"
-                size="sm"
+              <button
                 onClick={reset}
-                className="h-8 text-xs font-medium text-muted-foreground hover:text-foreground"
+                className="group flex h-8 items-center gap-1.5 rounded-full bg-white/5 px-3.5 text-[11px] font-bold text-white/70 transition-all hover:bg-white/10 hover:text-white hover:shadow-[0_0_15px_rgba(255,255,255,0.1)] ring-1 ring-inset ring-white/10"
                 title="Replace current video clip"
               >
-                <RotateCcw className="size-3.5 mr-1 text-brand" />
-                Switch Video
-              </Button>
+                <RotateCcw className="size-3.5 text-amber-400/70 transition-transform duration-300 group-hover:-rotate-90 group-hover:text-amber-400" />
+                <span>Switch Video</span>
+              </button>
             </div>
-          </div>
+          </motion.div>
 
           {/* Video Stage Container (wraps preview frame & transport bar in fullscreen) */}
           <div
