@@ -72,12 +72,28 @@ export const buildGlowShadow = (
   const unit = config.fontSizePx;
   const mult = (config.glowIntensity ?? 1) * intensityFactor;
   if (mult <= 0.01) return undefined;
+
+  const radiusScale = (config.glowRadius ?? 111.0) / 100;
+  const threshold = config.glowThreshold ?? 72.5;
+  // Threshold conceptually maps to how much of the color is allowed to bloom
+  const alpha = Math.max(0.1, 1 - (threshold / 100));
+  
+  let bloomStr = bloom;
+  if (bloom.startsWith("#")) {
+    let c = bloom.replace("#", "");
+    if (c.length === 3) c = c.split("").map((x) => x + x).join("");
+    const r = parseInt(c.slice(0, 2), 16) || 255;
+    const g = parseInt(c.slice(2, 4), 16) || 255;
+    const b = parseInt(c.slice(4, 6), 16) || 255;
+    bloomStr = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+
   return [
-    `0 0 ${unit * 0.08 * mult}px #ffffff`,
+    `0 0 ${unit * 0.08 * mult * radiusScale}px rgba(255, 255, 255, ${alpha})`,
     ...GLOW_RADII.map(
-      (radius) => `0 0 ${unit * radius * 1.35 * mult}px ${bloom}`,
+      (radius) => `0 0 ${unit * radius * 1.35 * mult * radiusScale}px ${bloomStr}`,
     ),
-    `0 0 ${unit * 0.6 * mult}px ${bloom}`,
+    `0 0 ${unit * 0.6 * mult * radiusScale}px ${bloomStr}`,
   ].join(", ");
 };
 

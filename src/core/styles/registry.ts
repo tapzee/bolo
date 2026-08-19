@@ -33,6 +33,8 @@ const BASE: CaptionStyleConfig = {
   dropShadow: false,
   glowEnabled: false,
   glowColor: "#ffd60a",
+  glowThreshold: 72.5,
+  glowRadius: 111.0,
   glowIntensity: 1,
   backgroundEnabled: false,
   backgroundColor: "#000000",

@@ -1080,15 +1080,29 @@ const drawGlowPass = (
   const mult = (config.glowIntensity ?? 1) * intensityFactor;
   if (mult <= 0.01) return;
 
+  const radiusScale = (config.glowRadius ?? 111.0) / 100;
+  const threshold = config.glowThreshold ?? 72.5;
+  const alpha = Math.max(0.1, 1 - (threshold / 100));
+
+  let bloomStr = bloom;
+  if (bloom.startsWith("#")) {
+    let c = bloom.replace("#", "");
+    if (c.length === 3) c = c.split("").map((x) => x + x).join("");
+    const r = parseInt(c.slice(0, 2), 16) || 255;
+    const g = parseInt(c.slice(2, 4), 16) || 255;
+    const b = parseInt(c.slice(4, 6), 16) || 255;
+    bloomStr = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+
   ctx.save();
-  ctx.shadowColor = "#ffffff";
-  ctx.shadowBlur = config.fontSizePx * 0.08 * mult;
-  ctx.fillStyle = bloom;
+  ctx.shadowColor = `rgba(255, 255, 255, ${alpha})`;
+  ctx.shadowBlur = config.fontSizePx * 0.08 * mult * radiusScale;
+  ctx.fillStyle = bloomStr;
   ctx.fillText(text, x, y);
 
-  ctx.shadowColor = bloom;
+  ctx.shadowColor = bloomStr;
   for (const radius of GLOW_RADII) {
-    ctx.shadowBlur = config.fontSizePx * radius * 1.35 * mult;
+    ctx.shadowBlur = config.fontSizePx * radius * 1.35 * mult * radiusScale;
     ctx.fillText(text, x, y);
   }
   clearShadow(ctx);

@@ -638,7 +638,7 @@ export function CreateFlow() {
         watermark={!entitlements.watermarkFree}
       />
 
-      <div className="mx-auto grid w-full max-w-[1850px] gap-6 px-4 py-6 xl:grid-cols-[330px_minmax(0,1fr)_400px] xl:px-6">
+      <div className="mx-auto grid w-full max-w-[1850px] gap-6 px-4 py-6 lg:grid-cols-[280px_minmax(0,1fr)_360px] xl:grid-cols-[330px_minmax(0,1fr)_400px] xl:px-6">
         
         {/* =====================================================================
          * LEFT RAIL: SCRIPT & TIMELINE CONSOLE
@@ -647,7 +647,7 @@ export function CreateFlow() {
           initial={{ opacity: 0, x: -12 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-          className={cn("order-2 min-w-0 xl:order-1", mobileTab !== "script" && "hidden xl:block")}
+          className={cn("order-2 min-w-0 lg:order-1", mobileTab !== "script" && "hidden lg:block")}
         >
           <div className="rounded-2xl border bg-card/70 shadow-sm p-4 space-y-3">
             <div className="flex items-center justify-between border-b pb-2.5 border-border/50">
@@ -685,8 +685,8 @@ export function CreateFlow() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-          className="order-1 flex min-w-0 flex-col items-center gap-5 sticky top-12 z-30 pt-2 bg-background/95 backdrop-blur xl:bg-transparent xl:backdrop-blur-none xl:pt-0 xl:order-2 xl:top-20 xl:self-start"
-          style={{ ["--stage-h" as string]: "min(52vh, 520px)" }}
+          className="order-1 flex min-w-0 flex-col items-center gap-5 sticky top-12 z-30 pt-2 bg-background/95 backdrop-blur lg:bg-transparent lg:backdrop-blur-none lg:pt-0 lg:order-2 lg:top-20 lg:self-start"
+          style={{ ["--stage-h" as string]: "clamp(240px, 45vh, 520px)" }}
         >
           <div className="w-full flex items-center justify-between">
             <CropToolbar mode={crop} onChange={setCrop} canvas={canvas} />
@@ -723,13 +723,18 @@ export function CreateFlow() {
           <div
             ref={stageContainerRef}
             className={cn(
-              "w-full flex flex-col items-center gap-4 transition-all",
+              "w-full flex flex-col items-center gap-4 transition-all relative",
               isFullscreen && "fixed inset-0 z-50 h-screen w-screen bg-black/95 p-4 flex flex-col items-center justify-between backdrop-blur-xl",
             )}
           >
+            {/* Ambient Glow */}
+            {!isFullscreen && (
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] bg-brand/20 blur-[80px] rounded-full pointer-events-none -z-10" />
+            )}
+
             {/* Video Preview Frame */}
             <div
-              className="relative max-w-full rounded-2xl overflow-hidden shadow-lift border border-border/40 bg-black flex items-center justify-center"
+              className="relative max-w-full rounded-[24px] overflow-hidden shadow-[0_20px_50px_-12px_rgba(0,0,0,0.5)] border border-white/10 bg-black flex items-center justify-center ring-1 ring-white/5"
               style={{
                 aspectRatio: `${canvas.width} / ${canvas.height}`,
                 width: isFullscreen
@@ -835,7 +840,7 @@ export function CreateFlow() {
           </div>
 
           {/* MOBILE TAB BAR */}
-          <div className="flex w-full xl:hidden items-center justify-between gap-1 p-1 rounded-xl bg-muted/60 mt-1">
+          <div className="flex w-full lg:hidden items-center justify-between gap-1 p-1 rounded-xl bg-muted/60 mt-1">
             <button
               onClick={() => setMobileTab("timeline")}
               className={cn("flex-1 rounded-lg py-2 text-[11px] uppercase tracking-wider font-bold transition-all", mobileTab === "timeline" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground")}
@@ -857,7 +862,7 @@ export function CreateFlow() {
           </div>
 
           {/* Timeline Deck Card */}
-          <div className={cn("w-full rounded-2xl border bg-card/80 p-4 shadow-sm space-y-3", mobileTab !== "timeline" && "hidden xl:block")}>
+          <div className={cn("w-full rounded-2xl border bg-card/80 p-4 shadow-sm space-y-3", mobileTab !== "timeline" && "hidden lg:block")}>
             <div className="flex w-full items-center justify-between gap-3 border-b pb-2 border-border/50 text-xs text-muted-foreground">
               <span className="font-medium text-foreground flex items-center gap-2">
                 <span>{editor.words.length} words</span>
@@ -896,7 +901,7 @@ export function CreateFlow() {
           initial={{ opacity: 0, x: 12 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.35, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
-          className={cn("order-3 min-w-0 space-y-4", mobileTab !== "styles" && "hidden xl:block")}
+          className={cn("order-3 min-w-0 space-y-4", mobileTab !== "styles" && "hidden lg:block")}
         >
           <div className="rounded-2xl border bg-card/80 p-4 shadow-sm space-y-5">
             

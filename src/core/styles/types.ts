@@ -239,6 +239,10 @@ export interface CaptionStyleConfig {
   glowEnabled?: boolean;
   /** Bloom color for the glow effect. Defaults to accent/active color if unset. */
   glowColor?: string;
+  /** Cutoff for what brightness triggers the glow (represented as percentage). */
+  glowThreshold?: number;
+  /** Extent of the glow bloom radius. */
+  glowRadius?: number;
   /** Multiplier for glow radius & bloom intensity (e.g. 1.0 = standard, 2.0 = intense). */
   glowIntensity?: number;
   /** Solid plate behind the whole caption block. */

@@ -135,7 +135,7 @@ function Toggle({
         <span
           className={cn(
             "absolute top-0.5 size-4 rounded-full bg-white shadow-xs transition-transform duration-200",
-            checked ? "translate-x-4.5" : "translate-x-0.5",
+            checked ? "translate-x-[18px]" : "translate-x-0.5",
           )}
         />
       </button>
@@ -622,12 +622,28 @@ export function TextPanel({
               />
             </Row>
             <SliderRow
-              label="Glow intensity"
+              label="Glow Threshold"
+              value={config.glowThreshold ?? 72.5}
+              min={0}
+              max={100}
+              step={0.5}
+              suffix="%"
+              onChange={(v) => patch({ glowThreshold: v })}
+            />
+            <SliderRow
+              label="Glow Radius"
+              value={config.glowRadius ?? 111.0}
+              min={10}
+              max={250}
+              step={1}
+              onChange={(v) => patch({ glowRadius: v })}
+            />
+            <SliderRow
+              label="Glow Intensity"
               value={config.glowIntensity ?? 1}
-              min={0.2}
-              max={2.5}
-              step={0.05}
-              suffix="x"
+              min={0.1}
+              max={3.0}
+              step={0.1}
               onChange={(v) => patch({ glowIntensity: v })}
             />
           </>
