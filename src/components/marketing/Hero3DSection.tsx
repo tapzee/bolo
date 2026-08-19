@@ -16,6 +16,10 @@ import {
   Sliders,
   Palette,
   ChevronRight,
+  Heart,
+  MessageCircle,
+  Share2,
+  Music2,
 } from "lucide-react";
 
 interface SamplePhrase {
@@ -467,88 +471,124 @@ export function Hero3DSection() {
               </div>
             </div>
 
-            {/* Middle Section: 3D Video Preview Reel Mockup */}
+            {/* Middle Section: 3D Smartphone Device Mockup */}
             <div
               ref={stage3DRef}
-              className="relative mx-auto w-full rounded-2xl overflow-hidden shadow-2xl border border-white/10 dark:border-white/5 transition-transform duration-300 ease-out will-change-transform"
-              style={{
-                aspectRatio: "16 / 9",
-                minHeight: "320px",
-                maxHeight: "520px",
-                background: "radial-gradient(circle at center, #171c24 0%, #0c0e12 70%, #050608 100%)",
-              }}
+              className="relative mx-auto w-full max-w-[320px] sm:max-w-[340px] rounded-[44px] border-[7px] border-neutral-900 bg-black p-3 shadow-[0_30px_70px_-15px_rgba(0,0,0,0.5),0_0_40px_rgba(16,185,129,0.2)] transition-transform duration-300 ease-out will-change-transform my-6"
+              style={{ transformStyle: "preserve-3d" }}
             >
-              {/* Subtle dynamic backdrop light */}
-              <div className={`absolute inset-0 bg-gradient-to-br ${selectedStyle.bgGrad} opacity-60 transition-all duration-500`} />
-
-              {/* Decorative Audio Waveform Visualizer on Top */}
-              <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-20 text-white/80">
-                <div className="flex items-center gap-2 rounded-full bg-black/60 backdrop-blur-md px-3 py-1 border border-white/10 text-xs">
-                  <span className="flex size-2 rounded-full bg-red-500 animate-ping" />
-                  <span className="font-mono text-[11px] font-bold tracking-wider">LIVE PREVIEW</span>
-                  <span className="text-white/40">|</span>
-                  <span className="text-emerald-400 font-semibold">{selectedPhrase.lang}</span>
-                </div>
-
-                {/* Animated Speech Equalizer Wave */}
-                <div className="flex items-center gap-1 bg-black/50 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10">
-                  {[40, 70, 90, 60, 100, 45, 80, 55, 95, 65, 30].map((h, i) => (
-                    <motion.div
-                      key={i}
-                      animate={isPlaying ? { height: [`${h * 0.25}px`, `${h * 0.4}px`, `${h * 0.15}px`] } : { height: "4px" }}
-                      transition={{ repeat: Infinity, duration: 0.6 + (i * 0.08), ease: "easeInOut" }}
-                      className="w-1 rounded-full bg-gradient-to-t from-emerald-500 to-teal-300"
-                      style={{ height: `${h * 0.25}px` }}
-                    />
-                  ))}
-                </div>
+              {/* Dynamic Island / Camera Notch */}
+              <div className="absolute top-4 left-1/2 -translate-x-1/2 h-4 w-24 rounded-full bg-neutral-950 z-30 border border-neutral-800 flex items-center justify-end px-2">
+                <div className="size-2 rounded-full bg-emerald-500/20 border border-emerald-500/50" />
               </div>
 
-              {/* Center Live Caption Renderer */}
-              <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center z-10">
-                <div className="max-w-xl mx-auto flex flex-wrap items-center justify-center gap-x-2 gap-y-3 sm:gap-x-3 sm:gap-y-4 text-2xl sm:text-4xl lg:text-5xl font-extrabold leading-relaxed">
-                  {selectedPhrase.words.map((word, idx) => {
-                    const isActive = idx === activeWordIndex;
-                    const isPast = idx < activeWordIndex;
-                    return selectedStyle.renderWord(word, isActive, isPast);
-                  })}
-                </div>
-              </div>
+              {/* Inner Phone Screen */}
+              <div className="relative aspect-[9/16] w-full overflow-hidden rounded-[34px] bg-gradient-to-b from-neutral-900 via-neutral-950 to-neutral-900 flex flex-col justify-between p-4 shadow-inner">
+                {/* Dynamic Video Gradient Backdrop */}
+                <div
+                  aria-hidden
+                  className={`pointer-events-none absolute inset-0 opacity-40 bg-gradient-to-br ${selectedStyle.bgGrad} transition-all duration-500`}
+                />
 
-              {/* Floating Bottom Reel Overlay UI */}
-              <div className="absolute bottom-4 inset-x-4 flex items-center justify-between z-20">
-                {/* Play / Pause / Replay Bar */}
-                <div className="flex items-center gap-2 bg-black/70 backdrop-blur-xl p-1.5 px-3 rounded-2xl border border-white/15 shadow-lg">
+                {/* Top Waveform Audio Bar Pill */}
+                <div className="relative z-20 flex items-center justify-between gap-2 pt-5">
                   <button
                     onClick={() => setIsPlaying(!isPlaying)}
-                    className="flex size-8 items-center justify-center rounded-xl bg-emerald-500 text-white hover:bg-emerald-400 transition-transform active:scale-95 shadow-md"
+                    className="flex size-8 items-center justify-center rounded-full bg-gradient-to-tr from-emerald-500 to-teal-400 text-white shadow-md transition-transform hover:scale-105 active:scale-95"
                   >
-                    {isPlaying ? <Pause className="size-4" /> : <Play className="size-4 ml-0.5 fill-current" />}
+                    {isPlaying ? <Pause className="size-3.5 fill-current" /> : <Play className="size-3.5 fill-current ml-0.5" />}
                   </button>
 
-                  <div className="hidden sm:flex items-center gap-1.5 font-mono text-[11px] text-white/90 pl-1">
-                    <span>Speed:</span>
-                    <button
-                      onClick={() => setPlaybackSpeed(playbackSpeed === 450 ? 300 : 450)}
-                      className={`px-2 py-0.5 rounded-lg border text-[10px] font-bold ${
-                        playbackSpeed === 300 ? "bg-emerald-500/40 border-emerald-400 text-emerald-300" : "border-white/20 text-white/70"
-                      }`}
-                    >
-                      {playbackSpeed === 300 ? "1.5x (Fast)" : "1.0x (Normal)"}
-                    </button>
+                  <div className="flex items-center gap-1.5 rounded-full border border-white/15 bg-black/60 px-3 py-1 backdrop-blur-md">
+                    <span className="flex size-1.5 rounded-full bg-red-500 animate-ping" />
+                    <div className="flex items-center gap-0.5 h-3 ml-1">
+                      {[8, 16, 10, 18, 12, 16, 8, 14].map((h, i) => (
+                        <span
+                          key={i}
+                          className="w-[2px] rounded-full bg-gradient-to-b from-emerald-500 to-teal-400 transition-all duration-150"
+                          style={{
+                            height: isPlaying ? `${Math.max(3, (h * ((i + activeWordIndex) % 4 + 1)) / 4)}px` : "3px",
+                          }}
+                        />
+                      ))}
+                    </div>
+                    <span className="text-[10px] font-bold text-white/80 ml-1">
+                      {isPlaying ? "Live Audio" : "Paused"}
+                    </span>
                   </div>
                 </div>
 
-                {/* Instant Try In Studio Callout */}
-                <Link
-                  href="/create"
-                  className="inline-flex items-center gap-2 rounded-2xl bg-white/90 hover:bg-white text-black px-4 py-2 text-xs font-bold shadow-xl transition-all hover:scale-105 active:scale-95"
-                >
-                  <Wand2 className="size-3.5 text-emerald-600" />
-                  <span>Use This Style</span>
-                  <ChevronRight className="size-3.5" />
-                </Link>
+                {/* Center Live Caption Renderer */}
+                <div className="relative z-20 my-auto text-left py-4 max-w-[85%]">
+                  <div className="flex flex-wrap items-center justify-start gap-x-2 gap-y-2 text-2xl font-black tracking-tight drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">
+                    {selectedPhrase.words.map((word, idx) => {
+                      const isActive = idx === activeWordIndex;
+                      const isPast = idx <= activeWordIndex;
+                      return selectedStyle.renderWord(word, isActive, isPast);
+                    })}
+                  </div>
+                </div>
+
+                {/* Instagram Reels Action Icons Overlay */}
+                <div className="absolute right-3 bottom-16 flex flex-col items-center gap-4 z-20 text-white drop-shadow-md">
+                  <div className="flex flex-col items-center gap-1">
+                    <div className="flex size-9 items-center justify-center rounded-full bg-black/40 backdrop-blur-md hover:text-red-500 transition-colors">
+                      <Heart className="size-5 fill-red-500 text-red-500" />
+                    </div>
+                    <span className="text-[10px] font-bold">42.8K</span>
+                  </div>
+
+                  <div className="flex flex-col items-center gap-1">
+                    <div className="flex size-9 items-center justify-center rounded-full bg-black/40 backdrop-blur-md">
+                      <MessageCircle className="size-5" />
+                    </div>
+                    <span className="text-[10px] font-bold">1,240</span>
+                  </div>
+
+                  <div className="flex flex-col items-center gap-1">
+                    <div className="flex size-9 items-center justify-center rounded-full bg-black/40 backdrop-blur-md">
+                      <Share2 className="size-5" />
+                    </div>
+                    <span className="text-[10px] font-bold">Share</span>
+                  </div>
+                </div>
+
+                {/* Bottom Reel Footer Info */}
+                <div className="relative z-20 text-left pb-2 pr-16">
+                  <p className="text-xs font-bold text-white">@indiancreator</p>
+                  <p className="text-[11px] text-white/80 line-clamp-1 mt-0.5">
+                    Viral Hinglish reel made with CutXflow ⚡
+                  </p>
+                  <div className="flex items-center gap-1.5 text-[10px] text-white/60 mt-1">
+                    <Music2 className="size-3" />
+                    <span>Original Audio · {selectedPhrase.lang} Voice</span>
+                  </div>
+                </div>
               </div>
+            </div>
+
+            {/* Speed & Try Style Controls (below phone) */}
+            <div className="flex flex-wrap items-center justify-center gap-3 pb-4 pt-1">
+              <div className="flex items-center gap-1.5 bg-card/60 dark:bg-card/40 border border-border/50 px-3 py-1.5 rounded-full text-xs font-medium backdrop-blur-md">
+                <span className="text-muted-foreground">Speed:</span>
+                <button
+                  onClick={() => setPlaybackSpeed(playbackSpeed === 450 ? 300 : 450)}
+                  className={`px-2 py-0.5 rounded-lg border text-[10px] font-bold transition-colors ${
+                    playbackSpeed === 300 ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-500" : "border-border/50 text-foreground"
+                  }`}
+                >
+                  {playbackSpeed === 300 ? "1.5x (Fast)" : "1.0x (Normal)"}
+                </button>
+              </div>
+
+              <Link
+                href="/create"
+                className="inline-flex items-center gap-2 rounded-full bg-foreground text-background px-4 py-1.5 text-xs font-bold shadow-xl transition-all hover:scale-105 active:scale-95"
+              >
+                <Wand2 className="size-3.5 text-emerald-500" />
+                <span>Use This Style</span>
+                <ChevronRight className="size-3.5" />
+              </Link>
             </div>
 
             {/* Bottom Style Bar: Live Caption Style Switcher */}
