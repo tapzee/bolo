@@ -9,7 +9,7 @@ import {
   useState,
 } from "react";
 import dynamic from "next/dynamic";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence, Reorder, useDragControls, DragControls } from "motion/react";
 import type { PlayerRef } from "@remotion/player";
 import {
   AlertTriangle,
@@ -21,6 +21,7 @@ import {
   Maximize2,
   Minimize2,
   Palette,
+  GripHorizontal,
   RotateCcw,
   ShieldCheck,
   Sparkles,
@@ -115,6 +116,26 @@ const QUICK_LANGUAGES: readonly SegmentedOption<LanguageCode>[] = [
   { value: "auto", label: "Auto", hint: "Let the model detect it" },
 ];
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function SortableRail({ id, as, className, style, initial, animate, transition, children }: any) {
+  const controls = useDragControls();
+  return (
+    <Reorder.Item
+      value={id}
+      as={as}
+      className={className}
+      style={style}
+      dragListener={false}
+      dragControls={controls}
+      initial={initial}
+      animate={animate}
+      transition={transition}
+    >
+      {typeof children === "function" ? children(controls) : children}
+    </Reorder.Item>
+  );
+}
+
 export function CreateFlow() {
   const { state, start, cancel, reset, restore, retryTranscription } =
     useCaptionPipeline();
@@ -144,6 +165,7 @@ export function CreateFlow() {
   const [templateId, setTemplateId] = useState<string | null>(null);
   const [rightTab, setRightTab] = useState<"styles" | "word" | "export">("styles");
   const [mobileTab, setMobileTab] = useState<"script" | "timeline" | "styles">("timeline");
+  const [columnOrder, setColumnOrder] = useState(["styles", "script", "video"]);
 
   // The Player lives behind a dynamic import, so it does not exist on first
   // render. Held in state rather than a ref so effects depending on it re-run
@@ -300,24 +322,11 @@ export function CreateFlow() {
   }, [snapshot]);
 
   /**
-   * Reopens a project when arriving at `/create?project=<id>`.
-   *
-   * Runs once: `startedRestore` guards it because `restore` sets pipeline state,
-   * which re-renders this component, which would otherwise restart the restore
-   * in a loop.
+   * Loads a saved project by id — shared by the `?project=` URL restore below
+   * and by clicking a Recent Projects card directly (see `handleOpenProject`).
    */
-  const startedRestore = useRef(false);
-
-  useEffect(() => {
-    if (startedRestore.current) return;
-    if (typeof window === "undefined") return;
-
-    const projectId = new URLSearchParams(window.location.search).get("project");
-    if (projectId === null) return;
-
-    startedRestore.current = true;
-
-    void (async () => {
+  const openProject = useCallback(
+    async (projectId: string) => {
       const store = storeForUser(user?.uid ?? null);
       const saved = await store.load(projectId);
       if (saved === null) {
@@ -344,8 +353,51 @@ export function CreateFlow() {
 
       setOverrides(saved.styleConfig);
       setStyleId(isStyleId(saved.styleConfig.styleId) ? saved.styleConfig.styleId : "bold-yellow");
-    })();
-  }, [restore, user?.uid]);
+    },
+    [restore, user?.uid],
+  );
+
+  /**
+   * Reopens a project when arriving at `/create?project=<id>`.
+   *
+   * Runs once: `startedRestore` guards it because `restore` sets pipeline state,
+   * which re-renders this component, which would otherwise restart the restore
+   * in a loop.
+   */
+  const startedRestore = useRef(false);
+
+  useEffect(() => {
+    if (startedRestore.current) return;
+    if (typeof window === "undefined") return;
+
+    const projectId = new URLSearchParams(window.location.search).get("project");
+    if (projectId === null) return;
+
+    startedRestore.current = true;
+    void openProject(projectId);
+  }, [openProject]);
+
+  /**
+   * Handles a Recent Projects card click.
+   *
+   * Not a plain `<Link>` navigation: Recent Projects renders inside this same
+   * `/create` route, so changing only the `?project=` query string does not
+   * remount `CreateFlow` — the mount-only effect above never re-runs, and the
+   * URL change alone loads nothing. This calls `openProject` directly instead,
+   * and still pushes the URL so the address bar and back button stay correct.
+   */
+  const handleOpenProject = useCallback(
+    (projectId: string) => {
+      if (typeof window !== "undefined") {
+        const params = new URLSearchParams(window.location.search);
+        params.set("project", projectId);
+        window.history.pushState(null, "", `${window.location.pathname}?${params.toString()}`);
+      }
+      startedRestore.current = true;
+      void openProject(projectId);
+    },
+    [openProject],
+  );
 
   const durationInFrames = useMemo(
     () =>
@@ -688,7 +740,7 @@ export function CreateFlow() {
           </div>
         </div>
 
-        <RecentProjects />
+        <RecentProjects onOpen={handleOpenProject} />
       </div>
     );
   }
@@ -740,22 +792,20 @@ export function CreateFlow() {
         watermark={!entitlements.watermarkFree}
       />
 
-      <div className="mx-auto grid w-full max-w-[1850px] gap-6 px-4 py-6 lg:grid-cols-[280px_minmax(0,1fr)_360px] xl:grid-cols-[330px_minmax(0,1fr)_400px] xl:px-6">
-        
-        {/* =====================================================================
+      <Reorder.Group axis="x" values={columnOrder} onReorder={setColumnOrder} className="mx-auto flex w-full max-w-[1850px] flex-col lg:flex-row gap-6 px-4 py-6 xl:px-6">
+        {columnOrder.map((col) => {
+          if (col === "script") return (
+        /* =====================================================================
          * LEFT RAIL: SCRIPT & TIMELINE CONSOLE
-         * ===================================================================== */}
-        <motion.aside
-          initial={{ opacity: 0, x: -12 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-          className={cn("order-2 min-w-0 lg:order-1", mobileTab !== "script" && "hidden lg:block")}
-        >
-          <div className="rounded-2xl border bg-card/70 shadow-sm p-4 space-y-3">
-            <div className="flex items-center justify-between border-b pb-2.5 border-border/50">
-              <h2 className="text-xs font-bold tracking-wide text-foreground uppercase flex items-center gap-1.5">
+         * ===================================================================== */
+        <SortableRail key="script" id="script" as="aside" initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }} className={cn("min-w-0 lg:w-[280px] xl:w-[330px] lg:shrink-0", mobileTab !== "script" && "hidden lg:block")}>
+          {(dragControls: DragControls) => (
+            <div className="rounded-2xl border bg-card/70 shadow-sm p-4 space-y-3">
+              <div className="flex items-center justify-between border-b pb-2.5 border-border/50">
+                <h2 className="text-xs font-bold tracking-wide text-foreground uppercase flex items-center gap-1.5">
+                  <GripHorizontal onPointerDown={(e) => dragControls.start(e)} className="size-3.5 text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing transition-colors" />
                 <Edit3 className="size-3.5 text-brand" />
-                <span>Script & Captions</span>
+                <span className="cursor-grab active:cursor-grabbing">Script & Captions</span>
               </h2>
               <span className="rounded-full bg-muted px-2 py-0.5 font-mono text-[11px] font-semibold text-muted-foreground">
                 {pages.length} pages
@@ -778,18 +828,14 @@ export function CreateFlow() {
               />
             </div>
           </div>
-        </motion.aside>
+          )}
+        </SortableRail>
+          );
 
-        {/* =====================================================================
-         * CENTER STAGE: VIDEO CANVAS & TIMELINE DECK
-         * ===================================================================== */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-          className="order-1 flex min-w-0 flex-col items-center gap-5 sticky top-12 z-30 pt-2 bg-background/95 backdrop-blur lg:bg-transparent lg:backdrop-blur-none lg:pt-0 lg:order-2 lg:top-20 lg:self-start"
-          style={{ ["--stage-h" as string]: "clamp(240px, 45vh, 520px)" }}
-        >
+          if (col === "video") return (
+            <SortableRail key="video" id="video" as="div" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }} className="flex-1 min-w-0 flex flex-col items-center gap-5 sticky top-12 z-30 pt-2 bg-background/95 backdrop-blur lg:bg-transparent lg:backdrop-blur-none lg:pt-0 lg:top-20 lg:self-start" style={{ ["--stage-h" as string]: "clamp(240px, 45vh, 520px)" }}>
+              {(dragControls: DragControls) => (
+                <>
           {/* Top Video Toolbar */}
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -797,7 +843,10 @@ export function CreateFlow() {
             transition={{ duration: 0.4, delay: 0.2 }}
             className="w-full flex flex-col sm:flex-row items-center justify-between gap-3 rounded-2xl bg-[#0A0D14]/80 backdrop-blur-2xl border border-white/10 p-2 sm:p-2.5 shadow-2xl relative z-40"
           >
-            <CropToolbar mode={crop} onChange={setCrop} canvas={canvas} />
+            <div className="flex items-center gap-2">
+              <GripHorizontal onPointerDown={(e) => dragControls.start(e)} className="size-4 text-white/40 hover:text-white/80 cursor-grab active:cursor-grabbing transition-colors" />
+              <CropToolbar mode={crop} onChange={setCrop} canvas={canvas} />
+            </div>
             
             <div className="flex items-center gap-2 shrink-0">
               <button
@@ -997,20 +1046,22 @@ export function CreateFlow() {
               onModeChange={setTimelineMode}
             />
           </div>
-        </motion.div>
+                </>
+              )}
+            </SortableRail>
+          );
 
-        {/* =====================================================================
-         * RIGHT RAIL: UNIFIED 3-TAB STUDIO INSPECTOR
-         * ===================================================================== */}
-        <motion.aside
-          initial={{ opacity: 0, x: 12 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.35, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
-          className={cn("order-3 min-w-0 space-y-4", mobileTab !== "styles" && "hidden lg:block")}
-        >
+          if (col === "styles") return (
+            <SortableRail key="styles" id="styles" as="aside" initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.35, delay: 0.05, ease: [0.22, 1, 0.36, 1] }} className={cn("min-w-0 space-y-4 lg:w-[360px] xl:w-[400px] lg:shrink-0", mobileTab !== "styles" && "hidden lg:block")}>
+              {(dragControls: DragControls) => (
+                <>
           <div className="rounded-2xl border bg-card/80 p-4 shadow-sm space-y-5">
             
             {/* 3-Tab Main Navigation Inspector */}
+            <div className="flex items-center gap-2 mb-3">
+              <GripHorizontal onPointerDown={(e) => dragControls.start(e)} className="size-4 text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing transition-colors shrink-0" />
+              <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex-1 cursor-grab active:cursor-grabbing">Editor Tools</div>
+            </div>
             <div className="flex gap-1 rounded-xl bg-muted p-1 text-xs font-semibold">
               {[
                 { id: "styles", label: "Styles & Design", icon: <Palette className="size-3.5" /> },
@@ -1181,8 +1232,13 @@ export function CreateFlow() {
               <span className="font-mono font-semibold">{(state.audioBytes / 1024).toFixed(0)}KB</span> of extracted audio was sent for transcription.
             </div>
           </div>
-        </motion.aside>
-      </div>
+                </>
+              )}
+            </SortableRail>
+          );
+          return null;
+        })}
+      </Reorder.Group>
     </>
   );
 }
