@@ -11,8 +11,8 @@ const dummyPages: CaptionPage[] = [{
   startMs: 0,
   durationMs: 2000,
   tokens: [
-    { text: "Bolo", fromMs: 0, toMs: 1000, role: "anchor" },
-    { text: "बोलो", fromMs: 1000, toMs: 2000, role: "accent" }
+    { text: "Bolo", fromMs: 0, toMs: 1000, role: "keyword" },
+    { text: "बोलो", fromMs: 1000, toMs: 2000, role: "special" }
   ]
 }];
 
