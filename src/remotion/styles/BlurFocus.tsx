@@ -10,6 +10,7 @@ import {
   tokenGlyphStyle,
   tokenShellStyle,
   type TokenViewProps,
+  buildGlowShadow,
 } from "../captions/primitives";
 
 /**
@@ -56,8 +57,8 @@ export const BlurFocusToken = memo(function BlurFocusToken({
           ...tokenGlyphStyle,
           fontSize,
           color,
-          WebkitTextStroke: isAccent ? textStyle.WebkitTextStroke : "0px transparent",
-          textShadow: isAccent && enter > 0.7 ? `0 0 ${fontSize * 0.14}px ${config.accentColor}` : undefined,
+          textShadow: isAccent && enter > 0.7 && config.glowEnabled ? (buildGlowShadow(config, config.accentColor, 1) || undefined) : undefined,
+          WebkitTextStrokeWidth: isAccent ? config.strokeWidthPx : 0,
           textTransform: roleCaseTransform(role, config),
         }}
       >

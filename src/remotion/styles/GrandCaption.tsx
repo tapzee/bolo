@@ -4,7 +4,8 @@ import {
   tokenGlyphStyle,
   tokenShellStyle,
   type TokenViewProps,
-  displayText
+  displayText,
+  buildGlowShadow,
 } from "../captions/primitives";
 
 export const GrandCaptionToken = memo(function GrandCaptionToken({
@@ -45,7 +46,7 @@ export const GrandCaptionToken = memo(function GrandCaptionToken({
           ...textStyle,
           ...tokenGlyphStyle,
           color: color,
-          textShadow: `0 0 12px ${color}`,
+          textShadow: config.glowEnabled ? (buildGlowShadow(config, color, 1) || "none") : "none",
         }}
       >
         {text}

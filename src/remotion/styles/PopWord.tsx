@@ -7,6 +7,7 @@ import {
   tokenGlyphStyle,
   tokenShellStyle,
   type TokenViewProps,
+  buildGlowShadow,
 } from "../captions/primitives";
 
 /**
@@ -62,8 +63,7 @@ export const PopWordToken = memo(function PopWordToken({
   }
 
   if (isHero) {
-    // Glow style
-    textShadow = `0 0 20px ${config.accentColor}, 0 0 40px ${config.accentColor}`;
+    textShadow = config.glowEnabled ? (buildGlowShadow(config, config.accentColor, 1.5) || undefined) : undefined;
   }
 
   return (

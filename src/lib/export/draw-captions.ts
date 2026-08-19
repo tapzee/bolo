@@ -1594,17 +1594,13 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           ctx.font = canvasFont(weight, currentFontSize, fam, isScript ? "italic" : "normal");
 
           if (isTopLine) {
-            // Subtle soft glow on primary all-caps font, zero outline
-            const glowColor = config.glowColor ?? config.accentColor ?? "#FF2A2A";
-            ctx.shadowColor = glowColor;
-            ctx.shadowBlur = currentFontSize * 0.16;
-            ctx.fillStyle = color;
-            ctx.fillText(text, -tokenWidth / 2, 0);
-            clearShadow(ctx);
-
+            if (config.glowEnabled) {
+              drawGlowPass(ctx, text, -tokenWidth / 2, 0, config, config.glowColor ?? config.accentColor ?? "#FF2A2A", 0.5);
+            }
             ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
             ctx.shadowBlur = currentFontSize * 0.08;
             ctx.shadowOffsetY = currentFontSize * 0.03;
+            ctx.fillStyle = color;
             ctx.fillText(text, -tokenWidth / 2, 0);
             clearShadow(ctx);
           } else {
@@ -2920,9 +2916,8 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           ctx.globalAlpha = entrance * enter;
           ctx.translate(cx, cy);
           if (blurPx > 0.3) ctx.filter = `blur(${blurPx}px)`;
-          if (isAccent && enter > 0.7) {
-            ctx.shadowColor = config.accentColor;
-            ctx.shadowBlur = roleFontSize * 0.14;
+          if (isAccent && enter > 0.7 && config.glowEnabled) {
+            drawGlowPass(ctx, text, -tokenWidth / 2, 0, config, config.accentColor, 1);
           }
 
           strokeThenFill(ctx, text, -tokenWidth / 2, 0, colour, isAccent ? config.strokeWidthPx : 0, config.strokeColor);
@@ -3250,8 +3245,9 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           ctx.translate(cx, cy);
 
           if (isHero) {
-            ctx.shadowColor = config.accentColor;
-            ctx.shadowBlur = roleFontSize * 0.14; // Approximate 18px relative to font
+            if (config.glowEnabled) {
+              drawGlowPass(ctx, text, -tokenWidth / 2, 0, config, config.accentColor, 1);
+            }
             ctx.shadowOffsetX = 0;
 
             const grad = ctx.createLinearGradient(-tokenWidth / 2, 0, tokenWidth / 2, 0);
@@ -3569,13 +3565,8 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
             ctx.strokeText(text, -tokenWidth / 2, 0);
           } else {
             ctx.fillStyle = color;
-            if (isHero) {
-              ctx.shadowColor = config.accentColor;
-              // Canvas shadow blur is sensitive to scale, but we use fixed value to match CSS
-              ctx.shadowBlur = 20;
-              ctx.fillText(text, -tokenWidth / 2, 0);
-              // Draw text twice to intensify the glow, similar to CSS multiple shadows
-              ctx.shadowBlur = 40;
+            if (isHero && config.glowEnabled) {
+              drawGlowPass(ctx, text, -tokenWidth / 2, 0, config, config.accentColor, 1.5);
             }
             ctx.fillText(text, -tokenWidth / 2, 0);
             ctx.shadowBlur = 0; // reset
@@ -4350,18 +4341,19 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           if (blurPx * scaleFactor > 0.3) ctx.filter = `blur(${blurPx * scaleFactor}px)`;
           
           if (isHero) {
-            // Glowing cyan shadow + sharp base
-            ctx.shadowColor = heroColor;
-            ctx.shadowBlur = 20 * scaleFactor;
-            ctx.fillStyle = heroColor;
-            ctx.fillText(text, -tokenWidth / 2, 0);
-
+            if (config.glowEnabled) {
+              drawGlowPass(ctx, text, -tokenWidth / 2, 0, config, heroColor, 1);
+            }
             // Dark backing for maximum high contrast against any video
             ctx.shadowColor = "rgba(0, 0, 0, 0.95)";
             ctx.shadowBlur = 8 * scaleFactor;
             ctx.shadowOffsetY = 2 * scaleFactor;
+            ctx.fillStyle = heroColor;
             ctx.fillText(text, -tokenWidth / 2, 0);
           } else {
+            if (config.glowEnabled) {
+              drawGlowPass(ctx, text, -tokenWidth / 2, 0, config, config.strokeColor, 0.3);
+            }
             ctx.shadowColor = "rgba(0, 0, 0, 0.9)";
             ctx.shadowBlur = 8 * scaleFactor;
             ctx.shadowOffsetY = 2 * scaleFactor;
@@ -4395,8 +4387,9 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
             ctx.filter = `blur(${blurPx}px)`;
           }
 
-          ctx.shadowColor = color;
-          ctx.shadowBlur = 12 * scaleFactor;
+          if (config.glowEnabled) {
+            drawGlowPass(ctx, text, -tokenWidth / 2, 0, config, color, 1);
+          }
 
           strokeThenFill(
             ctx,
@@ -4465,25 +4458,19 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
               : family;
           const weight = isTopLine ? Math.max(800, config.fontWeight) : 700;
           const fontSize = config.fontSizePx * (isTopLine ? 1 : 1.25);
-          const glowColor = config.glowColor ?? "#C41212";
-          const glowIntensity = config.glowIntensity ?? 0.5;
-
           ctx.font = canvasFont(weight, fontSize, fam, isScript ? "italic" : "normal");
           ctx.globalAlpha = entrance * enter;
           ctx.translate(cx, cy + travel);
 
           if (isTopLine) {
-            // Subtle glow around primary text
-            ctx.shadowColor = glowColor;
-            ctx.shadowBlur = Math.round(fontSize * 0.22 * glowIntensity * scaleFactor);
-            ctx.shadowOffsetY = 0;
-            ctx.fillStyle = color;
-            ctx.fillText(text, -tokenWidth / 2, 0);
-
+            if (config.glowEnabled) {
+              drawGlowPass(ctx, text, -tokenWidth / 2, 0, config, config.glowColor ?? config.accentColor ?? "#FF2A2A", 0.5);
+            }
             // Base shadow for contrast
             ctx.shadowColor = "rgba(0,0,0,0.5)";
             ctx.shadowBlur = 4 * scaleFactor;
             ctx.shadowOffsetY = 2 * scaleFactor;
+            ctx.fillStyle = color;
             ctx.fillText(text, -tokenWidth / 2, 0);
           } else {
             // Cursive bottom line: clean white, zero glow, zero outline

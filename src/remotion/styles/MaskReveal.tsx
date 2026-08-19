@@ -9,6 +9,7 @@ import {
   tokenGlyphStyle,
   tokenShellStyle,
   type TokenViewProps,
+  buildGlowShadow,
 } from "../captions/primitives";
 
 /**
@@ -44,14 +45,13 @@ export const MaskRevealToken = memo(function MaskRevealToken({
           ...textStyle,
           ...tokenGlyphStyle,
           fontSize,
-          color: isHero ? "transparent" : (token.color ?? config.baseColor),
           backgroundImage: isHero
             ? `linear-gradient(90deg, ${config.accentColor} ${sweepPct - 15}%, #ffffff ${sweepPct}%, ${config.accentColor} ${sweepPct + 15}%)`
             : undefined,
           WebkitBackgroundClip: isHero ? "text" : undefined,
           backgroundClip: isHero ? "text" : undefined,
-          WebkitTextStroke: "0px transparent",
-          textShadow: isHero ? `0 0 18px ${config.accentColor}` : undefined,
+          color: isHero ? config.accentColor : (token.color ?? config.baseColor),
+          textShadow: isHero && config.glowEnabled ? (buildGlowShadow(config, config.accentColor, 1) || undefined) : undefined,
           textTransform: roleCaseTransform(role, config),
         }}
       >

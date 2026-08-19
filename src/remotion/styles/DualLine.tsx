@@ -5,6 +5,7 @@ import {
   tokenGlyphStyle,
   tokenShellStyle,
   type TokenViewProps,
+  buildGlowShadow,
 } from "../captions/primitives";
 import { FONT_FAMILY } from "../fonts";
 import { hasDevanagari } from "@/core";
@@ -51,11 +52,11 @@ export const DualLineToken = memo(function DualLineToken({
 
   // Primary font gets a very subtle, soft glow around the text
   // Secondary font gets NO glow and NO outline
-  const glowColor = config.glowColor ?? "#C41212";
-  const glowIntensity = config.glowIntensity ?? 0.5;
-  const textGlow = isTopLine
-    ? `0 0 ${config.fontSizePx * 0.14 * glowIntensity}px ${glowColor}cc, 0 0 ${config.fontSizePx * 0.28 * glowIntensity}px ${glowColor}55, 0 2px 6px rgba(0,0,0,0.5)`
-    : "0 2px 6px rgba(0,0,0,0.6)";
+  const textGlow = isTopLine && config.glowEnabled
+    ? (buildGlowShadow(config, config.glowColor ?? config.accentColor ?? "#FF2A2A", 0.5) || "none") + ", 0 2px 6px rgba(0,0,0,0.5)"
+    : isTopLine
+      ? "0 2px 6px rgba(0,0,0,0.5)"
+      : "0 2px 6px rgba(0,0,0,0.6)";
 
   return (
     <>

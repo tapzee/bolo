@@ -9,6 +9,7 @@ import {
   displayText,
   bigGrandRole,
   bigGrandTransform,
+  buildGlowShadow,
 } from "../captions/primitives";
 
 export const BigGrandToken = memo(function BigGrandToken({
@@ -56,7 +57,9 @@ export const BigGrandToken = memo(function BigGrandToken({
   let fontWeight = 800;
   let letterSpacing = isDeva ? "normal" : "0.02em";
   let color = textColor;
-  let textShadow = "0 2px 10px rgba(0, 0, 0, 0.9), 0 0 4px rgba(0, 0, 0, 0.9)";
+  let textShadow = config.glowEnabled
+    ? (buildGlowShadow(config, config.strokeColor, 0.3) ?? "none") + ", 0 2px 10px rgba(0, 0, 0, 0.9), 0 0 4px rgba(0, 0, 0, 0.9)"
+    : "0 2px 10px rgba(0, 0, 0, 0.9), 0 0 4px rgba(0, 0, 0, 0.9)";
   const textTransform: "uppercase" | "none" = isDeva ? "none" : "uppercase";
 
   if (isHero) {
@@ -65,7 +68,9 @@ export const BigGrandToken = memo(function BigGrandToken({
     family = FONT_FAMILY[specialFontId];
     fontWeight = 900;
     color = heroColor;
-    textShadow = `0 0 16px ${heroColor}, 0 0 32px ${heroColor}80, 0 2px 12px rgba(0, 0, 0, 0.95)`;
+    textShadow = config.glowEnabled
+      ? (buildGlowShadow(config, heroColor, 1) ?? "none") + `, 0 2px 12px rgba(0, 0, 0, 0.95)`
+      : `0 2px 12px rgba(0, 0, 0, 0.95)`;
   } else if (isTopLine) {
     // Row 1: Top lead-in (Solid White, ExtraBold)
     sizePx = baseSize * 0.52;
