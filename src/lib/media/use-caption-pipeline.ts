@@ -212,6 +212,7 @@ export const useCaptionPipeline = () => {
           blob: file,
           name: file.name,
           type: file.type,
+          lastModified: file.lastModified,
           width: video.width,
           height: video.height,
           durationSeconds: video.durationSeconds,
