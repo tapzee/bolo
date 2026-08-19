@@ -1,49 +1,31 @@
 "use client";
 
-import { Sparkles, ArrowRight } from "lucide-react";
+import { useState } from "react";
+import { Sparkles, ArrowRight, Play, Wand2, Flame, Layers, Star, Zap } from "lucide-react";
 import Link from "next/link";
+import { motion, AnimatePresence } from "motion/react";
 import { CAPTION_TEMPLATES } from "@/core";
 
 interface TemplateShowcaseItem {
   id: string;
   name: string;
-  category: string;
+  category: "Trending" | "High Energy" | "Minimal" | "Neon Glow" | "Indian Viral";
   tag?: string;
-  bgGrad: string;
   fontFamily: string;
   accentColor: string;
-  textCase: "upper" | "lower" | "none";
-  sampleWords: { text: string; highlight?: boolean; color?: string }[];
+  bgGrad: string;
+  sampleWords: { text: string; highlight?: boolean; color?: string; accent?: boolean }[];
 }
 
 const FEATURED_TEMPLATES: TemplateShowcaseItem[] = [
-  {
-    id: "focus",
-    name: "Focus Minimal",
-    category: "Premium",
-    tag: "Aesthetic",
-    bgGrad: "from-stone-900 via-neutral-900 to-black",
-    fontFamily: "var(--font-playfair), serif",
-    accentColor: "#f97316",
-    textCase: "none",
-    sampleWords: [
-      { text: "Consistency" },
-      { text: "is" },
-      { text: "the", highlight: true },
-      { text: "superpower", highlight: true, color: "#f97316" },
-      { text: "in" },
-      { text: "2026." },
-    ],
-  },
   {
     id: "design-walla",
     name: "Design Walla",
     category: "Trending",
     tag: "Hot 🔥",
-    bgGrad: "from-zinc-950 via-slate-900 to-black",
-    fontFamily: "var(--font-montserrat), sans-serif",
+    fontFamily: "var(--bolo-font-anton), sans-serif",
     accentColor: "#ffe600",
-    textCase: "none",
+    bgGrad: "from-amber-950/70 via-zinc-950 to-black",
     sampleWords: [
       { text: "Viral" },
       { text: "reels" },
@@ -54,31 +36,46 @@ const FEATURED_TEMPLATES: TemplateShowcaseItem[] = [
     ],
   },
   {
-    id: "pop-word",
-    name: "Pop Word",
-    category: "High Energy",
-    tag: "Viral",
-    bgGrad: "from-orange-950/80 via-neutral-950 to-black",
-    fontFamily: "var(--font-inter), sans-serif",
-    accentColor: "#f97316",
-    textCase: "lower",
+    id: "focus",
+    name: "Focus Minimal",
+    category: "Minimal",
+    tag: "Aesthetic",
+    fontFamily: "var(--bolo-font-playfair), serif",
+    accentColor: "#10b981",
+    bgGrad: "from-emerald-950/60 via-neutral-950 to-black",
     sampleWords: [
-      { text: "don't" },
-      { text: "stop" },
-      { text: "until", highlight: true, color: "#f97316" },
-      { text: "you're" },
-      { text: "proud" },
+      { text: "Consistency" },
+      { text: "is" },
+      { text: "the", highlight: true },
+      { text: "superpower", highlight: true, color: "#10b981" },
+      { text: "in" },
+      { text: "2026." },
     ],
   },
   {
-    id: "design-walla-pro-blue",
-    name: "Cyber Blue",
+    id: "pop-word",
+    name: "Pop Word Kinetic",
+    category: "High Energy",
+    tag: "Viral",
+    fontFamily: "var(--bolo-font-montserrat), sans-serif",
+    accentColor: "#f97316",
+    bgGrad: "from-orange-950/60 via-slate-950 to-black",
+    sampleWords: [
+      { text: "Don't" },
+      { text: "stop" },
+      { text: "until", highlight: true, color: "#f97316" },
+      { text: "you're" },
+      { text: "proud." },
+    ],
+  },
+  {
+    id: "cyber-blue",
+    name: "Cyber Neon Glow",
     category: "Neon Glow",
     tag: "Cyber",
-    bgGrad: "from-cyan-950/70 via-slate-950 to-black",
-    fontFamily: "var(--font-anton), sans-serif",
+    fontFamily: "var(--bolo-font-bebas), sans-serif",
     accentColor: "#00e5ff",
-    textCase: "upper",
+    bgGrad: "from-cyan-950/70 via-slate-950 to-black",
     sampleWords: [
       { text: "NEXT" },
       { text: "LEVEL" },
@@ -87,132 +84,169 @@ const FEATURED_TEMPLATES: TemplateShowcaseItem[] = [
     ],
   },
   {
-    id: "design-walla-pro-pink",
+    id: "festival-pink",
     name: "Festival Pink",
-    category: "Vibrant",
-    tag: "New",
+    category: "Indian Viral",
+    tag: "New ✨",
+    fontFamily: "var(--bolo-font-poppins), sans-serif",
+    accentColor: "#ec4899",
     bgGrad: "from-pink-950/70 via-stone-950 to-black",
-    fontFamily: "var(--font-poppins), sans-serif",
-    accentColor: "#ff1493",
-    textCase: "none",
     sampleWords: [
       { text: "Aapke" },
-      { text: "audio" },
-      { text: "ko" },
-      { text: "magic", highlight: true, color: "#ff1493" },
-      { text: "banaye!" },
+      { text: "content" },
+      { text: "mein", highlight: true, color: "#ec4899" },
+      { text: "dum" },
+      { text: "hai!" },
     ],
   },
   {
-    id: "big-grand",
-    name: "Big Grand",
-    category: "Bold",
-    tag: "Bold",
-    bgGrad: "from-sky-950/70 via-zinc-950 to-black",
-    fontFamily: "var(--font-bebas), sans-serif",
-    accentColor: "#38bdf8",
-    textCase: "upper",
+    id: "bold-yellow",
+    name: "Bold Yellow Snap",
+    category: "High Energy",
+    tag: "Popular",
+    fontFamily: "var(--bolo-font-archivo-black), sans-serif",
+    accentColor: "#fbbf24",
+    bgGrad: "from-yellow-950/60 via-zinc-950 to-black",
     sampleWords: [
-      { text: "GROW" },
-      { text: "YOUR" },
-      { text: "AUDIENCE", highlight: true, color: "#38bdf8" },
-      { text: "NOW" },
+      { text: "10X" },
+      { text: "Watch" },
+      { text: "Time", highlight: true, color: "#fbbf24" },
+      { text: "Guaranteed" },
     ],
   },
 ];
 
+const CATEGORIES = ["All", "Trending", "Indian Viral", "High Energy", "Minimal", "Neon Glow"] as const;
+
 export function TemplatesShowcase() {
+  const [activeCategory, setActiveCategory] = useState<string>("All");
+  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
+
+  const filtered = activeCategory === "All"
+    ? FEATURED_TEMPLATES
+    : FEATURED_TEMPLATES.filter((t) => t.category === activeCategory);
+
   return (
-    <section className="relative mx-auto max-w-6xl px-5 py-20">
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
-        <div>
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-brand/20 bg-brand-soft px-3 py-1 text-xs font-semibold text-brand">
+    <section className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 sm:py-28">
+      {/* Section Header */}
+      <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6 mb-12">
+        <div className="space-y-3 max-w-2xl">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-1 text-xs font-bold text-emerald-600 dark:text-emerald-400">
             <Sparkles className="size-3.5" />
-            {CAPTION_TEMPLATES.length}+ Viral Caption Styles
+            Viral Kinetic Typography
           </span>
-          <h2 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">
-            Pick a style. <span className="italic font-serif font-normal text-brand">Make it iconic.</span>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-foreground text-balance">
+            40+ Pro Templates made for Reels & Shorts
           </h2>
-          <p className="mt-2 text-sm sm:text-base text-muted-foreground max-w-xl">
-            From subtle editorial typography to high-energy glowing reels captions. Fully customizable fonts, strokes, highlights, and animations.
+          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+            Every template is engineered for high retention. Fully customizable fonts, neon glow, custom strokes, and multi-tier word emphasis.
           </p>
         </div>
 
         <Link
           href="/styles"
-          className="inline-flex items-center gap-2 text-sm font-semibold text-brand hover:underline underline-offset-4"
+          className="inline-flex items-center gap-2 rounded-2xl border border-border/80 bg-card/80 px-5 py-3 text-xs sm:text-sm font-bold text-foreground shadow-sm hover:bg-card hover:border-emerald-500/40 hover:shadow-md transition-all group"
         >
-          Browse full template library
-          <ArrowRight className="size-4" />
+          <span>View All 40+ Styles</span>
+          <ArrowRight className="size-4 text-emerald-500 transition-transform group-hover:translate-x-1" />
         </Link>
       </div>
 
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {FEATURED_TEMPLATES.map((tmpl) => (
-          <div
-            key={tmpl.id}
-            className="group relative overflow-hidden rounded-3xl border border-border/80 bg-card p-5 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:border-brand/50 hover:shadow-xl flex flex-col justify-between"
+      {/* Category Pills Selector */}
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-4 mb-8 -mx-2 px-2 scrollbar-none">
+        {CATEGORIES.map((cat) => (
+          <button
+            key={cat}
+            onClick={() => setActiveCategory(cat)}
+            className={`shrink-0 rounded-full px-4 py-2 text-xs font-bold transition-all duration-200 ${
+              activeCategory === cat
+                ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/25 scale-105"
+                : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
+            }`}
           >
-            {/* Template Header */}
-            <div className="flex items-center justify-between gap-2 mb-4">
-              <div>
-                <h3 className="font-bold text-sm text-foreground">{tmpl.name}</h3>
-                <p className="text-xs text-muted-foreground">{tmpl.category}</p>
-              </div>
-              {tmpl.tag && (
-                <span className="inline-flex items-center gap-1 rounded-full border border-brand/30 bg-brand-soft px-2.5 py-0.5 text-[10px] font-semibold text-brand">
-                  {tmpl.tag}
-                </span>
-              )}
-            </div>
-
-            {/* Visual Canvas Box */}
-            <div
-              className={`relative flex min-h-[140px] items-center justify-center rounded-2xl bg-gradient-to-br ${tmpl.bgGrad} p-4 text-center overflow-hidden border border-white/10 shadow-inner`}
-            >
-              <div
-                className="flex flex-wrap items-center justify-center gap-1.5 text-base sm:text-lg font-black tracking-tight"
-                style={{ fontFamily: tmpl.fontFamily }}
-              >
-                {tmpl.sampleWords.map((word, i) => (
-                  <span
-                    key={i}
-                    style={{
-                      color: word.highlight ? word.color || tmpl.accentColor : "#ffffff",
-                      textShadow: word.highlight
-                        ? `0 0 16px ${word.color || tmpl.accentColor}`
-                        : "0 2px 4px rgba(0,0,0,0.8)",
-                    }}
-                    className={`transition-transform duration-200 group-hover:scale-105 ${
-                      tmpl.textCase === "upper"
-                        ? "uppercase"
-                        : tmpl.textCase === "lower"
-                        ? "lowercase"
-                        : ""
-                    }`}
-                  >
-                    {word.text}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Quick action button */}
-            <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-between">
-              <span className="text-[11px] text-muted-foreground">
-                Word-level timing
-              </span>
-              <Link
-                href="/create"
-                className="inline-flex items-center gap-1 text-xs font-semibold text-brand group-hover:underline underline-offset-4"
-              >
-                Use this style
-                <ArrowRight className="size-3 transition-transform group-hover:translate-x-0.5" />
-              </Link>
-            </div>
-          </div>
+            {cat}
+          </button>
         ))}
       </div>
+
+      {/* Templates Grid with Micro-Animations */}
+      <motion.div layout className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <AnimatePresence>
+          {filtered.map((item) => (
+            <motion.div
+              layout
+              key={item.id}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.25 }}
+              onMouseEnter={() => setHoveredCard(item.id)}
+              onMouseLeave={() => setHoveredCard(null)}
+              className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-border/80 bg-card/70 p-5 shadow-sm backdrop-blur-md transition-all duration-300 hover:border-emerald-500/50 hover:shadow-2xl hover:bg-card/90"
+            >
+              {/* Preview Stage Box */}
+              <div
+                className={`relative flex h-48 sm:h-52 w-full items-center justify-center rounded-2xl overflow-hidden bg-gradient-to-br ${item.bgGrad} p-4 shadow-inner border border-white/10`}
+              >
+                {/* Floating Category Badge */}
+                {item.tag && (
+                  <span className="absolute top-3 right-3 z-10 rounded-full bg-black/60 backdrop-blur-md px-2.5 py-0.5 text-[10px] font-bold text-white border border-white/10">
+                    {item.tag}
+                  </span>
+                )}
+
+                {/* Animated Simulated Kinetic Words */}
+                <div className="flex flex-wrap items-center justify-center gap-1.5 text-center px-3 z-10">
+                  {item.sampleWords.map((word, i) => {
+                    const isAcc = word.highlight;
+                    return (
+                      <span
+                        key={word.text}
+                        className={`text-xl sm:text-2xl font-extrabold transition-all duration-200 ${
+                          isAcc
+                            ? "scale-110 px-2 py-0.5 rounded-lg shadow-lg"
+                            : "text-white/80"
+                        }`}
+                        style={{
+                          fontFamily: item.fontFamily,
+                          backgroundColor: isAcc && item.id.includes("walla") ? item.accentColor : "transparent",
+                          color: isAcc && item.id.includes("walla") ? "#000000" : isAcc ? (word.color || item.accentColor) : "#ffffff",
+                          textShadow: isAcc && !item.id.includes("walla") ? `0 0 16px ${item.accentColor}cc` : "0 2px 8px rgba(0,0,0,0.8)",
+                        }}
+                      >
+                        {word.text}
+                      </span>
+                    );
+                  })}
+                </div>
+
+                {/* Glow Overlay when Hovered */}
+                <div className="absolute inset-0 bg-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+              </div>
+
+              {/* Card Meta & Action Footer */}
+              <div className="mt-4 flex items-center justify-between pt-1">
+                <div>
+                  <h3 className="text-base font-bold text-foreground group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                    {item.name}
+                  </h3>
+                  <p className="text-xs text-muted-foreground font-medium">
+                    {item.category} Engine
+                  </p>
+                </div>
+
+                <Link
+                  href="/create"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-muted/80 px-3 py-1.5 text-xs font-bold text-foreground transition-all hover:bg-emerald-600 hover:text-white"
+                >
+                  <Wand2 className="size-3.5" />
+                  <span>Use Style</span>
+                </Link>
+              </div>
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </motion.div>
     </section>
   );
 }

@@ -59,6 +59,15 @@ entry in `TOKEN_RENDERERS`, **and** a `case` in `draw-captions.ts`. Adding a new
 Agreed with the user on 2 Aug. If you need a change in the other agent's area,
 note it here rather than editing across the line.
 
+---
+
+## Mandatory UI/UX & Animation Standards (Design Skills)
+
+All agents working on UI, marketing pages, or studio editor components must adhere to:
+1. **`awesome-design-md`**: Use top-tier design systems (Linear, Raycast, Vercel, Stripe, Lovable) for color tokens, contrast, dark/light theme polish, and typography hierarchy.
+2. **`figma-use`**: High-fidelity responsive layouts, smooth flowing kinetic animations (`framer-motion`), mobile touch optimization, and fluid micro-interactions.
+
+
 ### Live collision — 2 Aug
 
 Both agents restructured the right rail of `CreateFlow.tsx` at the same time.

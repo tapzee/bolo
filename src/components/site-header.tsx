@@ -12,7 +12,15 @@ function Wordmark() {
           alt="CutXflow"
           fill
           sizes="128px"
-          className="object-contain object-left"
+          className="object-contain object-left dark:hidden"
+          priority
+        />
+        <Image
+          src="/logo-dark.png"
+          alt="CutXflow"
+          fill
+          sizes="128px"
+          className="hidden object-contain object-left dark:block"
           priority
         />
       </div>

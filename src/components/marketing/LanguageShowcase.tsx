@@ -1,238 +1,283 @@
 "use client";
 
 import { useState } from "react";
-import { Sparkles, Languages, Check, ArrowRight } from "lucide-react";
+import { Sparkles, Languages, Check, ArrowRight, Volume2, Globe2, Wand2, Copy, CheckCheck } from "lucide-react";
 import Link from "next/link";
+import { motion } from "motion/react";
 
 interface LanguageItem {
+  id: string;
   name: string;
   native: string;
-  code: string;
   script: string;
-  sampleHindi: string;
-  sampleLatin: string;
+  sampleNative: string;
+  sampleHinglish: string;
   tag?: string;
+  speakers?: string;
 }
 
-const LANGUAGES: LanguageItem[] = [
+const INDIAN_LANGUAGES: LanguageItem[] = [
   {
+    id: "hinglish",
     name: "Hinglish",
     native: "Hinglish (Latin)",
-    code: "hinglish",
     script: "Latin",
-    sampleHindi: "ये ट्रिक आपके रील्स को वायरल करेगी",
-    sampleLatin: "Yeh trick aapke reels ko viral karegi",
-    tag: "Popular",
+    sampleNative: "ये ट्रिक आपके रील्स को 10X वायरल करेगी",
+    sampleHinglish: "Yeh trick aapke reels ko 10X viral karegi",
+    tag: "🔥 Most Popular",
+    speakers: "500M+ Speech Speakers",
   },
   {
+    id: "hindi",
     name: "Hindi",
     native: "हिन्दी",
-    code: "hi",
     script: "Devanagari",
-    sampleHindi: "हर शब्द पर सटीक टाइमिंग और खूबसूरत स्टाइल",
-    sampleLatin: "Har shabd par sateek timing aur khoobsurat style",
+    sampleNative: "हर शब्द पर सटीक टाइमिंग और खूबसूरत स्टाइल",
+    sampleHinglish: "Har shabd par sateek timing aur khoobsurat style",
     tag: "Primary",
+    speakers: "600M+ Native Speakers",
   },
   {
+    id: "marathi",
     name: "Marathi",
     native: "मराठी",
-    code: "mr",
     script: "Devanagari",
-    sampleHindi: "तुमच्या व्हिडिओसाठी सुंदर आणि अचूक कॅप्शन",
-    sampleLatin: "Tumchya video sathi sundar ani achuk caption",
+    sampleNative: "तुमच्या व्हिडिओसाठी सुंदर आणि अचूक कॅप्शन",
+    sampleHinglish: "Tumchya video sathi sundar ani achuk caption",
+    speakers: "95M+ Speakers",
   },
   {
+    id: "gujarati",
     name: "Gujarati",
     native: "ગુજરાતી",
-    code: "gu",
     script: "Gujarati",
-    sampleHindi: "તમારા રીલ્સ માટે શ્રેષ્ઠ અને સચોટ કેપ્શન",
-    sampleLatin: "Tamara reels mate shreshth ane sachot caption",
+    sampleNative: "તમારા રીલ્સ માટે શ્રેષ્ઠ અને સચોટ કેપ્શન",
+    sampleHinglish: "Tamara reels mate shreshth ane sachot caption",
+    speakers: "60M+ Speakers",
   },
   {
+    id: "punjabi",
     name: "Punjabi",
     native: "ਪੰਜਾਬੀ",
-    code: "pa",
     script: "Gurmukhi",
-    sampleHindi: "ਤੁਹਾਡੇ ਵੀਡੀਓ ਲਈ ਸਭ ਤੋਂ ਵਧੀਆ ਕੈਪਸ਼ਨ",
-    sampleLatin: "Tuhade video layi sab to vadiya caption",
+    sampleNative: "ਤੁਹਾਡੇ ਵੀਡੀਓ ਲਈ ਸਭ ਤੋਂ ਵਧੀਆ ਕੈਪਸ਼ਨ",
+    sampleHinglish: "Tuhade video layi sab to vadiya caption",
+    speakers: "125M+ Speakers",
   },
   {
+    id: "bengali",
     name: "Bengali",
     native: "বাংলা",
-    code: "bn",
     script: "Bengali",
-    sampleHindi: "আপনার রিলসের জন্য অসাধারণ ক্যাপশন",
-    sampleLatin: "Aponar reels er jonno osadharon caption",
+    sampleNative: "আপনার রিলসের জন্য অসাধারণ ক্যাপশন",
+    sampleHinglish: "Aponar reels er jonno osadharon caption",
+    speakers: "230M+ Speakers",
   },
   {
+    id: "tamil",
     name: "Tamil",
     native: "தமிழ்",
-    code: "ta",
     script: "Tamil",
-    sampleHindi: "உங்கள் ரீல்ஸ்களுக்கான சிறந்த தலைப்புகள்",
-    sampleLatin: "Ungal reels-kkana sirandha thalaippugal",
+    sampleNative: "உங்கள் ரீல்ஸ்களுக்கான சிறந்த தலைப்புகள்",
+    sampleHinglish: "Ungal reels-kkana sirandha thalaippugal",
+    speakers: "85M+ Speakers",
   },
   {
+    id: "telugu",
     name: "Telugu",
     native: "తెలుగు",
-    code: "te",
     script: "Telugu",
-    sampleHindi: "మీ రీల్స్ కోసం అద్భుతమైన క్యాప్షన్లు",
-    sampleLatin: "Mee reels kosam adbhutamaina captions",
+    sampleNative: "మీ రీల్స్ కోసం అద్భుతమైన క్యాప్షన్లు",
+    sampleHinglish: "Mee reels kosam adbhutamaina captions",
+    speakers: "90M+ Speakers",
   },
   {
+    id: "kannada",
     name: "Kannada",
     native: "ಕನ್ನಡ",
-    code: "kn",
     script: "Kannada",
-    sampleHindi: "ನಿಮ್ಮ ವೀಡಿಯೊಗಳಿಗೆ ಸುಂದರವಾದ ಶೀರ್ಷಿಕೆಗಳು",
-    sampleLatin: "Nimma video-galige sundaravada sheershikegalu",
+    sampleNative: "ನಿಮ್ಮ ವೀಡಿಯೊಗಳಿಗೆ ಸುಂದರವಾದ ಶೀರ್ಷಿಕೆಗಳು",
+    sampleHinglish: "Nimma video-galige sundaravada sheershikegalu",
+    speakers: "50M+ Speakers",
   },
   {
+    id: "malayalam",
     name: "Malayalam",
     native: "മലയാളം",
-    code: "ml",
     script: "Malayalam",
-    sampleHindi: "നിങ്ങളുടെ റീലുകൾക്കായി മികച്ച അടിക്കുറിപ്പുകൾ",
-    sampleLatin: "Ningalude reelukalkkayi mikacha adikkurippukal",
+    sampleNative: "നിങ്ങളുടെ റീലുകൾക്കായി മികച്ച അടിക്കുറിപ്പുകൾ",
+    sampleHinglish: "Ningalude reelukalkkayi mikacha adikkurippukal",
+    speakers: "40M+ Speakers",
   },
 ];
 
 export function LanguageShowcase() {
-  const [selectedLang, setSelectedLang] = useState<LanguageItem>(LANGUAGES[0]!);
-  const [scriptMode, setScriptMode] = useState<"native" | "latin">("latin");
+  const [selectedLang, setSelectedLang] = useState<LanguageItem>(INDIAN_LANGUAGES[0]!);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = (text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   return (
-    <section className="relative mx-auto max-w-6xl px-5 py-20">
-      <div className="text-center max-w-2xl mx-auto mb-12">
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-brand/20 bg-brand-soft px-3 py-1 text-xs font-semibold text-brand">
-          <Languages className="size-3.5" />
-          Native Script & Hinglish Engine
+    <section className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 sm:py-28">
+      {/* Background radial highlight */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 flex items-center justify-center">
+        <div className="size-[500px] rounded-full bg-emerald-500/10 blur-[130px] dark:bg-emerald-500/15" />
+      </div>
+
+      {/* Header */}
+      <div className="mx-auto max-w-3xl text-center space-y-4 mb-14">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-1 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+          <Globe2 className="size-3.5" />
+          Native Indian Language Engine
         </span>
-        <h2 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl text-balance">
-          15+ Indian languages, with{" "}
-          <span className="italic font-serif font-normal text-brand">zero broken fonts</span>
+        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-foreground text-balance">
+          15+ Indian Languages & Hinglish Romanization
         </h2>
-        <p className="mt-3 text-sm sm:text-base text-muted-foreground leading-relaxed">
-          Bolo accurately captures local accents, slang, and mixed code phrases.
-          Toggle between native Devanagari/regional scripts and Romanized Hinglish.
+        <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+          Switch between native Devanagari scripts and English alphabet Hinglish transliteration with a single click. Zero broken glyphs or tofu characters.
         </p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-12 items-start">
-        {/* Left column: Interactive language pill selector */}
-        <div className="lg:col-span-5 flex flex-col gap-2">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-1 mb-1">
-            Select a language:
+      {/* Interactive Language Matrix Stage */}
+      <div className="grid gap-8 lg:grid-cols-12 items-start">
+        {/* Left: Language Selection Pills (Scrollable / Grid) */}
+        <div className="lg:col-span-5 space-y-2">
+          <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-1 pb-1 flex items-center justify-between">
+            <span>Select Speech Language:</span>
+            <span className="text-emerald-500">15+ Supported</span>
           </p>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-2">
-            {LANGUAGES.map((lang) => {
-              const active = selectedLang.code === lang.code;
+
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-1 gap-2 max-h-[420px] overflow-y-auto pr-1 scrollbar-thin">
+            {INDIAN_LANGUAGES.map((lang) => {
+              const isSelected = selectedLang.id === lang.id;
               return (
                 <button
-                  key={lang.code}
+                  key={lang.id}
                   onClick={() => setSelectedLang(lang)}
-                  className={`flex items-center justify-between rounded-xl border p-3 text-left transition-all ${
-                    active
-                      ? "border-brand bg-brand-soft/60 shadow-sm"
-                      : "border-border/70 bg-card/50 hover:bg-card hover:border-foreground/20"
+                  className={`flex items-center justify-between p-3 rounded-2xl border text-left transition-all duration-200 ${
+                    isSelected
+                      ? "border-emerald-500 bg-emerald-500/10 dark:bg-emerald-500/15 shadow-md ring-1 ring-emerald-500"
+                      : "border-border/70 bg-card/60 hover:bg-card hover:border-border"
                   }`}
                 >
-                  <div className="min-w-0">
-                    <p className={`text-sm font-semibold truncate ${active ? "text-brand" : "text-foreground"}`}>
-                      {lang.name}
-                    </p>
-                    <p className="text-xs text-muted-foreground truncate">
-                      {lang.native}
-                    </p>
-                  </div>
-                  {lang.tag && (
-                    <span
-                      className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-md ${
-                        active
-                          ? "bg-brand text-brand-foreground"
-                          : "bg-muted text-muted-foreground"
-                      }`}
-                    >
-                      {lang.tag}
+                  <div className="flex items-center gap-2.5">
+                    <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-muted font-bold text-xs text-foreground">
+                      {lang.native.slice(0, 2)}
                     </span>
-                  )}
+                    <div>
+                      <h4 className="text-xs sm:text-sm font-bold text-foreground flex items-center gap-1.5">
+                        {lang.name}
+                        {lang.tag && (
+                          <span className="text-[10px] px-1.5 py-0.2 rounded-md bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-normal">
+                            {lang.tag}
+                          </span>
+                        )}
+                      </h4>
+                      <p className="text-[11px] text-muted-foreground">
+                        {lang.native} · {lang.script}
+                      </p>
+                    </div>
+                  </div>
+
+                  <span className="text-xs text-muted-foreground hidden sm:inline-block">
+                    {lang.speakers}
+                  </span>
                 </button>
               );
             })}
           </div>
         </div>
 
-        {/* Right column: Interactive Script & Transcription Preview Card */}
-        <div className="lg:col-span-7 flex flex-col h-full rounded-3xl border border-border/80 bg-card p-6 sm:p-8 shadow-xl backdrop-blur-md">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 pb-5">
-            <div>
-              <div className="flex items-center gap-2">
-                <h3 className="text-lg font-bold">{selectedLang.name}</h3>
-                <span className="text-xs font-medium text-muted-foreground">
-                  ({selectedLang.native})
+        {/* Right: Live Script Transliteration Preview Card */}
+        <div className="lg:col-span-7">
+          <div className="rounded-3xl border border-border/80 bg-card/85 p-6 sm:p-8 shadow-xl backdrop-blur-xl space-y-6">
+            <div className="flex items-center justify-between border-b border-border/50 pb-4">
+              <div>
+                <span className="text-xs font-mono font-bold text-emerald-500 uppercase tracking-wider">
+                  Script Transliteration Engine
                 </span>
+                <h3 className="text-xl font-extrabold text-foreground mt-0.5">
+                  {selectedLang.name} ({selectedLang.native})
+                </h3>
               </div>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                AI Voice Recognition & Word-level Synchronized Output
-              </p>
-            </div>
 
-            {/* Script Toggle */}
-            <div className="inline-flex rounded-xl border border-border bg-muted/60 p-1">
               <button
-                onClick={() => setScriptMode("latin")}
-                className={`rounded-lg px-3 py-1 text-xs font-semibold transition-all ${
-                  scriptMode === "latin"
-                    ? "bg-card text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
+                onClick={() => handleCopy(selectedLang.sampleHinglish)}
+                className="flex items-center gap-1.5 rounded-xl border border-border bg-muted/60 px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
               >
-                Hinglish (Latin)
-              </button>
-              <button
-                onClick={() => setScriptMode("native")}
-                className={`rounded-lg px-3 py-1 text-xs font-semibold transition-all ${
-                  scriptMode === "native"
-                    ? "bg-card text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {selectedLang.script} Script
+                {copied ? <CheckCheck className="size-3.5 text-emerald-500" /> : <Copy className="size-3.5" />}
+                <span>{copied ? "Copied" : "Copy"}</span>
               </button>
             </div>
-          </div>
 
-          {/* Transcript Box */}
-          <div className="my-6 rounded-2xl border border-border/60 bg-surface-inset/60 p-6 flex-1 flex flex-col justify-center">
-            <span className="text-xs font-medium text-muted-foreground mb-2 block">
-              Generated Caption:
-            </span>
-            <p className="text-xl sm:text-2xl font-bold tracking-tight text-foreground leading-snug">
-              {scriptMode === "latin"
-                ? selectedLang.sampleLatin
-                : selectedLang.sampleHindi}
-            </p>
-            <div className="mt-4 flex items-center gap-2 text-xs text-brand font-medium">
-              <Sparkles className="size-3.5" />
-              <span>Full font glyph guarantee — no tofu blocks (□)</span>
+            {/* Script Comparison Boxes */}
+            <div className="grid gap-4 sm:grid-cols-2">
+              {/* Native Script Box */}
+              <div className="rounded-2xl border border-border/60 bg-muted/40 p-4 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                    1. Native Script ({selectedLang.script})
+                  </span>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-background text-foreground font-semibold">
+                    Original
+                  </span>
+                </div>
+                <p className="text-base sm:text-lg font-bold text-foreground pt-1 leading-relaxed">
+                  {selectedLang.sampleNative}
+                </p>
+              </div>
+
+              {/* Phonetic Hinglish Latin Box */}
+              <div className="rounded-2xl border border-emerald-500/40 bg-emerald-500/5 dark:bg-emerald-500/10 p-4 space-y-2 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
+                    2. Romanized Hinglish (Latin)
+                  </span>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-emerald-500 text-white font-bold">
+                    Viral Mode
+                  </span>
+                </div>
+                <p className="text-base sm:text-lg font-bold text-foreground pt-1 leading-relaxed">
+                  {selectedLang.sampleHinglish}
+                </p>
+              </div>
             </div>
-          </div>
 
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <Check className="size-4 text-success" />
-              <span>Auto-detects Hindi, Hinglish, & regional speech</span>
+            {/* Feature Checkpoints */}
+            <div className="grid sm:grid-cols-2 gap-3 pt-2">
+              <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+                <Check className="size-4 text-emerald-500 shrink-0" />
+                <span>Automatic Hindi Schwa Deletion</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+                <Check className="size-4 text-emerald-500 shrink-0" />
+                <span>Loanword normalization (Subscribe, Video)</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+                <Check className="size-4 text-emerald-500 shrink-0" />
+                <span>Indian Accent Slang Recognition</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+                <Check className="size-4 text-emerald-500 shrink-0" />
+                <span>Noto Sans Devanagari Clean Fallback</span>
+              </div>
             </div>
 
-            <Link
-              href="/create"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-brand px-5 py-2.5 text-xs font-semibold text-brand-foreground shadow-md transition-opacity hover:opacity-90"
-            >
-              Try {selectedLang.name} Captions
-              <ArrowRight className="size-3.5" />
-            </Link>
+            {/* Quick Action */}
+            <div className="pt-2">
+              <Link
+                href="/create"
+                className="flex items-center justify-center gap-2 w-full rounded-2xl bg-foreground text-background py-3.5 text-xs sm:text-sm font-bold shadow-lg hover:opacity-90 transition-all"
+              >
+                <Wand2 className="size-4" />
+                <span>Transcribe Your {selectedLang.name} Video Now</span>
+                <ArrowRight className="size-4" />
+              </Link>
+            </div>
           </div>
         </div>
       </div>

@@ -106,7 +106,15 @@ export function AppSidebar() {
                 alt="CutXflow"
                 fill
                 sizes="32px"
-                className="object-contain object-left"
+                className="object-contain object-left dark:hidden"
+                priority
+              />
+              <Image
+                src="/logo-dark.png"
+                alt="CutXflow"
+                fill
+                sizes="32px"
+                className="hidden object-contain object-left dark:block"
                 priority
               />
             </div>
@@ -117,7 +125,15 @@ export function AppSidebar() {
                 alt="CutXflow"
                 fill
                 sizes="112px"
-                className="object-contain object-left"
+                className="object-contain object-left dark:hidden"
+                priority
+              />
+              <Image
+                src="/logo-dark.png"
+                alt="CutXflow"
+                fill
+                sizes="112px"
+                className="hidden object-contain object-left dark:block"
                 priority
               />
             </div>

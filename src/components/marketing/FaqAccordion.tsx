@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, HelpCircle, ArrowRight } from "lucide-react";
+import { ChevronDown, HelpCircle, ArrowRight, Sparkles, MessageCircleQuestion } from "lucide-react";
 import Link from "next/link";
+import { motion, AnimatePresence } from "motion/react";
 import { FAQS } from "@/app/legal-content";
 
 export function FaqAccordion() {
@@ -13,42 +14,44 @@ export function FaqAccordion() {
   };
 
   return (
-    <section className="relative mx-auto max-w-4xl px-5 py-20">
-      <div className="text-center max-w-2xl mx-auto mb-12">
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-brand/20 bg-brand-soft px-3 py-1 text-xs font-semibold text-brand">
-          <HelpCircle className="size-3.5" />
+    <section className="relative mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-20 sm:py-28">
+      {/* Header */}
+      <div className="text-center max-w-2xl mx-auto mb-14 space-y-3">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-1 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+          <MessageCircleQuestion className="size-3.5" />
           Got Questions?
         </span>
-        <h2 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">
-          Frequently asked questions
+        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-foreground text-balance">
+          Frequently Asked Questions
         </h2>
-        <p className="mt-3 text-sm sm:text-base text-muted-foreground">
+        <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
           Everything you need to know about Bolo, privacy, pricing, and video exports.
         </p>
       </div>
 
-      <div className="space-y-3">
+      {/* Accordion List */}
+      <div className="space-y-3.5">
         {FAQS.map((item, index) => {
           const isOpen = openIndex === index;
           return (
             <div
               key={item.q}
-              className={`rounded-2xl border transition-all duration-200 ${
+              className={`rounded-2xl border transition-all duration-200 overflow-hidden ${
                 isOpen
-                  ? "border-brand/40 bg-card shadow-md"
-                  : "border-border/70 bg-card/50 hover:bg-card/90"
+                  ? "border-emerald-500/40 bg-card shadow-lg ring-1 ring-emerald-500/20"
+                  : "border-border/70 bg-card/60 hover:bg-card hover:border-border"
               }`}
             >
               <button
                 onClick={() => toggle(index)}
-                className="flex w-full items-center justify-between gap-4 p-5 text-left font-semibold text-sm sm:text-base text-foreground"
+                className="flex w-full items-center justify-between gap-4 p-5 sm:p-6 text-left font-bold text-sm sm:text-base text-foreground"
                 aria-expanded={isOpen}
               >
-                <span className="flex items-center gap-3">
+                <span className="flex items-center gap-3.5">
                   <span
-                    className={`flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-colors ${
+                    className={`flex size-7 shrink-0 items-center justify-center rounded-xl text-xs font-bold transition-colors ${
                       isOpen
-                        ? "bg-brand text-brand-foreground"
+                        ? "bg-emerald-600 text-white shadow-sm"
                         : "bg-muted text-muted-foreground"
                     }`}
                   >
@@ -57,29 +60,40 @@ export function FaqAccordion() {
                   <span>{item.q}</span>
                 </span>
                 <ChevronDown
-                  className={`size-4 shrink-0 text-muted-foreground transition-transform duration-200 ${
-                    isOpen ? "rotate-180 text-brand" : ""
+                  className={`size-4 shrink-0 text-muted-foreground transition-transform duration-300 ${
+                    isOpen ? "rotate-180 text-emerald-500" : ""
                   }`}
                 />
               </button>
 
-              {isOpen && (
-                <div className="px-5 pb-5 pt-1 text-sm leading-relaxed text-muted-foreground border-t border-border/40 mt-1">
-                  <p className="pl-9">{item.a}</p>
-                </div>
-              )}
+              <AnimatePresence initial={false}>
+                {isOpen && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.25, ease: "easeInOut" }}
+                    className="overflow-hidden"
+                  >
+                    <div className="px-5 sm:px-6 pb-6 pt-1 text-sm leading-relaxed text-muted-foreground border-t border-border/40 mt-1">
+                      <p className="pl-10 sm:pl-10.5">{item.a}</p>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           );
         })}
       </div>
 
-      <div className="mt-8 text-center">
+      {/* Footer link */}
+      <div className="mt-10 text-center">
         <Link
           href="/faq"
-          className="inline-flex items-center gap-2 text-sm font-semibold text-brand hover:underline underline-offset-4"
+          className="inline-flex items-center gap-2 text-sm font-bold text-emerald-600 dark:text-emerald-400 hover:underline underline-offset-4"
         >
-          View complete Help & FAQ guide
-          <ArrowRight className="size-3.5" />
+          <span>View Complete FAQ & Help Documentation</span>
+          <ArrowRight className="size-4" />
         </Link>
       </div>
     </section>
