@@ -332,20 +332,33 @@ export function Hero3DSection() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-            className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-foreground text-balance leading-[1.08]"
+            className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-foreground text-balance leading-[1.12]"
           >
             Turn spoken words into{" "}
-            <span className="relative whitespace-nowrap">
-              <span className="bg-gradient-to-r from-emerald-600 via-teal-500 to-amber-500 dark:from-emerald-400 dark:via-teal-300 dark:to-amber-400 bg-clip-text text-transparent">
+            <span className="relative inline-block whitespace-nowrap">
+              {/* Soft ambient atmospheric glow behind the phrase */}
+              <span
+                aria-hidden
+                className="pointer-events-none absolute -inset-x-3 -inset-y-1.5 rounded-2xl bg-gradient-to-r from-emerald-500/20 via-teal-400/20 to-amber-400/20 blur-xl -z-10 opacity-75 dark:opacity-90"
+              />
+              <span className="relative z-10 bg-gradient-to-r from-emerald-600 via-teal-500 to-amber-500 dark:from-emerald-400 dark:via-teal-300 dark:to-amber-400 bg-clip-text text-transparent font-black tracking-tight">
                 viral reel captions
               </span>
+              {/* Crisp, flowing Figma-grade curved accent underline */}
               <svg
                 aria-hidden="true"
-                viewBox="0 0 418 42"
-                className="absolute -bottom-2 left-0 w-full fill-emerald-500/30 dark:fill-emerald-400/20"
+                viewBox="0 0 300 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="absolute -bottom-2.5 left-0 w-full h-3 sm:h-3.5 text-emerald-500 dark:text-emerald-400 drop-shadow-[0_0_10px_rgba(16,185,129,0.7)]"
                 preserveAspectRatio="none"
               >
-                <path d="M203.371.916c-73.87 0-147.74 3.01-203.371 9.03 0 0 137.983 2.05 203.371 2.05 65.388 0 214.629-2.05 214.629-2.05-55.631-6.02-129.5-9.03-214.629-9.03zM0 32.484c73.87 0 147.74-3.01 203.371-9.03 0 0-137.983-2.05-203.371-2.05-65.388 0-214.629 2.05-214.629 2.05 55.631 6.02 129.5 9.03 214.629 9.03z" />
+                <path
+                  d="M4 11.5C80 3.5 210 3 296 10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                  strokeLinecap="round"
+                />
               </svg>
             </span>{" "}
             in seconds.
