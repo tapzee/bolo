@@ -272,7 +272,7 @@ export function CaptionStudio() {
                   {FONTS.map((font) => (
                     <SelectItem key={font.id} value={font.id}>
                       <span className="flex items-center gap-2">
-                        {font.label}
+                        <span className="text-sm" style={{ fontFamily: FONT_FAMILY[font.id as FontId] }}>{font.label}</span>
                         {font.nativeDevanagari ? (
                           <span className="rounded bg-success/15 px-1.5 py-0.5 text-[10px] font-medium text-success">
                             देवनागरी
