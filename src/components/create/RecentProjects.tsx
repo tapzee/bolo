@@ -82,7 +82,7 @@ export function RecentProjects() {
       const [list, ids] = await Promise.all([store.list(), listCachedVideoIds()]);
       if (cancelled) return;
 
-      const recent = list.slice(0, MAX_RECENT);
+      const recent = list.filter(p => ids.includes(p.id)).slice(0, MAX_RECENT);
       setProjects(recent);
       setCachedIds(new Set(ids));
 
@@ -136,23 +136,12 @@ export function RecentProjects() {
                 </div>
               )}
 
-              <span
-                className={cn(
-                  "absolute left-2 top-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium backdrop-blur",
-                  cachedIds.has(project.id)
-                    ? "bg-success/15 text-success"
-                    : "bg-background/70 text-muted-foreground",
-                )}
-              >
-                {cachedIds.has(project.id) ? (
-                  <>
-                    <HardDrive className="size-2.5" />
-                    Video ready
-                  </>
-                ) : (
-                  "Captions only"
-                )}
-              </span>
+              {cachedIds.has(project.id) && (
+                <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-success/15 px-2 py-0.5 text-[10px] font-medium text-success backdrop-blur">
+                  <HardDrive className="size-2.5" />
+                  Video ready
+                </span>
+              )}
             </div>
 
             <div className="p-2.5">

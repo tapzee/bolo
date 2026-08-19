@@ -38,7 +38,7 @@ export function ProjectsList() {
       store.list(),
       listCachedVideoIds(),
     ]);
-    setProjects(list);
+    setProjects(list.filter(p => ids.includes(p.id)));
     setCachedIds(new Set(ids));
   }, [user?.uid]);
 
@@ -126,20 +126,13 @@ export function ProjectsList() {
             </p>
           </div>
 
-          {cachedIds.has(project.id) ? (
+          {cachedIds.has(project.id) && (
             <span
               title="The video for this project is still cached in this browser"
               className="hidden shrink-0 items-center gap-1 rounded-full bg-success/15 px-2 py-0.5 text-[10px] font-medium text-success sm:flex"
             >
               <HardDrive className="size-2.5" />
               Video ready
-            </span>
-          ) : (
-            <span
-              title="Captions and styling are saved, but the video is not in this browser — you will be asked to drop the clip in again"
-              className="hidden shrink-0 items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground sm:flex"
-            >
-              Captions only
             </span>
           )}
 
