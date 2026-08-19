@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { AppSidebar } from "./AppSidebar";
+import { AppSidebar, MobileTopBar } from "./AppSidebar";
 
 /**
  * Layout for signed-in app surfaces (create, projects, settings…).
@@ -13,7 +13,10 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-dvh bg-background">
       <AppSidebar />
-      <div className="min-w-0 flex-1">{children}</div>
+      <div className="min-w-0 flex-1">
+        <MobileTopBar />
+        {children}
+      </div>
     </div>
   );
 }

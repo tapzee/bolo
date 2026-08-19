@@ -243,7 +243,7 @@ export function TransportBar({
         type="button"
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
-        className={buttonClass}
+        className={cn(buttonClass, "hidden sm:flex")}
         title="Go to start"
         disabled={player === null}
         onClick={() => {
@@ -258,7 +258,7 @@ export function TransportBar({
         type="button"
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
-        className={buttonClass}
+        className={cn(buttonClass, "hidden sm:flex")}
         title="Previous frame (←)"
         disabled={player === null}
         onClick={() => step(-1)}
@@ -286,7 +286,7 @@ export function TransportBar({
         type="button"
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
-        className={buttonClass}
+        className={cn(buttonClass, "hidden sm:flex")}
         title="Next frame (→)"
         disabled={player === null}
         onClick={() => step(1)}
@@ -298,7 +298,7 @@ export function TransportBar({
         type="button"
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
-        className={buttonClass}
+        className={cn(buttonClass, "hidden sm:flex")}
         title="Go to end"
         disabled={player === null}
         onClick={() => {
@@ -310,13 +310,13 @@ export function TransportBar({
         <SkipForward className="size-4" />
       </motion.button>
 
-      <div className="mx-1 h-5 w-px bg-border/50 shrink-0" />
+      <div className="mx-1 hidden h-5 w-px shrink-0 bg-border/50 sm:block" />
 
-      <span className="font-mono text-xs sm:text-sm shrink-0 tabular-nums text-foreground select-none flex items-center justify-center min-w-[70px]">
+      <span className="font-mono text-[11px] sm:text-sm shrink-0 tabular-nums text-foreground select-none flex items-center justify-center min-w-[54px] sm:min-w-[70px]">
         <span ref={timecodeRef} className="font-semibold text-brand">
           0:00
         </span>
-        <span className="mx-1.5 text-muted-foreground/40">/</span>
+        <span className="mx-1 sm:mx-1.5 text-muted-foreground/40">/</span>
         <span className="text-muted-foreground/80 font-medium">
           {formatTimecode(durationInFrames - 1)}
         </span>
@@ -333,7 +333,7 @@ export function TransportBar({
           setHoverTime(null);
           setHoverX(null);
         }}
-        className="group relative mx-2 sm:mx-3 flex h-10 min-w-[60px] flex-1 cursor-pointer items-center select-none touch-none"
+        className="group relative mx-1.5 sm:mx-3 flex h-10 min-w-[40px] flex-1 cursor-pointer items-center select-none touch-none"
         title="Click or drag to seek anywhere in the video"
       >
         {/* Hover timestamp tooltip */}
@@ -385,9 +385,12 @@ export function TransportBar({
         {muted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
       </motion.button>
 
-      {/* Zoom controls: [-] 100% [+] */}
+      {/* Zoom controls: [-] 100% [+]. Hidden below sm — with the frame-step
+          and start/end buttons also gone there, the bar is too narrow to
+          spare room for a preview-scale control that has no effect on the
+          exported video. */}
       {onZoomIn !== undefined && onZoomOut !== undefined ? (
-        <div className="flex items-center shrink-0">
+        <div className="hidden items-center shrink-0 sm:flex">
           <div className="mx-1 h-5 w-px bg-border/50" />
 
           <motion.button
@@ -425,9 +428,10 @@ export function TransportBar({
         </div>
       ) : null}
 
-      {/* Grid & Safe-Zone overlay toggle */}
+      {/* Grid & Safe-Zone overlay toggle. Hidden below sm for the same
+          space reason as the zoom controls above. */}
       {onToggleGrid !== undefined ? (
-        <div className="flex items-center shrink-0">
+        <div className="hidden items-center shrink-0 sm:flex">
           <div className="mx-1 h-5 w-px bg-border/50" />
 
           <motion.button

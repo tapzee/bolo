@@ -192,6 +192,12 @@
     color-scheme: light;
     background-color: var(--background);
     -webkit-tap-highlight-color: transparent;
+    /* Belt-and-suspenders against a stray wide descendant (a timeline, a
+       toolbar row, ...) forcing the whole page to scroll sideways on phones.
+       Elements that need their own horizontal scroll (WordTimeline, the crop
+       mode pills) manage that internally via their own overflow-x-auto and
+       are unaffected by this. */
+    overflow-x: hidden;
   }
 
   html.dark {
@@ -203,6 +209,7 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    overflow-x: hidden;
   }
 }
 

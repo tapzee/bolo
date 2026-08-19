@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -11,12 +11,14 @@ import {
   LayoutTemplate,
   LogIn,
   LogOut,
+  Menu,
   PanelLeftClose,
   PanelLeftOpen,
   Settings,
   ShieldCheck,
   Sparkles,
   Wand2,
+  X,
 } from "lucide-react";
 import { formatAllowance } from "@/core";
 import { useAuth } from "@/lib/firebase/auth-context";
@@ -279,5 +281,185 @@ export function AppSidebar() {
         )}
       </button>
     </aside>
+  );
+}
+
+/**
+ * Mobile equivalent of `AppSidebar`.
+ *
+ * The sidebar is `hidden md:flex` — below that breakpoint there was no nav at
+ * all: no way to reach Projects/Templates/Pricing, no credit balance, no sign
+ * out. This is a plain top bar (not `sticky`/`fixed`) so it never fights the
+ * studio editor's own sticky top bar on `/create`; the menu panel expands in
+ * normal flow rather than floating, so it never needs to out-stack the
+ * editor's sticky layers either.
+ */
+export function MobileTopBar() {
+  const pathname = usePathname();
+  const { user, logout, configured } = useAuth();
+  const credits = useCredits();
+  const [open, setOpen] = useState(false);
+
+  // Closing on navigation, not just on link click, also covers back/forward.
+  useEffect(() => setOpen(false), [pathname]);
+
+  const mobileItem = (href: string, label: string, Icon: typeof Home) => (
+    <Link
+      key={href}
+      href={href}
+      className={cn(
+        "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors",
+        pathname === href
+          ? "bg-brand-soft font-medium text-foreground"
+          : "text-muted-foreground hover:bg-accent hover:text-foreground",
+      )}
+    >
+      <Icon className={cn("size-4 shrink-0", pathname === href && "text-brand")} />
+      <span>{label}</span>
+    </Link>
+  );
+
+  return (
+    <div className="border-b bg-card/60 md:hidden">
+      <div className="flex h-14 items-center justify-between gap-2 px-3">
+        <Link href="/" className="flex items-center gap-2">
+          <div className="relative h-6 w-28 shrink-0">
+            <Image
+              src="/logo.png"
+              alt="CutXflow"
+              fill
+              sizes="112px"
+              className="object-contain object-left dark:hidden"
+              priority
+            />
+            <Image
+              src="/logo-dark.png"
+              alt="CutXflow"
+              fill
+              sizes="112px"
+              className="hidden object-contain object-left dark:block"
+              priority
+            />
+          </div>
+        </Link>
+
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          aria-label={open ? "Close menu" : "Open menu"}
+          aria-expanded={open}
+          className="flex size-9 shrink-0 items-center justify-center rounded-lg border text-muted-foreground hover:bg-accent hover:text-foreground"
+        >
+          {open ? <X className="size-4" /> : <Menu className="size-4" />}
+        </button>
+      </div>
+
+      {open ? (
+        <div className="animate-in fade-in slide-in-from-top-2 space-y-3 border-t px-3 py-3 duration-200">
+          <nav className="space-y-1">
+            {NAV.map(({ href, label, icon }) => mobileItem(href, label, icon))}
+            <div className="my-2 h-px bg-border" />
+            {SECONDARY.map(({ href, label, icon }) => mobileItem(href, label, icon))}
+            {user !== null &&
+            ADMIN_UI_EMAILS.includes((user.email ?? "").toLowerCase())
+              ? mobileItem("/admin", "Admin", ShieldCheck)
+              : null}
+          </nav>
+
+          <div className="rounded-xl border bg-card p-3">
+            <div className="mb-2 flex items-center justify-between">
+              <span className="text-[11px] font-semibold tracking-wide uppercase">
+                {credits.plan}
+              </span>
+              {credits.plan === "free" ? (
+                <span className="rounded bg-muted px-1.5 py-0.5 text-[9px] font-medium text-muted-foreground">
+                  FREE
+                </span>
+              ) : null}
+            </div>
+
+            {user === null ? (
+              <p className="text-[11px] leading-relaxed text-muted-foreground">
+                Sign in to see your credits.
+              </p>
+            ) : credits.loading ? (
+              <div className="h-6 animate-pulse rounded bg-muted" />
+            ) : credits.error !== null ? (
+              <p className="text-[11px] leading-relaxed text-destructive">
+                {credits.error}
+              </p>
+            ) : (
+              <>
+                <p className="mb-1.5 text-[11px] text-muted-foreground">
+                  Transcription
+                  <span className="float-right font-medium text-foreground tabular-nums">
+                    {formatAllowance(credits.secondsRemaining)} left
+                  </span>
+                </p>
+                <div className="h-1 w-full overflow-hidden rounded-full bg-muted">
+                  <div
+                    className={cn(
+                      "h-full rounded-full transition-all",
+                      credits.creditsRemaining === 0
+                        ? "bg-destructive"
+                        : "bg-brand",
+                    )}
+                    style={{
+                      width: `${Math.min(
+                        100,
+                        credits.monthlyCredits === 0
+                          ? 0
+                          : (credits.creditsRemaining /
+                              credits.monthlyCredits) *
+                              100,
+                      )}%`,
+                    }}
+                  />
+                </div>
+              </>
+            )}
+
+            <Link
+              href="/pricing"
+              className="mt-3 block rounded-lg bg-brand py-1.5 text-center text-xs font-medium text-brand-foreground transition-opacity hover:opacity-90"
+            >
+              Upgrade
+            </Link>
+          </div>
+
+          {!configured ? null : user !== null ? (
+            <div className="flex items-center gap-2 rounded-lg border px-3 py-2">
+              <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-brand text-[11px] font-semibold text-brand-foreground">
+                {(user.displayName ?? user.email ?? "U").charAt(0).toUpperCase()}
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-xs font-medium">
+                  {user.displayName ?? "Signed in"}
+                </p>
+                <p className="truncate text-[10px] text-muted-foreground">
+                  {user.email}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => void logout()}
+                aria-label="Sign out"
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <LogOut className="size-3.5" />
+              </button>
+            </div>
+          ) : (
+            <Link
+              href="/signin"
+              className="flex items-center justify-center gap-2 rounded-lg border px-3 py-2 text-xs font-medium transition-colors hover:bg-accent"
+            >
+              <LogIn className="size-3.5" />
+              Sign in
+            </Link>
+          )}
+        </div>
+      ) : null}
+    </div>
   );
 }
