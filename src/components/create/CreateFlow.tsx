@@ -96,6 +96,7 @@ import { useAuth } from "@/lib/firebase/auth-context";
 import type { LanguageCode } from "@/lib/elevenlabs/types";
 import { Dropzone } from "./Dropzone";
 import { PipelineProgress } from "./PipelineProgress";
+import { RecentProjects } from "./RecentProjects";
 
 const PlayerStage = dynamic(() => import("@/components/studio/PlayerStage"), {
   ssr: false,
@@ -587,6 +588,8 @@ export function CreateFlow() {
             </div>
           </div>
         </div>
+
+        <RecentProjects />
       </div>
     );
   }
