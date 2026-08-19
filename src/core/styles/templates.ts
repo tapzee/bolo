@@ -35,6 +35,7 @@ export interface CaptionTemplate {
   readonly engine: StyleId;
   readonly overrides: Partial<CaptionStyleConfig>;
   readonly tag?: TemplateTag;
+  readonly groupId?: string;
 }
 
 export const TEMPLATE_CATEGORIES: readonly {
@@ -57,7 +58,8 @@ const t = (
   engine: StyleId,
   overrides: Partial<CaptionStyleConfig>,
   tag?: TemplateTag,
-): CaptionTemplate => ({ id, name, category, engine, overrides, ...(tag ? { tag } : {}) });
+  groupId?: string,
+): CaptionTemplate => ({ id, name, category, engine, overrides, ...(tag ? { tag } : {}), ...(groupId ? { groupId } : {}) });
 
 /**
  * Colours are chosen to survive the mandatory black stroke on real footage —
@@ -96,7 +98,7 @@ export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
     baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#ffe600",
     strokeWidthPx: 3, dropShadow: true,
     specialFontId: "caveat", secondaryFontId: "montserrat"
-  }, "Hot"),
+  }, "Hot", "design-walla"),
 
   t("design-walla-editorial", "Design Walla Editorial", "premium", "designWallaEditorial", {
     fontId: "anton", fontSizePx: 100, fontWeight: 900, textCase: "none",
@@ -104,7 +106,7 @@ export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
     strokeWidthPx: 3, dropShadow: true,
     specialFontId: "playfair", secondaryFontId: "inter",
     lineHeight: 0.88, annotationSizeRatio: 0.48, annotationWeight: 600,
-  }, "Hot"),
+  }, "Hot", "design-walla"),
 
   t("design-walla-editorial-yellow", "Design Walla Editorial (Yellow)", "premium", "designWallaEditorialYellow", {
     fontId: "anton", fontSizePx: 100, fontWeight: 900, textCase: "none",
@@ -112,38 +114,38 @@ export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
     strokeWidthPx: 3, dropShadow: true,
     specialFontId: "playfair", secondaryFontId: "inter",
     lineHeight: 0.88, annotationSizeRatio: 0.48, annotationWeight: 600,
-  }, "New"),
+  }, "New", "design-walla"),
 
   t("design-walla-pro", "Design Walla Pro", "premium", "designWallaPro", {
     fontId: "montserrat", fontSizePx: 95, fontWeight: 900, textCase: "none",
     baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#ffe600",
     strokeWidthPx: 3, dropShadow: true,
     secondaryFontId: "poppins"
-  }, "Hot"),
+  }, "Hot", "design-walla"),
   t("design-walla-pro-pink", "Design Walla Pro (Pink)", "premium", "designWallaProPink", {
     fontId: "montserrat", fontSizePx: 95, fontWeight: 900, textCase: "none",
     baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#ff1493",
     strokeWidthPx: 3, dropShadow: true,
     secondaryFontId: "poppins"
-  }, "Hot"),
+  }, "Hot", "design-walla"),
   t("design-walla-pro-blue", "Design Walla Elite (Blue)", "premium", "designWallaProBlue", {
     fontId: "montserrat", fontSizePx: 95, fontWeight: 900, textCase: "none",
     baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#00e5ff",
     strokeWidthPx: 3, dropShadow: true,
     secondaryFontId: "poppins"
-  }, "Hot"),
+  }, "Hot", "design-walla"),
   t("design-walla-pro-green", "Design Walla Elite (Green)", "premium", "designWallaProGreen", {
     fontId: "montserrat", fontSizePx: 95, fontWeight: 900, textCase: "none",
     baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#39ff14",
     strokeWidthPx: 3, dropShadow: true,
     secondaryFontId: "poppins"
-  }, "Hot"),
+  }, "Hot", "design-walla"),
   t("design-walla-pro-orange", "Design Walla Pro (Orange)", "premium", "designWallaProOrange", {
     fontId: "montserrat", fontSizePx: 95, fontWeight: 900, textCase: "none",
     baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#ff6f00",
     strokeWidthPx: 3, dropShadow: true,
     secondaryFontId: "poppins"
-  }, "Hot"),
+  }, "Hot", "design-walla"),
 
   // ---- Trending ----------------------------------------------------------
   t("hero-mixed-pro", "Hero Mixed Pro", "trending", "heroMixed", {
@@ -355,39 +357,39 @@ export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
   t("marker-cyan-box", "Marker Cyan Box", "highlight", "box", {
     fontId: "poppins", fontWeight: 800, fontSizePx: 72,
     accentColor: "#00e5ff", activeColor: "#0a0a0b",
-  }, "New"),
+  }, "New", "marker"),
   t("marker-crimson", "Marker Crimson", "highlight", "box", {
     fontId: "montserrat", fontWeight: 900, uppercase: true, fontSizePx: 68,
     accentColor: "#ff0033", activeColor: "#ffffff",
-  }, "Trending"),
+  }, "Trending", "marker"),
   t("highlighter-neon", "Highlighter Neon", "highlight", "box", {
     fontId: "poppins", fontWeight: 800, fontSizePx: 70,
     accentColor: "#76ff03", activeColor: "#0a0a0b",
-  }, "Popular"),
+  }, "Popular", "marker"),
   t("marker-yellow", "Marker Yellow", "highlight", "box", {
     fontId: "poppins", fontWeight: 800, fontSizePx: 68,
     accentColor: "#ffd60a", activeColor: "#0a0a0b",
-  }),
+  }, undefined, "marker"),
   t("marker-lime", "Marker Lime", "highlight", "box", {
     fontId: "poppins", fontWeight: 800, fontSizePx: 68,
     accentColor: "#c6ff00", activeColor: "#0a0a0b",
-  }),
+  }, undefined, "marker"),
   t("marker-coral", "Marker Coral", "highlight", "box", {
     fontId: "poppins", fontWeight: 800, fontSizePx: 68,
     accentColor: "#ff7043", activeColor: "#ffffff",
-  }),
+  }, undefined, "marker"),
   t("marker-ink", "Marker Ink", "highlight", "box", {
     fontId: "montserrat", fontWeight: 800, fontSizePx: 66,
     accentColor: "#111318", activeColor: "#ffd60a",
-  }),
+  }, undefined, "marker"),
   t("marker-violet", "Marker Violet", "highlight", "box", {
     fontId: "poppins", fontWeight: 800, fontSizePx: 68,
     accentColor: "#7c4dff", activeColor: "#ffffff",
-  }),
+  }, undefined, "marker"),
   t("marker-teal", "Marker Teal", "highlight", "box", {
     fontId: "poppins", fontWeight: 700, fontSizePx: 66,
     accentColor: "#00bfa5", activeColor: "#ffffff",
-  }),
+  }, undefined, "marker"),
   t("sticker-caps", "Sticker Caps", "highlight", "box", {
     fontId: "anton", uppercase: true, fontSizePx: 74,
     accentColor: "#ffffff", activeColor: "#0a0a0b",
@@ -405,60 +407,60 @@ export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
   t("rgb-glitch", "RGB Glitch", "neon", "glow", {
     fontId: "bebas", uppercase: true, fontSizePx: 108, letterSpacingPx: 4,
     accentColor: "#ff007f", activeColor: "#00e5ff", baseColor: "#ffffff",
-  }, "Trending"),
+  }, "Trending", "neon-glow"),
   t("gaming-cyber-rgb", "Cyber RGB", "neon", "glow", {
     fontId: "anton", uppercase: true, fontSizePx: 96,
     accentColor: "#ff007f", activeColor: "#00e5ff", baseColor: "#f3e5f5",
-  }, "New"),
+  }, "New", "neon-glow"),
   t("neon-matrix", "Neon Matrix", "neon", "glow", {
     fontId: "bebas", uppercase: true, fontSizePx: 98,
     accentColor: "#00ff66", activeColor: "#ffffff", baseColor: "#e8f5e9",
-  }, "Trending"),
+  }, "Trending", "neon-glow"),
   t("electric-indigo", "Electric Indigo", "neon", "glow", {
     fontId: "poppins", fontWeight: 800, uppercase: true, fontSizePx: 84,
     accentColor: "#651fff", activeColor: "#ffffff",
-  }, "New"),
+  }, "New", "neon-glow"),
   t("sunset-vibes", "Sunset Vibes", "neon", "glow", {
     fontId: "montserrat", fontWeight: 900, uppercase: true, fontSizePx: 84,
     accentColor: "#ff6e40", activeColor: "#ffff00",
-  }, "Hot"),
+  }, "Hot", "neon-glow"),
   t("laser-fuchsita", "Laser Fuchsia", "neon", "glow", {
     fontId: "bebas", uppercase: true, fontSizePx: 96,
     accentColor: "#d500f9", activeColor: "#ffffff",
-  }, "Popular"),
+  }, "Popular", "neon-glow"),
   t("neon-plasma", "Neon Plasma", "neon", "glow", {
     fontId: "bebas", uppercase: true, fontSizePx: 98,
     accentColor: "#00ffcc", activeColor: "#ffffff", baseColor: "#e0f2f1",
-  }),
+  }, undefined, "neon-glow"),
   t("neon-cyan", "Neon Cyan", "neon", "glow", {
     fontId: "bebas", uppercase: true, fontSizePx: 96, accentColor: "#18ffff",
-  }),
+  }, undefined, "neon-glow"),
   t("neon-pink", "Neon Pink", "neon", "glow", {
     fontId: "bebas", uppercase: true, fontSizePx: 96, accentColor: "#ff4081",
-  }),
+  }, undefined, "neon-glow"),
   t("neon-lime", "Neon Lime", "neon", "glow", {
     fontId: "anton", uppercase: true, fontSizePx: 90, accentColor: "#76ff03",
-  }),
+  }, undefined, "neon-glow"),
   t("neon-violet", "Neon Violet", "neon", "glow", {
     fontId: "bebas", uppercase: true, fontSizePx: 96, accentColor: "#b388ff",
-  }),
+  }, undefined, "neon-glow"),
   t("gaming-green", "Gaming Green", "neon", "glow", {
     fontId: "montserrat", fontWeight: 900, uppercase: true, fontSizePx: 78,
     accentColor: "#00e676",
-  }),
+  }, undefined, "neon-glow"),
   t("cyber-orange", "Cyber Orange", "neon", "glow", {
     fontId: "anton", uppercase: true, fontSizePx: 92, accentColor: "#ff6d00",
-  }),
+  }, undefined, "neon-glow"),
   t("midnight-blue", "Midnight Blue", "neon", "glow", {
     fontId: "bebas", uppercase: true, fontSizePx: 94, accentColor: "#448aff",
-  }),
+  }, undefined, "neon-glow"),
   t("ember", "Ember", "neon", "glow", {
     fontId: "anton", uppercase: true, fontSizePx: 88, accentColor: "#ff3d00",
-  }),
+  }, undefined, "neon-glow"),
   t("ice", "Ice", "neon", "glow", {
     fontId: "montserrat", fontWeight: 800, uppercase: true, fontSizePx: 76,
     accentColor: "#80d8ff", baseColor: "#ffffff",
-  }),
+  }, undefined, "neon-glow"),
 
   // ---- Clean -------------------------------------------------------------
   t("baba-clean-pill", "Baba Clean Pill", "clean", "clean", {
@@ -756,31 +758,31 @@ export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
     // Same palette as Luxury Serif — white body text, champagne-gold accent.
     baseColor: "#ffffff", activeColor: "#e6c687", accentColor: "#e6c687",
     strokeWidthPx: 5, maxWordsPerPage: 3, upcomingOpacity: 0.4,
-  }, "New"),
+  }, "New", "kinetic"),
 
   t("kinetic-punch", "Kinetic Punch", "bold", "kinetic", {
     fontId: "anton", uppercase: true, fontSizePx: 100,
     baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#ff2d55",
     strokeWidthPx: 6, maxWordsPerPage: 3, upcomingOpacity: 0.35,
-  }, "Hot"),
+  }, "Hot", "kinetic"),
 
   t("kinetic-electric", "Kinetic Electric", "neon", "kinetic", {
     fontId: "bebas", uppercase: true, fontSizePx: 100,
     baseColor: "#eaf6ff", activeColor: "#ffffff", accentColor: "#00e5ff",
     strokeWidthPx: 5, maxWordsPerPage: 3, upcomingOpacity: 0.35,
-  }, "Trending"),
+  }, "Trending", "kinetic"),
 
   t("kinetic-gold", "Kinetic Gold", "highlight", "kinetic", {
     fontId: "montserrat", fontWeight: 900, fontSizePx: 90,
     baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#ffd60a",
     strokeWidthPx: 5, maxWordsPerPage: 3, upcomingOpacity: 0.4,
-  }, "Popular"),
+  }, "Popular", "kinetic"),
 
   t("kinetic-hinglish", "Kinetic Hinglish", "trending", "kinetic", {
     fontId: "devanagari", fontWeight: 700, fontSizePx: 88, textCase: "none",
     baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#ff9933",
     strokeWidthPx: 4, maxWordsPerPage: 3, upcomingOpacity: 0.4,
-  }, "Viral"),
+  }, "Viral", "kinetic"),
 
   // ---- 10-template family ------------------------------------------------
   t("underline-punch-classic", "Underline Punch", "clean", "underlinePunch", {
