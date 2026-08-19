@@ -3,6 +3,8 @@
 import type { CanvasSize } from "@/core";
 import { cn } from "@/lib/utils";
 
+import { motion } from "motion/react";
+
 export const CROP_MODES = ["original", "9:16", "1:1", "4:5", "16:9"] as const;
 export type CropMode = (typeof CROP_MODES)[number];
 
@@ -47,28 +49,38 @@ export function CropToolbar({
   canvas: CanvasSize;
 }) {
   return (
-    <div className="flex w-full items-center justify-between gap-2">
-      <div className="flex items-center gap-0.5 rounded-lg bg-muted p-0.5">
-        {CROP_MODES.map((value) => (
-          <button
-            key={value}
-            type="button"
-            aria-pressed={mode === value}
-            onClick={() => onChange(value)}
-            className={cn(
-              "rounded px-2 py-0.5 text-[10px] font-medium capitalize",
-              mode === value
-                ? "bg-card text-foreground shadow-soft"
-                : "text-muted-foreground hover:text-foreground",
-            )}
-          >
-            {value}
-          </button>
-        ))}
+    <div className="flex flex-1 items-center justify-between sm:justify-start gap-4 min-w-0">
+      <div className="relative flex items-center gap-1 rounded-full bg-black/40 p-1 ring-1 ring-white/10 shadow-inner overflow-x-auto hide-scrollbar">
+        {CROP_MODES.map((value) => {
+          const isActive = mode === value;
+          return (
+            <button
+              key={value}
+              type="button"
+              aria-pressed={isActive}
+              onClick={() => onChange(value)}
+              className={cn(
+                "relative z-10 rounded-full px-3.5 py-1 text-[11px] font-bold capitalize transition-colors duration-300 whitespace-nowrap",
+                isActive ? "text-white" : "text-white/50 hover:text-white/80"
+              )}
+            >
+              {isActive && (
+                <motion.div
+                  layoutId="activeCropMode"
+                  className="absolute inset-0 -z-10 rounded-full bg-white/15 ring-1 ring-white/20 shadow-sm"
+                  transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
+                />
+              )}
+              <span className="relative z-20">{value}</span>
+            </button>
+          );
+        })}
       </div>
-      <span className="font-mono text-[10px] text-muted-foreground/60">
-        {canvas.width}×{canvas.height}
-      </span>
+      <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-black/20 border border-white/5">
+        <span className="font-mono text-[10px] font-medium tracking-widest text-white/40">
+          {canvas.width}×{canvas.height}
+        </span>
+      </div>
     </div>
   );
 }
