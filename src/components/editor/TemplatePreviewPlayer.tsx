@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { Player, Thumbnail } from "@remotion/player";
+import { Player } from "@remotion/player";
 import { CaptionScene } from "@/remotion/compositions/CaptionScene";
 import type { CaptionStyleConfig, CaptionPage } from "@/core";
 
@@ -16,28 +16,13 @@ const dummyPages: CaptionPage[] = [{
   ]
 }];
 
-export default function TemplatePreviewPlayer({ config, staticThumbnail }: { config: CaptionStyleConfig, staticThumbnail?: boolean }) {
+export default function TemplatePreviewPlayer({ config }: { config: CaptionStyleConfig }) {
   const inputProps = useMemo(() => ({
     pages: dummyPages,
     config,
     videoSrc: null,
     backdrop: "studio" as const
   }), [config]);
-
-  if (staticThumbnail) {
-    return (
-      <Thumbnail
-        component={CaptionScene}
-        inputProps={inputProps}
-        durationInFrames={60}
-        fps={30}
-        compositionWidth={1000}
-        compositionHeight={250}
-        frameToDisplay={30}
-        style={{ width: "100%", height: "100%", objectFit: "cover" }}
-      />
-    );
-  }
 
   return (
     <Player
