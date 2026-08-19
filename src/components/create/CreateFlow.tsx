@@ -282,6 +282,24 @@ export function CreateFlow() {
   const autosave = useAutosave(snapshot, state.stage === "ready");
 
   /**
+   * Keeps `?project=<id>` in the address bar once a project is open.
+   *
+   * Nothing wrote this before: dropping and transcribing a clip left the URL
+   * at a bare `/create`, so refreshing — or closing the tab and reopening it —
+   * landed back on the empty upload screen with no idea a project existed,
+   * rather than on the restore path below. `replaceState` rather than a
+   * router navigation: this must not remount the editor or re-run the restore
+   * effect, only make the current session bookmarkable/refreshable.
+   */
+  useEffect(() => {
+    if (typeof window === "undefined" || snapshot === null) return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("project") === snapshot.id) return;
+    params.set("project", snapshot.id);
+    window.history.replaceState(null, "", `${window.location.pathname}?${params.toString()}`);
+  }, [snapshot]);
+
+  /**
    * Reopens a project when arriving at `/create?project=<id>`.
    *
    * Runs once: `startedRestore` guards it because `restore` sets pipeline state,
@@ -311,7 +329,15 @@ export function CreateFlow() {
       if (!ok) {
         // Captions survived but the cached video did not — browsers evict
         // IndexedDB under storage pressure. Ask for the file rather than
-        // showing an editor with no footage.
+        // showing an editor with no footage. Kept around so the dropzone
+        // below can reattach the re-dropped clip to this exact project
+        // instead of starting a fresh, untranscribed one.
+        pendingRestoreRef.current = {
+          projectId,
+          title: saved.title,
+          words: saved.words,
+          styleConfig: saved.styleConfig,
+        };
         setRestoreFailed(true);
         return;
       }
@@ -405,6 +431,64 @@ export function CreateFlow() {
       void start(file, language);
     },
     [start, language],
+  );
+
+  /**
+   * Dropzone handler used while `restoreFailed` is showing.
+   *
+   * The banner promises the re-dropped clip won't be re-transcribed and won't
+   * spend credits — so, unlike `handleFile`, this never calls `start`. It
+   * caches the file under the *original* project id (its own `lastModified`
+   * can't be trusted to reproduce that id — see `pendingRestoreRef`) and then
+   * goes through the same `restore` used on a normal reopen, dropping the
+   * saved words and style straight back in.
+   */
+  const handleRestoreFile = useCallback(
+    (file: File) => {
+      const pending = pendingRestoreRef.current;
+      if (pending === null) {
+        handleFile(file);
+        return;
+      }
+
+      void (async () => {
+        let video;
+        try {
+          video = await probeVideo(file);
+        } catch {
+          // Not a readable video — let the normal pipeline surface the error.
+          handleFile(file);
+          return;
+        }
+        URL.revokeObjectURL(video.objectUrl);
+
+        await cacheVideo({
+          id: pending.projectId,
+          blob: file,
+          name: file.name,
+          type: file.type,
+          lastModified: file.lastModified,
+          width: video.width,
+          height: video.height,
+          durationSeconds: video.durationSeconds,
+          savedAt: Date.now(),
+        });
+
+        const ok = await restore(pending.projectId, pending.words, pending.title);
+        if (!ok) {
+          handleFile(file);
+          return;
+        }
+
+        setOverrides(pending.styleConfig);
+        setStyleId(
+          isStyleId(pending.styleConfig.styleId) ? pending.styleConfig.styleId : "bold-yellow",
+        );
+        pendingRestoreRef.current = null;
+        setRestoreFailed(false);
+      })();
+    },
+    [handleFile, restore],
   );
 
   /* ===========================================================================
@@ -593,7 +677,7 @@ export function CreateFlow() {
                   </div>
                 ) : null}
 
-                <Dropzone onFile={handleFile} />
+                <Dropzone onFile={restoreFailed ? handleRestoreFile : handleFile} />
               </div>
 
               <div className="flex items-center justify-center gap-2 rounded-xl bg-success/10 border border-success/30 px-3 py-2.5 text-center text-xs text-foreground font-medium">
