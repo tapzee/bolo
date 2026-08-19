@@ -79,6 +79,60 @@ export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
     baseColor: "#ffffff", accentColor: "#f97316", textCase: "lower"
   }, "New"),
 
+  t("design-walla-pro", "Design Walla Pro", "premium", "designWallaPro", {
+    fontId: "montserrat", fontSizePx: 95, fontWeight: 900, textCase: "none",
+    baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#ffe600",
+    strokeWidthPx: 3, dropShadow: true,
+    secondaryFontId: "poppins"
+  }, "Hot", "design-walla"),
+  t("design-walla-editorial", "Design Walla Editorial", "premium", "designWallaEditorial", {
+    fontId: "anton", fontSizePx: 100, fontWeight: 900, textCase: "none",
+    baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#ffe600",
+    strokeWidthPx: 3, dropShadow: true,
+    specialFontId: "playfair", secondaryFontId: "inter",
+    lineHeight: 0.88, annotationSizeRatio: 0.48, annotationWeight: 600,
+  }, "Hot", "design-walla"),
+  t("dual-line-pro", "Dual Line Pro", "premium", "dualLine", {
+    fontId: "anton",
+    specialFontId: "kaushanScript",
+    uppercase: true,
+    fontSizePx: 84,
+    maxWordsPerPage: 4,
+    linesPerPage: 2,
+    baseColor: "#ffffff",
+    activeColor: "#ffffff",
+    accentColor: "#FF2A2A",
+    glowColor: "#C41212",
+    glowIntensity: 0.5,
+    glowEnabled: true,
+    dropShadow: false,
+    strokeWidthPx: 0,
+    strokeRatio: 0,
+    lineHeight: 0.75,
+  }, "New"),
+  t("baba-red-impact", "Baba Red Impact", "trending", "pop", {
+    fontId: "anton", uppercase: true, fontSizePx: 96,
+    baseColor: "#ffffff", activeColor: "#ff0033", accentColor: "#ff0033",
+    strokeWidthPx: 4, dropShadow: true,
+  }, "New"),
+  t("baba-elegant", "Baba Elegant", "trending", "splash", {
+    fontId: "playfair", fontWeight: 700, fontSizePx: 82,
+    baseColor: "#e0e0e0", activeColor: "#e53935", accentColor: "#e53935",
+    strokeWidthPx: 2, dropShadow: true,
+  }, "Hot"),
+  t("reels-fire-kinetic", "Reels Fire", "trending", "pop", {
+    fontId: "anton", uppercase: true, fontSizePx: 94,
+    baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#ff3d00",
+    strokeWidthPx: 5, maxWordsPerPage: 2,
+  }, "Hot"),
+  t("desi-punch", "Desi Punch", "trending", "pop", {
+    fontId: "montserrat", fontWeight: 900, uppercase: true, fontSizePx: 82,
+    baseColor: "#ffffff", accentColor: "#ff6b00", maxWordsPerPage: 3,
+  }),
+  t("split-text-pro", "Split Text", "bold", "splitText", {}, "New"),
+  t("paper-cut-pro", "Paper Cut", "highlight", "paperCut", {}, "New"),
+  t("ribbon-slide-pro", "Ribbon Slide", "festive", "ribbonSlide", {}, "New"),
+
   t("grand-caption", "GRAND caption", "premium", "grandCaption", {
     fontId: "poppins", fontSizePx: 110, fontWeight: 900,
     baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#ffffff",
@@ -92,13 +146,6 @@ export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
     maxWordsPerPage: 6
   }, "New"),
 
-
-  t("design-walla-pro", "Design Walla Pro", "premium", "designWallaPro", {
-    fontId: "montserrat", fontSizePx: 95, fontWeight: 900, textCase: "none",
-    baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#ffe600",
-    strokeWidthPx: 3, dropShadow: true,
-    secondaryFontId: "poppins"
-  }, "Hot", "design-walla"),
   t("design-walla-pro-pink", "Design Walla Pro (Pink)", "premium", "designWallaProPink", {
     fontId: "montserrat", fontSizePx: 95, fontWeight: 900, textCase: "none",
     baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#ff1493",
@@ -122,14 +169,6 @@ export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
     baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#ff6f00",
     strokeWidthPx: 3, dropShadow: true,
     secondaryFontId: "poppins"
-  }, "Hot", "design-walla"),
-
-  t("design-walla-editorial", "Design Walla Editorial", "premium", "designWallaEditorial", {
-    fontId: "anton", fontSizePx: 100, fontWeight: 900, textCase: "none",
-    baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#ffe600",
-    strokeWidthPx: 3, dropShadow: true,
-    specialFontId: "playfair", secondaryFontId: "inter",
-    lineHeight: 0.88, annotationSizeRatio: 0.48, annotationWeight: 600,
   }, "Hot", "design-walla"),
 
   t("design-walla-editorial-yellow", "Design Walla Editorial (Yellow)", "premium", "designWallaEditorialYellow", {
@@ -158,16 +197,7 @@ export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
     activeColor: "#ffd60a", accentColor: "#ffffff",
     secondaryFontId: "poppins", specialFontId: "grandHotel",
   }, "New"),
-  t("baba-red-impact", "Baba Red Impact", "trending", "pop", {
-    fontId: "anton", uppercase: true, fontSizePx: 96,
-    baseColor: "#ffffff", activeColor: "#ff0033", accentColor: "#ff0033",
-    strokeWidthPx: 4, dropShadow: true,
-  }, "New"),
-  t("baba-elegant", "Baba Elegant", "trending", "splash", {
-    fontId: "playfair", fontWeight: 700, fontSizePx: 82,
-    baseColor: "#e0e0e0", activeColor: "#e53935", accentColor: "#e53935",
-    strokeWidthPx: 2, dropShadow: true,
-  }, "Hot"),
+
   t("rhythm-dynamic", "Rhythm Dynamic", "trending", "pop", {
     fontId: "anton", uppercase: true, fontSizePx: 100, letterSpacingPx: 2,
     baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#00e5ff",
@@ -203,11 +233,7 @@ export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
     baseColor: "#ffffff", activeColor: "#ffd60a", accentColor: "#ffd60a",
     strokeWidthPx: 5, maxWordsPerPage: 3,
   }, "Popular"),
-  t("reels-fire-kinetic", "Reels Fire", "trending", "pop", {
-    fontId: "anton", uppercase: true, fontSizePx: 94,
-    baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#ff3d00",
-    strokeWidthPx: 5, maxWordsPerPage: 2,
-  }, "Hot"),
+
   t("mumbai-kinetic", "Mumbai Kinetic", "trending", "splash", {
     fontId: "montserrat", fontWeight: 900, fontSizePx: 84,
     baseColor: "#ffffff", activeColor: "#ff2d55", accentColor: "#ffd60a",
@@ -260,10 +286,7 @@ export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
     fontId: "montserrat", fontWeight: 900, uppercase: true, fontSizePx: 80,
     baseColor: "#ffffff", activeColor: "#ffd60a",
   }),
-  t("desi-punch", "Desi Punch", "trending", "pop", {
-    fontId: "montserrat", fontWeight: 900, uppercase: true, fontSizePx: 82,
-    baseColor: "#ffffff", accentColor: "#ff6b00", maxWordsPerPage: 3,
-  }),
+
   t("viral-mint", "Viral Mint", "trending", "box", {
     fontId: "poppins", fontWeight: 800, fontSizePx: 70,
     accentColor: "#00e5a0", activeColor: "#07131a",
@@ -838,36 +861,18 @@ export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
   t("mask-reveal-pro", "Mask Reveal", "bold", "maskReveal", {}, "New"),
   t("draw-on-pro", "Draw On", "clean", "drawOn", {}, "New"),
   t("depth-3d-pro", "3D Depth", "trending", "depth3d", {}, "New"),
-  t("dual-line-pro", "Dual Line Pro", "premium", "dualLine", {
-    fontId: "anton",
-    specialFontId: "kaushanScript",
-    uppercase: true,
-    fontSizePx: 84,
-    maxWordsPerPage: 4,
-    linesPerPage: 2,
-    baseColor: "#ffffff",
-    activeColor: "#ffffff",
-    accentColor: "#FF2A2A",
-    glowColor: "#C41212",
-    glowIntensity: 0.5,
-    glowEnabled: true,
-    dropShadow: false,
-    strokeWidthPx: 0,
-    strokeRatio: 0,
-    lineHeight: 0.75,
-  }, "New"),
 
   // ==========================================================================
   // MOTION SYSTEMS FAMILY
   // ==========================================================================
   t("dynamic-slide-stack-pro", "Dynamic Slide Stack", "trending", "dynamicSlideStack", {}, "New"),
   t("glass-highlight-pro", "Glass Highlight", "clean", "glassHighlight", {}, "New"),
-  t("split-text-pro", "Split Text", "bold", "splitText", {}, "New"),
+
   t("liquid-flow-pro", "Liquid Flow", "neon", "liquidFlow", {}, "New"),
   t("light-sweep-pro", "Light Sweep", "clean", "lightSweep", {}, "New"),
-  t("paper-cut-pro", "Paper Cut", "highlight", "paperCut", {}, "New"),
+
   t("flip-card-pro", "Flip Card", "bold", "flipCard", {}, "New"),
-  t("ribbon-slide-pro", "Ribbon Slide", "festive", "ribbonSlide", {}, "New"),
+
   t("spiral-reveal-pro", "Spiral Reveal", "trending", "spiralReveal", {}, "New"),
   t("floating-bubble-pro", "Floating Bubble", "festive", "floatingBubble", {}, "New"),
 
