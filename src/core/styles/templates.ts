@@ -199,36 +199,11 @@ export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
     glowEnabled: true, glowIntensity: 0.5, glowRadius: 75,
   }, "New"),
 
-  t("rhythm-dynamic", "Rhythm Dynamic", "trending", "pop", {
-    fontId: "anton", uppercase: true, fontSizePx: 100, letterSpacingPx: 2,
-    baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#00e5ff",
-    strokeWidthPx: 4,
-  }, "Hot"),
-  t("motion-title-pro", "Motion Title Pro", "trending", "splash", {
-    fontId: "anton", uppercase: true, fontSizePx: 110,
-    baseColor: "#ffffff", activeColor: "#00d2ff", accentColor: "#3a7bd5",
-    strokeWidthPx: 3, dropShadow: true,
-  }, "Hot"),
-  t("free-demo-hindi", "FREE demo के लिए", "trending", "splash", {
-    fontId: "montserrat", fontWeight: 900, fontSizePx: 86,
-    baseColor: "#ffffff", activeColor: "#ffd60a", accentColor: "#ffd60a",
-    maxWordsPerPage: 3, upcomingOpacity: 0.45, strokeWidthPx: 4,
-  }, "Viral"),
   t("captik-cyan-glow", "Captik Cyan Glow", "trending", "glow", {
     fontId: "bebas", uppercase: true, fontSizePx: 98,
     accentColor: "#06b6d4", baseColor: "#e0f8ff", activeColor: "#ffffff",
     upcomingOpacity: 0.35, strokeWidthPx: 4,
   }, "Popular"),
-  t("captik-glow", "Captik Glow Green", "trending", "glow", {
-    fontId: "bebas", uppercase: true, fontSizePx: 96,
-    accentColor: "#76ff03", baseColor: "#e8f5e9", activeColor: "#ffffff",
-    upcomingOpacity: 0.4,
-  }, "Popular"),
-  t("submagic-hinglish", "Submagic Hinglish", "trending", "splash", {
-    fontId: "poppins", fontWeight: 800, fontSizePx: 84,
-    baseColor: "#ffffff", activeColor: "#00e5ff", accentColor: "#ffd60a",
-    maxWordsPerPage: 3, upcomingOpacity: 0.4,
-  }, "Trending"),
   t("hormozi-gold-pro", "Hormozi Gold Pro", "trending", "bold-yellow", {
     fontId: "montserrat", fontWeight: 900, uppercase: true, fontSizePx: 86,
     baseColor: "#ffffff", activeColor: "#ffd60a", accentColor: "#ffd60a",
@@ -250,11 +225,6 @@ export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
     baseColor: "#ffffff", activeColor: "#ffd60a", accentColor: "#ffd60a",
     maxWordsPerPage: 3,
   }, "Trending"),
-  t("submagic-pro", "Submagic Pro", "trending", "splash", {
-    fontId: "poppins", fontWeight: 800, fontSizePx: 80,
-    baseColor: "#ffffff", activeColor: "#00e5ff", accentColor: "#00e5ff",
-    maxWordsPerPage: 3,
-  }, "Popular"),
   t("reels-kinetic", "Reels Kinetic", "trending", "splash", {
     fontId: "anton", fontSizePx: 88,
     baseColor: "#ffffff", activeColor: "#ff2d55", accentColor: "#ff2d55",
