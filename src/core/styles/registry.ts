@@ -548,6 +548,10 @@ export const CAPTION_STYLES: Readonly<
       strokeWidthPx: 4,
       dropShadow: true,
       letterSpacingPx: -1,
+      glowEnabled: true,
+      glowIntensity: 0.5,
+      glowRadius: 75,
+      glowColor: "#ffd60a",
     },
   ),
 

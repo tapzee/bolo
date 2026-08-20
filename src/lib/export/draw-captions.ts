@@ -2152,25 +2152,22 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           }
 
           if (emphasis === "important") {
-            // Lighting effect: mirrors DynamicHighlight.tsx's layered bloom —
-            // repeated fills at growing shadow radii read as real light
-            // rather than a flat blur. Same breathing sine of the absolute
-            // clock, so the DOM preview and this export glow in sync.
-            const breathe = 0.55 + 0.45 * Math.sin((frame / fps) * Math.PI * 1.2);
-            const glowStrength = enterSmooth * (0.7 + 0.3 * breathe) * (config.glowIntensity ?? 1);
+            const isGlowOn = Boolean(config.glowEnabled ?? true);
+            const breathe = 0.8 + 0.2 * Math.sin((frame / fps) * Math.PI * 1.2);
+            const glowStrength = enterSmooth * breathe * (config.glowIntensity ?? 0.5);
             const glowColor = config.glowColor ?? fill;
-            if (glowStrength > 0.02) {
+            const radiusScale = (config.glowRadius ?? 75.0) / 100;
+            if (isGlowOn && glowStrength > 0.02) {
               ctx.shadowColor = "#ffffff";
-              ctx.shadowBlur = roleFontSize * 0.1 * glowStrength;
+              ctx.shadowBlur = roleFontSize * 0.06 * glowStrength * radiusScale;
               ctx.fillStyle = fill;
               ctx.fillText(displayText, -tokenWidth / 2, 0);
 
               ctx.shadowColor = glowColor;
-              for (const radius of GLOW_RADII) {
-                ctx.shadowBlur = roleFontSize * radius * 1.35 * glowStrength;
-                ctx.fillStyle = fill;
-                ctx.fillText(displayText, -tokenWidth / 2, 0);
-              }
+              ctx.shadowBlur = roleFontSize * 0.16 * glowStrength * radiusScale;
+              ctx.fillStyle = fill;
+              ctx.fillText(displayText, -tokenWidth / 2, 0);
+
               clearShadow(ctx);
             }
           }

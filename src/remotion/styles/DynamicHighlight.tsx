@@ -146,20 +146,21 @@ export const DynamicHighlightToken: React.FC<TokenViewProps> = ({
     textTransform = "uppercase";
     fontWeight = 900;
 
-    // Lighting effect: a soft bloom in the word's own color, layered outside
-    // the readability stroke rather than replacing it. Breathes gently via a
-    // slow sine of the absolute clock (not a spring) so it keeps living for
-    // as long as the header stays on screen instead of settling flat the
-    // instant the entrance spring finishes.
-    const breathe = 0.55 + 0.45 * Math.sin((frame / fps) * Math.PI * 1.2);
-    const glowStrength = enterSmooth * (0.7 + 0.3 * breathe) * (config.glowIntensity ?? 1);
+    // Lighting effect: refined, subtle glow controllable via glow settings
+    const isGlowOn = Boolean(config.glowEnabled ?? true);
+    const breathe = 0.8 + 0.2 * Math.sin((frame / fps) * Math.PI * 1.2);
+    const glowStrength = enterSmooth * breathe * (config.glowIntensity ?? 0.5);
     const glowColor = config.glowColor ?? color;
-    textShadow = [
-      `0 0 ${fontSize * 0.1 * glowStrength}px #ffffff`,
-      `0 0 ${fontSize * 0.09 * glowStrength}px ${glowColor}`,
-      `0 0 ${fontSize * 0.26 * glowStrength}px ${glowColor}`,
-      `0 0 ${fontSize * 0.55 * glowStrength}px ${glowColor}`,
-    ].join(", ");
+    const radiusScale = (config.glowRadius ?? 75.0) / 100;
+
+    textShadow = isGlowOn && glowStrength > 0.02
+      ? [
+          `0 0 ${fontSize * 0.06 * glowStrength * radiusScale}px #ffffff`,
+          `0 0 ${fontSize * 0.14 * glowStrength * radiusScale}px ${glowColor}`,
+          `0 0 ${fontSize * 0.28 * glowStrength * radiusScale}px ${glowColor}99`,
+          `0 2px 10px rgba(0, 0, 0, 0.75)`,
+        ].join(", ")
+      : "0 2px 10px rgba(0, 0, 0, 0.75)";
   }
   else if (emphasis === "special") {
     fontFamily = specialFontStack;

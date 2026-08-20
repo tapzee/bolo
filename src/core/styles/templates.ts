@@ -196,6 +196,7 @@ export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
     fontId: "anton", fontSizePx: 140, baseColor: "#ffffff",
     activeColor: "#ffd60a", accentColor: "#ffffff",
     secondaryFontId: "poppins", specialFontId: "grandHotel",
+    glowEnabled: true, glowIntensity: 0.5, glowRadius: 75,
   }, "New"),
 
   t("rhythm-dynamic", "Rhythm Dynamic", "trending", "pop", {
