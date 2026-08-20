@@ -71,7 +71,7 @@ export const TemplateCard = memo(function TemplateCard({
       {template.tag ? (
         <span
           className={cn(
-            "absolute top-1.5 right-1.5 z-10 rounded-full px-2 py-0.5 text-[10px] font-bold tracking-tight shadow-sm transition-transform group-hover:scale-105",
+            "absolute top-2 right-2 z-10 rounded-full px-2 py-0.5 text-[10px] font-bold tracking-tight shadow-sm transition-transform group-hover:scale-105",
             template.tag === "Popular" &&
               "bg-gradient-to-r from-amber-500 to-orange-500 text-black font-extrabold",
             template.tag === "Viral" &&
@@ -90,7 +90,7 @@ export const TemplateCard = memo(function TemplateCard({
 
       {/* Top left selected indicator checkmark */}
       {selected ? (
-        <span className="absolute top-1.5 left-1.5 z-10 flex size-5 items-center justify-center rounded-full bg-brand text-white shadow-md">
+        <span className="absolute top-2 left-2 z-10 flex size-5 items-center justify-center rounded-full bg-brand text-white shadow-md">
           <svg
             className="size-3 stroke-[2.5]"
             fill="none"
@@ -113,7 +113,7 @@ export const TemplateCard = memo(function TemplateCard({
             "radial-gradient(circle at center, #2e3440 0%, #171a21 70%, #111317 100%)",
         }}
       >
-        <div className="absolute inset-0 flex items-center justify-center px-3 z-0">
+        <div className="absolute inset-0 flex items-center justify-center px-3 pt-3 z-0">
           {isFocus ? (
             /* Focus: Dimmed line, one spoken word bright, one italic serif accent */
             <div className="flex items-baseline gap-1.5 whitespace-nowrap">
