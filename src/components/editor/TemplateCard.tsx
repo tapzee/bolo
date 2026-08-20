@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useState } from "react";
+import { memo } from "react";
 import dynamic from "next/dynamic";
 import { motion } from "motion/react";
 import type { CaptionStyleConfig, CaptionTemplate } from "@/core";
@@ -28,16 +28,12 @@ export const TemplateCard = memo(function TemplateCard({
   selected: boolean;
   onSelect: () => void;
 }) {
-  const [isHovered, setIsHovered] = useState(false);
-
   return (
     <motion.button
       type="button"
       role="radio"
       aria-checked={selected}
       onClick={onSelect}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
       whileHover={{ scale: 1.03 }}
       whileTap={{ scale: 0.98 }}
       transition={{ type: "spring", stiffness: 500, damping: 32 }}
@@ -96,15 +92,9 @@ export const TemplateCard = memo(function TemplateCard({
             "radial-gradient(circle at center, #2e3440 0%, #171a21 70%, #111317 100%)",
         }}
       >
-        <div className={cn("absolute inset-0 flex items-center justify-center z-0 transition-opacity duration-300", isHovered ? "opacity-0" : "opacity-100")}>
+        <div className="absolute inset-0 flex items-center justify-center z-0">
           <TemplatePreviewPlayer config={config} staticThumbnail={true} />
         </div>
-
-        {isHovered && (
-          <div className="absolute inset-0 z-10 pointer-events-none">
-            <TemplatePreviewPlayer config={config} />
-          </div>
-        )}
       </div>
 
       <div className="flex items-center justify-between gap-2 border-t border-border/20 bg-card/95 px-3 py-2 relative">

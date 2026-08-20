@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { Player, Thumbnail } from "@remotion/player";
+import { Thumbnail } from "@remotion/player";
 import { CaptionScene } from "@/remotion/compositions/CaptionScene";
 import type { CaptionStyleConfig, CaptionPage } from "@/core";
 
@@ -16,7 +16,7 @@ const dummyPages: CaptionPage[] = [{
   ]
 }];
 
-export default function TemplatePreviewPlayer({ config, staticThumbnail }: { config: CaptionStyleConfig, staticThumbnail?: boolean }) {
+export default function TemplatePreviewPlayer({ config }: { config: CaptionStyleConfig, staticThumbnail?: boolean }) {
   const previewConfig = useMemo(() => {
     // Increase font size heavily for the preview so it's readable in a tiny card
     const scale = 5.5; 
@@ -40,34 +40,16 @@ export default function TemplatePreviewPlayer({ config, staticThumbnail }: { con
     backdrop: "studio" as const
   }), [previewConfig]);
 
-  if (staticThumbnail) {
-    return (
-      <Thumbnail
-        component={CaptionScene}
-        inputProps={inputProps}
-        durationInFrames={60}
-        fps={30}
-        compositionWidth={400}
-        compositionHeight={188}
-        frameToDisplay={30}
-        style={{ width: "100%", height: "100%", objectFit: "cover" }}
-      />
-    );
-  }
-
   return (
-    <Player
+    <Thumbnail
       component={CaptionScene}
       inputProps={inputProps}
       durationInFrames={60}
       fps={30}
       compositionWidth={400}
       compositionHeight={188}
+      frameToDisplay={30}
       style={{ width: "100%", height: "100%", objectFit: "cover" }}
-      autoPlay
-      loop
-      controls={false}
-      acknowledgeRemotionLicense
     />
   );
 }
