@@ -100,7 +100,6 @@ export const BigGrandToken = memo(function BigGrandToken({
         justifyContent: "center",
         alignItems: "center",
         lineHeight: 1.0,
-        margin: isHero ? "-0.04em 0" : "0 4px",
       }}
     >
       <span

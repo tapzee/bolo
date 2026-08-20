@@ -352,9 +352,6 @@ const layoutLines = (
 
   const rowHeight = (items: readonly Measured[]): number => {
     const tallest = items.reduce((max, item) => Math.max(max, item.fontSize), 0);
-    if (config.styleId === "bigGrand") {
-      return tallest * 1.05;
-    }
     return tallest * config.lineHeight;
   };
 
