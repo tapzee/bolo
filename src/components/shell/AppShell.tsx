@@ -13,7 +13,10 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-dvh bg-background">
       <AppSidebar />
-      <div className="min-w-0 flex-1">{children}</div>
+      <div className="min-w-0 flex-1 flex flex-col">
+        <MobileTopBar />
+        <div className="flex-1 min-w-0 flex flex-col">{children}</div>
+      </div>
     </div>
   );
 }

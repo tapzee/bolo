@@ -164,6 +164,7 @@ export function CreateFlow() {
   const [crop, setCrop] = useState<CropMode>("original");
   const [templateId, setTemplateId] = useState<string | null>(null);
   const [rightTab, setRightTab] = useState<"styles" | "word" | "export">("styles");
+  const [mobileTab, setMobileTab] = useState<"styles" | "script" | "word" | "timeline" | "export">("styles");
   const [columnOrder, setColumnOrder] = useState(["styles", "script", "video"]);
 
   // The Player lives behind a dynamic import, so it does not exist on first
@@ -472,6 +473,7 @@ export function CreateFlow() {
       const word = editor.words[index];
       if (word !== undefined) seekMs(word.startMs);
       setRightTab("word");
+      setMobileTab("word");
     },
     [editor, seekMs],
   );
@@ -790,424 +792,494 @@ export function CreateFlow() {
         watermark={!entitlements.watermarkFree}
       />
 
-      <Reorder.Group axis="x" values={columnOrder} onReorder={setColumnOrder} className="mx-auto flex w-full max-w-[1850px] flex-1 flex-row overflow-x-auto overflow-y-hidden gap-6 px-4 py-6 xl:px-6">
+      <Reorder.Group
+        axis="x"
+        values={columnOrder}
+        onReorder={setColumnOrder}
+        className="mx-auto flex w-full max-w-[1850px] flex-1 flex-col lg:flex-row overflow-y-auto lg:overflow-y-hidden lg:overflow-x-auto gap-4 lg:gap-6 px-3 py-3 sm:px-4 sm:py-4 xl:px-6"
+      >
         {columnOrder.map((col) => {
           if (col === "script") return (
         /* =====================================================================
-         * LEFT RAIL: SCRIPT & TIMELINE CONSOLE
+         * SCRIPT & TIMELINE CONSOLE
          * ===================================================================== */
-        <SortableRail key="script" id="script" as="aside" initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }} className="w-[280px] xl:w-[330px] shrink-0 min-w-0 h-full flex flex-col pb-4">
+        <SortableRail
+          key="script"
+          id="script"
+          as="aside"
+          initial={{ opacity: 0, x: -12 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+          className={cn(
+            "order-2 lg:order-none w-full lg:w-[280px] xl:w-[330px] shrink-0 min-w-0 lg:h-full flex flex-col pb-2 lg:pb-4",
+            mobileTab !== "script" && "hidden lg:flex"
+          )}
+        >
           {(dragControls: DragControls) => (
-            <div className="rounded-2xl border bg-card/70 shadow-sm p-4 space-y-3 flex flex-col flex-1 overflow-hidden">
+            <div className="rounded-2xl border bg-card/70 shadow-sm p-4 space-y-3 flex flex-col flex-1 min-h-[360px] lg:min-h-0 overflow-hidden">
               <div className="flex items-center justify-between border-b pb-2.5 border-border/50 shrink-0">
                 <h2 className="text-xs font-bold tracking-wide text-foreground uppercase flex items-center gap-1.5">
-                  <GripHorizontal onPointerDown={(e) => dragControls.start(e)} className="size-3.5 text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing transition-colors" />
-                <Edit3 className="size-3.5 text-brand" />
-                <span className="cursor-grab active:cursor-grabbing">Script & Captions</span>
-              </h2>
-              <span className="rounded-full bg-muted px-2 py-0.5 font-mono text-[11px] font-semibold text-muted-foreground">
-                {pages.length} pages
-              </span>
-            </div>
+                  <GripHorizontal onPointerDown={(e) => dragControls.start(e)} className="hidden lg:inline size-3.5 text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing transition-colors" />
+                  <Edit3 className="size-3.5 text-brand" />
+                  <span>Script & Captions</span>
+                </h2>
+                <span className="rounded-full bg-muted px-2 py-0.5 font-mono text-[11px] font-semibold text-muted-foreground">
+                  {pages.length} pages
+                </span>
+              </div>
 
-            <p className="text-[11px] text-muted-foreground/80 leading-normal shrink-0">
-              Click any word below to jump to its timestamp or edit its exact spelling, line break, and highlight color.
-            </p>
+              <p className="text-[11px] text-muted-foreground/80 leading-normal shrink-0">
+                Click any word below to jump to its timestamp or edit its exact spelling, line break, and highlight color.
+              </p>
 
-            <div className="space-y-2 pr-1 flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
-              <CaptionLines
-                pages={pages}
-                words={editor.words}
-                selectedIndex={editor.selected}
-                onSelectWord={selectWord}
-                onSetText={editor.actions.setText}
-                onSplitAt={editor.actions.splitAt}
-                accentColor={config.accentColor}
-              />
+              <div className="space-y-2 pr-1 flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
+                <CaptionLines
+                  pages={pages}
+                  words={editor.words}
+                  selectedIndex={editor.selected}
+                  onSelectWord={selectWord}
+                  onSetText={editor.actions.setText}
+                  onSplitAt={editor.actions.splitAt}
+                  accentColor={config.accentColor}
+                />
+              </div>
             </div>
-          </div>
           )}
         </SortableRail>
           );
 
           if (col === "video") return (
-            <SortableRail key="video" id="video" as="div" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }} className="w-auto flex-1 min-w-[320px] flex flex-col items-center gap-5 z-30 pt-0" style={{ ["--stage-h" as string]: "clamp(240px, 45vh, 520px)" }}>
+            <SortableRail
+              key="video"
+              id="video"
+              as="div"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+              className="order-1 lg:order-none w-full lg:w-auto lg:flex-1 lg:min-w-[320px] flex flex-col items-center gap-3 sm:gap-4 z-30 pt-0"
+              style={{ ["--stage-h" as string]: "clamp(180px, 32vh, 480px)" }}
+            >
               {(dragControls: DragControls) => (
                 <>
-          {/* Top Video Toolbar */}
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.2 }}
-            className="w-full flex flex-col sm:flex-row items-center justify-between gap-3 rounded-2xl bg-[#0A0D14]/80 backdrop-blur-2xl border border-white/10 p-2 sm:p-2.5 shadow-2xl relative z-40"
-          >
-            <div className="flex items-center gap-2">
-              <GripHorizontal onPointerDown={(e) => dragControls.start(e)} className="size-4 text-white/40 hover:text-white/80 cursor-grab active:cursor-grabbing transition-colors" />
-              <CropToolbar mode={crop} onChange={setCrop} canvas={canvas} />
-            </div>
-            
-            <div className="flex items-center gap-2 shrink-0">
-              <button
-                onClick={toggleFullscreen}
-                className="group flex h-8 items-center gap-1.5 rounded-full bg-white/5 px-3.5 text-[11px] font-bold text-white/70 transition-all hover:bg-white/10 hover:text-white hover:shadow-[0_0_15px_rgba(255,255,255,0.1)] ring-1 ring-inset ring-white/10"
-                title={isFullscreen ? "Exit Fullscreen (F)" : "Fullscreen Preview (F)"}
-              >
-                {isFullscreen ? (
-                  <Minimize2 className="size-3.5 text-emerald-400/70 transition-colors group-hover:text-emerald-400" />
-                ) : (
-                  <Maximize2 className="size-3.5 text-emerald-400/70 transition-colors group-hover:text-emerald-400" />
-                )}
-                <span>{isFullscreen ? "Exit Fullscreen" : "Fullscreen"}</span>
-              </button>
-
-              <button
-                onClick={reset}
-                className="group flex h-8 items-center gap-1.5 rounded-full bg-white/5 px-3.5 text-[11px] font-bold text-white/70 transition-all hover:bg-white/10 hover:text-white hover:shadow-[0_0_15px_rgba(255,255,255,0.1)] ring-1 ring-inset ring-white/10"
-                title="Replace current video clip"
-              >
-                <RotateCcw className="size-3.5 text-amber-400/70 transition-transform duration-300 group-hover:-rotate-90 group-hover:text-amber-400" />
-                <span>Switch Video</span>
-              </button>
-            </div>
-          </motion.div>
-
-          {/* Video Stage Container (wraps preview frame & transport bar in fullscreen) */}
-          <div
-            ref={stageContainerRef}
-            className={cn(
-              "w-full flex flex-col items-center gap-4 transition-all relative",
-              isFullscreen && "fixed inset-0 z-50 h-screen w-screen bg-black/95 p-4 flex flex-col items-center justify-between backdrop-blur-xl",
-            )}
-          >
-            {/* Ambient Glow */}
-            {!isFullscreen && (
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] bg-brand/20 blur-[80px] rounded-full pointer-events-none -z-10" />
-            )}
-
-            {/* Video Preview Frame */}
-            <div
-              className="relative max-w-full rounded-[24px] overflow-hidden shadow-[0_20px_50px_-12px_rgba(0,0,0,0.5)] border border-white/10 bg-black flex items-center justify-center ring-1 ring-white/5"
-              style={{
-                aspectRatio: `${canvas.width} / ${canvas.height}`,
-                width: isFullscreen
-                  ? `calc((100vh - 120px) * ${canvas.width / canvas.height})`
-                  : `calc(var(--stage-h) * ${canvas.width / canvas.height})`,
-                maxHeight: isFullscreen ? "calc(100vh - 120px)" : "var(--stage-h)",
-              }}
-            >
-              {/* Zoom Scaled Stage */}
-              <div
-                className="relative w-full h-full transition-transform duration-150 ease-out"
-                style={{
-                  transform: `scale(${zoom})`,
-                  transformOrigin: "center center",
-                }}
-              >
-                <ErrorBoundary label="Preview">
-                  <PlayerStage
-                    playerRef={setPlayer}
-                    pages={pages}
-                    config={previewConfig}
-                    canvasWidth={canvas.width}
-                    canvasHeight={canvas.height}
-                    durationInFrames={durationInFrames}
-                    videoSrc={state.video?.objectUrl ?? null}
-                    controls={false}
-                  />
-                </ErrorBoundary>
-
-                <CaptionDragLayer
-                  config={config}
-                  enabled
-                  onMove={(horizontalOffsetPct, verticalOffsetPct) =>
-                    patch({ horizontalOffsetPct, verticalOffsetPct })
-                  }
-                  onResize={({ fontSizePx, maxLineWidthPct }) =>
-                    patch({ fontSizePx, maxLineWidthPct })
-                  }
-                />
-              </div>
-
-              {/* Grid & Safe Zone Guide Overlay */}
-              {showGrid ? (
-                <div className="pointer-events-none absolute inset-0 z-20 overflow-hidden">
-                  {/* 3x3 Rule of thirds grid */}
-                  <div className="absolute inset-0 grid grid-cols-3 grid-rows-3">
-                    <div className="border-r border-b border-white/20" />
-                    <div className="border-r border-b border-white/20" />
-                    <div className="border-b border-white/20" />
-                    <div className="border-r border-b border-white/20" />
-                    <div className="border-r border-b border-white/20 flex items-center justify-center">
-                      {/* Center Crosshair */}
-                      <div className="relative size-4">
-                        <div className="absolute top-1/2 left-0 right-0 h-px bg-amber-400/80 -translate-y-1/2 shadow-xs" />
-                        <div className="absolute left-1/2 top-0 bottom-0 w-px bg-amber-400/80 -translate-x-1/2 shadow-xs" />
-                      </div>
+                  {/* Top Video Toolbar */}
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: 0.2 }}
+                    className="w-full flex items-center justify-between gap-2 rounded-2xl bg-[#0A0D14]/80 backdrop-blur-2xl border border-white/10 p-2 sm:p-2.5 shadow-2xl relative z-40"
+                  >
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <GripHorizontal onPointerDown={(e) => dragControls.start(e)} className="hidden lg:inline size-4 text-white/40 hover:text-white/80 cursor-grab active:cursor-grabbing transition-colors shrink-0" />
+                      <CropToolbar mode={crop} onChange={setCrop} canvas={canvas} />
                     </div>
-                    <div className="border-b border-white/20" />
-                    <div className="border-r border-white/20" />
-                    <div className="border-r border-white/20" />
-                    <div />
+                    
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <button
+                        onClick={toggleFullscreen}
+                        className="group flex h-8 items-center gap-1.5 rounded-full bg-white/5 px-2.5 sm:px-3.5 text-[11px] font-bold text-white/70 transition-all hover:bg-white/10 hover:text-white ring-1 ring-inset ring-white/10"
+                        title={isFullscreen ? "Exit Fullscreen (F)" : "Fullscreen Preview (F)"}
+                      >
+                        {isFullscreen ? (
+                          <Minimize2 className="size-3.5 text-emerald-400/70 transition-colors group-hover:text-emerald-400" />
+                        ) : (
+                          <Maximize2 className="size-3.5 text-emerald-400/70 transition-colors group-hover:text-emerald-400" />
+                        )}
+                        <span className="hidden sm:inline">{isFullscreen ? "Exit Fullscreen" : "Fullscreen"}</span>
+                      </button>
+
+                      <button
+                        onClick={reset}
+                        className="group flex h-8 items-center gap-1.5 rounded-full bg-white/5 px-2.5 sm:px-3.5 text-[11px] font-bold text-white/70 transition-all hover:bg-white/10 hover:text-white ring-1 ring-inset ring-white/10"
+                        title="Replace current video clip"
+                      >
+                        <RotateCcw className="size-3.5 text-amber-400/70 transition-transform duration-300 group-hover:-rotate-90 group-hover:text-amber-400" />
+                        <span className="hidden sm:inline">Switch Video</span>
+                      </button>
+                    </div>
+                  </motion.div>
+
+                  {/* Video Stage Container (wraps preview frame & transport bar in fullscreen) */}
+                  <div
+                    ref={stageContainerRef}
+                    className={cn(
+                      "w-full flex flex-col items-center gap-3 sm:gap-4 transition-all relative",
+                      isFullscreen && "fixed inset-0 z-50 h-screen w-screen bg-black/95 p-4 flex flex-col items-center justify-between backdrop-blur-xl",
+                    )}
+                  >
+                    {/* Ambient Glow */}
+                    {!isFullscreen && (
+                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] bg-brand/20 blur-[80px] rounded-full pointer-events-none -z-10" />
+                    )}
+
+                    {/* Video Preview Frame */}
+                    <div
+                      className="relative max-w-full rounded-[24px] overflow-hidden shadow-[0_20px_50px_-12px_rgba(0,0,0,0.5)] border border-white/10 bg-black flex items-center justify-center ring-1 ring-white/5"
+                      style={{
+                        aspectRatio: `${canvas.width} / ${canvas.height}`,
+                        width: isFullscreen
+                          ? `calc((100vh - 120px) * ${canvas.width / canvas.height})`
+                          : `calc(var(--stage-h) * ${canvas.width / canvas.height})`,
+                        maxHeight: isFullscreen ? "calc(100vh - 120px)" : "var(--stage-h)",
+                      }}
+                    >
+                      {/* Zoom Scaled Stage */}
+                      <div
+                        className="relative w-full h-full transition-transform duration-150 ease-out"
+                        style={{
+                          transform: `scale(${zoom})`,
+                          transformOrigin: "center center",
+                        }}
+                      >
+                        <ErrorBoundary label="Preview">
+                          <PlayerStage
+                            playerRef={setPlayer}
+                            pages={pages}
+                            config={previewConfig}
+                            canvasWidth={canvas.width}
+                            canvasHeight={canvas.height}
+                            durationInFrames={durationInFrames}
+                            videoSrc={state.video?.objectUrl ?? null}
+                            controls={false}
+                          />
+                        </ErrorBoundary>
+
+                        <CaptionDragLayer
+                          config={config}
+                          enabled
+                          onMove={(horizontalOffsetPct, verticalOffsetPct) =>
+                            patch({ horizontalOffsetPct, verticalOffsetPct })
+                          }
+                          onResize={({ fontSizePx, maxLineWidthPct }) =>
+                            patch({ fontSizePx, maxLineWidthPct })
+                          }
+                        />
+                      </div>
+
+                      {/* Grid & Safe Zone Guide Overlay */}
+                      {showGrid ? (
+                        <div className="pointer-events-none absolute inset-0 z-20 overflow-hidden">
+                          {/* 3x3 Rule of thirds grid */}
+                          <div className="absolute inset-0 grid grid-cols-3 grid-rows-3">
+                            <div className="border-r border-b border-white/20" />
+                            <div className="border-r border-b border-white/20" />
+                            <div className="border-b border-white/20" />
+                            <div className="border-r border-b border-white/20" />
+                            <div className="border-r border-b border-white/20 flex items-center justify-center">
+                              {/* Center Crosshair */}
+                              <div className="relative size-4">
+                                <div className="absolute top-1/2 left-0 right-0 h-px bg-amber-400/80 -translate-y-1/2 shadow-xs" />
+                                <div className="absolute left-1/2 top-0 bottom-0 w-px bg-amber-400/80 -translate-x-1/2 shadow-xs" />
+                              </div>
+                            </div>
+                            <div className="border-b border-white/20" />
+                            <div className="border-r border-white/20" />
+                            <div className="border-r border-white/20" />
+                            <div />
+                          </div>
+
+                          {/* Social Media Safe Zone */}
+                          <div className="absolute inset-x-[8%] top-[12%] bottom-[16%] rounded-lg border border-dashed border-amber-400/50 bg-amber-400/[0.03]">
+                            <span className="absolute top-1 left-2 font-mono text-[9px] font-bold tracking-wider text-amber-400 uppercase">
+                              Safe Zone (Reels / Shorts)
+                            </span>
+                          </div>
+                        </div>
+                      ) : null}
+
+                      {/* Floating Quick Fullscreen overlay button */}
+                      <button
+                        type="button"
+                        onClick={toggleFullscreen}
+                        title={isFullscreen ? "Exit fullscreen (F)" : "Fullscreen (F)"}
+                        className="absolute top-3 right-3 z-30 flex size-8 items-center justify-center rounded-lg bg-black/60 text-white/90 shadow-md backdrop-blur-md transition-all hover:bg-black/85 hover:scale-105 active:scale-95"
+                      >
+                        {isFullscreen ? (
+                          <Minimize2 className="size-4" />
+                        ) : (
+                          <Maximize2 className="size-4" />
+                        )}
+                      </button>
+                    </div>
+
+                    {/* Transport playback buttons & seek bar */}
+                    <div className={cn("w-full", isFullscreen && "max-w-2xl pb-2")}>
+                      <TransportBar
+                        player={player}
+                        durationInFrames={durationInFrames}
+                        onToggleFullscreen={toggleFullscreen}
+                        isFullscreen={isFullscreen}
+                        zoom={zoom}
+                        onZoomIn={zoomIn}
+                        onZoomOut={zoomOut}
+                        onResetZoom={resetZoom}
+                        showGrid={showGrid}
+                        onToggleGrid={toggleGrid}
+                      />
+                    </div>
                   </div>
 
-                  {/* Social Media Safe Zone */}
-                  <div className="absolute inset-x-[8%] top-[12%] bottom-[16%] rounded-lg border border-dashed border-amber-400/50 bg-amber-400/[0.03]">
-                    <span className="absolute top-1 left-2 font-mono text-[9px] font-bold tracking-wider text-amber-400 uppercase">
-                      Safe Zone (Reels / Shorts)
-                    </span>
+                  {/* MOBILE TOOLBAR TABS (Side-by-side on phone screens below video) */}
+                  <div className="flex lg:hidden w-full items-center justify-between gap-1 p-1 rounded-2xl bg-muted/80 backdrop-blur-md border border-border/50 shrink-0">
+                    {[
+                      { id: "styles", label: "Styles", icon: <Palette className="size-3.5" /> },
+                      { id: "script", label: "Script", icon: <Edit3 className="size-3.5" /> },
+                      { id: "word", label: "Word", icon: <Edit3 className="size-3.5" />, activeBadge: selectedWord !== undefined },
+                      { id: "timeline", label: "Timeline", icon: <Layers className="size-3.5" /> },
+                      { id: "export", label: "Export", icon: <Download className="size-3.5" /> },
+                    ].map((tab) => {
+                      const isActive = mobileTab === tab.id;
+                      return (
+                        <button
+                          key={tab.id}
+                          type="button"
+                          aria-pressed={isActive}
+                          onClick={() => {
+                            setMobileTab(tab.id as typeof mobileTab);
+                            if (tab.id === "styles" || tab.id === "word" || tab.id === "export") {
+                              setRightTab(tab.id);
+                            }
+                          }}
+                          className={cn(
+                            "relative flex flex-1 items-center justify-center gap-1 rounded-xl py-2 px-1 text-[11px] font-bold transition-all",
+                            isActive
+                              ? "bg-background text-foreground shadow-sm ring-1 ring-border/50"
+                              : "text-muted-foreground hover:bg-background/40 hover:text-foreground",
+                          )}
+                        >
+                          {tab.icon}
+                          <span className="truncate">{tab.label}</span>
+                          {tab.activeBadge && !isActive ? (
+                            <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-brand animate-pulse" />
+                          ) : null}
+                        </button>
+                      );
+                    })}
                   </div>
-                </div>
-              ) : null}
 
-              {/* Floating Quick Fullscreen overlay button */}
-              <button
-                type="button"
-                onClick={toggleFullscreen}
-                title={isFullscreen ? "Exit fullscreen (F)" : "Fullscreen (F)"}
-                className="absolute top-3 right-3 z-30 flex size-8 items-center justify-center rounded-lg bg-black/60 text-white/90 shadow-md backdrop-blur-md transition-all hover:bg-black/85 hover:scale-105 active:scale-95"
-              >
-                {isFullscreen ? (
-                  <Minimize2 className="size-4" />
-                ) : (
-                  <Maximize2 className="size-4" />
-                )}
-              </button>
-            </div>
+                  {/* Timeline Deck Card (visible when timeline tab is active on mobile, or always on desktop) */}
+                  <div className={cn("w-full rounded-2xl border bg-card/80 p-3 sm:p-4 shadow-sm space-y-3", mobileTab !== "timeline" && "hidden lg:block")}>
+                    <div className="flex w-full items-center justify-between gap-3 border-b pb-2 border-border/50 text-xs text-muted-foreground">
+                      <span className="font-medium text-foreground flex items-center gap-2">
+                        <span>{editor.words.length} words</span>
+                        <span>·</span>
+                        <span>{pages.length} pages</span>
+                        <span>·</span>
+                        <span className="font-mono">{state.video ? formatDuration(state.video.durationSeconds) : ""}</span>
+                      </span>
+                      {weakWords.length > 0 ? (
+                        <span className="rounded bg-warning/15 px-2 py-0.5 text-[11px] font-bold text-warning flex items-center gap-1">
+                          ⚠️ {weakWords.length} to verify
+                        </span>
+                      ) : null}
+                    </div>
 
-            {/* Transport playback buttons & seek bar */}
-            <div className={cn("w-full", isFullscreen && "max-w-2xl pb-2")}>
-              <TransportBar
-                player={player}
-                durationInFrames={durationInFrames}
-                onToggleFullscreen={toggleFullscreen}
-                isFullscreen={isFullscreen}
-                zoom={zoom}
-                onZoomIn={zoomIn}
-                onZoomOut={zoomOut}
-                onResetZoom={resetZoom}
-                showGrid={showGrid}
-                onToggleGrid={toggleGrid}
-              />
-            </div>
-          </div>
-
-          {/* Timeline Deck Card */}
-          <div className="w-full rounded-2xl border bg-card/80 p-4 shadow-sm space-y-3">
-            <div className="flex w-full items-center justify-between gap-3 border-b pb-2 border-border/50 text-xs text-muted-foreground">
-              <span className="font-medium text-foreground flex items-center gap-2">
-                <span>{editor.words.length} words</span>
-                <span>·</span>
-                <span>{pages.length} pages</span>
-                <span>·</span>
-                <span className="font-mono">{state.video ? formatDuration(state.video.durationSeconds) : ""}</span>
-              </span>
-              {weakWords.length > 0 ? (
-                <span className="rounded bg-warning/15 px-2 py-0.5 text-[11px] font-bold text-warning flex items-center gap-1">
-                  ⚠️ {weakWords.length} low-confidence words to verify
-                </span>
-              ) : null}
-            </div>
-
-            <WordTimeline
-              words={editor.words}
-              pages={pages}
-              selectedIndex={editor.selected}
-              onSelect={selectWord}
-              onRetime={editor.actions.setTiming}
-              onSeekMs={seekMs}
-              durationMs={durationMs}
-              player={player}
-              peaks={state.peaks}
-              mode={timelineMode}
-              onModeChange={setTimelineMode}
-            />
-          </div>
+                    <WordTimeline
+                      words={editor.words}
+                      pages={pages}
+                      selectedIndex={editor.selected}
+                      onSelect={selectWord}
+                      onRetime={editor.actions.setTiming}
+                      onSeekMs={seekMs}
+                      durationMs={durationMs}
+                      player={player}
+                      peaks={state.peaks}
+                      mode={timelineMode}
+                      onModeChange={setTimelineMode}
+                    />
+                  </div>
                 </>
               )}
             </SortableRail>
           );
 
           if (col === "styles") return (
-            <SortableRail key="styles" id="styles" as="aside" initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.35, delay: 0.05, ease: [0.22, 1, 0.36, 1] }} className="w-[360px] xl:w-[400px] shrink-0 min-w-0 h-full flex flex-col pb-4">
+            <SortableRail
+              key="styles"
+              id="styles"
+              as="aside"
+              initial={{ opacity: 0, x: 12 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.35, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
+              className={cn(
+                "order-2 lg:order-none w-full lg:w-[360px] xl:w-[400px] shrink-0 min-w-0 lg:h-full flex flex-col pb-2 lg:pb-4",
+                (mobileTab !== "styles" && mobileTab !== "word" && mobileTab !== "export") && "hidden lg:flex"
+              )}
+            >
               {(dragControls: DragControls) => (
                 <>
-          <div className="rounded-2xl border bg-card/80 p-4 shadow-sm space-y-5 flex flex-col flex-1 overflow-hidden">
-            
-            {/* 3-Tab Main Navigation Inspector */}
-            <div className="flex items-center gap-2 mb-3 shrink-0">
-              <GripHorizontal onPointerDown={(e) => dragControls.start(e)} className="size-4 text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing transition-colors shrink-0" />
-              <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex-1 cursor-grab active:cursor-grabbing">Editor Tools</div>
-            </div>
-            <div className="flex gap-1 rounded-xl bg-muted p-1 text-xs font-semibold shrink-0">
-              {[
-                { id: "styles", label: "Styles & Design", icon: <Palette className="size-3.5" /> },
-                { id: "word", label: "Word Edit", icon: <Edit3 className="size-3.5" />, activeBadge: selectedWord !== undefined },
-                { id: "export", label: "Export & Render", icon: <Download className="size-3.5" /> },
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  type="button"
-                  aria-pressed={rightTab === tab.id}
-                  onClick={() =>
-                    setRightTab(tab.id as "styles" | "word" | "export")
-                  }
-                  className={cn(
-                    "relative flex flex-1 items-center justify-center gap-1.5 rounded-lg px-2.5 py-2 transition-all",
-                    rightTab === tab.id
-                      ? "bg-background text-foreground shadow-sm font-bold ring-1 ring-border/50"
-                      : "text-muted-foreground hover:bg-background/50 hover:text-foreground",
-                  )}
-                >
-                  {tab.icon}
-                  <span className="truncate">{tab.label}</span>
-                  {tab.activeBadge && rightTab !== tab.id ? (
-                    <span className="absolute -top-1 -right-1 size-2 rounded-full bg-brand animate-pulse" />
-                  ) : null}
-                </button>
-              ))}
-            </div>
-
-            <div className="relative flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent pr-1">
-              <AnimatePresence mode="wait" initial={false}>
-                {/* TAB 1: STYLES & DESIGN */}
-                {rightTab === "styles" && (
-                  <motion.div
-                    key="styles"
-                    initial={{ opacity: 0, x: 10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -10 }}
-                    transition={{ duration: 0.15 }}
-                    className="space-y-6"
-                  >
-                    <TemplatesPanel
-                      config={config}
-                      activeTemplateId={templateId}
-                      onApply={applyTemplate}
-                      patch={patch}
-                    />
+                  <div className="rounded-2xl border bg-card/80 p-3 sm:p-4 shadow-sm space-y-4 sm:space-y-5 flex flex-col flex-1 min-h-[360px] lg:min-h-0 overflow-hidden">
                     
-                    {/* The raw motion-engine picker used to sit here. Removed: every
-                        template already carries its engine, so exposing the five
-                        engines separately gave two competing ways to change the
-                        same thing and made the rail twice as long. */}
-                    <div className="border-t border-border/50 pt-4">
-                      <div className="rounded-xl border bg-muted/30 p-3">
-                        <TextPanel config={config} patch={patch} />
-                      </div>
+                    {/* 3-Tab Main Navigation Inspector (Desktop) */}
+                    <div className="hidden lg:flex items-center gap-2 mb-3 shrink-0">
+                      <GripHorizontal onPointerDown={(e) => dragControls.start(e)} className="size-4 text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing transition-colors shrink-0" />
+                      <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex-1 cursor-grab active:cursor-grabbing">Editor Tools</div>
                     </div>
-                  </motion.div>
-                )}
+                    <div className="hidden lg:flex gap-1 rounded-xl bg-muted p-1 text-xs font-semibold shrink-0">
+                      {[
+                        { id: "styles", label: "Styles & Design", icon: <Palette className="size-3.5" /> },
+                        { id: "word", label: "Word Edit", icon: <Edit3 className="size-3.5" />, activeBadge: selectedWord !== undefined },
+                        { id: "export", label: "Export & Render", icon: <Download className="size-3.5" /> },
+                      ].map((tab) => (
+                        <button
+                          key={tab.id}
+                          type="button"
+                          aria-pressed={rightTab === tab.id}
+                          onClick={() =>
+                            setRightTab(tab.id as "styles" | "word" | "export")
+                          }
+                          className={cn(
+                            "relative flex flex-1 items-center justify-center gap-1.5 rounded-lg px-2.5 py-2 transition-all",
+                            rightTab === tab.id
+                              ? "bg-background text-foreground shadow-sm font-bold ring-1 ring-border/50"
+                              : "text-muted-foreground hover:bg-background/50 hover:text-foreground",
+                          )}
+                        >
+                          {tab.icon}
+                          <span className="truncate">{tab.label}</span>
+                          {tab.activeBadge && rightTab !== tab.id ? (
+                            <span className="absolute -top-1 -right-1 size-2 rounded-full bg-brand animate-pulse" />
+                          ) : null}
+                        </button>
+                      ))}
+                    </div>
 
-                {/* TAB 2: WORD EDIT INSPECTOR */}
-                {rightTab === "word" && (
-                  <motion.div
-                    key="word"
-                    initial={{ opacity: 0, x: 10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -10 }}
-                    transition={{ duration: 0.15 }}
-                    className="space-y-4"
-                  >
-                    {selectedWord !== undefined && editor.selected !== null ? (
-                      <Section title="Word Properties" hint={`Editing word #${editor.selected + 1} in your timeline`}>
-                        <WordInspector
-                          word={selectedWord}
-                          index={editor.selected}
-                          totalWords={editor.words.length}
-                          onSetText={editor.actions.setText}
-                          onSetColor={editor.actions.setColor}
-                          onSetEmphasis={editor.actions.setEmphasis}
-                          onSetRole={editor.actions.setRole}
-                          onSplit={editor.actions.splitAt}
-                          onMerge={editor.actions.mergeAt}
-                          onClearBreak={editor.actions.clearBreak}
-                          onDelete={editor.actions.remove}
-                          onInsertAfter={editor.actions.insertAfter}
-                        />
-                      </Section>
-                    ) : (
-                      <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed bg-card/40 py-12 px-6 text-center text-muted-foreground">
-                        <Edit3 className="size-8 text-muted-foreground/30" />
-                        <p className="font-bold text-foreground text-sm">No Word Selected</p>
-                        <p className="text-xs leading-relaxed max-w-[240px]">
-                          Click any word on the left script panel or on the bottom audio timeline to alter its spelling, color, timing, and line breaks.
-                        </p>
-                      </div>
-                    )}
-                  </motion.div>
-                )}
-
-                {/* TAB 3: EXPORT & RENDER SETTINGS */}
-                {rightTab === "export" && (
-                  <motion.div
-                    key="export"
-                    initial={{ opacity: 0, x: 10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -10 }}
-                    transition={{ duration: 0.15 }}
-                    className="space-y-6"
-                  >
-                    {state.file !== null && sourceSize !== null ? (
-                      <>
-                        <div className="space-y-3">
-                          <h3 className="font-bold text-xs tracking-wide text-foreground uppercase flex items-center gap-1.5">
-                            <Download className="size-3.5 text-brand" />
-                            <span>Video Export & Quality</span>
-                          </h3>
-                          <p className="text-xs text-muted-foreground/80 leading-relaxed">
-                            Select your preferred render resolution and export directly using local hardware encoding.
-                          </p>
-                          <div className="rounded-xl border bg-background/50 p-3">
-                            <ExportPanel
-                              resolution={resolution}
-                              onResolutionChange={setResolution}
-                              availability={capabilities?.tiers ?? null}
-                              webcodecsSupported={capabilities?.webcodecs ?? true}
-                              dimensions={exportDimensions(sourceSize, resolution)}
-                              sourceHeight={sourceSize.height}
-                              watermark={!entitlements.watermarkFree}
-                              maxResolution={entitlements.maxResolution}
-                              exportState={exportState}
-                            />
-                          </div>
-                        </div>
-
-                        <div className="border-t pt-5 border-border/50 space-y-3">
-                          <h3 className="font-bold text-xs tracking-wide text-foreground uppercase flex items-center gap-1.5">
-                            <Layers className="size-3.5 text-brand" />
-                            <span>SubRip (.srt) File</span>
-                          </h3>
-                          <p className="text-xs text-muted-foreground/80 leading-relaxed">
-                            Download standard `.srt` subtitles with exact word-level timing for Premiere Pro, CapCut, or direct social uploading.
-                          </p>
-                          <button
-                            type="button"
-                            onClick={() => downloadSrt(pages, state.file?.name ?? "captions")}
-                            className="w-full rounded-xl border border-border bg-background py-2 text-xs font-bold text-foreground shadow-sm transition-all hover:bg-accent hover:border-border-strong"
+                    <div className="relative flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent pr-1">
+                      <AnimatePresence mode="wait" initial={false}>
+                        {/* TAB 1: STYLES & DESIGN */}
+                        {rightTab === "styles" && (
+                          <motion.div
+                            key="styles"
+                            initial={{ opacity: 0, x: 10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -10 }}
+                            transition={{ duration: 0.15 }}
+                            className="space-y-6"
                           >
-                            Download .srt Subtitle File
-                          </button>
-                        </div>
-                      </>
-                    ) : (
-                      <p className="text-center text-xs text-muted-foreground py-8">
-                        Video file metadata loading...
-                      </p>
-                    )}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </div>
+                            <TemplatesPanel
+                              config={config}
+                              activeTemplateId={templateId}
+                              onApply={applyTemplate}
+                              patch={patch}
+                            />
+                            
+                            <div className="border-t border-border/50 pt-4">
+                              <div className="rounded-xl border bg-muted/30 p-3">
+                                <TextPanel config={config} patch={patch} />
+                              </div>
+                            </div>
+                          </motion.div>
+                        )}
 
-          {/* Bottom Security Reassurance Card */}
-          <div className="flex items-start gap-2.5 rounded-xl border border-success/30 bg-success/10 p-3.5 text-[11px] leading-relaxed text-foreground shadow-sm">
-            <ShieldCheck className="mt-0.5 size-4 shrink-0 text-success font-bold" />
-            <div>
-              <strong className="font-bold">100% Private & Secure:</strong> Your video remained in this browser. Only{" "}
-              <span className="font-mono font-semibold">{(state.audioBytes / 1024).toFixed(0)}KB</span> of extracted audio was sent for transcription.
-            </div>
-          </div>
+                        {/* TAB 2: WORD EDIT INSPECTOR */}
+                        {rightTab === "word" && (
+                          <motion.div
+                            key="word"
+                            initial={{ opacity: 0, x: 10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -10 }}
+                            transition={{ duration: 0.15 }}
+                            className="space-y-4"
+                          >
+                            {selectedWord !== undefined && editor.selected !== null ? (
+                              <Section title="Word Properties" hint={`Editing word #${editor.selected + 1} in your timeline`}>
+                                <WordInspector
+                                  word={selectedWord}
+                                  index={editor.selected}
+                                  totalWords={editor.words.length}
+                                  onSetText={editor.actions.setText}
+                                  onSetColor={editor.actions.setColor}
+                                  onSetEmphasis={editor.actions.setEmphasis}
+                                  onSetRole={editor.actions.setRole}
+                                  onSplit={editor.actions.splitAt}
+                                  onMerge={editor.actions.mergeAt}
+                                  onClearBreak={editor.actions.clearBreak}
+                                  onDelete={editor.actions.remove}
+                                  onInsertAfter={editor.actions.insertAfter}
+                                />
+                              </Section>
+                            ) : (
+                              <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed bg-card/40 py-12 px-6 text-center text-muted-foreground">
+                                <Edit3 className="size-8 text-muted-foreground/30" />
+                                <p className="font-bold text-foreground text-sm">No Word Selected</p>
+                                <p className="text-xs leading-relaxed max-w-[240px]">
+                                  Click any word on the left script panel or on the bottom audio timeline to alter its spelling, color, timing, and line breaks.
+                                </p>
+                              </div>
+                            )}
+                          </motion.div>
+                        )}
+
+                        {/* TAB 3: EXPORT & RENDER SETTINGS */}
+                        {rightTab === "export" && (
+                          <motion.div
+                            key="export"
+                            initial={{ opacity: 0, x: 10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -10 }}
+                            transition={{ duration: 0.15 }}
+                            className="space-y-6"
+                          >
+                            {state.file !== null && sourceSize !== null ? (
+                              <>
+                                <div className="space-y-3">
+                                  <h3 className="font-bold text-xs tracking-wide text-foreground uppercase flex items-center gap-1.5">
+                                    <Download className="size-3.5 text-brand" />
+                                    <span>Video Export & Quality</span>
+                                  </h3>
+                                  <p className="text-xs text-muted-foreground/80 leading-relaxed">
+                                    Select your preferred render resolution and export directly using local hardware encoding.
+                                  </p>
+                                  <div className="rounded-xl border bg-background/50 p-3">
+                                    <ExportPanel
+                                      resolution={resolution}
+                                      onResolutionChange={setResolution}
+                                      availability={capabilities?.tiers ?? null}
+                                      webcodecsSupported={capabilities?.webcodecs ?? true}
+                                      dimensions={exportDimensions(sourceSize, resolution)}
+                                      sourceHeight={sourceSize.height}
+                                      watermark={!entitlements.watermarkFree}
+                                      maxResolution={entitlements.maxResolution}
+                                      exportState={exportState}
+                                    />
+                                  </div>
+                                </div>
+
+                                <div className="border-t pt-5 border-border/50 space-y-3">
+                                  <h3 className="font-bold text-xs tracking-wide text-foreground uppercase flex items-center gap-1.5">
+                                    <Layers className="size-3.5 text-brand" />
+                                    <span>SubRip (.srt) File</span>
+                                  </h3>
+                                  <p className="text-xs text-muted-foreground/80 leading-relaxed">
+                                    Download standard `.srt` subtitles with exact word-level timing for Premiere Pro, CapCut, or direct social uploading.
+                                  </p>
+                                  <button
+                                    type="button"
+                                    onClick={() => downloadSrt(pages, state.file?.name ?? "captions")}
+                                    className="w-full rounded-xl border border-border bg-background py-2 text-xs font-bold text-foreground shadow-sm transition-all hover:bg-accent hover:border-border-strong"
+                                  >
+                                    Download .srt Subtitle File
+                                  </button>
+                                </div>
+                              </>
+                            ) : (
+                              <p className="text-center text-xs text-muted-foreground py-8">
+                                Video file metadata loading...
+                              </p>
+                            )}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  </div>
+
+                  {/* Bottom Security Reassurance Card */}
+                  <div className="flex items-start gap-2.5 rounded-xl border border-success/30 bg-success/10 p-3.5 text-[11px] leading-relaxed text-foreground shadow-sm">
+                    <ShieldCheck className="mt-0.5 size-4 shrink-0 text-success font-bold" />
+                    <div>
+                      <strong className="font-bold">100% Private & Secure:</strong> Your video remained in this browser. Only{" "}
+                      <span className="font-mono font-semibold">{(state.audioBytes / 1024).toFixed(0)}KB</span> of extracted audio was sent for transcription.
+                    </div>
+                  </div>
                 </>
               )}
             </SortableRail>

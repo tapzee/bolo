@@ -70,7 +70,7 @@ export function Dropzone({
         onDragOver={(event) => event.preventDefault()}
         onDrop={handleDrop}
         className={cn(
-          "group relative flex flex-col items-center justify-center gap-5 rounded-3xl border-2 border-dashed px-8 py-16 text-center",
+          "group relative flex flex-col items-center justify-center gap-4 sm:gap-5 rounded-3xl border-2 border-dashed px-4 py-8 sm:px-8 sm:py-14 text-center",
           "outline-none focus-visible:ring-2 focus-visible:ring-ring",
           // Only transform and opacity animate here — animating the border or
           // background on a full-width panel repaints it on every pointer move.
