@@ -1,21 +1,17 @@
 "use client";
 
 import { memo } from "react";
-import dynamic from "next/dynamic";
 import { motion } from "motion/react";
 import type { CaptionStyleConfig, CaptionTemplate } from "@/core";
+import { BOX_RADIUS_RATIO, GLOW_RADII } from "@/core";
+import { FONT_FAMILY } from "@/remotion/fonts";
 import { cn } from "@/lib/utils";
 
-const TemplatePreviewPlayer = dynamic(
-  () => import("./TemplatePreviewPlayer"),
-  { ssr: false }
-);
-
 /**
- * Static preview of a template with rich badges, active checkmarks, and kinetic previews.
+ * Static preview of a template with rich badges, active checkmarks, and instant pure DOM typography.
  *
  * Renders real Devanagari next to real Latin in the template's own font,
- * weight, casing and colours — proving contrast and font fallback capabilities.
+ * weight, casing and colours — matching the visual signature shown in the studio template picker.
  */
 export const TemplateCard = memo(function TemplateCard({
   template,
@@ -28,6 +24,31 @@ export const TemplateCard = memo(function TemplateCard({
   selected: boolean;
   onSelect: () => void;
 }) {
+  const previewSize = Math.max(14, Math.min(22, config.fontSizePx * 0.22));
+  const isBox = template.engine === "box";
+  const isGlow = template.engine === "glow";
+  const isSplash = template.engine === "splash";
+  const isDual = template.engine === "dual";
+  const isHero = template.engine === "hero" || template.engine === "heroMixed";
+  const isStack = template.engine === "stack";
+  const isFocus = template.engine === "focus";
+  const isBigGrand = template.engine === "bigGrand";
+  const isDesignWalla = template.engine === "designWalla";
+  const isDesignWallaEditorial =
+    template.engine === "designWallaEditorial" ||
+    template.engine === "designWallaEditorialYellow";
+  const isDesignWallaPro =
+    template.engine.startsWith("designWallaPro");
+  const isDualLine = template.engine === "dualLine";
+  const isPopWord = template.engine === "popWord" || template.engine === "pop";
+  const isGrandCaption = template.engine === "grandCaption";
+  const isDynamicHighlight = template.engine === "dynamicHighlight";
+
+  const previewStroke =
+    config.strokeWidthPx > 0
+      ? `${Math.max(1, previewSize * 0.085)}px ${config.strokeColor}`
+      : undefined;
+
   return (
     <motion.button
       type="button"
@@ -86,14 +107,361 @@ export const TemplateCard = memo(function TemplateCard({
       ) : null}
 
       <div
-        className="flex h-[94px] items-center justify-center relative overflow-hidden"
+        className="flex h-[94px] items-center justify-center px-3 relative overflow-hidden"
         style={{
           background:
             "radial-gradient(circle at center, #2e3440 0%, #171a21 70%, #111317 100%)",
         }}
       >
-        <div className="absolute inset-0 flex items-center justify-center z-0">
-          <TemplatePreviewPlayer config={config} staticThumbnail={true} />
+        <div className="absolute inset-0 flex items-center justify-center px-3 z-0">
+          {isFocus ? (
+            /* Focus: Dimmed line, one spoken word bright, one italic serif accent */
+            <div className="flex items-baseline gap-1.5 whitespace-nowrap">
+              <span
+                style={{
+                  fontFamily: FONT_FAMILY[config.fontId],
+                  fontWeight: config.fontWeight,
+                  fontSize: previewSize,
+                  letterSpacing: config.letterSpacingPx * 0.15,
+                  color: config.baseColor,
+                  opacity: 0.5,
+                  textShadow: "0 2px 8px rgba(0,0,0,0.6)",
+                }}
+              >
+                बोलो
+              </span>
+              <span
+                style={{
+                  fontFamily: FONT_FAMILY[config.fontId],
+                  fontWeight: config.fontWeight,
+                  fontSize: previewSize,
+                  letterSpacing: config.letterSpacingPx * 0.15,
+                  color: config.baseColor,
+                  textShadow: "0 3px 12px rgba(0,0,0,0.7)",
+                }}
+              >
+                Bolo
+              </span>
+              <span
+                style={{
+                  fontFamily: FONT_FAMILY[config.specialFontId ?? "playfair"],
+                  fontStyle: "italic",
+                  fontWeight: 600,
+                  fontSize: previewSize,
+                  color: config.accentColor || "#FFE600",
+                  textShadow: "0 3px 12px rgba(0,0,0,0.7)",
+                }}
+              >
+                premium
+              </span>
+            </div>
+          ) : isStack ? (
+            /* Stack: Three rows, bold headline anchor, italic serif accent */
+            <div className="flex w-full flex-col items-center justify-center leading-none">
+              <div className="flex flex-col items-center" style={{ gap: previewSize * 0.08 }}>
+                <span
+                  style={{
+                    alignSelf: "flex-start",
+                    fontFamily: FONT_FAMILY[config.secondaryFontId ?? "inter"],
+                    fontWeight: 600,
+                    fontSize: previewSize * 0.45,
+                    color: config.baseColor,
+                    textShadow: "0 2px 8px rgba(0,0,0,0.6)",
+                  }}
+                >
+                  बोलो
+                </span>
+                <span
+                  style={{
+                    fontFamily: FONT_FAMILY[config.fontId],
+                    fontWeight: config.fontWeight,
+                    fontSize: previewSize * 1.15,
+                    letterSpacing: config.letterSpacingPx * 0.15,
+                    textTransform: "uppercase",
+                    color: config.accentColor || "#FFE600",
+                    textShadow: "0 4px 16px rgba(0,0,0,0.7)",
+                  }}
+                >
+                  BOLO
+                </span>
+                <span
+                  style={{
+                    alignSelf: "flex-end",
+                    fontFamily: FONT_FAMILY[config.specialFontId ?? "playfair"],
+                    fontStyle: "italic",
+                    fontWeight: 500,
+                    fontSize: previewSize * 0.55,
+                    color: config.baseColor,
+                    textShadow: "0 2px 8px rgba(0,0,0,0.6)",
+                  }}
+                >
+                  bolo
+                </span>
+              </div>
+            </div>
+          ) : isBigGrand ? (
+            /* Big Grand: 3-tier bold cyan glow typography */
+            <div className="flex flex-col items-center justify-center leading-tight gap-0.5">
+              <span
+                style={{
+                  fontFamily: FONT_FAMILY[config.fontId || "montserrat"],
+                  fontWeight: 800,
+                  fontSize: previewSize * 0.55,
+                  color: "#FFFFFF",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.04em",
+                  textShadow: "0 2px 8px rgba(0,0,0,0.7)",
+                }}
+              >
+                बोलो
+              </span>
+              <span
+                style={{
+                  fontFamily: FONT_FAMILY[config.specialFontId || config.fontId || "montserrat"],
+                  fontWeight: 900,
+                  fontSize: previewSize * 1.15,
+                  color: config.accentColor || "#38bdf8",
+                  textTransform: "uppercase",
+                  textShadow: `0 0 12px ${config.accentColor || "#38bdf8"}a0, 0 2px 10px rgba(0,0,0,0.9)`,
+                }}
+              >
+                BOLO
+              </span>
+            </div>
+          ) : isDesignWallaEditorial ? (
+            /* Design Walla Editorial: Yellow punch + Playfair italic serif */
+            <div className="flex flex-col items-center justify-center leading-none">
+              <div className="flex flex-col items-center gap-0.5">
+                <span
+                  style={{
+                    fontFamily: FONT_FAMILY[config.fontId ?? "anton"],
+                    fontWeight: 900,
+                    fontSize: previewSize * 1.05,
+                    textTransform: "uppercase",
+                    color: config.accentColor || "#FFE600",
+                    textShadow: "0 3px 12px rgba(0,0,0,0.8)",
+                  }}
+                >
+                  बोलो
+                </span>
+                <span
+                  style={{
+                    fontFamily: FONT_FAMILY[config.specialFontId ?? "playfair"],
+                    fontStyle: "italic",
+                    fontWeight: 700,
+                    fontSize: previewSize * 0.85,
+                    color: "#FFFFFF",
+                    textShadow: "0 2px 10px rgba(0,0,0,0.8)",
+                  }}
+                >
+                  Bolo
+                </span>
+              </div>
+            </div>
+          ) : isDesignWallaPro ? (
+            /* Design Walla Pro: 3 rows with neon glow accent */
+            <div className="flex flex-col items-center justify-center leading-tight gap-0.5">
+              <span
+                style={{
+                  fontFamily: FONT_FAMILY[config.secondaryFontId ?? "montserrat"],
+                  fontWeight: 700,
+                  fontSize: previewSize * 0.6,
+                  color: config.baseColor || "#FFFFFF",
+                  textShadow: "0 2px 8px rgba(0,0,0,0.7)",
+                }}
+              >
+                बोलो
+              </span>
+              <span
+                style={{
+                  fontFamily: FONT_FAMILY[config.fontId],
+                  fontWeight: 900,
+                  fontSize: previewSize * 1.1,
+                  color: config.accentColor || "#FFE600",
+                  textTransform: "uppercase",
+                  textShadow: `0 0 10px ${config.accentColor || "#FFE600"}80, 0 2px 10px rgba(0,0,0,0.8)`,
+                }}
+              >
+                BOLO
+              </span>
+            </div>
+          ) : isDesignWalla ? (
+            /* Design Walla: Yellow hero sandwich */
+            <div className="flex flex-col items-center justify-center leading-tight">
+              <span
+                style={{
+                  fontFamily: FONT_FAMILY[config.secondaryFontId ?? "montserrat"],
+                  fontWeight: 700,
+                  fontSize: previewSize * 0.6,
+                  color: config.baseColor || "#FFFFFF",
+                  textShadow: "0 2px 8px rgba(0,0,0,0.7)",
+                }}
+              >
+                बोलो
+              </span>
+              <span
+                style={{
+                  fontFamily: FONT_FAMILY[config.fontId],
+                  fontWeight: 900,
+                  fontSize: previewSize * 1.1,
+                  color: config.accentColor || "#FFE600",
+                  textTransform: "uppercase",
+                  textShadow: "0 3px 12px rgba(0,0,0,0.85)",
+                }}
+              >
+                BOLO
+              </span>
+            </div>
+          ) : isDualLine ? (
+            /* Dual Line: Sans-serif header with cursive script overlay */
+            <div className="flex flex-col items-center justify-center leading-none">
+              <span
+                style={{
+                  fontFamily: FONT_FAMILY[config.fontId ?? "anton"],
+                  fontWeight: Math.max(800, config.fontWeight),
+                  fontSize: previewSize * 1.05,
+                  textTransform: "uppercase",
+                  color: config.accentColor ?? "#FF2A2A",
+                  textShadow: `0 0 ${previewSize * 0.15}px ${config.accentColor ?? "#FF2A2A"}cc, 0 2px 6px rgba(0,0,0,0.5)`,
+                  zIndex: 1,
+                  lineHeight: 0.9,
+                }}
+              >
+                बोलो
+              </span>
+              <span
+                style={{
+                  fontFamily: FONT_FAMILY[config.specialFontId ?? config.secondaryFontId ?? "kaushanScript"],
+                  fontStyle: "italic",
+                  fontWeight: 700,
+                  fontSize: previewSize * 1.2,
+                  color: config.baseColor ?? "#FFFFFF",
+                  textShadow: "0 2px 6px rgba(0,0,0,0.6)",
+                  marginTop: `-${previewSize * 0.3}px`,
+                  zIndex: 2,
+                  lineHeight: 0.9,
+                }}
+              >
+                Bolo
+              </span>
+            </div>
+          ) : isSplash ? (
+            /* Splash: Kinetic bounce with Playfair italic */
+            <div className="flex items-baseline gap-1.5 whitespace-nowrap">
+              <span
+                style={{
+                  fontFamily: FONT_FAMILY[config.fontId],
+                  fontWeight: Math.max(800, config.fontWeight),
+                  fontSize: previewSize * 1.1,
+                  textTransform: "uppercase",
+                  color: config.accentColor || "#FFE600",
+                  WebkitTextStroke: `${Math.max(1, previewSize * 0.085)}px ${config.strokeColor}`,
+                  paintOrder: "stroke fill",
+                  textShadow: "0 3px 10px rgba(0,0,0,0.8)",
+                  transform: "rotate(-2deg)",
+                }}
+              >
+                बोलो
+              </span>
+              <span
+                style={{
+                  fontFamily: FONT_FAMILY[config.specialFontId ?? "playfair"],
+                  fontStyle: "italic",
+                  fontWeight: 700,
+                  fontSize: previewSize * 1.05,
+                  color: config.baseColor,
+                  textShadow: "0 2px 8px rgba(0,0,0,0.7)",
+                }}
+              >
+                Bolo
+              </span>
+            </div>
+          ) : isPopWord ? (
+            /* Pop Word: Pill / Vibrant Pop text */
+            <span
+              style={{
+                fontFamily: FONT_FAMILY[config.fontId],
+                fontWeight: 900,
+                fontSize: previewSize * 1.1,
+                color: config.accentColor || "#f97316",
+                textShadow: "0 3px 10px rgba(0,0,0,0.8)",
+                letterSpacing: "0.02em",
+                whiteSpace: "nowrap",
+              }}
+            >
+              बोलो Bolo
+            </span>
+          ) : isGrandCaption ? (
+            /* Grand Caption: Bold stroke typography */
+            <span
+              style={{
+                fontFamily: FONT_FAMILY[config.fontId],
+                fontWeight: 900,
+                fontSize: previewSize * 1.1,
+                color: config.activeColor || "#FFFFFF",
+                WebkitTextStroke: `${Math.max(1, previewSize * 0.1)}px ${config.strokeColor || "#000000"}`,
+                paintOrder: "stroke fill",
+                textShadow: "0 4px 14px rgba(0,0,0,0.9)",
+                letterSpacing: "0.04em",
+                whiteSpace: "nowrap",
+              }}
+            >
+              बोलो Bolo
+            </span>
+          ) : isDynamicHighlight ? (
+            /* Dynamic Highlight: Keyword emphasis */
+            <div className="flex items-center gap-1.5 whitespace-nowrap">
+              <span
+                style={{
+                  fontFamily: FONT_FAMILY[config.fontId],
+                  fontWeight: 600,
+                  fontSize: previewSize * 0.9,
+                  color: config.baseColor || "#FFFFFF",
+                }}
+              >
+                बोलो
+              </span>
+              <span
+                style={{
+                  fontFamily: FONT_FAMILY[config.fontId],
+                  fontWeight: 900,
+                  fontSize: previewSize * 1.15,
+                  color: config.activeColor || "#FFE600",
+                  textShadow: `0 0 10px ${config.activeColor || "#FFE600"}80`,
+                }}
+              >
+                BOLO
+              </span>
+            </div>
+          ) : (
+            /* Standard / Base template typography */
+            <span
+              style={{
+                fontFamily: FONT_FAMILY[config.fontId],
+                fontWeight: config.fontWeight,
+                fontSize: previewSize,
+                letterSpacing: config.letterSpacingPx * 0.15,
+                textTransform: config.uppercase ? "uppercase" : "none",
+                color: config.activeColor || config.baseColor,
+                WebkitTextStroke: previewStroke,
+                paintOrder: "stroke fill",
+                backgroundColor: isBox ? config.accentColor : "transparent",
+                padding: isBox
+                  ? `${previewSize * 0.14}px ${previewSize * 0.3}px`
+                  : 0,
+                borderRadius: isBox ? previewSize * BOX_RADIUS_RATIO : 0,
+                textShadow: isGlow
+                  ? GLOW_RADII.map(
+                      (r) => `0 0 ${previewSize * r * 1.4}px ${config.accentColor}`,
+                    ).join(", ")
+                  : "0 2px 8px rgba(0,0,0,0.7)",
+                whiteSpace: "nowrap",
+                lineHeight: 1.1,
+              }}
+            >
+              बोलो Bolo
+            </span>
+          )}
         </div>
       </div>
 
