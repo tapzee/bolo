@@ -125,10 +125,6 @@ export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
     baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#ff3d00",
     strokeWidthPx: 5, maxWordsPerPage: 2,
   }, "Hot"),
-  t("desi-punch", "Desi Punch", "trending", "pop", {
-    fontId: "montserrat", fontWeight: 900, uppercase: true, fontSizePx: 82,
-    baseColor: "#ffffff", accentColor: "#ff6b00", maxWordsPerPage: 3,
-  }),
   t("split-text-pro", "Split Text", "bold", "splitText", {}, "New"),
   t("paper-cut-pro", "Paper Cut", "highlight", "paperCut", {}, "New"),
   t("ribbon-slide-pro", "Ribbon Slide", "festive", "ribbonSlide", {}, "New"),
@@ -210,65 +206,25 @@ export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
     strokeWidthPx: 5, maxWordsPerPage: 3,
   }, "Popular"),
 
-  t("mumbai-kinetic", "Mumbai Kinetic", "trending", "splash", {
-    fontId: "montserrat", fontWeight: 900, fontSizePx: 84,
-    baseColor: "#ffffff", activeColor: "#ff2d55", accentColor: "#ffd60a",
-    maxWordsPerPage: 3, upcomingOpacity: 0.45,
-  }, "Viral"),
-  t("editorial-vogue", "Editorial Vogue", "trending", "splash", {
-    fontId: "playfair", fontWeight: 700, fontSizePx: 76,
-    baseColor: "#fbf8f3", activeColor: "#d4af37", accentColor: "#d4af37",
-    maxWordsPerPage: 4,
-  }, "New"),
   t("hormozi-splash", "Hormozi Splash", "trending", "splash", {
     fontId: "montserrat", fontWeight: 900, fontSizePx: 84,
     baseColor: "#ffffff", activeColor: "#ffd60a", accentColor: "#ffd60a",
     maxWordsPerPage: 3,
   }, "Trending"),
-  t("reels-kinetic", "Reels Kinetic", "trending", "splash", {
-    fontId: "anton", fontSizePx: 88,
-    baseColor: "#ffffff", activeColor: "#ff2d55", accentColor: "#ff2d55",
-    maxWordsPerPage: 3,
-  }),
   t("mrbeast-hyper", "MrBeast Hyper", "trending", "pop", {
     fontId: "anton", uppercase: true, fontSizePx: 98,
     baseColor: "#ffffff", accentColor: "#ffd60a", strokeWidthPx: 5,
     maxWordsPerPage: 2,
   }, "Popular"),
-  t("editorial-chic", "Editorial Chic", "trending", "splash", {
-    fontId: "playfair", fontWeight: 700, fontSizePx: 74,
-    baseColor: "#fbf8f3", activeColor: "#d4af37", accentColor: "#d4af37",
-    maxWordsPerPage: 4,
-  }),
   t("storyteller", "Storyteller", "trending", "splash", {
     fontId: "caveat", fontWeight: 700, fontSizePx: 82,
     baseColor: "#ffffff", activeColor: "#00e676", accentColor: "#00e676",
     maxWordsPerPage: 4,
   }),
-  t("cyberpunk-neon", "Cyberpunk", "trending", "glow", {
-    fontId: "anton", uppercase: true, fontSizePx: 92,
-    accentColor: "#00e5ff", activeColor: "#ff007f", baseColor: "#e0f7fa",
-  }),
-  t("mumbai-nights", "Mumbai Nights", "trending", "pop", {
-    fontId: "anton", uppercase: true, fontSizePx: 86,
-    baseColor: "#ffffff", accentColor: "#ff2d55", maxWordsPerPage: 3,
-  }),
-  t("reel-gold", "Reel Gold", "trending", "bold-yellow", {
-    fontId: "montserrat", fontWeight: 900, uppercase: true, fontSizePx: 80,
-    baseColor: "#ffffff", activeColor: "#ffd60a",
-  }),
 
   t("viral-mint", "Viral Mint", "trending", "box", {
     fontId: "poppins", fontWeight: 800, fontSizePx: 70,
     accentColor: "#00e5a0", activeColor: "#07131a",
-  }),
-  t("hook-red", "Hook Red", "trending", "box", {
-    fontId: "montserrat", fontWeight: 900, uppercase: true, fontSizePx: 68,
-    accentColor: "#ff1744", activeColor: "#ffffff",
-  }),
-  t("street-cyan", "Street Cyan", "trending", "glow", {
-    fontId: "bebas", uppercase: true, fontSizePx: 94,
-    accentColor: "#00e5ff", baseColor: "#eaf6ff",
   }),
   t("creator-white", "Creator White", "trending", "clean", {
     fontId: "poppins", fontWeight: 700, fontSizePx: 62, upcomingOpacity: 0.4,
