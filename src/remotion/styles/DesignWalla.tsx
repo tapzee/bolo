@@ -12,6 +12,8 @@ import {
   designWallaHeroDirection,
   designWallaHeroIsScript,
   displayText,
+  resolveSecondaryFontSize,
+  resolveSpecialFontSize,
   tokenGlyphStyle,
   tokenShellStyle,
   type TokenViewProps,
@@ -85,8 +87,8 @@ export const DesignWallaToken = memo(function DesignWallaToken({
             fontFamily: config.secondaryFontId
               ? FONT_FAMILY[config.secondaryFontId]
               : textStyle.fontFamily,
-            fontSize: config.fontSizePx * smallRatio,
-            fontWeight: config.annotationWeight > 0 ? config.annotationWeight : 500,
+            fontSize: resolveSecondaryFontSize(config, smallRatio),
+            fontWeight: config.annotationWeight > 0 ? config.annotationWeight : 700,
             color: config.annotationColor || config.baseColor,
             textTransform:
               config.textCase === "upper" || config.uppercase
@@ -95,6 +97,7 @@ export const DesignWallaToken = memo(function DesignWallaToken({
                   ? "lowercase"
                   : "none",
             WebkitTextStroke: "0px transparent",
+            textShadow: "0 2px 10px rgba(0, 0, 0, 0.75)",
           }}
         >
           {text}
@@ -130,7 +133,7 @@ export const DesignWallaToken = memo(function DesignWallaToken({
           fontFamily: isScript
             ? FONT_FAMILY[config.specialFontId ?? "grandHotel"]
             : textStyle.fontFamily,
-          fontSize: config.fontSizePx * (isScript ? 1.05 : 1.15),
+          fontSize: isScript ? resolveSpecialFontSize(config, 1.05) : config.fontSizePx * 1.15,
           fontWeight: isScript ? 400 : Math.max(800, config.fontWeight),
           fontStyle: isScript ? "italic" : "normal",
           color: token.color ?? (isScript ? config.baseColor : config.accentColor),

@@ -217,6 +217,10 @@ export interface CaptionStyleConfig {
   specialFontId?: FontId;
   fontWeight: number;
   fontSizePx: number;
+  /** Secondary / Supporting font size in px. If unset, scales proportionally with primary fontSizePx. */
+  secondaryFontSizePx?: number;
+  /** Third / Accent / Special font size in px. If unset, scales proportionally with primary fontSizePx. */
+  specialFontSizePx?: number;
   /** Space between words, composition px. */
   wordGapPx: number;
   lineHeight: number;

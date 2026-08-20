@@ -731,6 +731,62 @@ export function TemplatesPanel({
 
           <div className="space-y-2.5">
             <div className="flex items-center justify-between">
+              <Label className="font-semibold text-foreground">Primary Font Size</Label>
+              <span className="font-mono text-xs tabular-nums text-muted-foreground">
+                {config.fontSizePx}px
+              </span>
+            </div>
+            <Slider
+              value={[config.fontSizePx]}
+              min={24}
+              max={200}
+              step={2}
+              onValueChange={([v]) => {
+                if (v !== undefined) updateConfig({ fontSizePx: v });
+              }}
+            />
+          </div>
+
+          <div className="space-y-2.5">
+            <div className="flex items-center justify-between">
+              <Label className="font-semibold text-foreground">Secondary Font Size</Label>
+              <span className="font-mono text-xs tabular-nums text-muted-foreground">
+                {config.secondaryFontSizePx || Math.round(config.fontSizePx * (config.annotationSizeRatio > 0 ? config.annotationSizeRatio : 0.6))}px
+                {!config.secondaryFontSizePx ? " (Auto)" : ""}
+              </span>
+            </div>
+            <Slider
+              value={[config.secondaryFontSizePx || Math.round(config.fontSizePx * (config.annotationSizeRatio > 0 ? config.annotationSizeRatio : 0.6))]}
+              min={16}
+              max={180}
+              step={2}
+              onValueChange={([v]) => {
+                if (v !== undefined) updateConfig({ secondaryFontSizePx: v });
+              }}
+            />
+          </div>
+
+          <div className="space-y-2.5">
+            <div className="flex items-center justify-between">
+              <Label className="font-semibold text-foreground">3rd / Accent Font Size</Label>
+              <span className="font-mono text-xs tabular-nums text-muted-foreground">
+                {config.specialFontSizePx || Math.round(config.fontSizePx * 1.15)}px
+                {!config.specialFontSizePx ? " (Auto)" : ""}
+              </span>
+            </div>
+            <Slider
+              value={[config.specialFontSizePx || Math.round(config.fontSizePx * 1.15)]}
+              min={16}
+              max={220}
+              step={2}
+              onValueChange={([v]) => {
+                if (v !== undefined) updateConfig({ specialFontSizePx: v });
+              }}
+            />
+          </div>
+
+          <div className="space-y-2.5">
+            <div className="flex items-center justify-between">
               <Label className="font-semibold text-foreground">Letter Spacing (Tracking)</Label>
               <span className="font-mono text-xs tabular-nums text-muted-foreground">
                 {config.letterSpacingPx > 0 ? `+${config.letterSpacingPx}` : config.letterSpacingPx}px

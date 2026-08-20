@@ -12,6 +12,8 @@ import { REFERENCE_HEIGHT, REFERENCE_WIDTH } from "../video/constants";
  */
 export interface CaptionBoxFitConfig {
   fontSizePx: number;
+  secondaryFontSizePx?: number;
+  specialFontSizePx?: number;
   letterSpacingPx: number;
   wordGapPx: number;
   lineHeight: number;

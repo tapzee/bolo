@@ -870,6 +870,36 @@ export const isDynamicSlideStackHero = (role: WordRole): boolean => role === "cr
 export const dynamicSlideStackFontScale = (role: WordRole): number =>
   role === "critical" ? 1.3 : role === "keyword" ? 0.85 : role === "connector" ? 0.4 : 0.55;
 
+export interface FontSizingConfig {
+  fontSizePx: number;
+  secondaryFontSizePx?: number;
+  specialFontSizePx?: number;
+  annotationSizeRatio?: number;
+}
+
+/** Resolves secondary / supporting font size: uses explicit config.secondaryFontSizePx if defined, else scales fontSizePx by defaultRatio */
+export const resolveSecondaryFontSize = (
+  config: FontSizingConfig,
+  defaultRatio: number = 0.6,
+): number =>
+  config.secondaryFontSizePx && config.secondaryFontSizePx > 0
+    ? config.secondaryFontSizePx
+    : Math.round(
+        config.fontSizePx *
+          (config.annotationSizeRatio && config.annotationSizeRatio > 0
+            ? config.annotationSizeRatio
+            : defaultRatio),
+      );
+
+/** Resolves 3rd / Accent / Special font size: uses explicit config.specialFontSizePx if defined, else scales fontSizePx by defaultRatio */
+export const resolveSpecialFontSize = (
+  config: FontSizingConfig,
+  defaultRatio: number = 1.15,
+): number =>
+  config.specialFontSizePx && config.specialFontSizePx > 0
+    ? config.specialFontSizePx
+    : Math.round(config.fontSizePx * defaultRatio);
+
 /**
  * Alternating slide-in direction per word, hashed from the word's own text
  * plus its index (same pattern as `kineticVariant`) so the DOM preview and
@@ -877,7 +907,7 @@ export const dynamicSlideStackFontScale = (role: WordRole): number =>
  * slides the same way.
  */
 /** Design Walla: supporting-text size, as a fraction of the hero's `fontSizePx`. */
-export const DESIGN_WALLA_SMALL_RATIO = 0.36;
+export const DESIGN_WALLA_SMALL_RATIO = 0.58;
 
 /**
  * Design Walla: which page-level hero treatment this page's single hero word
@@ -927,10 +957,10 @@ export const designWallaProBlueRole = (
 };
 
 export const designWallaProFontScale = (role: DesignWallaProRole): number =>
-  role === "middle" ? 1.15 : 0.60;
+  role === "middle" ? 1.15 : 0.72;
 
 export const designWallaProBlueFontScale = (role: DesignWallaProRole): number =>
-  role === "middle" ? 0.90 : role === "top" ? 0.80 : 0.90;
+  role === "middle" ? 1.05 : role === "top" ? 0.85 : 0.85;
 
 /**
  * Design Walla Pro: Alternates slide-in direction based on pageSeed so the bi-directional layout is consistent on the page.
@@ -969,7 +999,7 @@ export const designWallaEditorialTier = (
 export const designWallaEditorialFontScale = (tier: DesignWallaEditorialTier): number => {
   if (tier === "punch") return 1.30;
   if (tier === "serif") return 1.50;
-  return 0.50;
+  return 0.68;
 };
 
 /**

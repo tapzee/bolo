@@ -1,6 +1,6 @@
 import React from "react";
 import type { TokenViewProps } from "../captions/primitives";
-import { tokenShellStyle } from "../captions/primitives";
+import { tokenShellStyle, resolveSecondaryFontSize, resolveSpecialFontSize } from "../captions/primitives";
 import { FONT_FAMILY } from "../fonts";
 import { CaptionToken, WordEmphasis } from "@/core";
 import {
@@ -129,14 +129,14 @@ export const DynamicHighlightToken: React.FC<TokenViewProps> = ({
 
   if (emphasis === "supporting") {
     fontFamily = secondaryFontStack;
-    fontSize = fontSize * DYNAMIC_HIGHLIGHT_EMPHASIS_SCALE.supporting;
+    fontSize = resolveSecondaryFontSize(config, DYNAMIC_HIGHLIGHT_EMPHASIS_SCALE.supporting);
     color = "rgba(255, 255, 255, 0.75)";
     fontWeight = 400; // light/regular
     textTransform = "lowercase";
   }
   else if (emphasis === "normal") {
     fontFamily = secondaryFontStack;
-    fontSize = fontSize * DYNAMIC_HIGHLIGHT_EMPHASIS_SCALE.normal;
+    fontSize = config.secondaryFontSizePx ? config.secondaryFontSizePx : (fontSize * DYNAMIC_HIGHLIGHT_EMPHASIS_SCALE.normal);
     fontWeight = 600; // semibold
   }
   else if (emphasis === "important") {
@@ -163,7 +163,7 @@ export const DynamicHighlightToken: React.FC<TokenViewProps> = ({
   }
   else if (emphasis === "special") {
     fontFamily = specialFontStack;
-    fontSize = fontSize * DYNAMIC_HIGHLIGHT_EMPHASIS_SCALE.special;
+    fontSize = resolveSpecialFontSize(config, DYNAMIC_HIGHLIGHT_EMPHASIS_SCALE.special);
     color = "#FFFFFF";
     textTransform = "none";
     fontWeight = 400; // editorial/script usually lighter

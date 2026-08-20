@@ -144,7 +144,7 @@ export const DesignWallaEditorialToken = memo(function DesignWallaEditorialToken
               ...textStyle,
               ...tokenGlyphStyle,
               fontFamily: FONT_FAMILY[config.specialFontId ?? "playfair"],
-              fontSize: config.fontSizePx * serifScale,
+              fontSize: config.specialFontSizePx ? config.specialFontSizePx : config.fontSizePx * serifScale,
               fontWeight: 700,
               fontStyle: "italic",
               color: token.color ?? "#ffffff",
@@ -204,7 +204,7 @@ export const DesignWallaEditorialToken = memo(function DesignWallaEditorialToken
             fontFamily: config.secondaryFontId
               ? FONT_FAMILY[config.secondaryFontId]
               : FONT_FAMILY["inter"],
-            fontSize: config.fontSizePx * supportRatio,
+            fontSize: config.secondaryFontSizePx ? config.secondaryFontSizePx : config.fontSizePx * supportRatio,
             fontWeight: config.annotationWeight > 0 ? config.annotationWeight : 700,
             fontStyle: "normal",
             color: config.annotationColor || config.baseColor || "#ffffff",

@@ -6,9 +6,11 @@ import {
   tokenEnter,
   tokenHighlight,
 } from "../captions/animation";
+import { FONT_FAMILY } from "../fonts";
 import {
   HERO_SMALL_RATIO,
   displayText,
+  resolveSecondaryFontSize,
   tokenGlyphStyle,
   tokenShellStyle,
   type TokenViewProps,
@@ -94,8 +96,8 @@ export const HeroStackToken = memo(function HeroStackToken({
           style={{
             ...textStyle,
             ...tokenGlyphStyle,
-            fontFamily: `"Tangerine", cursive`,
-            fontSize: `${config.fontSizePx * displayRatio}px`,
+            fontFamily: config.secondaryFontId ? FONT_FAMILY[config.secondaryFontId] : `"Tangerine", cursive`,
+            fontSize: `${resolveSecondaryFontSize(config, displayRatio)}px`,
             fontWeight: 700,
             letterSpacing: `${config.fontSizePx * displayRatio * 0.02}px`,
             color: config.annotationColor || config.baseColor,

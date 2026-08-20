@@ -6,6 +6,8 @@ import {
   buildGlowShadow,
   displayText,
   getSplashWordRole,
+  resolveSecondaryFontSize,
+  resolveSpecialFontSize,
   tokenGlyphStyle,
   tokenShellStyle,
   type TokenViewProps,
@@ -41,7 +43,7 @@ export const SplashToken = memo(function SplashToken({
 
   // Role-specific styling
   let roleFontFamily = config.secondaryFontId ? FONT_FAMILY[config.secondaryFontId] : textStyle.fontFamily;
-  let roleFontSize = config.fontSizePx;
+  let roleFontSize = resolveSecondaryFontSize(config, 1.0);
   let roleColor = token.color ?? config.baseColor;
   let roleTransform = "uppercase";
   let roleFontStyle = "normal";
@@ -61,7 +63,7 @@ export const SplashToken = memo(function SplashToken({
     }
     roleFontStyle = "italic";
     roleTransform = "none"; // Preserve lowercase / titlecase for natural script flow
-    roleFontSize = config.fontSizePx * 1.05; // Slightly scaled to balance serif optical x-height
+    roleFontSize = resolveSpecialFontSize(config, 1.05); // Slightly scaled to balance serif optical x-height
   }
 
   // Active word animation: energetic bouncy snap & tilt

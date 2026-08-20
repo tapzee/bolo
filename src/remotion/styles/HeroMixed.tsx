@@ -12,6 +12,7 @@ import {
   displayText,
   getHash,
   heroFontStyle,
+  resolveSecondaryFontSize,
   tokenGlyphStyle,
   tokenShellStyle,
   type TokenViewProps,
@@ -180,7 +181,7 @@ export const HeroMixedToken = memo(function HeroMixedToken({
     // annotation words to lowercase), and hashing different casings would
     // desync the wobble between preview and export for the same word.
     const wordHash = getHash(text.toLowerCase());
-    const smallFontPx = config.fontSizePx * smallRatio;
+    const smallFontPx = resolveSecondaryFontSize(config, smallRatio);
     const jitterYPx = ((wordHash % 5) - 2) * smallFontPx * 0.1; // ~-20%..+20% of glyph size
     const jitterRotateDeg = (((wordHash >> 2) % 7) - 3) * 1.4; // ~-4.2deg..+4.2deg
     const jitterScale = 0.9 + (((wordHash >> 5) % 5) / 5) * 0.2; // 0.9x..1.1x
@@ -206,7 +207,7 @@ export const HeroMixedToken = memo(function HeroMixedToken({
           style={{
             ...textStyle,
             ...tokenGlyphStyle,
-            fontSize: `${config.fontSizePx * smallRatio}px`,
+            fontSize: `${smallFontPx}px`,
             fontWeight: config.annotationWeight > 0 ? config.annotationWeight : 500,
             letterSpacing: `${config.fontSizePx * smallRatio * 0.02}px`,
             color: config.annotationColor || "#ececec",

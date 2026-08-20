@@ -62,6 +62,8 @@ import {
   focusFontScale,
   designWallaProBlueFontScale,
   designWallaProFontScale,
+  resolveSecondaryFontSize,
+  resolveSpecialFontSize,
 } from "./primitives";
 
 /**
@@ -122,8 +124,12 @@ export const resolveTokenBoxes = (
       return tokens.map((token, index) => {
         const isHero = index === heroIndex;
         const isTopLine = index < heroIndex;
-        const scale = isHero ? 1.0 : isTopLine ? 0.52 : 0.40;
-        return toBox(token.text, config.fontSizePx * scale);
+        const size = isHero
+          ? (config.specialFontSizePx ? config.specialFontSizePx : config.fontSizePx)
+          : isTopLine
+            ? (config.secondaryFontSizePx ? config.secondaryFontSizePx : config.fontSizePx * 0.52)
+            : (config.secondaryFontSizePx ? config.secondaryFontSizePx * 0.8 : config.fontSizePx * 0.40);
+        return toBox(token.text, size);
       });
     }
 
@@ -135,9 +141,12 @@ export const resolveTokenBoxes = (
       // 1.15x) regardless of which one a page actually lands on at render
       // time — the box-fit estimate only needs to never *underestimate*,
       // per `estimate.ts`'s "wrong-but-safe" rule.
-      return tokens.map((token, index) =>
-        toBox(token.text, config.fontSizePx * (index === heroIndex ? 1.15 : smallRatio)),
-      );
+      return tokens.map((token, index) => {
+        const size = index === heroIndex
+          ? (config.specialFontSizePx ? Math.max(config.specialFontSizePx, config.fontSizePx * 1.15) : config.fontSizePx * 1.15)
+          : resolveSecondaryFontSize(config, smallRatio);
+        return toBox(token.text, size);
+      });
     }
 
     case "designWallaEditorial":
@@ -148,8 +157,12 @@ export const resolveTokenBoxes = (
         const tier = designWallaEditorialTier(index, heroIndex, specialIndex, tokens.length);
         const scale = designWallaEditorialFontScale(tier);
         const supportRatio = config.annotationSizeRatio > 0 ? config.annotationSizeRatio : scale;
-        const finalScale = tier === "support" ? supportRatio : scale;
-        return toBox(token.text, config.fontSizePx * finalScale);
+        const size = tier === "punch"
+          ? config.fontSizePx * scale
+          : tier === "serif"
+            ? resolveSpecialFontSize(config, scale)
+            : resolveSecondaryFontSize(config, supportRatio);
+        return toBox(token.text, size);
       });
     }
 

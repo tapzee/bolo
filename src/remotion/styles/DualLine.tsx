@@ -6,6 +6,7 @@ import {
   tokenShellStyle,
   type TokenViewProps,
   buildGlowShadow,
+  resolveSpecialFontSize,
 } from "../captions/primitives";
 import { FONT_FAMILY } from "../fonts";
 import { hasDevanagari } from "@/core";
@@ -75,7 +76,7 @@ export const DualLineToken = memo(function DualLineToken({
             ...textStyle,
             ...tokenGlyphStyle,
             fontFamily: family,
-            fontSize: `${config.fontSizePx * (isTopLine ? 1 : 1.25)}px`,
+            fontSize: `${isTopLine ? config.fontSizePx : resolveSpecialFontSize(config, 1.25)}px`,
             fontWeight: weight,
             color: color,
             textTransform: transformCase,

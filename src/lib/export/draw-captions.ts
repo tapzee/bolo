@@ -163,6 +163,8 @@ import {
   focusWordOpacity,
   bigGrandRole,
   bigGrandTransform,
+  resolveSecondaryFontSize,
+  resolveSpecialFontSize,
   PREMIUM_HALO,
   premiumStrokePx,
 } from "@/remotion/captions/primitives";
@@ -388,18 +390,20 @@ const layoutLines = (
         } else if (!family.toLowerCase().includes("playfair") && !family.toLowerCase().includes("caveat")) {
           scriptFamily = resolveFontFamily("playfair");
         }
-        fontSize = config.fontSizePx * 1.05;
+        fontSize = resolveSpecialFontSize(config, 1.05);
         ctx.font = canvasFont(config.fontWeight, fontSize, scriptFamily, "italic");
         fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
-      } else if (config.secondaryFontId) {
-        ctx.font = canvasFont(config.fontWeight, fontSize, resolveFontFamily(config.secondaryFontId));
+      } else {
+        fontSize = resolveSecondaryFontSize(config, 1.0);
+        const secFamily = config.secondaryFontId ? resolveFontFamily(config.secondaryFontId) : family;
+        ctx.font = canvasFont(config.fontWeight, fontSize, secFamily);
         fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
       }
     } else if (config.styleId === "dualLine") {
       const splitIndex = Math.ceil(page.tokens.length / 2);
       const isTopLine = index < splitIndex;
       const isScript = !isTopLine && !hasDevanagari(text);
-      fontSize = config.fontSizePx * (isTopLine ? 1 : 1.25);
+      fontSize = isTopLine ? config.fontSizePx : resolveSpecialFontSize(config, 1.25);
       const fam = isTopLine
         ? family
         : isScript
@@ -414,7 +418,7 @@ const layoutLines = (
       // Everything else draws bold, not the thin annotation size — this text
       // is what actually gets read, not a caption for the giant word.
       if (index === heroIndex) return;
-      fontSize = config.fontSizePx * 0.52;
+      fontSize = resolveSecondaryFontSize(config, 0.52);
       ctx.font = canvasFont(800, fontSize, family);
       fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
     } else if ((config.styleId === "hero" || config.styleId === "heroMixed" || config.styleId === "maskReveal") && index !== heroIndex) {
@@ -431,7 +435,7 @@ const layoutLines = (
 
       const fitScale = clusterSize <= 2 ? 1 : clusterSize === 3 ? 0.88 : 0.78;
 
-      fontSize = config.fontSizePx * heroSmallRatio * fitScale;
+      fontSize = resolveSecondaryFontSize(config, heroSmallRatio) * fitScale;
       // Mirrors HeroMixed.tsx: heroMixed's annotation alternates between two
       // condensed sans faces per word; `hero` (HeroStack) keeps the
       // template's own font — this multi-font treatment wasn't asked for
@@ -748,15 +752,15 @@ const layoutLines = (
         config.annotationSizeRatio > 0 ? config.annotationSizeRatio : DESIGN_WALLA_SMALL_RATIO;
 
       if (!isDwHero) {
-        fontSize = config.fontSizePx * smallRatio;
+        fontSize = resolveSecondaryFontSize(config, smallRatio);
         const smallFamily = config.secondaryFontId ? resolveFontFamily(config.secondaryFontId) : family;
         ctx.font = canvasFont(
-          config.annotationWeight > 0 ? config.annotationWeight : 500,
+          config.annotationWeight > 0 ? config.annotationWeight : 700,
           fontSize,
           smallFamily,
         );
       } else if (designWallaHeroIsScript(pageSeed) && !hasDevanagari(text)) {
-        fontSize = config.fontSizePx * 1.05;
+        fontSize = resolveSpecialFontSize(config, 1.05);
         ctx.font = canvasFont(400, fontSize, resolveFontFamily(config.specialFontId ?? "grandHotel"), "italic");
       } else {
         fontSize = config.fontSizePx * 1.15;
@@ -766,17 +770,18 @@ const layoutLines = (
     } else if (config.styleId.startsWith("designWallaEditorial")) {
       const tier = designWallaEditorialTier(index, heroIndex, specialIndex, page.tokens.length);
       const scale = designWallaEditorialFontScale(tier);
-      fontSize = config.fontSizePx * scale;
       if (tier === "punch") {
+        fontSize = config.fontSizePx * scale;
         ctx.font = canvasFont(Math.max(800, config.fontWeight), fontSize, family);
       } else if (tier === "serif") {
+        fontSize = resolveSpecialFontSize(config, scale);
         const serifFamily = resolveFontFamily(config.specialFontId ?? "playfair");
         ctx.font = canvasFont(700, fontSize, serifFamily, "italic");
       } else {
         const supportRatio = config.annotationSizeRatio > 0 ? config.annotationSizeRatio : scale;
-        fontSize = config.fontSizePx * supportRatio;
+        fontSize = resolveSecondaryFontSize(config, supportRatio);
         const supportFamily = resolveFontFamily(config.secondaryFontId ?? "inter");
-        ctx.font = canvasFont(config.annotationWeight > 0 ? config.annotationWeight : 600, fontSize, supportFamily);
+        ctx.font = canvasFont(config.annotationWeight > 0 ? config.annotationWeight : 700, fontSize, supportFamily);
       }
       fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
     } else if (config.styleId.startsWith("designWallaPro")) {
@@ -788,12 +793,13 @@ const layoutLines = (
       if (isBlueOrGreen && role !== "middle" && text.length > 15) {
         fitScale = 15 / text.length;
       }
-      fontSize = config.fontSizePx * scale * fitScale;
       if (role === "middle") {
+        fontSize = (config.specialFontSizePx ? config.specialFontSizePx : config.fontSizePx * scale) * fitScale;
         ctx.font = canvasFont(Math.max(800, config.fontWeight), fontSize, family, "italic");
       } else {
+        fontSize = (config.secondaryFontSizePx ? config.secondaryFontSizePx : config.fontSizePx * scale) * fitScale;
         const smallFamily = config.secondaryFontId ? resolveFontFamily(config.secondaryFontId) : family;
-        ctx.font = canvasFont(config.annotationWeight > 0 ? config.annotationWeight : 500, fontSize, smallFamily);
+        ctx.font = canvasFont(config.annotationWeight > 0 ? config.annotationWeight : 700, fontSize, smallFamily);
       }
       fontToRestore = canvasFont(config.fontWeight, config.fontSizePx, family);
     } else if (config.styleId === "dynamicSlideStack") {
@@ -891,15 +897,16 @@ const layoutLines = (
       let fontFam = resolveFontFamily(fontId);
       
       if (isHero) {
+        sizePx = config.specialFontSizePx ? config.specialFontSizePx : sizePx;
         fontFam = resolveFontFamily(specialFontId);
         ctx.font = canvasFont(900, sizePx, fontFam);
       } else if (isTopLine) {
-        sizePx = sizePx * 0.52;
+        sizePx = config.secondaryFontSizePx ? config.secondaryFontSizePx : sizePx * 0.52;
         ctx.font = canvasFont(800, sizePx, fontFam);
         ctx.letterSpacing = `${sizePx * 0.04}px`;
         letterSpacingToRestore = `${config.letterSpacingPx}px`;
       } else {
-        sizePx = sizePx * 0.40;
+        sizePx = config.secondaryFontSizePx ? config.secondaryFontSizePx * 0.8 : sizePx * 0.40;
         ctx.font = canvasFont(800, sizePx, fontFam);
         ctx.letterSpacing = `${sizePx * 0.18}px`;
         letterSpacingToRestore = `${config.letterSpacingPx}px`;
@@ -3657,8 +3664,8 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
             ctx.globalAlpha = entrance * enter;
             const smallFamily = config.secondaryFontId ? resolveFontFamily(config.secondaryFontId) : family;
             ctx.font = canvasFont(
-              config.annotationWeight > 0 ? config.annotationWeight : 500,
-              config.fontSizePx * smallRatio,
+              config.annotationWeight > 0 ? config.annotationWeight : 700,
+              resolveSecondaryFontSize(config, smallRatio),
               smallFamily,
             );
             if (blurPx > 0.3) ctx.filter = `blur(${blurPx}px)`;
@@ -3677,7 +3684,9 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           const color = token.color ?? (isDwScript ? config.baseColor : config.accentColor);
           const heroFamily = isDwScript ? resolveFontFamily(config.specialFontId ?? "grandHotel") : family;
           const heroWeight = isDwScript ? 400 : Math.max(800, config.fontWeight);
-          const heroSize = config.fontSizePx * (isDwScript ? 1.05 : 1.15);
+          const heroSize = isDwScript
+            ? resolveSpecialFontSize(config, 1.05)
+            : config.fontSizePx * 1.15;
 
           ctx.font = canvasFont(heroWeight, heroSize, heroFamily, isDwScript ? "italic" : "normal");
           ctx.globalAlpha = entrance * enter;
@@ -3751,7 +3760,7 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
             const travelY = (1 - enter) * 24 * scaleFactor;
             const blurPx = (1 - enter) * 4 * scaleFactor;
 
-            ctx.font = canvasFont(700, config.fontSizePx * serifScale, serifFamily, "italic");
+            ctx.font = canvasFont(700, resolveSpecialFontSize(config, serifScale), serifFamily, "italic");
             ctx.globalAlpha = entrance * enter;
             if (blurPx > 0.3) ctx.filter = `blur(${blurPx}px)`;
             const overlapY = currentRow > 0 ? -18 * scaleFactor : 0;
@@ -3795,7 +3804,7 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
 
           ctx.font = canvasFont(
             config.annotationWeight > 0 ? config.annotationWeight : 700,
-            config.fontSizePx * supportRatio,
+            resolveSecondaryFontSize(config, supportRatio),
             supportFamily,
           );
           const isSharingWithBigWord = page.tokens.some((_, i) => i !== index && designWallaEditorialRow(i, texts) === currentRow);
@@ -3847,7 +3856,9 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
               travel = (1 - enter) * 20 * scaleFactor;
             }
             const scaleFunc = isBlueOrGreen ? designWallaProBlueFontScale : designWallaProFontScale;
-            const heroSize = config.fontSizePx * scaleFunc(role) * (isSerif ? 1.2 : 1);
+            const heroSize = isSerif
+              ? (config.specialFontSizePx ? config.specialFontSizePx : config.fontSizePx * scaleFunc(role) * 1.2)
+              : (config.fontSizePx * scaleFunc(role));
             const heroFamily = isSerif ? resolveFontFamily(config.specialFontId ?? "instrumentSerif") : family;
             const heroWeight = Math.max(800, config.fontWeight);
             const heroStyle = isSerif ? "italic" : "normal";
@@ -3898,11 +3909,11 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
               fitScale = 4 / rowTokensCount;
             }
           }
-          const smallSize = config.fontSizePx * scaleFunc(role) * fitScale;
+          const smallSize = (config.secondaryFontSizePx ? config.secondaryFontSizePx : config.fontSizePx * scaleFunc(role)) * fitScale;
           const smallFamily = config.secondaryFontId ? resolveFontFamily(config.secondaryFontId) : family;
           
           ctx.font = canvasFont(
-            config.annotationWeight > 0 ? config.annotationWeight : 500,
+            config.annotationWeight > 0 ? config.annotationWeight : 700,
             smallSize,
             smallFamily,
           );
@@ -4321,12 +4332,13 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
           let fontFam = resolveFontFamily(fontId);
           
           if (isHero) {
+            sizePx = config.specialFontSizePx ? config.specialFontSizePx : sizePx;
             fontFam = resolveFontFamily(specialFontId);
           } else if (isTopLine) {
-            sizePx = sizePx * 0.52;
+            sizePx = config.secondaryFontSizePx ? config.secondaryFontSizePx : sizePx * 0.52;
             if (!isDeva) ctx.letterSpacing = `${sizePx * 0.04}px`;
           } else {
-            sizePx = sizePx * 0.40;
+            sizePx = config.secondaryFontSizePx ? config.secondaryFontSizePx * 0.8 : sizePx * 0.40;
             if (!isDeva) ctx.letterSpacing = `${sizePx * 0.18}px`;
           }
 

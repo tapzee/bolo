@@ -345,28 +345,37 @@ export function TextPanel({
         </Row>
 
         <SliderRow
-          label="Caption size"
+          label="Primary font size"
           value={config.fontSizePx}
           min={24}
-          max={180}
+          max={200}
           step={2}
           suffix="px"
           onChange={(v) => patch({ fontSizePx: v })}
         />
 
         <SliderRow
-          label="Secondary size ratio"
-          value={config.annotationSizeRatio || 0}
-          min={0}
-          max={1.5}
-          step={0.05}
-          suffix={config.annotationSizeRatio ? "x" : " (Auto)"}
-          onChange={(v) => patch({ annotationSizeRatio: v })}
+          label="Secondary font size"
+          value={config.secondaryFontSizePx || Math.round(config.fontSizePx * (config.annotationSizeRatio > 0 ? config.annotationSizeRatio : 0.6))}
+          min={16}
+          max={180}
+          step={2}
+          suffix={config.secondaryFontSizePx ? "px" : "px (Auto)"}
+          onChange={(v) => patch({ secondaryFontSizePx: v })}
+        />
+
+        <SliderRow
+          label="3rd / Accent font size"
+          value={config.specialFontSizePx || Math.round(config.fontSizePx * 1.15)}
+          min={16}
+          max={220}
+          step={2}
+          suffix={config.specialFontSizePx ? "px" : "px (Auto)"}
+          onChange={(v) => patch({ specialFontSizePx: v })}
         />
 
         <p className="text-[10px] leading-relaxed text-muted-foreground/60">
-          Sizes are relative to a 1080×1920 canvas and scale to your export
-          resolution.
+          Sizes are relative to a 1080×1920 canvas and scale proportionally across all export resolutions.
         </p>
       </Group>
 

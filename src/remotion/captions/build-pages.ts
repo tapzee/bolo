@@ -28,6 +28,8 @@ export interface PageLayoutOptions {
   /** `0` = no explicit row cap — see `CaptionStyleConfig.linesPerPage`. */
   linesPerPage: number;
   fontSizePx: number;
+  secondaryFontSizePx?: number;
+  specialFontSizePx?: number;
   letterSpacingPx: number;
   wordGapPx: number;
   lineHeight: number;

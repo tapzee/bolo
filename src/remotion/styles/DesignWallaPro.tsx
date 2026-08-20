@@ -89,7 +89,9 @@ export const DesignWallaProToken = memo(function DesignWallaProToken({
             fontFamily: isSerif
               ? FONT_FAMILY[config.specialFontId ?? "instrumentSerif"]
               : textStyle.fontFamily,
-            fontSize: config.fontSizePx * finalScale * (isSerif ? 1.2 : 1),
+            fontSize: isSerif
+              ? (config.specialFontSizePx ? config.specialFontSizePx : config.fontSizePx * finalScale * 1.2)
+              : (config.fontSizePx * finalScale),
             fontWeight: Math.max(800, config.fontWeight), // Both are bold now
             fontStyle: isSerif ? "italic" : "normal",
             color: isSerif ? "#ffffff" : (token.color ?? config.accentColor),
@@ -125,8 +127,10 @@ export const DesignWallaProToken = memo(function DesignWallaProToken({
           fontFamily: config.secondaryFontId
             ? FONT_FAMILY[config.secondaryFontId]
             : textStyle.fontFamily,
-          fontSize: config.fontSizePx * finalScale,
-          fontWeight: config.annotationWeight > 0 ? config.annotationWeight : 500,
+          fontSize: config.secondaryFontSizePx
+            ? config.secondaryFontSizePx * fitScale
+            : config.fontSizePx * finalScale,
+          fontWeight: config.annotationWeight > 0 ? config.annotationWeight : 700,
           color: config.annotationColor || config.baseColor,
           textTransform:
             config.textCase === "upper" || config.uppercase
@@ -135,7 +139,7 @@ export const DesignWallaProToken = memo(function DesignWallaProToken({
                 ? "lowercase"
                 : "none",
           WebkitTextStroke: "none",
-          textShadow: "none",
+          textShadow: "0 2px 10px rgba(0, 0, 0, 0.75)",
           whiteSpace: "nowrap",
         }}
       >

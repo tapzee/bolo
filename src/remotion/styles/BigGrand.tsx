@@ -64,7 +64,7 @@ export const BigGrandToken = memo(function BigGrandToken({
 
   if (isHero) {
     // Row 2: Hero word (Massive, Vibrant Solid Cyan with Glowing Aura)
-    sizePx = baseSize;
+    sizePx = config.specialFontSizePx ? config.specialFontSizePx : baseSize;
     family = FONT_FAMILY[specialFontId];
     fontWeight = 900;
     color = heroColor;
@@ -73,13 +73,13 @@ export const BigGrandToken = memo(function BigGrandToken({
       : `0 2px 12px rgba(0, 0, 0, 0.95)`;
   } else if (isTopLine) {
     // Row 1: Top lead-in (Solid White, ExtraBold)
-    sizePx = baseSize * 0.52;
+    sizePx = config.secondaryFontSizePx ? config.secondaryFontSizePx : baseSize * 0.52;
     family = FONT_FAMILY[fontId];
     fontWeight = 800;
     letterSpacing = isDeva ? "normal" : "0.04em";
   } else {
     // Row 3: Bottom punchline (Solid White, Wide Letter Spacing)
-    sizePx = baseSize * 0.40;
+    sizePx = config.secondaryFontSizePx ? config.secondaryFontSizePx * 0.8 : baseSize * 0.40;
     family = FONT_FAMILY[fontId];
     fontWeight = 800;
     letterSpacing = isDeva ? "normal" : "0.18em";
