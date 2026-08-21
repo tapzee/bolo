@@ -75,9 +75,11 @@ export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
   t("focus", "Focus", "premium", "focus", {}, "New"),
   t("stack", "Stack", "premium", "stack", {}, "New"),
   t("pop-word", "Pop Word", "premium", "popWord", {
-    fontId: "inter", fontSizePx: 100, fontWeight: 900,
-    baseColor: "#ffffff", accentColor: "#f97316", textCase: "lower"
-  }, "New"),
+    fontId: "montserrat", fontSizePx: 96, fontWeight: 900,
+    baseColor: "#ffffff", activeColor: "#ff5e00", accentColor: "#ff5e00",
+    letterSpacingPx: -1, lineHeight: 0.92, textCase: "upper",
+    dropShadow: true, glowEnabled: true, maxWordsPerPage: 4,
+  }, "Hot"),
 
   t("design-walla-pro", "Design Walla Pro", "premium", "designWallaPro", {
     fontId: "montserrat", fontSizePx: 95, fontWeight: 900, textCase: "none",
@@ -142,27 +144,9 @@ export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
     maxWordsPerPage: 6
   }, "New"),
 
-  t("design-walla-pro-pink", "Design Walla Pro (Pink)", "premium", "designWallaProPink", {
-    fontId: "montserrat", fontSizePx: 95, fontWeight: 900, textCase: "none",
-    baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#ff1493",
-    strokeWidthPx: 3, dropShadow: true,
-    secondaryFontId: "poppins"
-  }, "Hot", "design-walla"),
-  t("design-walla-pro-blue", "Design Walla Elite (Blue)", "premium", "designWallaProBlue", {
-    fontId: "montserrat", fontSizePx: 95, fontWeight: 900, textCase: "none",
-    baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#00e5ff",
-    strokeWidthPx: 3, dropShadow: true,
-    secondaryFontId: "poppins"
-  }, "Hot", "design-walla"),
   t("design-walla-pro-green", "Design Walla Elite (Green)", "premium", "designWallaProGreen", {
     fontId: "montserrat", fontSizePx: 95, fontWeight: 900, textCase: "none",
     baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#39ff14",
-    strokeWidthPx: 3, dropShadow: true,
-    secondaryFontId: "poppins"
-  }, "Hot", "design-walla"),
-  t("design-walla-pro-orange", "Design Walla Pro (Orange)", "premium", "designWallaProOrange", {
-    fontId: "montserrat", fontSizePx: 95, fontWeight: 900, textCase: "none",
-    baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#ff6f00",
     strokeWidthPx: 3, dropShadow: true,
     secondaryFontId: "poppins"
   }, "Hot", "design-walla"),
@@ -229,135 +213,21 @@ export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
   t("creator-white", "Creator White", "trending", "clean", {
     fontId: "poppins", fontWeight: 700, fontSizePx: 62, upcomingOpacity: 0.4,
   }),
-  t("shorts-lime", "Shorts Lime", "trending", "bold-yellow", {
-    fontId: "anton", uppercase: true, fontSizePx: 88, activeColor: "#c6ff00",
-  }),
 
   // ---- Bold --------------------------------------------------------------
-  t("baba-modern-bold", "Baba Modern", "bold", "splash", {
-    fontId: "montserrat", fontWeight: 900, uppercase: true, fontSizePx: 88,
-    baseColor: "#e0e0e0", activeColor: "#ffffff", accentColor: "#ffffff",
-    strokeWidthPx: 4, dropShadow: true, maxWordsPerPage: 3,
-  }, "New"),
-  t("titan-hyper", "Titan Hyper Snap", "bold", "pop", {
-    fontId: "anton", uppercase: true, fontSizePx: 104,
-    accentColor: "#ffd60a", baseColor: "#ffffff", strokeWidthPx: 5, maxWordsPerPage: 2,
-  }, "Hot"),
   t("bollywood-blockbuster", "Blockbuster", "bold", "bold-yellow", {
     fontId: "montserrat", fontWeight: 900, uppercase: true, fontSizePx: 88,
     activeColor: "#ff9500", strokeWidthPx: 5, letterSpacingPx: -1,
   }, "Popular"),
-  t("titan-gold", "Titan Gold", "bold", "splash", {
-    fontId: "montserrat", fontWeight: 900, fontSizePx: 86,
-    baseColor: "#ffffff", activeColor: "#ffaa00", accentColor: "#ffaa00",
-  }, "Trending"),
   t("anton-white", "Anton White", "bold", "pop", {
     fontId: "anton", uppercase: true, fontSizePx: 92,
     baseColor: "#ffffff", accentColor: "#ffffff", maxWordsPerPage: 3,
   }),
-  t("bollywood-bold", "Bollywood Bold", "bold", "bold-yellow", {
-    fontId: "montserrat", fontWeight: 900, uppercase: true, fontSizePx: 84,
-    activeColor: "#ff9500", letterSpacingPx: -1,
-  }),
-  t("cricket-live", "Cricket Live", "bold", "box", {
-    fontId: "bebas", uppercase: true, fontSizePx: 84,
-    accentColor: "#0057ff", activeColor: "#ffffff", letterSpacingPx: 2,
-  }),
-  t("news-flash", "News Flash", "bold", "box", {
-    fontId: "montserrat", fontWeight: 800, uppercase: true, fontSizePx: 62,
-    accentColor: "#d50000", activeColor: "#ffffff", placement: "bottom",
-  }),
-  t("mega-caps", "Mega Caps", "bold", "pop", {
-    fontId: "bebas", uppercase: true, fontSizePx: 108, letterSpacingPx: 3,
-    accentColor: "#ffd60a", maxWordsPerPage: 2,
-  }),
   t("power-orange", "Power Orange", "bold", "bold-yellow", {
     fontId: "anton", uppercase: true, fontSizePx: 90, activeColor: "#ff5a2c",
   }),
-  t("stadium", "Stadium", "bold", "pop", {
-    fontId: "bebas", uppercase: true, fontSizePx: 100, letterSpacingPx: 4,
-    accentColor: "#00e676", maxWordsPerPage: 2,
-  }),
-  t("impact-pink", "Impact Pink", "bold", "pop", {
-    fontId: "anton", uppercase: true, fontSizePx: 86, accentColor: "#ff4081",
-  }),
-  t("bold-sky", "Bold Sky", "bold", "bold-yellow", {
-    fontId: "montserrat", fontWeight: 900, uppercase: true, fontSizePx: 80,
-    activeColor: "#40c4ff",
-  }),
-  t("heavy-violet", "Heavy Violet", "bold", "pop", {
-    fontId: "montserrat", fontWeight: 900, uppercase: true, fontSizePx: 84,
-    accentColor: "#b388ff",
-  }),
-
-  // ---- Highlight ---------------------------------------------------------
-  t("baba-script-box", "Baba Script Box", "highlight", "box", {
-    fontId: "caveat", fontWeight: 700, fontSizePx: 92,
-    baseColor: "#ffffff", activeColor: "#111111", accentColor: "#ffd60a",
-    strokeWidthPx: 2,
-  }, "Viral"),
-  t("lower-third-cyan", "Cyan Nameplate", "highlight", "box", {
-    fontId: "montserrat", fontWeight: 900, uppercase: true, fontSizePx: 64,
-    accentColor: "#00e5ff", activeColor: "#000000", placement: "bottom", verticalOffsetPct: -5,
-  }, "Popular"),
-  t("lower-third-coral", "Coral Nameplate", "highlight", "box", {
-    fontId: "poppins", fontWeight: 800, fontSizePx: 60,
-    accentColor: "#ff4757", activeColor: "#ffffff", placement: "bottom", verticalOffsetPct: -5,
-  }),
-  t("marker-cyan-box", "Marker Cyan Box", "highlight", "box", {
-    fontId: "poppins", fontWeight: 800, fontSizePx: 72,
-    accentColor: "#00e5ff", activeColor: "#0a0a0b",
-  }, "New", "marker"),
-  t("marker-crimson", "Marker Crimson", "highlight", "box", {
-    fontId: "montserrat", fontWeight: 900, uppercase: true, fontSizePx: 68,
-    accentColor: "#ff0033", activeColor: "#ffffff",
-  }, "Trending", "marker"),
-  t("highlighter-neon", "Highlighter Neon", "highlight", "box", {
-    fontId: "poppins", fontWeight: 800, fontSizePx: 70,
-    accentColor: "#76ff03", activeColor: "#0a0a0b",
-  }, "Popular", "marker"),
-  t("marker-yellow", "Marker Yellow", "highlight", "box", {
-    fontId: "poppins", fontWeight: 800, fontSizePx: 68,
-    accentColor: "#ffd60a", activeColor: "#0a0a0b",
-  }, undefined, "marker"),
-  t("marker-lime", "Marker Lime", "highlight", "box", {
-    fontId: "poppins", fontWeight: 800, fontSizePx: 68,
-    accentColor: "#c6ff00", activeColor: "#0a0a0b",
-  }, undefined, "marker"),
-  t("marker-coral", "Marker Coral", "highlight", "box", {
-    fontId: "poppins", fontWeight: 800, fontSizePx: 68,
-    accentColor: "#ff7043", activeColor: "#ffffff",
-  }, undefined, "marker"),
-  t("marker-ink", "Marker Ink", "highlight", "box", {
-    fontId: "montserrat", fontWeight: 800, fontSizePx: 66,
-    accentColor: "#111318", activeColor: "#ffd60a",
-  }, undefined, "marker"),
-  t("marker-violet", "Marker Violet", "highlight", "box", {
-    fontId: "poppins", fontWeight: 800, fontSizePx: 68,
-    accentColor: "#7c4dff", activeColor: "#ffffff",
-  }, undefined, "marker"),
-  t("marker-teal", "Marker Teal", "highlight", "box", {
-    fontId: "poppins", fontWeight: 700, fontSizePx: 66,
-    accentColor: "#00bfa5", activeColor: "#ffffff",
-  }, undefined, "marker"),
-  t("sticker-caps", "Sticker Caps", "highlight", "box", {
-    fontId: "anton", uppercase: true, fontSizePx: 74,
-    accentColor: "#ffffff", activeColor: "#0a0a0b",
-  }),
-  t("badge-blue", "Badge Blue", "highlight", "box", {
-    fontId: "montserrat", fontWeight: 800, uppercase: true, fontSizePx: 60,
-    accentColor: "#2979ff", activeColor: "#ffffff", placement: "bottom",
-  }),
-  t("tape-black", "Tape Black", "highlight", "box", {
-    fontId: "bebas", uppercase: true, fontSizePx: 80, letterSpacingPx: 2,
-    accentColor: "#0a0a0b", activeColor: "#ffffff",
-  }),
 
   // ---- Neon --------------------------------------------------------------
-  t("rgb-glitch", "RGB Glitch", "neon", "glow", {
-    fontId: "bebas", uppercase: true, fontSizePx: 108, letterSpacingPx: 4,
-    accentColor: "#ff007f", activeColor: "#00e5ff", baseColor: "#ffffff",
-  }, "Trending", "neon-glow"),
   t("gaming-cyber-rgb", "Cyber RGB", "neon", "glow", {
     fontId: "anton", uppercase: true, fontSizePx: 96,
     accentColor: "#ff007f", activeColor: "#00e5ff", baseColor: "#f3e5f5",
@@ -423,264 +293,10 @@ export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
     fontId: "poppins", fontWeight: 500, fontSizePx: 64,
     baseColor: "#ffffff", activeColor: "#ff7043", upcomingOpacity: 0.2,
   }, "New"),
-  t("cinema-gold", "Cinema Gold", "clean", "splash", {
-    fontId: "playfair", fontWeight: 700, fontSizePx: 68,
-    baseColor: "#ffffff", activeColor: "#ffd54f", accentColor: "#ffd54f",
-    maxWordsPerPage: 5,
-  }, "New"),
-  t("podcast-pro-dark", "Podcast Pro", "clean", "box", {
-    fontId: "poppins", fontWeight: 700, fontSizePx: 64,
-    accentColor: "#1a1c23", activeColor: "#00e5ff", placement: "bottom",
-  }, "Trending"),
-  t("luxury-serif", "Luxury Serif", "clean", "splash", {
-    fontId: "playfair", fontWeight: 600, fontSizePx: 64,
-    baseColor: "#ffffff", activeColor: "#e6c687", accentColor: "#e6c687",
-    upcomingOpacity: 0.5, maxWordsPerPage: 5,
-  }),
-  t("podcast", "Podcast", "clean", "clean", {
-    fontId: "poppins", fontWeight: 600, fontSizePx: 58, maxWordsPerPage: 7,
-  }),
-  t("interview", "Interview", "clean", "clean", {
-    fontId: "montserrat", fontWeight: 600, fontSizePx: 56, maxWordsPerPage: 8,
-    upcomingOpacity: 0.35,
-  }),
-  t("documentary", "Documentary", "clean", "clean", {
-    fontId: "poppins", fontWeight: 500, fontSizePx: 54, maxWordsPerPage: 8,
-    placement: "bottom", upcomingOpacity: 1,
-  }),
-  t("course", "Course", "clean", "clean", {
-    fontId: "poppins", fontWeight: 600, fontSizePx: 60, maxWordsPerPage: 6,
-  }),
-  t("minimal-caps", "Minimal Caps", "clean", "clean", {
-    fontId: "montserrat", fontWeight: 700, uppercase: true, fontSizePx: 52,
-    letterSpacingPx: 2, maxWordsPerPage: 6,
-  }),
-  t("brand-safe", "Brand Safe", "clean", "clean", {
-    fontId: "montserrat", fontWeight: 600, fontSizePx: 56, upcomingOpacity: 0.5,
-  }),
   t("subtle-yellow", "Subtle Yellow", "clean", "bold-yellow", {
     fontId: "poppins", fontWeight: 700, fontSizePx: 60, uppercase: false,
     activeColor: "#ffd60a", maxWordsPerPage: 5,
   }),
-  t("devanagari-pro", "Devanagari Pro", "clean", "clean", {
-    fontId: "devanagari", fontWeight: 700, fontSizePx: 60, maxWordsPerPage: 6,
-  }),
-  t("centered", "Centered", "clean", "clean", {
-    fontId: "poppins", fontWeight: 600, fontSizePx: 62, placement: "center",
-    maxWordsPerPage: 5,
-  }),
-  t("top-strip", "Top Strip", "clean", "clean", {
-    fontId: "montserrat", fontWeight: 600, fontSizePx: 54, placement: "top",
-    maxWordsPerPage: 7,
-  }),
-
-  // ---- Festive -----------------------------------------------------------
-  t("diwali-sparkles", "Diwali Sparkles", "festive", "glow", {
-    fontId: "montserrat", fontWeight: 900, uppercase: true, fontSizePx: 86,
-    accentColor: "#ffca28", activeColor: "#fffde7", strokeWidthPx: 4,
-  }, "Popular"),
-  t("holi-vibes-ultra", "Holi Ultra Pop", "festive", "pop", {
-    fontId: "anton", uppercase: true, fontSizePx: 94,
-    accentColor: "#ff007f", activeColor: "#00e5ff",
-  }, "Viral"),
-  t("desi-street", "Desi Street Glow", "festive", "glow", {
-    fontId: "bebas", uppercase: true, fontSizePx: 98,
-    accentColor: "#ff6b00", activeColor: "#ffffff",
-  }, "Hot"),
-  t("diwali-gold", "Diwali Gold", "festive", "glow", {
-    fontId: "montserrat", fontWeight: 900, uppercase: true, fontSizePx: 80,
-    accentColor: "#ffc107", activeColor: "#fff8e1",
-  }),
-  t("holi-splash", "Holi Splash", "festive", "pop", {
-    fontId: "anton", uppercase: true, fontSizePx: 88, accentColor: "#e91e63",
-  }),
-  t("saffron", "Saffron", "festive", "bold-yellow", {
-    fontId: "montserrat", fontWeight: 900, uppercase: true, fontSizePx: 82,
-    activeColor: "#ff9933",
-  }),
-  t("wedding-rose", "Wedding Rose", "festive", "box", {
-    fontId: "poppins", fontWeight: 700, fontSizePx: 66,
-    accentColor: "#f06292", activeColor: "#ffffff",
-  }),
-  t("royal-maroon", "Royal Maroon", "festive", "box", {
-    fontId: "montserrat", fontWeight: 800, fontSizePx: 66,
-    accentColor: "#8e0038", activeColor: "#ffd54f",
-  }),
-  t("temple-gold", "Temple Gold", "festive", "bold-yellow", {
-    fontId: "devanagari", fontWeight: 700, fontSizePx: 72,
-    activeColor: "#ffca28", baseColor: "#fffde7",
-  }),
-  t("navratri", "Navratri", "festive", "pop", {
-    fontId: "poppins", fontWeight: 800, fontSizePx: 76, accentColor: "#ff6f00",
-  }),
-  t("independence", "Independence", "festive", "box", {
-    fontId: "montserrat", fontWeight: 800, uppercase: true, fontSizePx: 64,
-    accentColor: "#138808", activeColor: "#ffffff",
-  }),
-
-  // ---- Gen-Z Dual Layer --------------------------------------------------
-  // Each template: big bold impact word + thin Poppins annotation above it.
-  // annotationColor = the small text color, accentColor = active big word color.
-
-  t("big-sigma", "Big Sigma", "trending", "dual", {
-    fontId: "anton", fontWeight: 400, uppercase: true, fontSizePx: 114,
-    baseColor: "#ffffff", activeColor: "#ffd60a", accentColor: "#ffd60a",
-    strokeWidthPx: 5, letterSpacingPx: 1, maxWordsPerPage: 2,
-    annotationSizeRatio: 0.28, annotationWeight: 300, annotationColor: "#ffffff",
-    upcomingOpacity: 0.25, dropShadow: true,
-  }, "Viral"),
-
-  t("chaos-theory", "Chaos Theory", "trending", "dual", {
-    fontId: "bebas", fontWeight: 400, uppercase: true, fontSizePx: 118,
-    baseColor: "#f0f0f0", activeColor: "#ff007f", accentColor: "#ff007f",
-    strokeWidthPx: 5, letterSpacingPx: 3, maxWordsPerPage: 2,
-    annotationSizeRatio: 0.26, annotationWeight: 200, annotationColor: "#ff007f",
-    upcomingOpacity: 0.2, dropShadow: true,
-  }, "Hot"),
-
-  t("whisper-shout", "Whisper Shout", "bold", "dual", {
-    fontId: "anton", fontWeight: 400, uppercase: true, fontSizePx: 120,
-    baseColor: "#ffffff", activeColor: "#00e5ff", accentColor: "#00e5ff",
-    strokeWidthPx: 6, letterSpacingPx: -1, maxWordsPerPage: 2,
-    annotationSizeRatio: 0.25, annotationWeight: 200, annotationColor: "#b2ebf2",
-    backgroundEnabled: true, backgroundColor: "#000000", backgroundOpacity: 0.5,
-    upcomingOpacity: 0.2,
-  }, "New"),
-
-  t("broke-to-rich", "Broke To Rich", "trending", "dual", {
-    fontId: "bebas", fontWeight: 400, uppercase: true, fontSizePx: 112,
-    baseColor: "#e0e0e0", activeColor: "#c6ff00", accentColor: "#c6ff00",
-    strokeWidthPx: 5, letterSpacingPx: 2, maxWordsPerPage: 2,
-    annotationSizeRatio: 0.28, annotationWeight: 300, annotationColor: "#c6ff00",
-    upcomingOpacity: 0.22, dropShadow: true,
-  }, "Viral"),
-
-  t("creator-mode", "Creator Mode", "trending", "dual", {
-    fontId: "montserrat", fontWeight: 900, uppercase: true, fontSizePx: 104,
-    baseColor: "#ffffff", activeColor: "#00e5ff", accentColor: "#00e5ff",
-    strokeWidthPx: 5, maxWordsPerPage: 3,
-    annotationSizeRatio: 0.30, annotationWeight: 300, annotationColor: "#ffffff",
-    upcomingOpacity: 0.3, dropShadow: true,
-  }, "Popular"),
-
-  t("hindi-drop", "Hindi Drop", "trending", "dual", {
-    fontId: "devanagari", fontWeight: 900, uppercase: false, fontSizePx: 100,
-    baseColor: "#ffffff", activeColor: "#ff9933", accentColor: "#ff9933",
-    strokeWidthPx: 4, maxWordsPerPage: 2,
-    annotationSizeRatio: 0.30, annotationWeight: 300, annotationColor: "#ffe0b2",
-    upcomingOpacity: 0.25, dropShadow: true,
-  }, "Viral"),
-
-  t("villain-arc", "Villain Arc", "bold", "dual", {
-    fontId: "bebas", fontWeight: 400, uppercase: true, fontSizePx: 122,
-    baseColor: "#cccccc", activeColor: "#ff1744", accentColor: "#ff1744",
-    strokeWidthPx: 6, letterSpacingPx: 2, maxWordsPerPage: 2,
-    annotationSizeRatio: 0.24, annotationWeight: 200, annotationColor: "#ff8a80",
-    upcomingOpacity: 0.15, dropShadow: true,
-  }, "Hot"),
-
-  t("soft-launch", "Soft Launch", "clean", "dual", {
-    fontId: "playfair", fontWeight: 700, uppercase: false, fontSizePx: 88,
-    baseColor: "#ffe0e6", activeColor: "#f06292", accentColor: "#f06292",
-    strokeWidthPx: 2, maxWordsPerPage: 3,
-    annotationSizeRatio: 0.32, annotationWeight: 200, annotationColor: "#fce4ec",
-    upcomingOpacity: 0.4, dropShadow: true,
-  }, "New"),
-
-  // ---- Hero Stack --------------------------------------------------------
-  //
-  // The editorial layout: one oversized headline word with the rest of the
-  // line set small above and below it. Every one of these runs on the `hero`
-  // engine, so what separates them is entirely typographic — face, palette,
-  // and the size gap between headline and supporting text.
-  //
-  // `annotationSizeRatio` is the control that matters. Below ~0.28 the
-  // supporting text stops being readable on a phone; above ~0.45 the contrast
-  // collapses and the page reads as two sizes of the same thing rather than a
-  // headline with context. Everything here sits between those.
-
-  t("blockbuster", "Blockbuster", "trending", "hero", {
-    fontId: "anton", fontSizePx: 132, letterSpacingPx: -2,
-    baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#ff1e1e",
-    strokeWidthPx: 6, maxWordsPerPage: 5, upcomingOpacity: 0.5,
-    annotationSizeRatio: 0.30, annotationWeight: 700, annotationColor: "#ffffff",
-    dropShadow: true,
-  }, "New"),
-
-  t("editor-masala", "Editor Masala", "trending", "hero", {
-    fontId: "montserrat", fontWeight: 900, fontSizePx: 120, letterSpacingPx: -1,
-    baseColor: "#ffffff", activeColor: "#ffd60a", accentColor: "#ffd60a",
-    strokeWidthPx: 6, maxWordsPerPage: 5, upcomingOpacity: 0.6,
-    annotationSizeRatio: 0.32, annotationWeight: 600, annotationColor: "#ffffff",
-    dropShadow: true,
-  }, "Hot"),
-
-  t("the-biggest", "The Biggest", "bold", "hero", {
-    fontId: "bebas", fontSizePx: 142, letterSpacingPx: 1,
-    baseColor: "#ffffff", activeColor: "#ffffff", accentColor: "#ffffff",
-    strokeWidthPx: 5, maxWordsPerPage: 6, upcomingOpacity: 0.7,
-    annotationSizeRatio: 0.26, annotationWeight: 500, annotationColor: "#ffffff",
-    dropShadow: true,
-  }, "Popular"),
-
-  t("archives", "Archives", "clean", "hero", {
-    // Playfair carries no Devanagari, so a Hinglish line falls back to Noto for
-    // the Hindi half. That is the intended behaviour, not a defect — the serif
-    // is doing the work on the Latin words where the contrast is visible.
-    fontId: "playfair", fontWeight: 700, fontSizePx: 118, textCase: "none",
-    baseColor: "#fdfaf3", activeColor: "#d4af37", accentColor: "#d4af37",
-    strokeWidthPx: 3, maxWordsPerPage: 5, upcomingOpacity: 0.55,
-    annotationSizeRatio: 0.30, annotationWeight: 400, annotationColor: "#fdfaf3",
-    dropShadow: true,
-  }, "New"),
-
-  t("scribble", "Scribble", "clean", "hero", {
-    fontId: "caveat", fontWeight: 700, fontSizePx: 148, textCase: "none",
-    baseColor: "#ffffff", activeColor: "#ff5c8a", accentColor: "#ff5c8a",
-    strokeWidthPx: 4, maxWordsPerPage: 5, upcomingOpacity: 0.6,
-    annotationSizeRatio: 0.34, annotationWeight: 700, annotationColor: "#ffffff",
-    dropShadow: true,
-  }, "New"),
-
-  t("hero-hindi", "बड़ा बोल", "trending", "hero", {
-    fontId: "devanagari", fontWeight: 900, fontSizePx: 116, textCase: "none",
-    baseColor: "#ffffff", activeColor: "#ff9933", accentColor: "#ff9933",
-    strokeWidthPx: 6, maxWordsPerPage: 5, upcomingOpacity: 0.55,
-    annotationSizeRatio: 0.34, annotationWeight: 700, annotationColor: "#ffffff",
-    dropShadow: true,
-  }, "Viral"),
-
-  t("mint-drop", "Mint Drop", "highlight", "hero", {
-    fontId: "poppins", fontWeight: 800, fontSizePx: 118,
-    baseColor: "#ffffff", activeColor: "#00e5a0", accentColor: "#00e5a0",
-    strokeWidthPx: 5, maxWordsPerPage: 5, upcomingOpacity: 0.55,
-    annotationSizeRatio: 0.32, annotationWeight: 600, annotationColor: "#e8fff7",
-    dropShadow: true,
-  }, "Trending"),
-
-  t("cyber-hero", "Cyber Hero", "neon", "hero", {
-    fontId: "bebas", fontSizePx: 138, letterSpacingPx: 2,
-    baseColor: "#dff9ff", activeColor: "#00e5ff", accentColor: "#00e5ff",
-    strokeWidthPx: 5, maxWordsPerPage: 5, upcomingOpacity: 0.45,
-    annotationSizeRatio: 0.28, annotationWeight: 500, annotationColor: "#dff9ff",
-    dropShadow: true,
-  }, "Hot"),
-
-  t("festival-hero", "त्योहार", "festive", "hero", {
-    fontId: "devanagari", fontWeight: 900, fontSizePx: 114, textCase: "none",
-    baseColor: "#fff8e1", activeColor: "#ffc107", accentColor: "#e91e63",
-    strokeWidthPx: 6, maxWordsPerPage: 5, upcomingOpacity: 0.6,
-    annotationSizeRatio: 0.34, annotationWeight: 700, annotationColor: "#fff8e1",
-    dropShadow: true,
-  }, "Popular"),
-
-  t("noir-hero", "Noir", "bold", "hero", {
-    fontId: "anton", fontSizePx: 130, letterSpacingPx: -1,
-    baseColor: "#e0e0e0", activeColor: "#ffffff", accentColor: "#ffffff",
-    strokeWidthPx: 6, maxWordsPerPage: 5, upcomingOpacity: 0.4,
-    annotationSizeRatio: 0.28, annotationWeight: 500, annotationColor: "#bdbdbd",
-    backgroundEnabled: true, backgroundColor: "#000000", backgroundOpacity: 0.35,
-  }, "New"),
 
   // ---- Dynamic Mix -------------------------------------------------------
   t("dynamic-robot", "Dynamic Robot", "trending", "dynamic", {
@@ -750,9 +366,6 @@ export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
   t("center-punch-classic", "Center Punch", "bold", "centerPunch", {
     fontId: "anton", fontSizePx: 96, baseColor: "#ffffff", accentColor: "#ffd60a",
   }, "New"),
-  t("vertical-impact-classic", "Vertical Impact", "bold", "verticalImpact", {
-    fontId: "bebas", fontSizePx: 72, baseColor: "#ffffff", accentColor: "#ffd60a",
-  }, "New"),
   t("editorial-stack-classic", "Editorial Stack", "clean", "editorialStack", {
     fontId: "bodoniModa", secondaryFontId: "inter", fontSizePx: 84,
     baseColor: "#ffffff", accentColor: "#c83232",
@@ -774,15 +387,10 @@ export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
   // 15 PREMIUM TEMPLATES
   // ==========================================================================
   t("pop-scale-pro", "Pop Scale", "trending", "popScale", {}, "New"),
-  t("slide-in-pro", "Slide In", "trending", "slideIn", {}, "New"),
   t("blur-focus-pro", "Blur Focus", "trending", "blurFocus", {}, "New"),
   t("typewriter-pro", "Typewriter", "clean", "typewriter", {}, "New"),
-  t("rotate-reveal-pro", "Rotate Reveal", "trending", "rotateReveal", {}, "New"),
-  t("wipe-up-pro", "Wipe Up", "bold", "wipeUp", {}, "New"),
   t("stroke-fill-pro", "Stroke Fill", "bold", "strokeFill", {}, "New"),
-  t("bounce-word-pro", "Bounce Word", "highlight", "bounceWord", {}, "New"),
   t("glitch-effect-pro", "Glitch Effect", "neon", "glitch", {}, "New"),
-  t("highlight-word-pro", "Highlight Word", "highlight", "highlightWord", {}, "New"),
   t("zoom-focus-pro", "Zoom Focus", "bold", "zoomFocus", {}, "New"),
   t("gradient-flow-pro", "Gradient Flow", "neon", "gradientFlow", {}, "New"),
   t("mask-reveal-pro", "Mask Reveal", "bold", "maskReveal", {}, "New"),
@@ -799,8 +407,6 @@ export const CAPTION_TEMPLATES: readonly CaptionTemplate[] = [
   t("light-sweep-pro", "Light Sweep", "clean", "lightSweep", {}, "New"),
 
   t("flip-card-pro", "Flip Card", "bold", "flipCard", {}, "New"),
-
-  t("spiral-reveal-pro", "Spiral Reveal", "trending", "spiralReveal", {}, "New"),
   t("floating-bubble-pro", "Floating Bubble", "festive", "floatingBubble", {}, "New"),
 
   // ==========================================================================

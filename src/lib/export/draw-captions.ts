@@ -37,6 +37,7 @@ import {
   maskRevealY,
   glitchBurst,
   focusEnvelope,
+  popWordState,
 } from "@/remotion/captions/animation";
 import {
   HERO_SMALL_RATIO,
@@ -3545,33 +3546,58 @@ export const drawCaptions = (ctx: Ctx, options: DrawCaptionsOptions): void => {
         }
 
         case "popWord": {
-          if (frame < timing.fromFrame) break;
+          const anim = popWordState(timing, token.role ?? "normal");
+          if (anim.opacity <= 0) break;
+
           const role = token.role ?? "normal";
           const isAccent = role === "critical";
           const isAnchor = role === "keyword";
           const isHero = role === "emphasis";
-          
-          const scale = tokenEnter(timing, ENTER_BOUNCY);
-          const opacity = Math.min(1, Math.max(0, (frame - timing.fromFrame) / 6));
-          
-          ctx.scale(scale, scale);
-          ctx.globalAlpha *= opacity;
 
-          const color = (isAccent || isHero) ? config.accentColor : config.baseColor;
-          const text = applyTextCase(token.text, (roleCaseTransform(role, config) as "none" | "upper" | "lower") ?? config.textCase);
+          if (anim.translateY !== 0) {
+            ctx.translate(0, anim.translateY);
+          }
+          if (anim.rotateDeg !== 0) {
+            ctx.rotate((anim.rotateDeg * Math.PI) / 180);
+          }
+          ctx.scale(anim.scale, anim.scale);
+          ctx.globalAlpha *= anim.opacity;
+
+          const text = applyTextCase(
+            token.text,
+            (roleCaseTransform(role, config) as "none" | "upper" | "lower") ?? config.textCase,
+          );
+
+          const color = (isAccent || isHero || anim.isActive)
+            ? (config.activeColor || config.accentColor || "#ff5e00")
+            : (config.baseColor || "#ffffff");
 
           if (isAnchor) {
-            ctx.lineWidth = 4;
-            ctx.strokeStyle = config.accentColor;
+            const strokeW = Math.max(2, config.strokeWidthPx || 3);
+            ctx.lineWidth = strokeW;
+            ctx.strokeStyle = config.accentColor || "#ff5e00";
+            ctx.lineJoin = "round";
+            ctx.lineCap = "round";
             ctx.strokeText(text, -tokenWidth / 2, 0);
+            if (anim.isActive) {
+              ctx.fillStyle = config.accentColor || "#ff5e00";
+              ctx.fillText(text, -tokenWidth / 2, 0);
+            }
           } else {
+            if (config.strokeWidthPx > 0) {
+              ctx.lineWidth = config.strokeWidthPx;
+              ctx.strokeStyle = config.strokeColor || "#000000";
+              ctx.lineJoin = "round";
+              ctx.lineCap = "round";
+              ctx.strokeText(text, -tokenWidth / 2, 0);
+            }
             ctx.fillStyle = color;
-            if (isHero && config.glowEnabled) {
-              drawGlowPass(ctx, text, -tokenWidth / 2, 0, config, config.accentColor, 1.5);
+            if (isHero || (anim.isActive && config.glowEnabled)) {
+              drawGlowPass(ctx, text, -tokenWidth / 2, 0, config, config.accentColor || "#ff5e00", 1.4);
             }
             ctx.fillText(text, -tokenWidth / 2, 0);
-            ctx.shadowBlur = 0; // reset
           }
+          ctx.shadowBlur = 0;
           break;
         }
 

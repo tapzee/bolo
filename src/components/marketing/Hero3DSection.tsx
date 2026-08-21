@@ -293,7 +293,7 @@ export function Hero3DSection() {
       ref={containerRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="relative min-h-[92vh] w-full overflow-hidden pt-28 sm:pt-36 pb-16 lg:pb-24 transition-colors duration-300"
+      className="relative min-h-[92vh] w-full overflow-hidden pt-12 sm:pt-16 lg:pt-20 pb-16 lg:pb-24 transition-colors duration-300"
       style={{ perspective: "1400px" }}
     >
       {/* Dynamic Background Mesh Gradients (Theme-aware with flowing pulse) */}

@@ -72,41 +72,17 @@ function Wordmark({ size = "default" }: { size?: "default" | "large" }) {
 
 export function MarketingHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isVisible, setIsVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      
-      if (currentScrollY > lastScrollY && currentScrollY > 100) {
-        setIsVisible(false);
-        setMobileMenuOpen(false);
-      } else {
-        setIsVisible(true);
-      }
-      
-      setIsScrolled(currentScrollY > 20);
-      setLastScrollY(currentScrollY);
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [lastScrollY]);
 
   return (
-    <header className={`fixed top-3 sm:top-5 inset-x-0 z-50 px-4 sm:px-6 pointer-events-none transition-transform duration-500 ease-in-out ${isVisible ? "translate-y-0" : "-translate-y-24"}`}>
-      <div className={`pointer-events-auto mx-auto max-w-5xl rounded-full border transition-all duration-500 flex items-center justify-between gap-4 ${
-        isScrolled 
-          ? "border-white/60 dark:border-white/10 bg-card/80 dark:bg-card/85 p-2 px-3 sm:px-5 shadow-[0_16px_36px_-10px_rgba(0,0,0,0.12),0_0_24px_rgba(36,184,108,0.12)] backdrop-blur-2xl" 
-          : "border-transparent bg-transparent p-3 px-3 sm:px-5 shadow-none"
-      }`}>
-        {/* Wordmark Logo */}
-        <Wordmark />
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl transition-all">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        {/* Left: Wordmark Logo */}
+        <div className="flex flex-1 items-center justify-start">
+          <Wordmark />
+        </div>
 
-        {/* Center Desktop Navigation Pills */}
-        <nav className="hidden md:flex items-center gap-1 rounded-full bg-muted/50 p-1 border border-border/40">
+        {/* Center: Desktop Navigation Pills */}
+        <nav className="hidden md:flex items-center gap-1 rounded-full bg-muted/60 dark:bg-muted/40 p-1 border border-border/50 shadow-inner">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.href}
@@ -118,8 +94,8 @@ export function MarketingHeader() {
           ))}
         </nav>
 
-        {/* Right Actions Cluster */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        {/* Right: Actions Cluster */}
+        <div className="flex flex-1 items-center justify-end gap-2.5 sm:gap-3.5">
           <ThemeToggle />
 
           <Link
@@ -150,39 +126,41 @@ export function MarketingHeader() {
         </div>
       </div>
 
-      {/* Floating Mobile Menu Dropdown */}
+      {/* Mobile Menu Dropdown */}
       {mobileMenuOpen && (
-        <div className="pointer-events-auto mx-auto mt-2 max-w-sm rounded-3xl border border-white/60 dark:border-white/10 bg-card/95 p-4 shadow-2xl backdrop-blur-2xl md:hidden animate-in fade-in slide-in-from-top-2 duration-200">
-          <nav className="flex flex-col gap-1.5">
-            {NAV_LINKS.map((link) => (
+        <div className="border-b border-border/60 bg-background/95 backdrop-blur-2xl md:hidden animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6">
+            <nav className="flex flex-col gap-1.5">
+              {NAV_LINKS.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-between rounded-xl px-4 py-2.5 text-sm font-semibold text-foreground hover:bg-muted transition-colors"
+                >
+                  <span>{link.label}</span>
+                  <ChevronRight className="size-4 text-muted-foreground" />
+                </Link>
+              ))}
+              <div className="my-2 h-px bg-border/60" />
               <Link
-                key={link.href}
-                href={link.href}
+                href="/signin"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between rounded-2xl px-4 py-2.5 text-xs font-bold text-foreground hover:bg-muted transition-colors"
+                className="flex items-center justify-between rounded-xl px-4 py-2.5 text-sm font-semibold text-muted-foreground hover:bg-muted hover:text-foreground"
               >
-                <span>{link.label}</span>
-                <ChevronRight className="size-4 text-muted-foreground" />
+                <span>Sign in</span>
+                <ArrowRight className="size-4" />
               </Link>
-            ))}
-            <div className="my-1.5 h-px bg-border/60" />
-            <Link
-              href="/signin"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center justify-between rounded-2xl px-4 py-2.5 text-xs font-semibold text-muted-foreground hover:bg-muted hover:text-foreground"
-            >
-              <span>Sign in</span>
-              <ArrowRight className="size-3.5" />
-            </Link>
-            <Link
-              href="/create"
-              onClick={() => setMobileMenuOpen(false)}
-              className="mt-1 flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-brand via-brand-secondary to-brand py-3 text-xs font-bold text-white shadow-md shadow-brand/25"
-            >
-              <Wand2 className="size-3.5" />
-              <span>Create Captions Free</span>
-            </Link>
-          </nav>
+              <Link
+                href="/create"
+                onClick={() => setMobileMenuOpen(false)}
+                className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand via-brand-secondary to-brand py-3 text-sm font-bold text-white shadow-md shadow-brand/25"
+              >
+                <Wand2 className="size-4" />
+                <span>Create Captions Free</span>
+              </Link>
+            </nav>
+          </div>
         </div>
       )}
     </header>
@@ -290,7 +268,7 @@ export function MarketingFooter() {
 
 export function MarketingPage({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-dvh bg-background text-foreground selection:bg-brand selection:text-white pt-16 sm:pt-20">
+    <div className="min-h-dvh bg-background text-foreground selection:bg-brand selection:text-white">
       <MarketingHeader />
       <main>{children}</main>
       <MarketingFooter />

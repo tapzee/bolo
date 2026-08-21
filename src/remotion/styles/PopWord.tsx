@@ -1,6 +1,6 @@
 import { memo } from "react";
 import type { WordRole } from "@/core";
-import { ENTER_BOUNCY, tokenEnter, clamp01 } from "../captions/animation";
+import { popWordState } from "../captions/animation";
 import {
   displayText,
   roleCaseTransform,
@@ -11,11 +11,11 @@ import {
 } from "../captions/primitives";
 
 /**
- * Pop Word — bouncy sequential punch in.
+ * Pop Word — punchy kinetic bounce-in with active glow and role micro-tilts.
  *
- * Words remain invisible until they are spoken, then pop in with a bouncy scale
- * and a quick fade. Styling maps directly to roles: normal (solid), anchor (outline),
- * accent (solid color), hero (solid color + glow).
+ * Words pop in sequentially with an elastic overshoot and subtle upward lift.
+ * The active word illuminates with vibrant accent/glow, while keywords and hero
+ * words feature clean stroke/tilt dynamics with paint-order fill preservation.
  */
 export const PopWordToken = memo(function PopWordToken({
   token,
@@ -27,10 +27,10 @@ export const PopWordToken = memo(function PopWordToken({
   textStyle,
 }: TokenViewProps) {
   const role: WordRole = token.role ?? "normal";
-  const timing = { frame, fps, fromFrame, toFrame };
+  const anim = popWordState({ frame, fps, fromFrame, toFrame }, role);
 
-  // Wait until it's spoken
-  if (frame < fromFrame) {
+  // Hidden before spoken
+  if (anim.opacity <= 0) {
     return (
       <span style={{ ...tokenShellStyle, opacity: 0 }}>
         <span style={{ ...textStyle, ...tokenGlyphStyle }}>
@@ -40,38 +40,35 @@ export const PopWordToken = memo(function PopWordToken({
     );
   }
 
-  // Bouncy scale (equivalent to user's easeOutBack over 400ms)
-  const scale = tokenEnter(timing, ENTER_BOUNCY);
-  
-  // Fade in quickly (equivalent to user's 200ms fade in)
-  const opacity = clamp01((frame - fromFrame) / 6); // 6 frames = 200ms at 30fps
-
   const isAccent = role === "critical";
   const isAnchor = role === "keyword";
   const isHero = role === "emphasis";
 
-  const color = (isAccent || isHero) ? config.accentColor : config.baseColor;
-  
+  const color = (isAccent || isHero || anim.isActive)
+    ? (config.activeColor || config.accentColor || "#ff5e00")
+    : (config.baseColor || "#ffffff");
+
   let webkitTextStroke = textStyle.WebkitTextStroke;
   let fillColor = color;
   let textShadow = textStyle.textShadow;
 
   if (isAnchor) {
-    // Outline style
-    webkitTextStroke = `4px ${config.accentColor}`;
-    fillColor = "transparent";
+    // High-contrast clean outline
+    const strokeWidth = Math.max(2, config.strokeWidthPx || 3);
+    webkitTextStroke = `${strokeWidth}px ${config.accentColor || "#ff5e00"}`;
+    fillColor = anim.isActive ? (config.accentColor || "#ff5e00") : "transparent";
   }
 
-  if (isHero) {
-    textShadow = config.glowEnabled ? (buildGlowShadow(config, config.accentColor, 1.5) || undefined) : undefined;
+  if (isHero || (anim.isActive && config.glowEnabled)) {
+    textShadow = buildGlowShadow(config, config.accentColor || "#ff5e00", 1.4) || textShadow;
   }
 
   return (
     <span
       style={{
         ...tokenShellStyle,
-        opacity,
-        transform: `scale(${scale})`,
+        opacity: anim.opacity,
+        transform: `translateY(${anim.translateY}px) rotate(${anim.rotateDeg}deg) scale(${anim.scale})`,
         transformOrigin: "center center",
       }}
     >
@@ -81,8 +78,11 @@ export const PopWordToken = memo(function PopWordToken({
           ...tokenGlyphStyle,
           color: fillColor,
           WebkitTextStroke: webkitTextStroke,
+          paintOrder: "stroke fill",
           textShadow,
           textTransform: roleCaseTransform(role, config),
+          letterSpacing: `${config.letterSpacingPx ?? -1}px`,
+          lineHeight: config.lineHeight ?? 0.95,
         }}
       >
         {displayText(token)}
@@ -90,3 +90,4 @@ export const PopWordToken = memo(function PopWordToken({
     </span>
   );
 });
+

@@ -250,3 +250,68 @@ export const pageEntrance = (
     fps,
     config: { damping: 24, stiffness: 260, mass: 0.55 },
   });
+
+export interface PopWordState {
+  scale: number;
+  translateY: number;
+  rotateDeg: number;
+  opacity: number;
+  isActive: boolean;
+  isPast: boolean;
+}
+
+/**
+ * Pop Word animation state shared between DOM preview and Canvas2D export.
+ * Features bouncy elastic entrance, active word dynamic scale punch,
+ * and role-based micro-rotations.
+ */
+export const popWordState = (
+  timing: TokenAnimationInput,
+  role = "normal",
+): PopWordState => {
+  const { frame, fps, fromFrame, toFrame } = timing;
+  if (frame < fromFrame) {
+    return {
+      scale: 0,
+      translateY: 16,
+      rotateDeg: 0,
+      opacity: 0,
+      isActive: false,
+      isPast: false,
+    };
+  }
+
+  const elapsed = frame - fromFrame;
+  const enter = spring({
+    frame: elapsed,
+    fps,
+    config: { damping: 11, stiffness: 240, mass: 0.5 },
+  });
+
+  const isActive = frame >= fromFrame && frame <= toFrame;
+  const isPast = frame > toFrame;
+
+  // Active word gets subtle dynamic scale punch (1.08x)
+  const activeBoost = isActive
+    ? 0.08 * clamp01(spring({ frame: elapsed, fps, config: { damping: 14, stiffness: 220, mass: 0.5 } }))
+    : 0;
+
+  const scale = enter + activeBoost;
+  const translateY = (1 - clamp01(enter)) * 16;
+
+  // Subtle tilt for critical/emphasis words
+  const targetTilt = role === "critical" ? -2.5 : role === "emphasis" ? 2.5 : 0;
+  const rotateDeg = targetTilt * (1 - clamp01(elapsed / 10));
+
+  const opacity = clamp01(elapsed / 3) * (isPast ? 0.95 : 1.0);
+
+  return {
+    scale,
+    translateY,
+    rotateDeg,
+    opacity,
+    isActive,
+    isPast,
+  };
+};
+
